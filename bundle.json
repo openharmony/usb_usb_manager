@@ -34,7 +34,7 @@
           "safwk",
           "utils_base",
           "ace_engine",
-          "samgr_standard"
+          "samgr"
 	],
         "third_party": []
       },
