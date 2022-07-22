@@ -21,6 +21,7 @@ config("usbnapi_private_config") {
     "//third_party/jsoncpp/include/json",
     "${usb_manager_path}/interfaces/kits/js/napi/include",
     "${usb_manager_path}/interfaces/innerkits/native/include",
+    "//drivers/peripheral/usb/hal/client/include",
   ]
 }
 
@@ -39,7 +40,6 @@ ohos_shared_library("usb") {
     "//third_party/jsoncpp:jsoncpp",
   ]
   external_deps = [
-    "drivers_interface_usb:usbd_client",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr:lsamgr",

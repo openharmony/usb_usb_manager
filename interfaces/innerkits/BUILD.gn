@@ -17,6 +17,7 @@ config("usbsrv_private_config") {
   include_dirs = [
     "${usb_manager_path}/services/zidl/include",
     "//third_party/jsoncpp/include/json",
+    "//drivers/peripheral/usb/hal/client/include",
   ]
 }
 
@@ -44,7 +45,6 @@ ohos_shared_library("usbsrv_client") {
   deps = [ "//third_party/jsoncpp:jsoncpp" ]
 
   external_deps = [
-    "drivers_interface_usb:usbd_client",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
