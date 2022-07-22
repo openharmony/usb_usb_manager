@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 #include "usb_port_manager.h"
 #include "usb_errors.h"
-#include "usbd_client.h"
 
 namespace OHOS {
 namespace USB {
@@ -24,6 +23,10 @@ const int32_t SUPPORTED_MODES = 3;
 UsbPortManager::UsbPortManager()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::Init start");
+    usbd_ = IUsbInterface::Get();
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::Get inteface failed");
+    }
 }
 
 UsbPortManager::~UsbPortManager()
@@ -81,11 +84,16 @@ int32_t UsbPortManager::QueryPort()
     int32_t powerRole = 0;
     int32_t dataRole = 0;
     int32_t mode = 0;
-    int32_t ret = UsbdClient::GetInstance().QueryPort(portId, powerRole, dataRole, mode);
+
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::usbd_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    int32_t ret = usbd_->QueryPort(portId, powerRole, dataRole, mode);
     USB_HILOGE(MODULE_USB_SERVICE, "portId:%{public}d powerRole:%{public}d dataRole:%{public}d mode:%{public}d ",
                portId, powerRole, dataRole, mode);
     if (ret) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbdClient::GetInstance().queryPorts false");
+        USB_HILOGE(MODULE_USB_SERVICE, "Get().queryPorts failed");
         return ret;
     }
     UsbPortStatus usbPortStatus;

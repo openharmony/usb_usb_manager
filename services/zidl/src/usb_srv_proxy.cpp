@@ -596,7 +596,7 @@ int32_t UsbServerProxy::BulkTransferRead(const UsbDev &dev, const UsbPipe &pipe,
         return ERR_ENOUGH_DATA;
     }
     SetDeviceMessage(data, dev.busNum, dev.devAddr);
-    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.interfaceId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.intfId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, Uint8, pipe.endpointId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, Int32, timeOut, UEC_SERVICE_WRITE_PARCEL_ERROR);
     int32_t ret = remote->SendRequest(static_cast<int32_t>(IUsbSrv::USB_FUN_BULK_TRANSFER_READ), data, reply, option);
@@ -625,7 +625,7 @@ int32_t UsbServerProxy::BulkTransferWrite(const UsbDev &dev, const UsbPipe &pipe
         return ERR_ENOUGH_DATA;
     }
     SetDeviceMessage(data, dev.busNum, dev.devAddr);
-    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.interfaceId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.intfId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, Uint8, pipe.endpointId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, Int32, timeOut, UEC_SERVICE_WRITE_PARCEL_ERROR);
     int32_t ret = SetBufferMessage(data, bufferData);
@@ -794,7 +794,7 @@ int32_t UsbServerProxy::RequestQueue(const UsbDev &dev, const UsbPipe &pipe, con
         return ERR_ENOUGH_DATA;
     }
     SetDeviceMessage(data, dev.busNum, dev.devAddr);
-    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.interfaceId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.intfId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, Uint8, pipe.endpointId, UEC_SERVICE_WRITE_PARCEL_ERROR);
 
     int32_t ret = UsbServerProxy::SetBufferMessage(data, clientData);
@@ -910,7 +910,7 @@ int32_t UsbServerProxy::RegBulkCallback(const UsbDev &dev, const UsbPipe &pipe, 
         return ERR_ENOUGH_DATA;
     }
     SetDeviceMessage(data, dev.busNum, dev.devAddr);
-    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.interfaceId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.intfId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, Uint8, pipe.endpointId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, RemoteObject, cb, UEC_SERVICE_WRITE_PARCEL_ERROR);
     MessageOption option;
@@ -933,7 +933,7 @@ int32_t UsbServerProxy::UnRegBulkCallback(const UsbDev &dev, const UsbPipe &pipe
         return ERR_ENOUGH_DATA;
     }
     SetDeviceMessage(data, dev.busNum, dev.devAddr);
-    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.interfaceId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.intfId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, Uint8, pipe.endpointId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     MessageOption option;
     MessageParcel reply;
@@ -955,7 +955,7 @@ int32_t UsbServerProxy::BulkRead(const UsbDev &dev, const UsbPipe &pipe, sptr<As
         return ERR_ENOUGH_DATA;
     }
     SetDeviceMessage(data, dev.busNum, dev.devAddr);
-    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.interfaceId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.intfId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, Uint8, pipe.endpointId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, Ashmem, ashmem, UEC_SERVICE_WRITE_PARCEL_ERROR);
     MessageOption option;
@@ -978,7 +978,7 @@ int32_t UsbServerProxy::BulkWrite(const UsbDev &dev, const UsbPipe &pipe, sptr<A
         return ERR_ENOUGH_DATA;
     }
     SetDeviceMessage(data, dev.busNum, dev.devAddr);
-    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.interfaceId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.intfId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, Uint8, pipe.endpointId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, Ashmem, ashmem, UEC_SERVICE_WRITE_PARCEL_ERROR);
     MessageOption option;
@@ -1001,7 +1001,7 @@ int32_t UsbServerProxy::BulkCancel(const UsbDev &dev, const UsbPipe &pipe)
         return ERR_ENOUGH_DATA;
     }
     SetDeviceMessage(data, dev.busNum, dev.devAddr);
-    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.interfaceId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.intfId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, Uint8, pipe.endpointId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     MessageOption option;
     MessageParcel reply;

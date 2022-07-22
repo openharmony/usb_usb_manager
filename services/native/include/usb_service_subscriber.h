@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,16 +16,20 @@
 #ifndef USBMGR_USB_SERVICE_SUBSCRIBER_H
 #define USBMGR_USB_SERVICE_SUBSCRIBER_H
 
-#include "usbd_subscriber.h"
+#include "v1_0/iusbd_subscriber.h"
+
+using OHOS::HDI::Usb::V1_0::USBDeviceInfo;
+
+using OHOS::HDI::Usb::V1_0::PortInfo;
 
 namespace OHOS {
 namespace USB {
-class UsbServiceSubscriber : public UsbdSubscriber {
+class UsbServiceSubscriber : public OHOS::HDI::Usb::V1_0::IUsbdSubscriber {
 public:
     UsbServiceSubscriber();
     ~UsbServiceSubscriber() = default;
-    int32_t DeviceEvent(const UsbInfo &info) override;
-    int32_t PortChangedEvent(int32_t portId, int32_t powerRole, int32_t dataRole, int32_t mode) override;
+    int32_t DeviceEvent(const USBDeviceInfo &info) override;
+    int32_t PortChangedEvent(const PortInfo &info) override;
 };
 } // namespace USB
 } // namespace OHOS

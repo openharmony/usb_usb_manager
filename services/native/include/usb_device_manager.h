@@ -22,12 +22,16 @@
 
 #include "usb_common.h"
 #include "usb_srv_support.h"
-#include "usbd_subscriber.h"
+#include "v1_0/iusb_interface.h"
+#include "v1_0/iusbd_subscriber.h"
+
+using OHOS::HDI::Usb::V1_0::IUsbInterface;
 
 namespace OHOS {
 namespace USB {
 class UsbDeviceManager {
 public:
+    UsbDeviceManager();
     static bool AreSettableFunctions(int32_t funcs);
 
     static uint32_t ConvertFromString(std::string_view funcs);
@@ -42,6 +46,7 @@ private:
     static const std::map<std::string_view, uint32_t> FUNCTION_MAPPING_N2C;
     int32_t currentFunctions_ {0};
     bool connected_ {false};
+    sptr<IUsbInterface> usbd_ = nullptr;
 };
 } // namespace USB
 } // namespace OHOS

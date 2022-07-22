@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,9 @@
 #include <vector>
 #include "usb_common.h"
 #include "usb_port.h"
+#include "v1_0/iusb_interface.h"
+
+using OHOS::HDI::Usb::V1_0::IUsbInterface;
 
 namespace OHOS {
 namespace USB {
@@ -42,6 +45,7 @@ public:
 
 private:
     std::map<int32_t, UsbPort> portMap_;
+    sptr<IUsbInterface> usbd_ = nullptr;
 };
 } // namespace USB
 } // namespace OHOS
