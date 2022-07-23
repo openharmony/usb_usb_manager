@@ -16,8 +16,10 @@
 #ifndef USB_DEVICE_PIPE_H
 #define USB_DEVICE_PIPE_H
 
-#include "usb_param.h"
 #include "usb_config.h"
+#include "v1_0/usb_types.h"
+
+using OHOS::HDI::Usb::V1_0::UsbCtrlTransfer;
 
 namespace OHOS {
 namespace USB {

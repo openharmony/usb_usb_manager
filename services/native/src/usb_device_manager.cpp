@@ -19,7 +19,7 @@
 #include "common_event_support.h"
 #include "usb_errors.h"
 #include "usb_srv_support.h"
-#include "usbd_client.h"
+#include "usbd_type.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::EventFwk;
@@ -34,6 +34,15 @@ const std::map<std::string_view, uint32_t> UsbDeviceManager::FUNCTION_MAPPING_N2
     {UsbSrvSupport::FUNCTION_NAME_MTP, UsbSrvSupport::FUNCTION_MTP},
     {UsbSrvSupport::FUNCTION_NAME_PTP, UsbSrvSupport::FUNCTION_PTP},
 };
+
+UsbDeviceManager::UsbDeviceManager()
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceManager::Init start");
+    usbd_ = IUsbInterface::Get();
+        if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::Get inteface failed");
+    }
+}
 
 bool UsbDeviceManager::AreSettableFunctions(int32_t funcs)
 {
@@ -121,10 +130,14 @@ int32_t UsbDeviceManager::GetCurrentFunctions()
 
 void UsbDeviceManager::HandleEvent(int32_t status)
 {
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::usbd_ is nullptr");
+        return;
+    }
     switch (status) {
         case ACT_UPDEVICE: {
             connected_ = true;
-            UsbdClient::GetInstance().GetCurrentFunctions(currentFunctions_);
+            usbd_->GetCurrentFunctions(currentFunctions_);
             break;
         }
         case ACT_DOWNDEVICE: {

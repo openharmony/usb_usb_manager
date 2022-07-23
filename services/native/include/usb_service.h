@@ -29,9 +29,15 @@
 #include "usb_server_event_handler.h"
 #include "usb_server_stub.h"
 #include "usb_service_subscriber.h"
-#include "usbd_client.h"
-#include "usbd_subscriber.h"
+#include "v1_0/iusb_interface.h"
+#include "v1_0/iusbd_subscriber.h"
+#include "v1_0/iusbd_bulk_callback.h"
 #include "usbd_type.h"
+#include "v1_0/usb_types.h"
+
+using OHOS::HDI::Usb::V1_0::IUsbInterface;
+
+using OHOS::HDI::Usb::V1_0::IUsbdBulkCallback;
 
 namespace OHOS {
 namespace USB {
@@ -102,6 +108,8 @@ private:
     bool InitUsbd();
     bool IsCommonEventServiceAbilityExist();
     bool GetBundleName(std::string &bundleName);
+    int32_t FillDevStrings(UsbDevice &dev);
+    std::string GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, uint8_t idx);
     bool ready_ = false;
     int32_t commEventRetryTimes_ = 0;
     std::mutex mutex_;
@@ -112,6 +120,8 @@ private:
     std::shared_ptr<AppExecFwk::EventRunner> eventRunner_;
     std::shared_ptr<UsbServerEventHandler> handler_;
     sptr<UsbServiceSubscriber> usbdSubscriber_;
+    sptr<IUsbdBulkCallback> hdiCb_ = nullptr;
+    sptr<IUsbInterface> usbd_ = nullptr;
 };
 } // namespace USB
 } // namespace OHOS

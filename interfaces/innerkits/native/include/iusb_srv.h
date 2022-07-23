@@ -19,8 +19,16 @@
 #include "iremote_broker.h"
 #include "iremote_object.h"
 #include "usb_device.h"
-#include "usb_param.h"
 #include "usb_port.h"
+#include "v1_0/iusbd_bulk_callback.h"
+#include "v1_0/usb_types.h"
+
+using OHOS::HDI::Usb::V1_0::UsbCtrlTransfer;
+
+using OHOS::HDI::Usb::V1_0::UsbPipe;
+
+using OHOS::HDI::Usb::V1_0::UsbDev;
+
 namespace OHOS {
 namespace USB {
 class IUsbSrv : public IRemoteBroker {

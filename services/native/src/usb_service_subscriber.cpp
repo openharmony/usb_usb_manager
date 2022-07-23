@@ -14,7 +14,6 @@
  */
 
 #include "usb_service_subscriber.h"
-
 #include "common_event_data.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
@@ -33,7 +32,7 @@ namespace OHOS {
 namespace USB {
 UsbServiceSubscriber::UsbServiceSubscriber() {}
 
-int32_t UsbServiceSubscriber::PortChangedEvent(int32_t portId, int32_t powerRole, int32_t dataRole, int32_t mode)
+int32_t UsbServiceSubscriber::PortChangedEvent(const PortInfo &info)
 {
     auto pms = DelayedSpSingleton<UsbService>::GetInstance();
     if (pms == nullptr) {
@@ -42,10 +41,10 @@ int32_t UsbServiceSubscriber::PortChangedEvent(int32_t portId, int32_t powerRole
     }
 
     Json::Value port;
-    port["portId"] = portId;
-    port["powerRole"] = powerRole;
-    port["dataRole"] = dataRole;
-    port["mode"] = mode;
+    port["portId"] = info.portId;
+    port["powerRole"] = info.powerRole;
+    port["dataRole"] = info.dataRole;
+    port["mode"] = info.mode;
 
     Json::StreamWriterBuilder builder;
     builder["indentation"] = "";
@@ -53,7 +52,7 @@ int32_t UsbServiceSubscriber::PortChangedEvent(int32_t portId, int32_t powerRole
 
     Want want;
     want.SetAction(CommonEventSupport::COMMON_EVENT_USB_PORT_CHANGED);
-    pms->UpdateUsbPort(portId, powerRole, dataRole, mode);
+    pms->UpdateUsbPort(info.portId, info.powerRole, info.dataRole, info.mode);
     CommonEventData data;
     data.SetData(jsonString);
     data.SetWant(want);
@@ -66,22 +65,22 @@ int32_t UsbServiceSubscriber::PortChangedEvent(int32_t portId, int32_t powerRole
     return isSuccess;
 }
 
-int32_t UsbServiceSubscriber::DeviceEvent(const UsbInfo &info)
+int32_t UsbServiceSubscriber::DeviceEvent(const USBDeviceInfo &info)
 {
-    int32_t status = info.getDevInfoStatus();
+    int32_t status = info.status;
     auto pms = DelayedSpSingleton<UsbService>::GetInstance();
     if (pms == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "failed to GetInstance");
         return UEC_SERVICE_GET_USB_SERVICE_FAILED;
     }
 
-    if ((ACT_UPDEVICE == status) || (ACT_DOWNDEVICE == status)) {
+    if (status == ACT_UPDEVICE || status == ACT_DOWNDEVICE) {
         pms->UpdateDeviceState(status);
         return UEC_OK;
     }
 
-    int32_t busNum = info.getDevInfoBusNum();
-    int32_t devAddr = info.getDevInfoDevNum();
+    int32_t busNum = info.busNum;
+    int32_t devAddr = info.devNum;
     if (status == ACT_DEVUP) {
         USB_HILOGI(MODULE_USB_SERVICE, "usb attached");
         pms->AddDevice(busNum, devAddr);

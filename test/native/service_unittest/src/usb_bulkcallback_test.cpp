@@ -37,7 +37,7 @@ using namespace OHOS::USB;
 using namespace std;
 
 const int32_t SLEEP_TIME = 3;
-
+const int32_t BUFFER_SIZE = 255;
 const uint32_t ASHMEM_MAX_SIZE = 1024;
 const uint32_t MEM_DATA = 1024 * 1024;
 
@@ -227,7 +227,7 @@ HWTEST_F(UsbBulkcallbackTest, RegBulkCallback003, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::RegBulkCallback003 %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    pipe.SetBusNum(255);
+    pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.RegBulkCallback(pipe, point, cb);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::RegBulkCallback003 %{public}d RegBulkCallback=%{public}d",
                __LINE__, ret);
@@ -277,7 +277,7 @@ HWTEST_F(UsbBulkcallbackTest, RegBulkCallback004, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::RegBulkCallback004 %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    pipe.SetDevAddr(255);
+    pipe.SetDevAddr(BUFFER_SIZE);
     ret = UsbSrvClient.RegBulkCallback(pipe, point, cb);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::RegBulkCallback004 %{public}d RegBulkCallback=%{public}d",
                __LINE__, ret);
@@ -327,7 +327,7 @@ HWTEST_F(UsbBulkcallbackTest, RegBulkCallback005, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::RegBulkCallback005 %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    pipe.SetDevAddr(255);
+    pipe.SetDevAddr(BUFFER_SIZE);
     ret = UsbSrvClient.RegBulkCallback(pipe, point, cb);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::RegBulkCallback005 %{public}d RegBulkCallback=%{public}d",
                __LINE__, ret);
@@ -377,7 +377,7 @@ HWTEST_F(UsbBulkcallbackTest, RegBulkCallback006, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::RegBulkCallback006 %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    pipe.SetBusNum(255);
+    pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.RegBulkCallback(pipe, point, cb);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::RegBulkCallback006 %{public}d RegBulkCallback=%{public}d",
                __LINE__, ret);
@@ -537,7 +537,7 @@ HWTEST_F(UsbBulkcallbackTest, BulkRead003, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::BulkRead003 %{public}d RegBulkCallback=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    pipe.SetBusNum(255);
+    pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.BulkRead(pipe, point, ashmem);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::BulkRead003 %{public}d BulkRead=%{public}d", __LINE__, ret);
     EXPECT_TRUE(ret != 0);
@@ -592,7 +592,7 @@ HWTEST_F(UsbBulkcallbackTest, BulkRead004, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::BulkRead004 %{public}d RegBulkCallback=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    pipe.SetDevAddr(255);
+    pipe.SetDevAddr(BUFFER_SIZE);
     ret = UsbSrvClient.BulkRead(pipe, point, ashmem);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::BulkRead004 %{public}d BulkRead=%{public}d", __LINE__, ret);
     EXPECT_TRUE(ret != 0);
@@ -703,7 +703,7 @@ HWTEST_F(UsbBulkcallbackTest, BulkWrite002, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::BulkWrite002 %{public}d RegBulkCallback=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    pipe.SetBusNum(255);
+    pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.BulkWrite(pipe, point, ashmem);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::BulkWrite002 %{public}d BulkWrite=%{public}d", __LINE__, ret);
     EXPECT_TRUE(ret != 0);
@@ -760,7 +760,7 @@ HWTEST_F(UsbBulkcallbackTest, BulkWrite003, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::BulkWrite003 %{public}d RegBulkCallback=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    pipe.SetDevAddr(255);
+    pipe.SetDevAddr(BUFFER_SIZE);
     ret = UsbSrvClient.BulkWrite(pipe, point, ashmem);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::BulkWrite003 %{public}d BulkWrite=%{public}d", __LINE__, ret);
     EXPECT_TRUE(ret != 0);
@@ -817,7 +817,7 @@ HWTEST_F(UsbBulkcallbackTest, BulkCancel001, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::BulkCancel001 %{public}d UnRegBulkCallback=%{public}d",
                __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    pipe.SetBusNum(255);
+    pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.BulkCancel(pipe, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::BulkCancel001 %{public}d BulkCancel=%{public}d", __LINE__,
                ret);
@@ -874,7 +874,7 @@ HWTEST_F(UsbBulkcallbackTest, BulkCancel002, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::BulkCancel002 %{public}d UnRegBulkCallback=%{public}d",
                __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    pipe.SetDevAddr(255);
+    pipe.SetDevAddr(BUFFER_SIZE);
     ret = UsbSrvClient.BulkCancel(pipe, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::BulkCancel002 %{public}d BulkCancel=%{public}d", __LINE__,
                ret);
@@ -965,7 +965,7 @@ HWTEST_F(UsbBulkcallbackTest, UnRegBulkCallback002, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::UnRegBulkCallback002 %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    pipe.SetBusNum(255);
+    pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.RegBulkCallback(pipe, point, cb);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::UnRegBulkCallback002 %{public}d RegBulkCallback=%{public}d",
                __LINE__, ret);
@@ -1013,7 +1013,7 @@ HWTEST_F(UsbBulkcallbackTest, UnRegBulkCallback003, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::UnRegBulkCallback003 %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    pipe.SetDevAddr(255);
+    pipe.SetDevAddr(BUFFER_SIZE);
     ret = UsbSrvClient.RegBulkCallback(pipe, point, cb);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest::UnRegBulkCallback003 %{public}d RegBulkCallback=%{public}d",
                __LINE__, ret);
