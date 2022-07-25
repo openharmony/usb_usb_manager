@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import("//base/usb/usb_manager/usbmgr.gni")
-import("//drivers/peripheral/usb/usb.gni")
 
 config("usbsrv_private_config") {
   include_dirs = [
@@ -24,7 +23,6 @@ config("usbsrv_private_config") {
 config("usbsrv_public_config") {
   include_dirs = [
     "native/include",
-    "${usb_driver_path}/hdi_service/include",
     "${usb_manager_path}/utils/native/include",
   ]
 }
