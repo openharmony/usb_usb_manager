@@ -29,10 +29,10 @@ ohos_executable("usb_function_port_test") {
     "//third_party/jsoncpp:jsoncpp",
   ]
   external_deps = [
+    "c_utils:utils",
     "drivers_interface_usb:libusb_proxy_1.0",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
   install_enable = false
   subsystem_name = "usb"

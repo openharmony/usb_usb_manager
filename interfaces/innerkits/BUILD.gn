@@ -47,13 +47,13 @@ ohos_shared_library("usbsrv_client") {
   deps = [ "//third_party/jsoncpp:jsoncpp" ]
 
   external_deps = [
+    "c_utils:utils",
     "drivers_interface_usb:libusb_proxy_1.0",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
   ]
 
   part_name = "usb_manager"
