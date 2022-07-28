@@ -32,7 +32,7 @@
           "drivers_interface_usb",
           "ipc",
           "safwk",
-          "utils_base",
+          "c_utils",
           "ace_engine",
           "samgr"
 	],

@@ -15,7 +15,7 @@ import("//base/usb/usb_manager/usbmgr.gni")
 import("//build/test.gni")
 
 config("usbsrv_private_config") {
-  include_dirs = []
+  include_dirs = [ "//third_party/jsoncpp/include/json" ]
 }
 
 ohos_executable("usb_function_port_test") {
@@ -24,12 +24,15 @@ ohos_executable("usb_function_port_test") {
     "${utils_path}:utils_config",
     ":usbsrv_private_config",
   ]
-  deps = [ "${usb_manager_path}/interfaces/innerkits:usbsrv_client" ]
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
   external_deps = [
-    "drivers_interface_usb:usbd_client",
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
   install_enable = false
   subsystem_name = "usb"

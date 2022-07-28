@@ -26,12 +26,14 @@
 #include "system_ability_definition.h"
 #include "usb_common.h"
 #include "usb_device_pipe.h"
-#include "usb_param.h"
 #include "usb_request.h"
 #include "usb_service.h"
 #include "usb_srv_client.h"
+#include "v1_0/usb_types.h"
 
 const int32_t SLEEP_TIME = 3;
+const int32_t Tag_Size = 50;
+const int32_t BUFFER_SIZE = 255;
 
 using namespace testing::ext;
 using namespace OHOS::USB;
@@ -93,7 +95,7 @@ HWTEST_F(UsbRequestTest, UsbRequestInitialize001, TestSize.Level1)
                __LINE__, ret);
     EXPECT_TRUE(ret == 0);
     UsbRequest request;
-    uint8_t tag[50] = "request read";
+    uint8_t tag[Tag_Size] = "request read";
     std::vector<uint8_t> cdata = {tag, tag + 12};
     request.SetClientData(cdata);
     ret = request.Initialize(pip, point);
@@ -136,10 +138,10 @@ HWTEST_F(UsbRequestTest, UsbRequestInitialize002, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbRequestInitialize002 %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "request write";
+    uint8_t tag[Tag_Size] = "request write";
     std::vector<uint8_t> cdata = {tag, tag + 13};
     request.SetClientData(cdata);
-    uint8_t buffer[255] = "usb request test!";
+    uint8_t buffer[BUFFER_SIZE] = "usb request test!";
     std::vector<uint8_t> bufferdata = {buffer, buffer + 17};
     request.SetReqData(bufferdata);
     ret = request.Initialize(pip, point);
@@ -181,10 +183,10 @@ HWTEST_F(UsbRequestTest, UsbRequestInitialize003, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbRequestInitialize003 %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "request read";
+    uint8_t tag[Tag_Size] = "request read";
     std::vector<uint8_t> cdata = {tag, tag + 12};
     request.SetClientData(cdata);
-    pip.SetBusNum(255);
+    pip.SetBusNum(BUFFER_SIZE);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:UsbRequestInitialize003 %{public}d ret=%{public}d ", __LINE__, ret);
     EXPECT_TRUE(ret != 0);
@@ -224,10 +226,10 @@ HWTEST_F(UsbRequestTest, UsbRequestInitialize004, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbRequestInitialize004 %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "request read";
+    uint8_t tag[Tag_Size] = "request read";
     std::vector<uint8_t> cdata = {tag, tag + 12};
     request.SetClientData(cdata);
-    pip.SetDevAddr(255);
+    pip.SetDevAddr(BUFFER_SIZE);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:UsbRequestInitialize004 %{public}d ret=%{public}d ", __LINE__, ret);
     EXPECT_TRUE(ret != 0);
@@ -267,13 +269,13 @@ HWTEST_F(UsbRequestTest, UsbRequestInitialize005, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbRequestInitialize005 %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "request write";
+    uint8_t tag[Tag_Size] = "request write";
     std::vector<uint8_t> cdata = {tag, tag + 13};
     request.SetClientData(cdata);
-    uint8_t buffer[255] = "usb request test!";
+    uint8_t buffer[BUFFER_SIZE] = "usb request test!";
     std::vector<uint8_t> bufferdata = {buffer, buffer + 17};
     request.SetReqData(bufferdata);
-    pip.SetBusNum(255);
+    pip.SetBusNum(BUFFER_SIZE);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:UsbRequestInitialize005 %{public}d ret=%{public}d ", __LINE__, ret);
     EXPECT_TRUE(ret != 0);
@@ -313,13 +315,13 @@ HWTEST_F(UsbRequestTest, UsbRequestInitialize006, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbRequestInitialize006 %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "request write";
+    uint8_t tag[Tag_Size] = "request write";
     std::vector<uint8_t> cdata = {tag, tag + 13};
     request.SetClientData(cdata);
-    uint8_t buffer[255] = "usb request test!";
+    uint8_t buffer[BUFFER_SIZE] = "usb request test!";
     std::vector<uint8_t> bufferdata = {buffer, buffer + 17};
     request.SetReqData(bufferdata);
-    pip.SetDevAddr(255);
+    pip.SetDevAddr(BUFFER_SIZE);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:UsbRequestInitialize006 %{public}d ret=%{public}d ", __LINE__, ret);
     EXPECT_TRUE(ret != 0);
@@ -360,9 +362,12 @@ HWTEST_F(UsbRequestTest, UsbrequestQueue001, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbrequestQueue001 %{public}d ClaimInterface=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t buffer[255] = "request queue read001";
+    uint8_t buffer[BUFFER_SIZE] = "request queue read001";
     std::vector<uint8_t> cdata = {buffer, buffer + 21};
     request.SetClientData(cdata);
+    uint8_t buffer1[BUFFER_SIZE] = {0};
+    std::vector<uint8_t> bufferdata = {buffer1, buffer1 + 17};
+    request.SetReqData(bufferdata);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbrequestQueue001 %{public}d initialize=%{public}d ", __LINE__,
                ret);
@@ -405,10 +410,10 @@ HWTEST_F(UsbRequestTest, UsbrequestQueue002, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbrequestQueue002 %{public}d ClaimInterface=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t buffer[255] = "request queue write 002";
+    uint8_t buffer[BUFFER_SIZE] = "request queue write 002";
     std::vector<uint8_t> cdata = {buffer, buffer + 23};
     request.SetClientData(cdata);
-    uint8_t buffer1[255] = "usb request test!";
+    uint8_t buffer1[BUFFER_SIZE] = "usb request test!";
     std::vector<uint8_t> bufferdata = {buffer1, buffer1 + 17};
     request.SetReqData(bufferdata);
     ret = request.Initialize(pip, point);
@@ -453,14 +458,17 @@ HWTEST_F(UsbRequestTest, UsbrequestQueue003, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbrequestQueue003 %{public}d ClaimInterface=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t buffer[255] = "request queue read003";
+    uint8_t buffer[BUFFER_SIZE] = "request queue read003";
     std::vector<uint8_t> cdata = {buffer, buffer + 21};
     request.SetClientData(cdata);
+    uint8_t buffer1[BUFFER_SIZE] = {0};
+    std::vector<uint8_t> bufferdata = {buffer1, buffer1 + 17};
+    request.SetReqData(bufferdata);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbrequestQueue003 %{public}d initialize=%{public}d ", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    pip.SetBusNum(255);
+    pip.SetBusNum(BUFFER_SIZE);
     request.SetPipe(pip);
     ret = UsbSrvClient.RequestQueue(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbrequestQueue003 %{public}d queue=%{public}d ", __LINE__, ret);
@@ -501,14 +509,17 @@ HWTEST_F(UsbRequestTest, UsbrequestQueue004, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbrequestQueue004 %{public}d ClaimInterface=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t buffer[255] = "request queue read004";
+    uint8_t buffer[BUFFER_SIZE] = "request queue read004";
     std::vector<uint8_t> cdata = {buffer, buffer + 21};
     request.SetClientData(cdata);
+    uint8_t buffer1[BUFFER_SIZE] = {0};
+    std::vector<uint8_t> bufferdata = {buffer1, buffer1 + 17};
+    request.SetReqData(bufferdata);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbrequestQueue004 %{public}d initialize=%{public}d ", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    pip.SetDevAddr(255);
+    pip.SetDevAddr(BUFFER_SIZE);
     request.SetPipe(pip);
     ret = UsbSrvClient.RequestQueue(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbrequestQueue004 %{public}d queue=%{public}d ", __LINE__, ret);
@@ -549,17 +560,17 @@ HWTEST_F(UsbRequestTest, UsbrequestQueue005, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbrequestQueue005 %{public}d ClaimInterface=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t buffer[255] = "request queue write005";
+    uint8_t buffer[BUFFER_SIZE] = "request queue write005";
     std::vector<uint8_t> cdata = {buffer, buffer + 22};
     request.SetClientData(cdata);
-    uint8_t buffer1[255] = "usb request test!";
+    uint8_t buffer1[BUFFER_SIZE] = "usb request test!";
     std::vector<uint8_t> databuffer = {buffer1, buffer1 + 17};
     request.SetReqData(databuffer);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbrequestQueue005 %{public}d initialize=%{public}d ", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    pip.SetBusNum(255);
+    pip.SetBusNum(BUFFER_SIZE);
     request.SetPipe(pip);
     ret = UsbSrvClient.RequestQueue(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbrequestQueue005 %{public}d queue=%{public}d ", __LINE__, ret);
@@ -600,17 +611,17 @@ HWTEST_F(UsbRequestTest, UsbrequestQueue006, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbrequestQueue006 %{public}d ClaimInterface=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t buffer[255] = "request queue write006";
+    uint8_t buffer[BUFFER_SIZE] = "request queue write006";
     std::vector<uint8_t> cdata = {buffer, buffer + 22};
     request.SetClientData(cdata);
-    uint8_t buffer1[255] = "usb request test!";
+    uint8_t buffer1[BUFFER_SIZE] = "usb request test!";
     std::vector<uint8_t> databuffer = {buffer1, buffer1 + 17};
     request.SetReqData(databuffer);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbrequestQueue006 %{public}d initialize=%{public}d ", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    pip.SetDevAddr(255);
+    pip.SetDevAddr(BUFFER_SIZE);
     request.SetPipe(pip);
     ret = UsbSrvClient.RequestQueue(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbrequestQueue006 %{public}d queue=%{public}d ", __LINE__, ret);
@@ -650,7 +661,7 @@ HWTEST_F(UsbRequestTest, Usbrequestfree001, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestfree001 %{public}d ClaimInterface=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "request free 001";
+    uint8_t tag[Tag_Size] = "request free 001";
     std::vector<uint8_t> cdata = {tag, tag + 16};
     request.SetClientData(cdata);
     ret = request.Initialize(pip, point);
@@ -693,13 +704,13 @@ HWTEST_F(UsbRequestTest, Usbrequestfree002, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestfree002 %{public}d ClaimInterface=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "request free 002";
+    uint8_t tag[Tag_Size] = "request free 002";
     std::vector<uint8_t> cdata = {tag, tag + 16};
     request.SetClientData(cdata);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestfree002 %{public}d initialize=%{public}d ", __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    pip.SetBusNum(255);
+    pip.SetBusNum(BUFFER_SIZE);
     request.SetPipe(pip);
     ret = UsbSrvClient.RequestFree(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestfree002 %{public}d free=%{public}d ", __LINE__, ret);
@@ -739,13 +750,13 @@ HWTEST_F(UsbRequestTest, Usbrequestfree003, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestfree003 %{public}d ClaimInterface=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "request free 003";
+    uint8_t tag[Tag_Size] = "request free 003";
     std::vector<uint8_t> cdata = {tag, tag + 16};
     request.SetClientData(cdata);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestfree003 %{public}d initialize=%{public}d ", __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    pip.SetDevAddr(255);
+    pip.SetDevAddr(BUFFER_SIZE);
     request.SetPipe(pip);
     ret = UsbSrvClient.RequestFree(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestfree003 %{public}d free=%{public}d ", __LINE__, ret);
@@ -785,10 +796,10 @@ HWTEST_F(UsbRequestTest, Usbrequestfree004, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestfree004 %{public}d ClaimInterface=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "request free 004";
+    uint8_t tag[Tag_Size] = "request free 004";
     std::vector<uint8_t> cdata = {tag, tag + 16};
     request.SetClientData(cdata);
-    uint8_t buffer[255] = "usb request test!";
+    uint8_t buffer[BUFFER_SIZE] = "usb request test!";
     std::vector<uint8_t> databuffer = {buffer, buffer + 17};
     request.SetReqData(databuffer);
     ret = request.Initialize(pip, point);
@@ -831,16 +842,16 @@ HWTEST_F(UsbRequestTest, Usbrequestfree005, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestfree005 %{public}d ClaimInterface=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "request free 005";
+    uint8_t tag[Tag_Size] = "request free 005";
     std::vector<uint8_t> cdata = {tag, tag + 16};
     request.SetClientData(cdata);
-    uint8_t buffer[255] = "usb request test!";
+    uint8_t buffer[BUFFER_SIZE] = "usb request test!";
     std::vector<uint8_t> databuffer = {buffer, buffer + 17};
     request.SetReqData(databuffer);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestfree005 %{public}d initialize=%{public}d ", __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    pip.SetBusNum(255);
+    pip.SetBusNum(BUFFER_SIZE);
     request.SetPipe(pip);
     ret = UsbSrvClient.RequestFree(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestfree005 %{public}d free=%{public}d ", __LINE__, ret);
@@ -880,16 +891,16 @@ HWTEST_F(UsbRequestTest, Usbrequestfree006, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestfree006 %{public}d ClaimInterface=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "request free 006";
+    uint8_t tag[Tag_Size] = "request free 006";
     std::vector<uint8_t> cdata = {tag, tag + 16};
     request.SetClientData(cdata);
-    uint8_t buffer[255] = "usb request test!";
+    uint8_t buffer[BUFFER_SIZE] = "usb request test!";
     std::vector<uint8_t> databuffer = {buffer, buffer + 17};
     request.SetReqData(databuffer);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestfree006 %{public}d initialize=%{public}d ", __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    pip.SetDevAddr(255);
+    pip.SetDevAddr(BUFFER_SIZE);
     request.SetPipe(pip);
     ret = UsbSrvClient.RequestFree(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestfree006 %{public}d free=%{public}d ", __LINE__, ret);
@@ -930,14 +941,14 @@ HWTEST_F(UsbRequestTest, Usbrequestabort001, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestabort001 %{public}d ClaimInterface=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "hello world request013";
+    uint8_t tag[Tag_Size] = "hello world request013";
     std::vector<uint8_t> cdata = {tag, tag + 22};
     request.SetClientData(cdata);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestabort001 %{public}d initialize=%{public}d ", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t buffer[255] = "request abort 001";
+    uint8_t buffer[BUFFER_SIZE] = "request abort 001";
     std::vector<uint8_t> databuffer = {buffer, buffer + 17};
     request.SetReqData(databuffer);
     ret = UsbSrvClient.RequestQueue(request);
@@ -981,9 +992,12 @@ HWTEST_F(UsbRequestTest, Usbrequestabort002, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestabort002 %{public}d ClaimInterface=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "request abort 002";
+    uint8_t tag[Tag_Size] = "request abort 002";
     std::vector<uint8_t> cdata = {tag, tag + 17};
     request.SetClientData(cdata);
+    uint8_t buffer1[BUFFER_SIZE] = {0};
+    std::vector<uint8_t> bufferdata = {buffer1, buffer1 + 17};
+    request.SetReqData(bufferdata);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestabort002 %{public}d initialize=%{public}d ", __LINE__,
                ret);
@@ -991,7 +1005,7 @@ HWTEST_F(UsbRequestTest, Usbrequestabort002, TestSize.Level1)
     ret = UsbSrvClient.RequestQueue(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestabort002 %{public}d queue=%{public}d ", __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    pip.SetBusNum(255);
+    pip.SetBusNum(BUFFER_SIZE);
     request.SetPipe(pip);
     ret = UsbSrvClient.RequestAbort(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestabort002 %{public}d Abort=%{public}d ", __LINE__, ret);
@@ -1032,9 +1046,12 @@ HWTEST_F(UsbRequestTest, Usbrequestabort003, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestabort003 %{public}d ClaimInterface=%{public}d", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "request abort 003";
+    uint8_t tag[Tag_Size] = "request abort 003";
     std::vector<uint8_t> cdata = {tag, tag + 17};
     request.SetClientData(cdata);
+    uint8_t buffer1[BUFFER_SIZE] = {0};
+    std::vector<uint8_t> bufferdata = {buffer1, buffer1 + 17};
+    request.SetReqData(bufferdata);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestabort003 %{public}d initialize=%{public}d ", __LINE__,
                ret);
@@ -1042,7 +1059,7 @@ HWTEST_F(UsbRequestTest, Usbrequestabort003, TestSize.Level1)
     ret = UsbSrvClient.RequestQueue(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestabort003 %{public}d queue=%{public}d ", __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    pip.SetDevAddr(255);
+    pip.SetDevAddr(BUFFER_SIZE);
     request.SetPipe(pip);
     ret = UsbSrvClient.RequestAbort(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestabort003 %{public}d Abort=%{public}d ", __LINE__, ret);
@@ -1079,18 +1096,18 @@ HWTEST_F(UsbRequestTest, Usbrequestabort004, TestSize.Level1)
     UsbRequest request;
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     USBEndpoint point = interface.GetEndpoints().at(1);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestabort004 %{public}d GetDirection=%{public}u ", __LINE__,
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestabort004 %{public}d GetDirection=%{public}d ", __LINE__,
                point.GetDirection());
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestabort004 %{public}d GetInterfaceId=%{public}d ", __LINE__,
                point.GetInterfaceId());
     ret = UsbSrvClient.ClaimInterface(pip, interface, true);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "hello world request013";
+    uint8_t tag[Tag_Size] = "hello world request013";
     std::vector<uint8_t> cdata = {tag, tag + 22};
     request.SetClientData(cdata);
     ret = request.Initialize(pip, point);
     EXPECT_TRUE(ret == 0);
-    uint8_t buffer[255] = "request abort 004";
+    uint8_t buffer[BUFFER_SIZE] = "request abort 004";
     std::vector<uint8_t> databuffer = {buffer, buffer + 17};
     request.SetReqData(databuffer);
     ret = UsbSrvClient.RequestQueue(request);
@@ -1132,18 +1149,18 @@ HWTEST_F(UsbRequestTest, Usbrequestabort005, TestSize.Level1)
     USBEndpoint point = interface.GetEndpoints().at(1);
     ret = UsbSrvClient.ClaimInterface(pip, interface, true);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "request abort 005";
+    uint8_t tag[Tag_Size] = "request abort 005";
     std::vector<uint8_t> cdata = {tag, tag + 17};
     request.SetClientData(cdata);
     ret = request.Initialize(pip, point);
     EXPECT_TRUE(ret == 0);
-    uint8_t buffer[255] = "usb request test 005";
+    uint8_t buffer[BUFFER_SIZE] = "usb request test 005";
     std::vector<uint8_t> databuffer = {buffer, buffer + 20};
     request.SetReqData(databuffer);
     ret = UsbSrvClient.RequestQueue(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestabort005 %{public}d queue=%{public}d ", __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    pip.SetBusNum(255);
+    pip.SetBusNum(BUFFER_SIZE);
     request.SetPipe(pip);
     ret = UsbSrvClient.RequestAbort(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestabort005 %{public}d Abort=%{public}d ", __LINE__, ret);
@@ -1182,18 +1199,18 @@ HWTEST_F(UsbRequestTest, Usbrequestabort006, TestSize.Level1)
     USBEndpoint point = interface.GetEndpoints().at(1);
     ret = UsbSrvClient.ClaimInterface(pip, interface, true);
     EXPECT_TRUE(ret == 0);
-    uint8_t tag[50] = "request abort 006";
+    uint8_t tag[Tag_Size] = "request abort 006";
     std::vector<uint8_t> cdata = {tag, tag + 17};
     request.SetClientData(cdata);
     ret = request.Initialize(pip, point);
     EXPECT_TRUE(ret == 0);
-    uint8_t buffer[255] = "usb request test 006";
+    uint8_t buffer[BUFFER_SIZE] = "usb request test 006";
     std::vector<uint8_t> databuffer = {buffer, buffer + 20};
     request.SetReqData(databuffer);
     ret = UsbSrvClient.RequestQueue(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestabort006 %{public}d queue=%{public}d ", __LINE__, ret);
     EXPECT_TRUE(ret == 0);
-    pip.SetDevAddr(255);
+    pip.SetDevAddr(BUFFER_SIZE);
     request.SetPipe(pip);
     ret = UsbSrvClient.RequestAbort(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestabort006 %{public}d Abort=%{public}d ", __LINE__, ret);
@@ -1234,9 +1251,12 @@ HWTEST_F(UsbRequestTest, PipeRequestWait001, TestSize.Level1)
                ret);
     EXPECT_TRUE(ret == 0);
     UsbRequest request;
-    uint8_t tag[50] = "request wait 001";
+    uint8_t tag[Tag_Size] = "request wait 001";
     std::vector<uint8_t> cdata = {tag, tag + 16};
     request.SetClientData(cdata);
+    uint8_t buffer1[BUFFER_SIZE] = {0};
+    std::vector<uint8_t> bufferdata = {buffer1, buffer1 + 17};
+    request.SetReqData(bufferdata);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:Usbrequestabort006 %{public}d initialize=%{public}d ", __LINE__,
                ret);
@@ -1284,9 +1304,12 @@ HWTEST_F(UsbRequestTest, PipeRequestWait002, TestSize.Level1)
                ret);
     EXPECT_TRUE(ret == 0);
     UsbRequest request;
-    uint8_t tag[50] = "request wait 002";
+    uint8_t tag[Tag_Size] = "request wait 002";
     std::vector<uint8_t> cdata = {tag, tag + 16};
     request.SetClientData(cdata);
+    uint8_t buffer1[BUFFER_SIZE] = {0};
+    std::vector<uint8_t> bufferdata = {buffer1, buffer1 + 17};
+    request.SetReqData(bufferdata);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:PipeRequestWait002 %{public}d initialize=%{public}d ", __LINE__,
                ret);
@@ -1295,7 +1318,7 @@ HWTEST_F(UsbRequestTest, PipeRequestWait002, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::PipeRequestWait002 %{public}d queue=%{public}d ", __LINE__, ret);
     EXPECT_TRUE(ret == 0);
     UsbRequest reqwait;
-    pip.SetBusNum(255);
+    pip.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.PipeRequestWait(pip, 5000, reqwait);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::PipeRequestWait002 %{public}d PipeRequestWait=%{public}d", __LINE__,
                ret);
@@ -1336,9 +1359,12 @@ HWTEST_F(UsbRequestTest, PipeRequestWait003, TestSize.Level1)
                ret);
     EXPECT_TRUE(ret == 0);
     UsbRequest request;
-    uint8_t tag[50] = "request wait 003";
+    uint8_t tag[Tag_Size] = "request wait 003";
     std::vector<uint8_t> cdata = {tag, tag + 16};
     request.SetClientData(cdata);
+    uint8_t buffer1[BUFFER_SIZE] = {0};
+    std::vector<uint8_t> bufferdata = {buffer1, buffer1 + 17};
+    request.SetReqData(bufferdata);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:PipeRequestWait003 %{public}d initialize=%{public}d ", __LINE__,
                ret);
@@ -1347,7 +1373,7 @@ HWTEST_F(UsbRequestTest, PipeRequestWait003, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::PipeRequestWait003 %{public}d queue=%{public}d ", __LINE__, ret);
     EXPECT_TRUE(ret == 0);
     UsbRequest reqwait;
-    pip.SetDevAddr(255);
+    pip.SetDevAddr(BUFFER_SIZE);
     ret = UsbSrvClient.PipeRequestWait(pip, 5000, reqwait);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::PipeRequestWait003 %{public}d PipeRequestWait=%{public}d", __LINE__,
                ret);
@@ -1386,14 +1412,14 @@ HWTEST_F(UsbRequestTest, PipeRequestWait004, TestSize.Level1)
     ret = UsbSrvClient.ClaimInterface(pip, interface, true);
     EXPECT_TRUE(ret == 0);
     UsbRequest request;
-    uint8_t tag[50] = "request wait 004";
+    uint8_t tag[Tag_Size] = "request wait 004";
     std::vector<uint8_t> cdata = {tag, tag + 16};
     request.SetClientData(cdata);
     ret = request.Initialize(pip, point);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest:PipeRequestWait004 %{public}d initialize=%{public}d ", __LINE__,
                ret);
     EXPECT_TRUE(ret == 0);
-    uint8_t buffer[255] = "usb request wait test004";
+    uint8_t buffer[BUFFER_SIZE] = "usb request wait test004";
     std::vector<uint8_t> databuffer = {buffer, buffer + 24};
     request.SetReqData(databuffer);
     ret = UsbSrvClient.RequestQueue(request);
@@ -1437,19 +1463,19 @@ HWTEST_F(UsbRequestTest, PipeRequestWait005, TestSize.Level1)
     ret = UsbSrvClient.ClaimInterface(pip, interface, true);
     EXPECT_TRUE(ret == 0);
     UsbRequest request;
-    uint8_t tag[50] = "request wait 005";
+    uint8_t tag[Tag_Size] = "request wait 005";
     std::vector<uint8_t> cdata = {tag, tag + 16};
     request.SetClientData(cdata);
     ret = request.Initialize(pip, point);
     EXPECT_TRUE(ret == 0);
-    uint8_t buffer[255] = "usb request wait test005";
+    uint8_t buffer[BUFFER_SIZE] = "usb request wait test005";
     std::vector<uint8_t> databuffer = {buffer, buffer + 24};
     request.SetReqData(databuffer);
     ret = UsbSrvClient.RequestQueue(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::PipeRequestWait005 %{public}d queue=%{public}d ", __LINE__, ret);
     EXPECT_TRUE(ret == 0);
     UsbRequest reqwait;
-    pip.SetBusNum(255);
+    pip.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.PipeRequestWait(pip, 5000, reqwait);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::PipeRequestWait005 %{public}d PipeRequestWait=%{public}d", __LINE__,
                ret);
@@ -1490,19 +1516,19 @@ HWTEST_F(UsbRequestTest, PipeRequestWait006, TestSize.Level1)
                ret);
     EXPECT_TRUE(ret == 0);
     UsbRequest request;
-    uint8_t tag[50] = "request abort 006";
+    uint8_t tag[Tag_Size] = "request abort 006";
     std::vector<uint8_t> cdata = {tag, tag + 16};
     request.SetClientData(cdata);
     ret = request.Initialize(pip, point);
     EXPECT_TRUE(ret == 0);
-    uint8_t buffer[255] = "usb request wait test006";
+    uint8_t buffer[BUFFER_SIZE] = "usb request wait test006";
     std::vector<uint8_t> databuffer = {buffer, buffer + 24};
     request.SetReqData(databuffer);
     ret = UsbSrvClient.RequestQueue(request);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::PipeRequestWait006 %{public}d queue=%{public}d ", __LINE__, ret);
     EXPECT_TRUE(ret == 0);
     UsbRequest reqwait;
-    pip.SetDevAddr(255);
+    pip.SetDevAddr(BUFFER_SIZE);
     ret = UsbSrvClient.PipeRequestWait(pip, 5000, reqwait);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::PipeRequestWait006 %{public}d PipeRequestWait=%{public}d", __LINE__,
                ret);

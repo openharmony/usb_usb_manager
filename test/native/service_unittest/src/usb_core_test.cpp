@@ -35,7 +35,6 @@ using namespace OHOS;
 using namespace std;
 
 const int32_t SLEEP_TIME = 3;
-
 const int32_t TEST_PORT_ID = 1;
 const int32_t TEST_POWER_ROLE = 2;
 const int32_t TEST_DATAR_ROLE = 2;

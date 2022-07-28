@@ -17,12 +17,14 @@ config("usbsrv_private_config") {
   include_dirs = [
     "${usb_manager_path}/services/zidl/include",
     "//third_party/jsoncpp/include/json",
-    "//drivers/peripheral/usb/hal/client/include",
   ]
 }
 
 config("usbsrv_public_config") {
-  include_dirs = [ "native/include" ]
+  include_dirs = [
+    "native/include",
+    "${usb_manager_path}/utils/native/include",
+  ]
 }
 
 ohos_shared_library("usbsrv_client") {
@@ -45,12 +47,13 @@ ohos_shared_library("usbsrv_client") {
   deps = [ "//third_party/jsoncpp:jsoncpp" ]
 
   external_deps = [
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "utils_base:utils",
   ]
 
   part_name = "usb_manager"
