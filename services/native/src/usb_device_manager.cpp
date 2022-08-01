@@ -17,12 +17,14 @@
 #include "common_event_data.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "hisysevent.h"
 #include "usb_errors.h"
 #include "usb_srv_support.h"
 #include "usbd_type.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::EventFwk;
+using namespace OHOS::HiviewDFX;
 
 namespace OHOS {
 namespace USB {
@@ -39,7 +41,7 @@ UsbDeviceManager::UsbDeviceManager()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceManager::Init start");
     usbd_ = IUsbInterface::Get();
-        if (usbd_ == nullptr) {
+    if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::Get inteface failed");
     }
 }
@@ -120,6 +122,7 @@ std::string UsbDeviceManager::ConvertToString(uint32_t function)
 
 void UsbDeviceManager::UpdateFunctions(int32_t func)
 {
+    ReportFuncChangeSysEvent(currentFunctions_, func);
     currentFunctions_ = func;
 }
 
@@ -173,6 +176,34 @@ void UsbDeviceManager::HandleEvent(int32_t status)
         "send COMMON_EVENT_USB_STATE broadcast connected:%{public}d, currentFunctions:%{public}u", connected_,
         currentFunctions_);
     CommonEventManager::PublishCommonEvent(data, publishInfo);
+    ReportDevicePlugSysEvent(currentFunctions_, connected_);
+}
+
+bool UsbDeviceManager::Dump(int fd, const std::string &args)
+{
+    if (args.compare("-a") != 0) {
+        dprintf(fd, "args is not -a\n");
+        return false;
+    }
+
+    dprintf(fd, "Usb Device function list info:\n");
+    dprintf(fd, "current function: %s\n", ConvertToString(currentFunctions_).c_str());
+    dprintf(fd, "supported functions list: %s\n", ConvertToString(FUNCTION_SETTABLE).c_str());
+    return true;
+}
+
+void UsbDeviceManager::ReportFuncChangeSysEvent(int32_t currentFunctions, int32_t updateFunctions)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Device function Indicates the switch point information:");
+    HiSysEvent::Write("USB", "USB_FUNCTION_CHANGED", HiSysEvent::EventType::BEHAVIOR, "CURRENT_FUNCTION",
+        currentFunctions_, "UPDATE_FUNCTION", updateFunctions);
+}
+
+void UsbDeviceManager::ReportDevicePlugSysEvent(int32_t currentFunctions, bool connected)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Device mode Indicates the insertion and removal information:");
+    HiSysEvent::Write("USB", "USB_PLUG_IN_OUT_DEVICE_MODE", HiSysEvent::EventType::BEHAVIOR, "CURRENT_FUNCTIONS",
+        currentFunctions, "CONNECTED", connected);
 }
 } // namespace USB
 } // namespace OHOS

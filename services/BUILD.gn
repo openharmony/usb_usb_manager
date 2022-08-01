@@ -14,7 +14,10 @@
 import("//base/usb/usb_manager/usbmgr.gni")
 
 config("usbsrv_private_config") {
-  include_dirs = [ "//third_party/jsoncpp/include/json" ]
+  include_dirs = [
+    "//third_party/jsoncpp/include/json",
+    "${usb_manager_path}/interfaces/innerkits/native/include",
+  ]
 }
 
 config("usbsrv_public_config") {
@@ -51,7 +54,6 @@ ohos_shared_library("usbservice") {
 
   deps = [
     "${usb_manager_path}/frameworks/dialog/dialog_ui/js:dialog_js_files_etc",
-    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
     "//foundation/arkui/ace_engine/interfaces/inner_api/ui_service_manager:ui_service_mgr",
     "//third_party/jsoncpp:jsoncpp",
   ]
@@ -64,6 +66,7 @@ ohos_shared_library("usbservice") {
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
     "eventhandler:libeventhandler",
+    "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",

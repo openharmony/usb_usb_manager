@@ -21,11 +21,11 @@
 #include "v1_0/iusbd_bulk_callback.h"
 
 using OHOS::IRemoteObject;
-
 using OHOS::sptr;
-
 using OHOS::HDI::Usb::V1_0::IUsbdBulkCallback;
 
+namespace OHOS {
+namespace USB {
 class UsbdBulkCallbackImpl : public IUsbdBulkCallback {
 public:
     explicit UsbdBulkCallbackImpl(const sptr<IRemoteObject> &cb) : remote_(cb) {}
@@ -35,4 +35,6 @@ public:
 private:
     sptr<IRemoteObject> remote_ = nullptr;
 };
+} // namespace USB
+} // namespace OHOS
 #endif // USBMGR_USBD_BULKCALLBACK_IMPL_H

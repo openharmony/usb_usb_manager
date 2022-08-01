@@ -35,9 +35,11 @@ public:
     void GetDevices(MAP_STR_DEVICE &devices);
     bool DelDevice(uint8_t busNum, uint8_t devNum);
     bool AddDevice(UsbDevice *dev);
+    bool Dump(int fd, const std::string &args);
 
 private:
     bool PublishCommonEvent(const std::string &event, const UsbDevice &dev);
+    void ReportHostPlugSysEvent(const std::string &event, const UsbDevice &dev);
 
     MAP_STR_DEVICE devices_;
     SystemAbility *systemAbility_;

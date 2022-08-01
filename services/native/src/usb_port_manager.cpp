@@ -14,7 +14,10 @@
  */
 
 #include "usb_port_manager.h"
+#include "hisysevent.h"
 #include "usb_errors.h"
+
+using namespace OHOS::HiviewDFX;
 
 namespace OHOS {
 namespace USB {
@@ -79,7 +82,6 @@ int32_t UsbPortManager::GetSupportedModes(int32_t portId, int32_t &supportedMode
 
 int32_t UsbPortManager::QueryPort()
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::queryPorts run");
     int32_t portId = 0;
     int32_t powerRole = 0;
     int32_t dataRole = 0;
@@ -90,8 +92,8 @@ int32_t UsbPortManager::QueryPort()
         return UEC_SERVICE_INVALID_VALUE;
     }
     int32_t ret = usbd_->QueryPort(portId, powerRole, dataRole, mode);
-    USB_HILOGE(MODULE_USB_SERVICE, "portId:%{public}d powerRole:%{public}d dataRole:%{public}d mode:%{public}d ",
-               portId, powerRole, dataRole, mode);
+    USB_HILOGI(MODULE_USB_SERVICE, "portId:%{public}d powerRole:%{public}d dataRole:%{public}d mode:%{public}d ",
+        portId, powerRole, dataRole, mode);
     if (ret) {
         USB_HILOGE(MODULE_USB_SERVICE, "Get().queryPorts failed");
         return ret;
@@ -114,6 +116,8 @@ void UsbPortManager::UpdatePort(int32_t portId, int32_t powerRole, int32_t dataR
     auto it = portMap_.find(portId);
     if (it != portMap_.end()) {
         if (it->second.id == portId) {
+            ReportPortRoleChangeSysEvent(it->second.usbPortStatus.currentPowerRole, powerRole,
+                it->second.usbPortStatus.currentDataRole, dataRole);
             it->second.usbPortStatus.currentPowerRole = powerRole;
             it->second.usbPortStatus.currentDataRole = dataRole;
             it->second.usbPortStatus.currentMode = mode;
@@ -144,6 +148,37 @@ void UsbPortManager::RemovePort(int32_t portId)
         return;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "removePort seccess");
+}
+
+bool UsbPortManager::Dump(int fd, const std::string &args)
+{
+    if (args.compare("-a") != 0) {
+        dprintf(fd, "args is not -a\n");
+        return false;
+    }
+
+    dprintf(fd, "Usb Port device status:\n");
+    std::vector<UsbPort> ports;
+    if (GetPorts(ports) != UEC_OK) {
+        dprintf(fd, "UsbPortManager::GetPorts failed, port is empty\n");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+
+    for (size_t i = 0; i < ports.size(); ++i) {
+        dprintf(fd, "id: %d | supportedModes: %d | currentMode: %d | currentPowerRole: %d | currentDataRole: %d\n",
+            ports[i].id, ports[i].supportedModes, ports[i].usbPortStatus.currentMode,
+            ports[i].usbPortStatus.currentPowerRole, ports[i].usbPortStatus.currentDataRole);
+    }
+    return true;
+}
+
+void UsbPortManager::ReportPortRoleChangeSysEvent(
+    int32_t currentPowerRole, int32_t updatePowerRole, int32_t currentDataRole, int32_t updateDataRole)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Port switch points are as follows:");
+    HiSysEvent::Write("USB", "USB_PORT_ROLE_CHANGED", HiSysEvent::EventType::BEHAVIOR, "CURRENT_POWERROLE",
+        currentPowerRole, "UPDATE_POWERROLE", updatePowerRole, "CURRENT_DATAROLE", currentDataRole, "UPDATE_DATAROLE",
+        updateDataRole);
 }
 } // namespace USB
 } // namespace OHOS

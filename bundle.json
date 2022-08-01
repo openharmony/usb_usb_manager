@@ -16,6 +16,7 @@
       "syscap": [
         "SystemCapability.USB.USBManager"
       ],
+      "hisysevent_config": [ "//base/usb/usb_manager/hisysevent.yaml" ],
       "adapted_system_type": [ "standard" ],
       "rom": "128k",
       "ram": "6M",
