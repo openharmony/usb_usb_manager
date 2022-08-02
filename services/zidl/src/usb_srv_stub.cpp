@@ -17,7 +17,6 @@
 #include "securec.h"
 #include "usb_common.h"
 #include "usb_errors.h"
-#include "usb_server_proxy.h"
 #include "usb_server_stub.h"
 
 namespace OHOS {

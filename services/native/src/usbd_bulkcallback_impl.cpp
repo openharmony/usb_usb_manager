@@ -14,51 +14,57 @@
  */
 
 #include "usbd_bulkcallback_impl.h"
-#include <hdf_log.h>
-#include <message_option.h>
-#include <message_parcel.h>
+#include "message_option.h"
+#include "message_parcel.h"
 #include "usbd_bulk_callback.h"
+#include "usb_errors.h"
+#include "hilog_wrapper.h"
 
+namespace OHOS {
+namespace USB {
 int32_t UsbdBulkCallbackImpl::OnBulkWriteCallback(int32_t status, int32_t actLength)
 {
     OHOS::MessageParcel data;
     OHOS::MessageParcel reply;
     OHOS::MessageOption option;
     if (!data.WriteInt32(status)) {
-        HDF_LOGE("%{public}s: write status failed", __func__);
-        return HDF_ERR_INVALID_PARAM;
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write status failed", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
     }
 
     if (!data.WriteInt32(actLength)) {
-        HDF_LOGE("%{public}s: write actLength failed", __func__);
-        return HDF_ERR_INVALID_PARAM;
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write actLength failed", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
     }
-    int32_t ret = remote_->SendRequest(OHOS::USB::UsbdBulkCallBack::CMD_USBD_BULK_CALLBACK_WRITE, data, reply, option);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%{public}s failed, error code is %{public}d", __func__, ret);
+    int32_t ret = remote_->SendRequest(UsbdBulkCallBack::CMD_USBD_BULK_CALLBACK_WRITE, data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s failed, error code is %{public}d", __func__, ret);
         return ret;
     }
-    return HDF_SUCCESS;
+    return UEC_OK;
 }
 
 int32_t UsbdBulkCallbackImpl::OnBulkReadCallback(int32_t status, int32_t actLength)
 {
     OHOS::MessageParcel data;
-    OHOS::MessageParcel reply;
-    OHOS::MessageOption option;
     if (!data.WriteInt32(status)) {
-        HDF_LOGE("%{public}s: write status failed", __func__);
-        return HDF_ERR_INVALID_PARAM;
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write status failed", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
     }
 
     if (!data.WriteInt32(actLength)) {
-        HDF_LOGE("%{public}s: write actLength failed", __func__);
-        return HDF_ERR_INVALID_PARAM;
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write actLength failed", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
     }
-    int32_t ret = remote_->SendRequest(OHOS::USB::UsbdBulkCallBack::CMD_USBD_BULK_CALLBACK_READ, data, reply, option);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%{public}s failed, error code is %{public}d", __func__, ret);
+
+    OHOS::MessageParcel reply;
+    OHOS::MessageOption option;
+    int32_t ret = remote_->SendRequest(UsbdBulkCallBack::CMD_USBD_BULK_CALLBACK_READ, data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s failed, error code is %{public}d", __func__, ret);
         return ret;
     }
-    return HDF_SUCCESS;
+    return UEC_OK;
 }
+} // namespace USB
+} // namespace OHOS

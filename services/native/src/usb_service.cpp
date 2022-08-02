@@ -400,7 +400,7 @@ int32_t UsbService::ControlTransfer(const UsbDev &dev, const UsbCtrlTransfer &ct
         return UEC_SERVICE_INVALID_VALUE;
     }
 
-    int32_t ret = HDF_FAILURE;
+    int32_t ret = UEC_SERVICE_INNER_ERR;
     if ((ctrl.requestType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
         ret = usbd_->ControlTransferWrite(dev, ctrl, bufferData);
         if (ret != UEC_OK) {
@@ -747,7 +747,6 @@ bool UsbService::DelDevice(uint8_t busNum, uint8_t devAddr)
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbHostManger_");
         return false;
     }
-
     return usbHostManger_->DelDevice(busNum, devAddr);
 }
 
@@ -875,6 +874,43 @@ int32_t UsbService::BulkCancel(const UsbDev &devInfo, const UsbPipe &pipe)
         USB_HILOGE(MODULE_USB_SERVICE, "BulkCancel error ret:%{public}d", ret);
     }
     return ret;
+}
+
+int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
+{
+    if (fd < 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "fd is invalid fd:%{public}d", fd);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+
+    std::vector<std::string> argList;
+    std::transform(args.begin(), args.end(), std::back_inserter(argList),
+        [](const std::u16string &arg) {
+        return Str16ToStr8(arg);
+    });
+
+    if (argList[0] == USB_HOST) {
+        usbHostManger_->Dump(fd, argList[1]);
+    } else if (argList[0] == USB_DEVICE) {
+        usbDeviceManager_->Dump(fd, argList[1]);
+    } else if (argList[0] == USB_PORT) {
+        usbPortManager_->Dump(fd, argList[1]);
+    } else if (argList[0] == USB_HELP) {
+        DumpHelp(fd);
+    } else {
+        dprintf(fd, "Usb Dump service:invalid parameter.\n");
+        DumpHelp(fd);
+    }
+    return UEC_OK;
+}
+
+void UsbService::DumpHelp(int32_t fd)
+{
+    dprintf(fd, "ShowUsage:\n");
+    dprintf(fd, "      -h, --help: dump help\n");
+    dprintf(fd, "      usb_host   -a: dump the all device list info\n");
+    dprintf(fd, "      usb_devive -a: dump the all device and function list info\n");
+    dprintf(fd, "      usb_port   -a: dump the all device port status\n");
 }
 } // namespace USB
 } // namespace OHOS

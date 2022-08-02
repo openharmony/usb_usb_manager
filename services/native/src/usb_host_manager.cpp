@@ -18,10 +18,12 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "hilog_wrapper.h"
+#include "hisysevent.h"
 #include "usb_serial_reader.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::EventFwk;
+using namespace OHOS::HiviewDFX;
 
 namespace OHOS {
 namespace USB {
@@ -107,7 +109,33 @@ bool UsbHostManager::PublishCommonEvent(const std::string &event, const UsbDevic
     CommonEventPublishInfo publishInfo;
     publishInfo.SetOrdered(true);
     USB_HILOGI(MODULE_SERVICE, "send %{public}s broadcast device:%{public}s", event.c_str(), jsonString.c_str());
+    ReportHostPlugSysEvent(event, dev);
     return CommonEventManager::PublishCommonEvent(data, publishInfo);
+}
+
+bool UsbHostManager::Dump(int fd, const std::string &args)
+{
+    if (args.compare("-a") != 0) {
+        dprintf(fd, "args is not -a\n");
+        return false;
+    }
+
+    dprintf(fd, "Usb Host all device list info:\n");
+    Json::StreamWriterBuilder builder;
+    builder["indentation"] = "  ";
+    for (const auto &item : devices_) {
+        dprintf(fd, "usb host list info: %s\n", Json::writeString(builder, item.second->ToJson()).c_str());
+    }
+    return true;
+}
+
+void UsbHostManager::ReportHostPlugSysEvent(const std::string &event, const UsbDevice &dev)
+{
+    USB_HILOGI(MODULE_SERVICE, "Host mode Indicates the insertion and removal information");
+    HiSysEvent::Write("USB", "USB_PLUG_IN_OUT_HOST_MODE", HiSysEvent::EventType::BEHAVIOR,
+        "DEVICE_NAME", dev.GetName(), "DEVICE_PROTOCOL", dev.GetProtocol(), "DEVICE_CLASS", dev.GetClass(),
+        "VENDOR_ID", dev.GetVendorId(), "PRODUCT_ID", dev.GetProductId(), "VERSION", dev.GetVersion(),
+        "EVENT_NAME", event);
 }
 } // namespace USB
 } // namespace OHOS

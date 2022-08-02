@@ -41,6 +41,10 @@ using OHOS::HDI::Usb::V1_0::IUsbdBulkCallback;
 
 namespace OHOS {
 namespace USB {
+const std::string USB_HOST = "usb_host";
+const std::string USB_DEVICE = "usb_device";
+const std::string USB_PORT = "usb_port";
+const std::string USB_HELP = "-h";
 class UsbService : public SystemAbility, public UsbServerStub {
     DECLARE_SYSTEM_ABILITY(UsbService)
     DECLARE_DELAYED_SP_SINGLETON(UsbService);
@@ -48,11 +52,13 @@ class UsbService : public SystemAbility, public UsbServerStub {
 public:
     void OnStart() override;
     void OnStop() override;
+    int Dump(int fd, const std::vector<std::u16string> &args) override;
 
     bool IsServiceReady() const
     {
         return ready_;
     }
+
     std::shared_ptr<UsbServerEventHandler> GetHandler() const
     {
         return handler_;
@@ -110,6 +116,7 @@ private:
     bool GetBundleName(std::string &bundleName);
     int32_t FillDevStrings(UsbDevice &dev);
     std::string GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, uint8_t idx);
+    void DumpHelp(int32_t fd);
     bool ready_ = false;
     int32_t commEventRetryTimes_ = 0;
     std::mutex mutex_;
