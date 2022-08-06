@@ -51,7 +51,7 @@ ohos_unittest("test_usbdevicepipe") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 }
 
@@ -83,7 +83,7 @@ ohos_unittest("test_bulkcallback") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 }
 
@@ -112,7 +112,7 @@ ohos_unittest("test_usbrequest") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 }
 
@@ -141,7 +141,7 @@ ohos_unittest("test_usbcore") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 }
 
@@ -171,7 +171,7 @@ ohos_unittest("test_usbevent") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 }
 
