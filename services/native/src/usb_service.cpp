@@ -85,7 +85,7 @@ void UsbService::OnStart()
         USB_HILOGE(MODULE_USB_SERVICE, "OnStart call init fail");
         return;
     }
-    
+
     // wait for the usbd service to start and bind usb service and usbd service
     int32_t retryTimes = 0;
     while (retryTimes < SERVICE_STARTUP_MAX_TIME) {
@@ -94,7 +94,7 @@ void UsbService::OnStart()
         }
         sleep(1);
         retryTimes++;
-        
+
         if (retryTimes == SERVICE_STARTUP_MAX_TIME) {
             USB_HILOGE(MODULE_USB_SERVICE, "OnStart call initUsbd failed");
             return;
@@ -105,7 +105,7 @@ void UsbService::OnStart()
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbPortManager_");
         return;
     }
-    
+
     usbPortManager_->Init();
     ready_ = true;
     USB_HILOGE(MODULE_USB_SERVICE, "OnStart and add system ability success");
@@ -144,7 +144,7 @@ bool UsbService::Init()
 
 bool UsbService::InitUsbd()
 {
-    usbdSubscriber_ = new(std::nothrow) UsbServiceSubscriber();
+    usbdSubscriber_ = new (std::nothrow) UsbServiceSubscriber();
     if (usbdSubscriber_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "Init failed\n");
         return false;
@@ -181,8 +181,8 @@ bool UsbService::IsCommonEventServiceAbilityExist()
     sptr<ISystemAbilityManager> sm = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sm == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE,
-                   "IsCommonEventServiceAbilityExist Get ISystemAbilityManager "
-                   "failed, no SystemAbilityManager");
+            "IsCommonEventServiceAbilityExist Get ISystemAbilityManager "
+            "failed, no SystemAbilityManager");
         return false;
     }
     sptr<IRemoteObject> remote = sm->CheckSystemAbility(COMMON_EVENT_SERVICE_ID);
@@ -365,8 +365,8 @@ int32_t UsbService::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t in
     return usbd_->ReleaseInterface(dev, interface);
 }
 
-int32_t UsbService::BulkTransferRead(const UsbDev &devInfo, const UsbPipe &pipe, std::vector<uint8_t> &bufferData,
-    int32_t timeOut)
+int32_t UsbService::BulkTransferRead(
+    const UsbDev &devInfo, const UsbPipe &pipe, std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -379,8 +379,8 @@ int32_t UsbService::BulkTransferRead(const UsbDev &devInfo, const UsbPipe &pipe,
     return ret;
 }
 
-int32_t UsbService::BulkTransferWrite(const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &bufferData,
-    int32_t timeOut)
+int32_t UsbService::BulkTransferWrite(
+    const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -488,8 +488,8 @@ int32_t UsbService::RequestQueue(const UsbDev &dev, const UsbPipe &pipe, const s
     return ret;
 }
 
-int32_t UsbService::RequestWait(const UsbDev &dev, int32_t timeOut, std::vector<uint8_t> &clientData,
-    std::vector<uint8_t> &bufferData)
+int32_t UsbService::RequestWait(
+    const UsbDev &dev, int32_t timeOut, std::vector<uint8_t> &clientData, std::vector<uint8_t> &bufferData)
 {
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -548,7 +548,7 @@ std::string UsbService::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, 
         return strDesc;
     }
 
-    uint16_t *tbuf = new(std::nothrow) uint16_t[length + 1]();
+    uint16_t *tbuf = new (std::nothrow) uint16_t[length + 1]();
     if (tbuf == nullptr) {
         USB_HILOGI(MODULE_USB_SERVICE, "new failed\n");
         return strDesc;
@@ -589,8 +589,10 @@ int32_t UsbService::FillDevStrings(UsbDevice &dev)
     dev.SetManufacturerName(GetDevStringValFromIdx(busNum, devAddr, dev.GetiManufacturer()));
     dev.SetProductName(GetDevStringValFromIdx(busNum, devAddr, dev.GetiProduct()));
     dev.SetmSerial(GetDevStringValFromIdx(busNum, devAddr, dev.GetiSerialNumber()));
-    USB_HILOGI(MODULE_USB_SERVICE, "iSerial:%{public}d mSerial:%{public}s Manufactur:%{public}s product:%{public}s "
-        "version:%{public}s", dev.GetiSerialNumber(), dev.GetmSerial().c_str(), dev.GetManufacturerName().c_str(),
+    USB_HILOGI(MODULE_USB_SERVICE,
+        "iSerial:%{public}d mSerial:%{public}s Manufactur:%{public}s product:%{public}s "
+        "version:%{public}s",
+        dev.GetiSerialNumber(), dev.GetmSerial().c_str(), dev.GetManufacturerName().c_str(),
         dev.GetProductName().c_str(), dev.GetVersion().c_str());
 
     std::vector<USBConfig> configs;
@@ -707,7 +709,7 @@ int32_t UsbService::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &de
 
 bool UsbService::AddDevice(uint8_t busNum, uint8_t devAddr)
 {
-    UsbDevice *devInfo = new(std::nothrow) UsbDevice();
+    UsbDevice *devInfo = new (std::nothrow) UsbDevice();
     if (devInfo == nullptr) {
         USB_HILOGI(MODULE_USB_SERVICE, "new failed");
         return false;
@@ -743,10 +745,15 @@ bool UsbService::DelDevice(uint8_t busNum, uint8_t devAddr)
         USB_HILOGE(MODULE_USBD, "Close device failed width ret = %{public}d", ret);
     }
 
-    if (usbHostManger_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbHostManger_");
+    if (usbHostManger_ == nullptr || usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbHostManger_ or usbRightManager_");
         return false;
     }
+
+    if (!usbRightManager_->RemoveDeviceRight(std::to_string(busNum) + "-" + std::to_string(devAddr))) {
+        USB_HILOGW(MODULE_USB_SERVICE, "remove right failed busNum:%{public}u devAddr:%{public}u", busNum, devAddr);
+    }
+
     return usbHostManger_->DelDevice(busNum, devAddr);
 }
 
@@ -884,10 +891,15 @@ int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
     }
 
     std::vector<std::string> argList;
-    std::transform(args.begin(), args.end(), std::back_inserter(argList),
-        [](const std::u16string &arg) {
+    std::transform(args.begin(), args.end(), std::back_inserter(argList), [](const std::u16string &arg) {
         return Str16ToStr8(arg);
     });
+
+    if (argList.empty()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "argList is empty");
+        DumpHelp(fd);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
 
     if (argList[0] == USB_HOST) {
         usbHostManger_->Dump(fd, argList[1]);
