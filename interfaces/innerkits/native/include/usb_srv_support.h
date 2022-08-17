@@ -27,7 +27,8 @@ struct UsbSrvSupport {
     static constexpr std::string_view FUNCTION_NAME_ECM {"ecm"};
     static constexpr std::string_view FUNCTION_NAME_MTP {"mtp"};
     static constexpr std::string_view FUNCTION_NAME_PTP {"ptp"};
-
+    static constexpr std::string_view FUNCTION_NAME_RNDIS {"rndis"};
+    static constexpr std::string_view FUNCTION_NAME_STORAGE {"storage"};
     enum PowerRole : int32_t {
         POWER_ROLE_NONE,
         POWER_ROLE_SOURCE,
@@ -53,6 +54,8 @@ struct UsbSrvSupport {
         FUNCTION_HDC = 4,
         FUNCTION_MTP = 8,
         FUNCTION_PTP = 16,
+        FUNCTION_RNDIS = 32,
+        FUNCTION_STORAGE = 512,
     };
 };
 } // namespace USB

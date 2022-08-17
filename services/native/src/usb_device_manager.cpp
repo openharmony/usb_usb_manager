@@ -35,6 +35,8 @@ const std::map<std::string_view, uint32_t> UsbDeviceManager::FUNCTION_MAPPING_N2
     {UsbSrvSupport::FUNCTION_NAME_HDC, UsbSrvSupport::FUNCTION_HDC},
     {UsbSrvSupport::FUNCTION_NAME_MTP, UsbSrvSupport::FUNCTION_MTP},
     {UsbSrvSupport::FUNCTION_NAME_PTP, UsbSrvSupport::FUNCTION_PTP},
+    {UsbSrvSupport::FUNCTION_NAME_RNDIS, UsbSrvSupport::FUNCTION_RNDIS},
+    {UsbSrvSupport::FUNCTION_NAME_STORAGE, UsbSrvSupport::FUNCTION_STORAGE},
 };
 
 UsbDeviceManager::UsbDeviceManager()
@@ -114,6 +116,20 @@ std::string UsbDeviceManager::ConvertToString(uint32_t function)
             stream = stream + ",";
         }
         stream = stream + std::string {UsbSrvSupport::FUNCTION_NAME_ECM};
+        flag = true;
+    }
+    if ((function & UsbSrvSupport::FUNCTION_RNDIS) != 0) {
+        if (flag) {
+            stream = stream + ",";
+        }
+        stream = stream + std::string {UsbSrvSupport::FUNCTION_NAME_RNDIS};
+        flag = true;
+    }
+    if ((function & UsbSrvSupport::FUNCTION_STORAGE) != 0) {
+        if (flag) {
+            stream = stream + ",";
+        }
+        stream = stream + std::string {UsbSrvSupport::FUNCTION_NAME_STORAGE};
         flag = true;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceManager::ConvertToString success");
