@@ -43,6 +43,10 @@ static void PrintHelp()
     printf("-f 4: Switch to function:hdc\n");
     printf("-f 5: Switch to function:acm&hdc\n");
     printf("-f 6: Switch to function:ecm&hdc\n");
+    printf("-f 32: Switch to function:rndis\n");
+    printf("-f 512: Switch to function:storage\n");
+    printf("-f 36: Switch to function:rndis&hdc\n");
+    printf("-f 516: Switch to function:storage&hdc\n");
 }
 
 static void GetCurrentFunctionInfo()

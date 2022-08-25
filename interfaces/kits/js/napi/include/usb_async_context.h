@@ -56,6 +56,7 @@ const int32_t RNDIS = 32;
 const int32_t MIDI = 64;
 const int32_t AUDIO_SOURCE = 128;
 const int32_t NCM = 256;
+const int32_t STORAGE = 512;
 
 struct USBAsyncContext {
     napi_env env;

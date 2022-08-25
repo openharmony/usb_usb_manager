@@ -35,6 +35,8 @@ const std::map<std::string_view, uint32_t> UsbDeviceManager::FUNCTION_MAPPING_N2
     {UsbSrvSupport::FUNCTION_NAME_HDC, UsbSrvSupport::FUNCTION_HDC},
     {UsbSrvSupport::FUNCTION_NAME_MTP, UsbSrvSupport::FUNCTION_MTP},
     {UsbSrvSupport::FUNCTION_NAME_PTP, UsbSrvSupport::FUNCTION_PTP},
+    {UsbSrvSupport::FUNCTION_NAME_RNDIS, UsbSrvSupport::FUNCTION_RNDIS},
+    {UsbSrvSupport::FUNCTION_NAME_STORAGE, UsbSrvSupport::FUNCTION_STORAGE},
 };
 
 UsbDeviceManager::UsbDeviceManager()
@@ -96,25 +98,15 @@ std::string UsbDeviceManager::ConvertToString(uint32_t function)
         stream = std::string {UsbSrvSupport::FUNCTION_NAME_NONE};
         return stream;
     }
-
     bool flag = false;
-    if ((function & UsbSrvSupport::FUNCTION_HDC) != 0) {
-        stream = std::string {UsbSrvSupport::FUNCTION_NAME_HDC};
-        flag = true;
-    }
-    if ((function & UsbSrvSupport::FUNCTION_ACM) != 0) {
-        if (flag) {
-            stream = stream + ",";
+    for (auto it = FUNCTION_MAPPING_N2C.begin(); it != FUNCTION_MAPPING_N2C.end(); ++it) {
+        if ((function & it->second) != 0) {
+            if (flag) {
+                stream += ",";
+            }
+            stream += std::string {it->first};
+            flag = true;
         }
-        stream = stream + std::string {UsbSrvSupport::FUNCTION_NAME_ACM};
-        flag = true;
-    }
-    if ((function & UsbSrvSupport::FUNCTION_ECM) != 0) {
-        if (flag) {
-            stream = stream + ",";
-        }
-        stream = stream + std::string {UsbSrvSupport::FUNCTION_NAME_ECM};
-        flag = true;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceManager::ConvertToString success");
     return stream;
