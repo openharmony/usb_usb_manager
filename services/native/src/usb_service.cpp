@@ -401,7 +401,7 @@ int32_t UsbService::ControlTransfer(const UsbDev &dev, const UsbCtrlTransfer &ct
     }
 
     int32_t ret = UEC_SERVICE_INNER_ERR;
-    if ((ctrl.requestType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
+    if (((uint32_t)ctrl.requestType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
         ret = usbd_->ControlTransferWrite(dev, ctrl, bufferData);
         if (ret != UEC_OK) {
             USB_HILOGE(MODULE_USB_SERVICE, "ControlTransferWrite error ret:%{public}d", ret);
