@@ -250,7 +250,8 @@ static void ParsePipeControlParam(const napi_env env, const napi_value jsObj, Pi
     NapiUtil::JsObjectToInt(env, jsObj, "index", index);
 
     napi_value dataValue;
-    NapiUtil::JsObjectGetProperty(env, jsObj, "data", dataValue);
+    bool hasProperty = NapiUtil::JsObjectGetProperty(env, jsObj, "data", dataValue);
+    NAPI_ASSERT_RETURN_VOID(env, hasProperty == true, "Wrong argument: controlParam has no data property.");
 
     uint8_t *data = nullptr;
     size_t dataLength = 0;
@@ -346,7 +347,8 @@ static void ParseConfigObj(const napi_env env, const napi_value configObj, USBCo
 static void ParseConfigsObjs(const napi_env env, const napi_value deviceObj, std::vector<USBConfig> &configs)
 {
     napi_value configsObj;
-    NapiUtil::JsObjectGetProperty(env, deviceObj, "configs", configsObj);
+    bool hasProperty = NapiUtil::JsObjectGetProperty(env, deviceObj, "configs", configsObj);
+    NAPI_ASSERT_RETURN_VOID(env, hasProperty == true, "Wrong argument: device has no configs property.");
     napi_valuetype valueType;
     napi_typeof(env, configsObj, &valueType);
     NAPI_ASSERT_RETURN_VOID(env, valueType == napi_object, "Wrong argument type. object expected.");
