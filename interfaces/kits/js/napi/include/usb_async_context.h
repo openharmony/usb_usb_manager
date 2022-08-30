@@ -48,15 +48,15 @@ const int32_t USB_REQUEST_DIR_TO_DEVICE = 0;
 const int32_t USB_REQUEST_DIR_FROM_DEVICE = 0x80;
 
 const int32_t ACM = 1;
-const int32_t ECM = 2;
-const int32_t HDC = 4;
-const int32_t MTP = 8;
-const int32_t PTP = 16;
-const int32_t RNDIS = 32;
-const int32_t MIDI = 64;
-const int32_t AUDIO_SOURCE = 128;
-const int32_t NCM = 256;
-const int32_t STORAGE = 512;
+const int32_t ECM = 1 << 1;
+const int32_t HDC = 1 << 2;
+const int32_t MTP = 1 << 3;
+const int32_t PTP = 1 << 4;
+const int32_t RNDIS = 1 << 5;
+const int32_t MIDI = 1 << 6;
+const int32_t AUDIO_SOURCE = 1 << 7;
+const int32_t NCM = 1 << 8;
+const int32_t STORAGE = 1 << 9;
 
 struct USBAsyncContext {
     napi_env env;

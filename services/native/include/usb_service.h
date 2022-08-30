@@ -22,6 +22,7 @@
 #include "iremote_object.h"
 #include "iusb_srv.h"
 #include "system_ability.h"
+#include "system_ability_status_change_stub.h"
 #include "usb_device_manager.h"
 #include "usb_host_manager.h"
 #include "usb_port_manager.h"
@@ -108,6 +109,14 @@ public:
     int32_t BulkRead(const UsbDev &devInfo, const UsbPipe &pipe, sptr<Ashmem> &ashmem) override;
     int32_t BulkWrite(const UsbDev &devInfo, const UsbPipe &pipe, sptr<Ashmem> &ashmem) override;
     int32_t BulkCancel(const UsbDev &devInfo, const UsbPipe &pipe) override;
+private:
+    class SystemAbilityStatusChangeListener : public SystemAbilityStatusChangeStub {
+    public:
+        explicit SystemAbilityStatusChangeListener();
+        ~SystemAbilityStatusChangeListener() = default;
+        void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+        void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    };
 
 private:
     bool Init();
