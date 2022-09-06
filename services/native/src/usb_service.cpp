@@ -73,39 +73,9 @@ UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
 }
 UsbService::~UsbService() {}
 
-UsbService::SystemAbilityStatusChangeListener::SystemAbilityStatusChangeListener()
-{
-}
-
-void UsbService::SystemAbilityStatusChangeListener::OnAddSystemAbility(
-    int32_t systemAbilityId, const std::string& deviceId)
-{
-    USB_HILOGI(MODULE_USB_SERVICE, "OnAddSystemAbility ID = %{public}d", systemAbilityId);
-}
-
-void UsbService::SystemAbilityStatusChangeListener::OnRemoveSystemAbility(
-    int32_t systemAbilityId, const std::string& deviceId)
-{
-    USB_HILOGI(MODULE_USB_SERVICE, "OnRemoveSystemAbility ID = %{public}d", systemAbilityId);
-    if (systemAbilityId == USB_SYSTEM_ABILITY_ID) {
-        exit(0);
-    }
-}
-
 void UsbService::OnStart()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "usb_service OnStart enter");
-    auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    sptr<ISystemAbilityStatusChange> status = new (std::nothrow) SystemAbilityStatusChangeListener();
-    if (samgrProxy == nullptr || status == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "samgrProxy or SystemAbilityStatusChangeListener is nullptr");
-        return;
-    }
-    int32_t ret = samgrProxy->SubscribeSystemAbility(USB_SYSTEM_ABILITY_ID, status);
-    if (ret != ERR_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "SubscribeSystemAbility failed. ret = %{public}d", ret);
-        return;
-    }
     if (ready_) {
         USB_HILOGE(MODULE_USB_SERVICE, "OnStart is ready, nothing to do");
         return;
