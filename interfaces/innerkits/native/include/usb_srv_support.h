@@ -50,12 +50,12 @@ struct UsbSrvSupport {
     enum Function : uint32_t {
         FUNCTION_NONE = 0,
         FUNCTION_ACM = 1,
-        FUNCTION_ECM = 1 << 1,
-        FUNCTION_HDC = 1 << 2,
-        FUNCTION_MTP = 1 << 3,
-        FUNCTION_PTP = 1 << 4,
-        FUNCTION_RNDIS = 1 << 5,
-        FUNCTION_STORAGE = 1 << 9,
+        FUNCTION_ECM = 2,
+        FUNCTION_HDC = 4,
+        FUNCTION_MTP = 8,
+        FUNCTION_PTP = 16,
+        FUNCTION_RNDIS = 32,
+        FUNCTION_STORAGE = 512,
     };
 };
 } // namespace USB
