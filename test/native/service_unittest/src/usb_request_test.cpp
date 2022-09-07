@@ -31,15 +31,17 @@
 #include "usb_srv_client.h"
 #include "v1_0/usb_types.h"
 
-const int32_t SLEEP_TIME = 3;
-const int32_t TAG_SIZE = 50;
-const int32_t BUFFER_SIZE = 255;
-
 using namespace testing::ext;
 using namespace OHOS::USB;
 using namespace OHOS;
 using namespace std;
 
+namespace OHOS {
+namespace USB {
+namespace Request {
+constexpr int32_t SLEEP_TIME = 3;
+constexpr int32_t TAG_SIZE = 50;
+constexpr int32_t BUFFER_SIZE = 255;
 void UsbRequestTest::SetUpTestCase(void)
 {
     auto &srvClient = UsbSrvClient::GetInstance();
@@ -1539,4 +1541,6 @@ HWTEST_F(UsbRequestTest, PipeRequestWait006, TestSize.Level1)
     EXPECT_TRUE(close);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : PipeRequestWait006 : Initialize");
 }
-
+} // Request
+} // USB
+} // OHOS

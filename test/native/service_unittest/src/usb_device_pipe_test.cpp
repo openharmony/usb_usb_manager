@@ -31,9 +31,11 @@ using namespace OHOS;
 using namespace OHOS::USB;
 using namespace std;
 
-const int32_t SLEEP_TIME = 3;
-const int32_t BUFFER_SIZE = 255;
-
+namespace OHOS {
+namespace USB {
+namespace DevicePipe {
+constexpr int32_t SLEEP_TIME = 3;
+constexpr int32_t BUFFER_SIZE = 255;
 void UsbDevicePipeTest::SetUpTestCase(void)
 {
     auto &srvClient = UsbSrvClient::GetInstance();
@@ -2598,3 +2600,6 @@ HWTEST_F(UsbDevicePipeTest, GetFileDescriptors003, TestSize.Level1)
     EXPECT_TRUE(ret);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetFileDescriptors003 : ControlTransfer");
 }
+} // DevicePipe
+} // USB
+} // OHOS

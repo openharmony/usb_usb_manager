@@ -18,6 +18,9 @@
 
 #include <gtest/gtest.h>
 
+namespace OHOS {
+namespace USB {
+namespace Request {
 class UsbRequestTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -25,4 +28,7 @@ public:
     void SetUp();
     void TearDown();
 };
+} // Request
+} // USB
+} // OHOS
 #endif

@@ -34,11 +34,13 @@ using namespace OHOS::USB;
 using namespace OHOS;
 using namespace std;
 
-const int32_t SLEEP_TIME = 3;
-const int32_t TEST_PORT_ID = 1;
-const int32_t TEST_POWER_ROLE = 2;
-const int32_t TEST_DATAR_ROLE = 2;
-
+namespace OHOS {
+namespace USB {
+namespace Core {
+constexpr int32_t SLEEP_TIME = 3;
+constexpr int32_t TEST_PORT_ID = 1;
+constexpr int32_t TEST_POWER_ROLE = 2;
+constexpr int32_t TEST_DATAR_ROLE = 2;
 void UsbCoreTest::SetUpTestCase(void)
 {
     auto &srvClient = UsbSrvClient::GetInstance();
@@ -727,3 +729,6 @@ HWTEST_F(UsbCoreTest, SetPortRole008, TestSize.Level1)
     ASSERT_TRUE(ret == 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetPortRole008 : SetPortRole");
 }
+} // Core
+} // USB
+} // OHOS

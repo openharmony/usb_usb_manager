@@ -18,6 +18,9 @@
 
 #include <gtest/gtest.h>
 
+namespace OHOS {
+namespace USB {
+namespace BulkCallback {
 class UsbBulkcallbackTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -25,4 +28,7 @@ public:
     void SetUp();
     void TearDown();
 };
+} // BulkCallback
+} // USB
+} // OHOS
 #endif
