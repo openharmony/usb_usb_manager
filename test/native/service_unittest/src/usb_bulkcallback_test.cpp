@@ -36,12 +36,14 @@ using namespace OHOS;
 using namespace OHOS::USB;
 using namespace std;
 
-const int32_t SLEEP_TIME = 3;
-const int32_t BUFFER_SIZE = 255;
-const uint32_t ASHMEM_MAX_SIZE = 1024;
-const uint32_t MEM_DATA = 1024 * 1024;
-
-int32_t InitAshmemOne(sptr<Ashmem> &asmptr, int32_t asmSize, uint8_t rflg)
+namespace OHOS {
+namespace USB {
+namespace BulkCallback {
+constexpr int32_t SLEEP_TIME = 3;
+constexpr int32_t BUFFER_SIZE = 255;
+constexpr uint32_t ASHMEM_MAX_SIZE = 1024;
+constexpr uint32_t MEM_DATA = 1024 * 1024;
+static int32_t InitAshmemOne(sptr<Ashmem> &asmptr, int32_t asmSize, uint8_t rflg)
 {
     asmptr = Ashmem::CreateAshmem("ttashmem000", asmSize);
     if (asmptr == nullptr) {
@@ -1029,3 +1031,6 @@ HWTEST_F(UsbBulkcallbackTest, UnRegBulkCallback003, TestSize.Level1)
     EXPECT_TRUE(close);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : UnRegBulkCallback003 : BulkTransfer");
 }
+} // BulkCallback
+} // USB
+} // OHOS

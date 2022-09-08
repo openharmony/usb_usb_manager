@@ -18,6 +18,9 @@
 
 #include <gtest/gtest.h>
 
+namespace OHOS {
+namespace USB {
+namespace DevicePipe {
 class UsbDevicePipeTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -25,5 +28,7 @@ public:
     void SetUp();
     void TearDown();
 };
+} // DevicePipe
+} // USB
+} // OHOS
 #endif
-
