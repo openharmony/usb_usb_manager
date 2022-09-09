@@ -48,7 +48,7 @@ ohos_shared_library("usbsrv_client") {
 
   external_deps = [
     "c_utils:utils",
-    "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:usb_idl_headers",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
