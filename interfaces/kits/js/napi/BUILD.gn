@@ -17,6 +17,7 @@ config("usbnapi_private_config") {
   include_dirs = [
     "//foundation/arkui/napi/native_engine",
     "//foundation/arkui/napi/interfaces/kits",
+    "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include",
     "//third_party/node/src",
     "//third_party/jsoncpp/include/json",
     "${usb_manager_path}/interfaces/kits/js/napi/include",
