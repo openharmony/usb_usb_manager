@@ -15,12 +15,12 @@
 
 #ifndef USB_RIGHT_MANAGER_H
 #define USB_RIGHT_MANAGER_H
-
 #include <algorithm>
 #include <map>
 #include <string>
-#include <utility>
 #include <vector>
+
+#include "bundle_mgr_interface.h"
 #include "usb_common.h"
 
 namespace OHOS {
@@ -36,10 +36,12 @@ public:
     int32_t RequestRight(const std::string &deviceName, const std::string &bundleName);
     bool AddDeviceRight(const std::string &deviceName, const std::string &bundleName);
     bool RemoveDeviceRight(const std::string &deviceName);
+    bool IsSystemHap();
 
 private:
     std::pair<int32_t, int32_t> GetDisplayPosition();
     bool GetUserAgreementByDiag(const std::string &deviceName, const std::string &bundleName);
+    sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
 
     int32_t dialogId_ {-1};
 };
