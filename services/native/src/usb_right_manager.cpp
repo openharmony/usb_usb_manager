@@ -18,8 +18,13 @@
 #include <unistd.h>
 
 #include "display_manager.h"
+#include "ipc_skeleton.h"
+#include "iservice_registry.h"
+#include "system_ability_definition.h"
 #include "ui_service_mgr_client.h"
 #include "usb_errors.h"
+
+using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace USB {
@@ -156,6 +161,36 @@ bool UsbRightManager::GetUserAgreementByDiag(const std::string &deviceName, cons
     sem_wait(&callbackSem);
     sem_destroy(&callbackSem);
     return isAgree;
+}
+
+sptr<IBundleMgr> UsbRightManager::GetBundleMgr()
+{
+    auto sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (sam == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "GetSystemAbilityManager return nullptr");
+        return nullptr;
+    }
+    auto bundleMgrSa = sam->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (bundleMgrSa == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "GetSystemAbility return nullptr");
+        return nullptr;
+    }
+    auto bundleMgr = iface_cast<IBundleMgr>(bundleMgrSa);
+    if (bundleMgr == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "iface_cast return nullptr");
+    }
+    return bundleMgr;
+}
+
+bool UsbRightManager::IsSystemHap()
+{
+    pid_t uid = IPCSkeleton::GetCallingUid();
+    auto bundleMgr = GetBundleMgr();
+    if (bundleMgr == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "BundleMgr is nullptr, return false");
+        return false;
+    }
+    return bundleMgr->CheckIsSystemAppByUid(uid);
 }
 } // namespace USB
 } // namespace OHOS

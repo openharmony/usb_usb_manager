@@ -17,8 +17,9 @@
 #define USB_COMMON_H
 
 #include <cstdint>
-#include "hilog_wrapper.h"
+#include <utility>
 
+#include "hilog_wrapper.h"
 namespace OHOS {
 namespace USB {
 /**
@@ -130,7 +131,8 @@ constexpr uint32_t USB_CFG_REMOTE_WAKEUP = 0x20;
         }                                                                             \
     } while (0)
 
-template <typename E> constexpr auto ToUnderlying(E e) noexcept
+template <typename E>
+constexpr auto ToUnderlying(E e) noexcept
 {
     return static_cast<std::underlying_type_t<E>>(e);
 }

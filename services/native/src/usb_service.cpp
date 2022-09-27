@@ -73,18 +73,16 @@ UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
 }
 UsbService::~UsbService() {}
 
-UsbService::SystemAbilityStatusChangeListener::SystemAbilityStatusChangeListener()
-{
-}
+UsbService::SystemAbilityStatusChangeListener::SystemAbilityStatusChangeListener() {}
 
 void UsbService::SystemAbilityStatusChangeListener::OnAddSystemAbility(
-    int32_t systemAbilityId, const std::string& deviceId)
+    int32_t systemAbilityId, const std::string &deviceId)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "OnAddSystemAbility ID = %{public}d", systemAbilityId);
 }
 
 void UsbService::SystemAbilityStatusChangeListener::OnRemoveSystemAbility(
-    int32_t systemAbilityId, const std::string& deviceId)
+    int32_t systemAbilityId, const std::string &deviceId)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "OnRemoveSystemAbility ID = %{public}d", systemAbilityId);
     if (systemAbilityId == USB_SYSTEM_ABILITY_ID) {
@@ -310,6 +308,14 @@ int32_t UsbService::GetDevices(std::vector<UsbDevice> &deviceList)
 
 int32_t UsbService::GetCurrentFunctions(int32_t &functions)
 {
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!(usbRightManager_->IsSystemHap())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -320,6 +326,15 @@ int32_t UsbService::GetCurrentFunctions(int32_t &functions)
 int32_t UsbService::SetCurrentFunctions(int32_t functions)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "func = %{public}d", functions);
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!(usbRightManager_->IsSystemHap())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     if (usbDeviceManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbDeviceManager_");
         return UEC_SERVICE_INVALID_VALUE;
@@ -335,12 +350,28 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
 
 int32_t UsbService::UsbFunctionsFromString(std::string_view funcs)
 {
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!(usbRightManager_->IsSystemHap())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     USB_HILOGI(MODULE_USB_SERVICE, "calling UsbFunctionsFromString");
     return UsbDeviceManager::ConvertFromString(funcs);
 }
 
 std::string UsbService::UsbFunctionsToString(int32_t funcs)
 {
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return "";
+    }
+    if (!(usbRightManager_->IsSystemHap())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return "";
+    }
     USB_HILOGI(MODULE_USB_SERVICE, "calling UsbFunctionsToString");
     return UsbDeviceManager::ConvertToString(funcs);
 }
@@ -348,6 +379,14 @@ std::string UsbService::UsbFunctionsToString(int32_t funcs)
 int32_t UsbService::GetPorts(std::vector<UsbPort> &ports)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbPortManager getPorts");
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!(usbRightManager_->IsSystemHap())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     if (usbPortManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbPortManager_");
         return UEC_SERVICE_INVALID_VALUE;
@@ -358,6 +397,14 @@ int32_t UsbService::GetPorts(std::vector<UsbPort> &ports)
 int32_t UsbService::GetSupportedModes(int32_t portId, int32_t &supportedModes)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbPortManager getSupportedModes");
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!(usbRightManager_->IsSystemHap())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     if (usbPortManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbPortManager_");
         return UEC_SERVICE_INVALID_VALUE;
@@ -368,6 +415,14 @@ int32_t UsbService::GetSupportedModes(int32_t portId, int32_t &supportedModes)
 int32_t UsbService::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbd getPorts");
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!(usbRightManager_->IsSystemHap())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
