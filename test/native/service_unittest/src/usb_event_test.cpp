@@ -46,6 +46,7 @@ public:
 
     void OnReceiveEvent(const CommonEventData &data) override
     {
+        USB_HILOGI(MODULE_USB_SERVICE, "recv event ok");
         eventData_ = data;
         sem_post(&UsbEventTest::testSem_);
     }
