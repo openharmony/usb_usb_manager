@@ -18,6 +18,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -25,7 +26,6 @@
 #include "string_ex.h"
 #include "system_ability_definition.h"
 #include "usb_errors.h"
-#include "usb_service.h"
 #include "usb_srv_client.h"
 #include "usb_srv_support.h"
 
