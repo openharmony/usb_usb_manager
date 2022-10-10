@@ -32,6 +32,7 @@
 #include "usb_device_pipe.h"
 #include "usb_endpoint.h"
 #include "usb_errors.h"
+#include "usb_napi_errors.h"
 #include "usb_srv_client.h"
 
 using namespace OHOS;
@@ -53,7 +54,8 @@ static void ParseUsbDevicePipe(const napi_env env, const napi_value &obj, USBDev
 {
     napi_valuetype valueType;
     napi_typeof(env, obj, &valueType);
-    NAPI_ASSERT_RETURN_VOID(env, valueType == napi_object, "Wrong argument type. object expected.");
+    USB_ASSERT_RETURN_VOID(
+        env, valueType == napi_object, SYSPARAM_INVALID_INPUT, "The type of pipe must be USBDevicePipe.");
 
     int32_t busNum = 0;
     NapiUtil::JsObjectToInt(env, obj, "busNum", busNum);
@@ -112,7 +114,7 @@ static void CtoJSUsbInterface(const napi_env &env, napi_value &obj, const UsbInt
             USB_HILOGE(MODULE_JS_NAPI, "GetEndpoint failed i=%{public}d", i);
             return;
         }
-    
+
         napi_value objTmp;
         CtoJSUsbEndpoint(env, objTmp, usbEndpoint.value());
         napi_set_element(env, arr, i, objTmp);
@@ -192,32 +194,19 @@ static bool ParseEndpointsObjs(const napi_env env, const napi_value interfaceObj
 {
     napi_value endpointsObjs;
     bool isGetObjSuccess = NapiUtil::JsObjectGetProperty(env, interfaceObj, "endpoints", endpointsObjs);
-    if (!isGetObjSuccess) {
-        USB_HILOGE(MODULE_JS_NAPI, "get endpoints failed.");
-        return false;
-    }
+    USB_ASSERT_RETURN_FALSE(
+        env, isGetObjSuccess == true, SYSPARAM_INVALID_INPUT, "The interface should have the endpoints property.");
 
     bool result = false;
-    napi_status status = napi_is_array(env, endpointsObjs, &result);
-    if (!result || status != napi_ok) {
-        USB_HILOGE(MODULE_JS_NAPI, "invalid endpoints.");
-        return false;
-    }
+    NAPI_CHECK_RETURN_FALSE(napi_is_array(env, endpointsObjs, &result), "Get endpoints type failed");
+    USB_ASSERT_RETURN_FALSE(env, result == true, SYSPARAM_INVALID_INPUT, "The type of endpoints must be array.");
 
     uint32_t endpointCount = 0;
-    status = napi_get_array_length(env, endpointsObjs, &endpointCount);
-    if (status != napi_ok) {
-        USB_HILOGE(MODULE_JS_NAPI, "get len failed.");
-        return false;
-    }
+    NAPI_CHECK_RETURN_FALSE(napi_get_array_length(env, endpointsObjs, &endpointCount), "Get array length failed");
 
     for (uint32_t k = 0; k < endpointCount; ++k) {
         napi_value endpointObj;
-        status = napi_get_element(env, endpointsObjs, k, &endpointObj);
-        if (status != napi_ok) {
-            USB_HILOGE(MODULE_JS_NAPI, "get endpoints element failed k=%u.", k);
-            return false;
-        }
+        NAPI_CHECK_RETURN_FALSE(napi_get_element(env, endpointsObjs, k, &endpointObj), "Get endpoints element failed");
         USBEndpoint ep;
         ParseEndpointObj(env, endpointObj, ep);
         eps.push_back(ep);
@@ -251,7 +240,8 @@ static void ParsePipeControlParam(const napi_env env, const napi_value jsObj, Pi
 
     napi_value dataValue;
     bool hasProperty = NapiUtil::JsObjectGetProperty(env, jsObj, "data", dataValue);
-    NAPI_ASSERT_RETURN_VOID(env, hasProperty == true, "Wrong argument: controlParam has no data property.");
+    USB_ASSERT_RETURN_VOID(
+        env, hasProperty == true, SYSPARAM_INVALID_INPUT, "The controlParam should have the data property.");
 
     uint8_t *data = nullptr;
     size_t dataLength = 0;
@@ -283,7 +273,10 @@ static void ParseInterfaceObj(const napi_env env, const napi_value interfaceObj,
     std::vector<USBEndpoint> eps;
 
     bool ret = ParseEndpointsObjs(env, interfaceObj, eps);
-    NAPI_ASSERT_RETURN_VOID(env, ret == true, "Parse endpointers error.");
+    if (!ret) {
+        USB_HILOGE(MODULE_JS_NAPI, "Parse endpointers error.");
+        return;
+    }
 
     interface = UsbInterface(id, protocol, clzz, subClass, alternateSetting, name, eps);
 }
@@ -292,32 +285,21 @@ static bool ParseInterfacesObjs(const napi_env env, const napi_value configObj, 
 {
     napi_value interfacesObjs;
     bool isGetObjSuccess = NapiUtil::JsObjectGetProperty(env, configObj, "interfaces", interfacesObjs);
-    if (!isGetObjSuccess) {
-        USB_HILOGE(MODULE_JS_NAPI, "get interfaces failed.");
-        return false;
-    }
+    USB_ASSERT_RETURN_FALSE(
+        env, isGetObjSuccess == true, SYSPARAM_INVALID_INPUT, "The config should have the interfaces property.");
 
     bool result = false;
-    napi_status status = napi_is_array(env, interfacesObjs, &result);
-    if (!result || status != napi_ok) {
-        USB_HILOGE(MODULE_JS_NAPI, "invalid param.");
-        return false;
-    }
+    NAPI_CHECK_RETURN_FALSE(napi_is_array(env, interfacesObjs, &result), "Get interfaces type failed");
+    USB_ASSERT_RETURN_FALSE(env, result == true, SYSPARAM_INVALID_INPUT, "The type of interfaces must be array.");
 
     uint32_t interfaceCount = 0;
-    status = napi_get_array_length(env, interfacesObjs, &interfaceCount);
-    if (status != napi_ok) {
-        USB_HILOGE(MODULE_JS_NAPI, "get len failed.");
-        return false;
-    }
+    NAPI_CHECK_RETURN_FALSE(napi_get_array_length(env, interfacesObjs, &interfaceCount), "Get array length failed");
 
     for (uint32_t i = 0; i < interfaceCount; ++i) {
         napi_value interfaceObj;
-        status = napi_get_element(env, interfacesObjs, i, &interfaceObj);
-        if (status != napi_ok) {
-            USB_HILOGE(MODULE_JS_NAPI, "get element failed,i=%{public}u.", i);
-            return false;
-        }
+        NAPI_CHECK_RETURN_FALSE(
+            napi_get_element(env, interfacesObjs, i, &interfaceObj), "Get interfaces element failed");
+
         UsbInterface interface;
         ParseInterfaceObj(env, interfaceObj, interface);
         interfaces.push_back(interface);
@@ -339,7 +321,10 @@ static void ParseConfigObj(const napi_env env, const napi_value configObj, USBCo
 
     std::vector<UsbInterface> interfaces;
     bool ret = ParseInterfacesObjs(env, configObj, interfaces);
-    NAPI_ASSERT_RETURN_VOID(env, ret == true, "Parse interfaces error.");
+    if (!ret) {
+        USB_HILOGE(MODULE_JS_NAPI, "Parse interfaces error.");
+        return;
+    }
 
     config = USBConfig(id, attributes, name, maxPower, interfaces);
 }
@@ -348,10 +333,12 @@ static void ParseConfigsObjs(const napi_env env, const napi_value deviceObj, std
 {
     napi_value configsObj;
     bool hasProperty = NapiUtil::JsObjectGetProperty(env, deviceObj, "configs", configsObj);
-    NAPI_ASSERT_RETURN_VOID(env, hasProperty == true, "Wrong argument: device has no configs property.");
+    USB_ASSERT_RETURN_VOID(
+        env, hasProperty == true, SYSPARAM_INVALID_INPUT, "The device should have the configs property.");
     napi_valuetype valueType;
     napi_typeof(env, configsObj, &valueType);
-    NAPI_ASSERT_RETURN_VOID(env, valueType == napi_object, "Wrong argument type. object expected.");
+    USB_ASSERT_RETURN_VOID(
+        env, valueType == napi_object, SYSPARAM_INVALID_INPUT, "The type of configs must be object.");
 
     uint32_t configCount = 0;
     napi_get_array_length(env, configsObj, &configCount);
@@ -391,7 +378,7 @@ static void ParseDeviceObj(const napi_env env, const napi_value deviceObj, UsbDe
     std::vector<USBConfig> configs;
     ParseConfigsObjs(env, deviceObj, configs);
     dev = UsbDevice(name, manufacturerName, productName, version, devAddr, busNum, vendorId, productId, clazz, subclass,
-                    protocol, configs);
+        protocol, configs);
 }
 
 /* ============================================= Usb Core ============================================= */
@@ -401,7 +388,7 @@ static napi_value CoreGetDevices(napi_env env, napi_callback_info info)
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {0};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    NAPI_ASSERT(env, (argc == PARAM_COUNT_0), "CoreGetDevices failed to get cb info");
+    USB_ASSERT(env, (argc == PARAM_COUNT_0), SYSPARAM_INVALID_INPUT, "The function takes no arguments.");
 
     std::vector<UsbDevice> deviceList;
     int32_t ret = g_usbClient.GetDevices(deviceList);
@@ -430,13 +417,13 @@ static napi_value CoreConnectDevice(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {0};
-    napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    NAPI_ASSERT(env, (status == napi_ok) && (argc >= PARAM_COUNT_1), "ConnectDevice failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
 
     napi_value deviceObj = argv[INDEX_0];
     napi_valuetype type;
-    napi_typeof(env, deviceObj, &type);
-    NAPI_ASSERT(env, type == napi_object, "Wrong argument type. Object expected.");
+    NAPI_CHECK(env, napi_typeof(env, deviceObj, &type), "Get deviceObj type failed");
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of device must be USBDevice.");
     UsbDevice dev;
     ParseDeviceObj(env, deviceObj, dev);
 
@@ -446,7 +433,7 @@ static napi_value CoreConnectDevice(napi_env env, napi_callback_info info)
     if (ret == UEC_OK) {
         CreateUsbDevicePipe(env, pipObj, pipe);
     } else if (ret == UEC_SERVICE_PERMISSION_DENIED || ret == UEC_INTERFACE_PERMISSION_DENIED) {
-        napi_throw_error(env, nullptr, "permission denied, need call requestRight to get permission");
+        ThrowBusinessError(env, USB_DEVICE_PERMISSION_DENIED, "need call requestRight to get permission");
     } else {
         napi_get_undefined(env, &pipObj);
     }
@@ -458,12 +445,12 @@ static napi_value CoreHasRight(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
     napi_value args[PARAM_COUNT_1] = {0};
-    napi_status status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
-    NAPI_ASSERT(env, (status == napi_ok) && (argc >= PARAM_COUNT_1), "HasRight failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
 
     napi_valuetype type;
-    NAPI_CALL(env, napi_typeof(env, args[INDEX_0], &type));
-    NAPI_ASSERT(env, type == napi_string, "Wrong argument type. String expected.");
+    NAPI_CHECK(env, napi_typeof(env, args[INDEX_0], &type), "Get args 1 type failed");
+    USB_ASSERT(env, type == napi_string, SYSPARAM_INVALID_INPUT, "The type of deviceName must be string");
     std::string deviceName;
     NapiUtil::JsValueToString(env, args[INDEX_0], STR_DEFAULT_SIZE, deviceName);
 
@@ -500,17 +487,20 @@ static napi_value CoreRequestRight(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
     napi_value args[PARAM_COUNT_1] = {0};
-    napi_status status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
-    NAPI_ASSERT(env, (status == napi_ok) && (argc >= PARAM_COUNT_1), "RequestRight failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
 
     napi_valuetype type;
-    NAPI_CALL(env, napi_typeof(env, args[INDEX_0], &type));
-    NAPI_ASSERT(env, type == napi_string, "Wrong argument type. String expected.");
+    NAPI_CHECK(env, napi_typeof(env, args[INDEX_0], &type), "Get args 1 type failed");
+    USB_ASSERT(env, type == napi_string, SYSPARAM_INVALID_INPUT, "The type of deviceName must be string.");
     std::string deviceName;
     NapiUtil::JsValueToString(env, args[INDEX_0], STR_DEFAULT_SIZE, deviceName);
 
-    auto asyncContext = new(std::nothrow) USBRightAsyncContext();
-    NAPI_ASSERT(env, asyncContext != nullptr, "Create USBRightAsyncContext failed.");
+    auto asyncContext = new (std::nothrow) USBRightAsyncContext();
+    if (asyncContext == nullptr) {
+        USB_HILOGE(MODULE_JS_NAPI, "Create USBRightAsyncContext failed.");
+        return nullptr;
+    }
 
     asyncContext->env = env;
     asyncContext->deviceName = deviceName;
@@ -533,12 +523,12 @@ static napi_value CoreUsbFunctionsFromString(napi_env env, napi_callback_info in
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {0};
 
-    napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    NAPI_ASSERT(env, (status == napi_ok) && (argc >= PARAM_COUNT_1), "UsbFunctionsFromString failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
 
     napi_valuetype type;
-    napi_typeof(env, argv[INDEX_0], &type);
-    NAPI_ASSERT(env, type == napi_string, "Wrong argument type. Function string expected.");
+    NAPI_CHECK(env, napi_typeof(env, argv[INDEX_0], &type), "Get args 1 type failed");
+    USB_ASSERT(env, type == napi_string, SYSPARAM_INVALID_INPUT, "The type of funcs must be string.");
 
     // get value string argument of napi converted.
     std::string funcs;
@@ -557,12 +547,12 @@ static napi_value CoreUsbFunctionsToString(napi_env env, napi_callback_info info
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {0};
 
-    napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    NAPI_ASSERT(env, (status == napi_ok) && (argc >= PARAM_COUNT_1), "UsbFunctionsToString failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
 
     napi_valuetype type;
-    napi_typeof(env, argv[INDEX_0], &type);
-    NAPI_ASSERT(env, type == napi_number, "Wrong argument type. Function number expected.");
+    NAPI_CHECK(env, napi_typeof(env, argv[INDEX_0], &type), "Get args 1 type failed");
+    USB_ASSERT(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of funcs must be number.");
 
     int32_t funcs;
     napi_get_value_int32(env, argv[INDEX_0], &funcs);
@@ -599,18 +589,21 @@ static napi_value CoreSetCurrentFunctions(napi_env env, napi_callback_info info)
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {0};
 
-    napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    NAPI_ASSERT(env, (status == napi_ok) && (argc >= PARAM_COUNT_1), "SetCurrentFunctions failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
 
     napi_valuetype type;
-    napi_typeof(env, argv[INDEX_0], &type);
-    NAPI_ASSERT(env, type == napi_number, "Wrong argument type. Number expected.");
+    NAPI_CHECK(env, napi_typeof(env, argv[INDEX_0], &type), "Get args 1 type failed");
+    USB_ASSERT(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of funcs must be number.");
 
     int32_t funcs = 0;
     napi_get_value_int32(env, argv[INDEX_0], &funcs);
 
-    auto asyncContext = new(std::nothrow) USBFunctionAsyncContext();
-    NAPI_ASSERT(env, asyncContext != nullptr, "Create USBFunctionAsyncContext failed.");
+    auto asyncContext = new (std::nothrow) USBFunctionAsyncContext();
+    if (asyncContext == nullptr) {
+        USB_HILOGE(MODULE_JS_NAPI, "Create USBFunctionAsyncContext failed");
+        return nullptr;
+    }
 
     asyncContext->env = env;
     asyncContext->functions = funcs;
@@ -621,7 +614,7 @@ static napi_value CoreSetCurrentFunctions(napi_env env, napi_callback_info info)
     napi_create_string_utf8(env, "SetCurrentFunctions", NAPI_AUTO_LENGTH, &resource);
 
     napi_create_async_work(env, nullptr, resource, g_setCurrentFunctionExecute, g_setCurrentFunctionComplete,
-                           reinterpret_cast<void *>(asyncContext), &asyncContext->work);
+        reinterpret_cast<void *>(asyncContext), &asyncContext->work);
     napi_queue_async_work(env, asyncContext->work);
 
     return result;
@@ -631,8 +624,8 @@ static napi_value CoreGetCurrentFunctions(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {0};
-    napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    NAPI_ASSERT(env, (argc == PARAM_COUNT_0), "CoreGetCurrentFunctions failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc == PARAM_COUNT_0), SYSPARAM_INVALID_INPUT, "The function takes no arguments.");
 
     int32_t cfuncs;
     int32_t ret = g_usbClient.GetCurrentFunctions(cfuncs);
@@ -651,11 +644,10 @@ static napi_value CoreGetPorts(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {0};
-    napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    NAPI_ASSERT(env, (argc == PARAM_COUNT_0), "CoreGetPorts failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc == PARAM_COUNT_0), SYSPARAM_INVALID_INPUT, "The function takes no arguments.");
 
     std::vector<UsbPort> ports;
-
     int32_t ret = g_usbClient.GetPorts(ports);
     napi_value result;
     if (ret != UEC_OK) {
@@ -689,12 +681,12 @@ static napi_value PortGetSupportedModes(napi_env env, napi_callback_info info)
     size_t argc = PARAM_COUNT_1;
     napi_value args[PARAM_COUNT_1] = {0};
 
-    napi_status status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
-    NAPI_ASSERT(env, (status == napi_ok) && (argc >= PARAM_COUNT_1), "GetSupportedModes failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
 
     napi_valuetype type;
-    NAPI_CALL(env, napi_typeof(env, args[INDEX_0], &type));
-    NAPI_ASSERT(env, type == napi_number, "Wrong argument type. Number expected.");
+    NAPI_CHECK(env, napi_typeof(env, args[INDEX_0], &type), "Get args 1 type failed");
+    USB_ASSERT(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be number.");
 
     int32_t id = 0;
     int32_t result = 0;
@@ -704,7 +696,7 @@ static napi_value PortGetSupportedModes(napi_env env, napi_callback_info info)
         USB_HILOGD(MODULE_JS_NAPI, "false ret = %{public}d", ret);
     }
     napi_value napiValue = nullptr;
-    NAPI_CALL(env, napi_create_int32(env, result, &napiValue));
+    NAPI_CHECK(env, napi_create_int32(env, result, &napiValue), "Create int32 failed");
 
     return napiValue;
 }
@@ -735,16 +727,16 @@ static napi_value PortSetPortRole(napi_env env, napi_callback_info info)
     size_t argc = PARAM_COUNT_3;
     napi_value args[PARAM_COUNT_3] = {0};
 
-    napi_status status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
-    NAPI_ASSERT(env, (status == napi_ok) && (argc >= PARAM_COUNT_1), "SetPortRole failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_3), SYSPARAM_INVALID_INPUT, "The function takes three arguments.");
 
     napi_valuetype type;
-    NAPI_CALL(env, napi_typeof(env, args[INDEX_0], &type));
-    NAPI_ASSERT(env, type == napi_number, "Wrong argument type. Number expected.");
-    NAPI_CALL(env, napi_typeof(env, args[INDEX_1], &type));
-    NAPI_ASSERT(env, type == napi_number, "Wrong argument type. Number expected.");
-    NAPI_CALL(env, napi_typeof(env, args[INDEX_2], &type));
-    NAPI_ASSERT(env, type == napi_number, "Wrong argument type. Number expected.");
+    NAPI_CHECK(env, napi_typeof(env, args[INDEX_0], &type), "Get args 1 type failed");
+    USB_ASSERT(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be number.");
+    NAPI_CHECK(env, napi_typeof(env, args[INDEX_1], &type), "Get args 2 type failed");
+    USB_ASSERT(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of powerRole must be number.");
+    NAPI_CHECK(env, napi_typeof(env, args[INDEX_2], &type), "Get args 3 type failed");
+    USB_ASSERT(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of dataRole must be number.");
 
     int32_t id = 0;
     napi_get_value_int32(env, args[INDEX_0], &id);
@@ -753,8 +745,11 @@ static napi_value PortSetPortRole(napi_env env, napi_callback_info info)
     int32_t dataRole = 0;
     napi_get_value_int32(env, args[INDEX_2], &dataRole);
 
-    auto asyncContext = new(std::nothrow) USBPortRoleAsyncContext();
-    NAPI_ASSERT(env, asyncContext != nullptr, "Create USBPortRoleAsyncContext failed.");
+    auto asyncContext = new (std::nothrow) USBPortRoleAsyncContext();
+    if (asyncContext == nullptr) {
+        USB_HILOGE(MODULE_JS_NAPI, "Create USBPortRoleAsyncContext failed");
+        return nullptr;
+    }
 
     asyncContext->env = env;
     asyncContext->portId = id;
@@ -779,13 +774,13 @@ static napi_value PipeClaimInterface(napi_env env, napi_callback_info info)
     size_t argc = PARAM_COUNT_3;
     napi_value argv[PARAM_COUNT_3] = {0};
 
-    napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    NAPI_ASSERT(env, (status == napi_ok) && (argc >= PARAM_COUNT_2), "ClaimInterface failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_2), SYSPARAM_INVALID_INPUT, "The function at least takes two arguments.");
 
     napi_value obj = argv[INDEX_0];
     napi_valuetype type;
     napi_typeof(env, obj, &type);
-    NAPI_ASSERT(env, type == napi_object, "Wrong argument type. Object expected.");
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of pipe must be USBDevicePipe.");
 
     USBDevicePipe pipe;
     ParseUsbDevicePipe(env, obj, pipe);
@@ -793,13 +788,13 @@ static napi_value PipeClaimInterface(napi_env env, napi_callback_info info)
     UsbInterface interface;
     napi_value obj2 = argv[INDEX_1];
     napi_typeof(env, obj2, &type);
-    NAPI_ASSERT(env, type == napi_object, "Wrong argument type. Object expected.");
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of iface must be USBInterface.");
     ParseInterfaceObj(env, obj2, interface);
 
     bool isForce = false;
     if (argc >= PARAM_COUNT_3) {
         napi_typeof(env, argv[INDEX_2], &type);
-        NAPI_ASSERT(env, type == napi_boolean, "Wrong argument type. Object expected.");
+        USB_ASSERT(env, type == napi_boolean, SYSPARAM_INVALID_INPUT, "The type of force must be boolean.");
         napi_get_value_bool(env, argv[INDEX_2], &isForce);
     }
 
@@ -816,19 +811,21 @@ static napi_value PipeReleaseInterface(napi_env env, napi_callback_info info)
     size_t argc = PARAM_COUNT_2;
     napi_value argv[PARAM_COUNT_2] = {0};
 
-    napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    NAPI_ASSERT(env, (status == napi_ok) && (argc >= PARAM_COUNT_2), "ReleaseInterface failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_2), SYSPARAM_INVALID_INPUT, "The function takes two arguments.");
 
     napi_value obj = argv[INDEX_0];
     napi_valuetype type;
     napi_typeof(env, obj, &type);
-    NAPI_ASSERT(env, type == napi_object, "Wrong argument type. Object expected.");
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of pipe must be USBDevicePipe.");
 
     USBDevicePipe pipe;
     ParseUsbDevicePipe(env, obj, pipe);
 
     UsbInterface interface;
     napi_value obj2 = argv[INDEX_1];
+    napi_typeof(env, obj2, &type);
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of iface must be USBInterface.");
     ParseInterfaceObj(env, obj2, interface);
     int32_t ret = pipe.ReleaseInterface(interface);
     USB_HILOGD(MODULE_JS_NAPI, "pipe call PipeReleaseInterface ret: %{public}d", ret);
@@ -842,20 +839,20 @@ static napi_value PipeSetInterface(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_2;
     napi_value argv[PARAM_COUNT_2] = {0};
-    napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    NAPI_ASSERT(env, (status == napi_ok) && (argc >= PARAM_COUNT_2), "SetInterface failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_2), SYSPARAM_INVALID_INPUT, "The function takes two arguments.");
 
     napi_value pipeObj = argv[INDEX_0];
     napi_valuetype type;
     napi_typeof(env, pipeObj, &type);
-    NAPI_ASSERT(env, type == napi_object, "Wrong argument type. Object expected.");
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of pipe must be USBDevicePipe.");
 
     USBDevicePipe pipe;
     ParseUsbDevicePipe(env, pipeObj, pipe);
 
     napi_value interfaceObj = argv[INDEX_1];
     napi_typeof(env, interfaceObj, &type);
-    NAPI_ASSERT(env, type == napi_object, "Wrong argument type. Object expected.");
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of iface must be USBInterface.");
 
     UsbInterface interface;
     ParseInterfaceObj(env, interfaceObj, interface);
@@ -870,20 +867,20 @@ static napi_value PipeSetConfiguration(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_2;
     napi_value argv[PARAM_COUNT_2] = {0};
-    napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    NAPI_ASSERT(env, (status == napi_ok) && (argc >= PARAM_COUNT_2), "SetConfiguration failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_2), SYSPARAM_INVALID_INPUT, "The function takes two arguments.");
 
     napi_valuetype type;
     napi_value pipeObj = argv[INDEX_0];
 
     napi_typeof(env, pipeObj, &type);
-    NAPI_ASSERT(env, type == napi_object, "Wrong argument type. Object expected.");
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of pipe must be USBDevicePipe.");
     USBDevicePipe pipe;
     ParseUsbDevicePipe(env, pipeObj, pipe);
 
     napi_value configObj = argv[INDEX_1];
     napi_typeof(env, configObj, &type);
-    NAPI_ASSERT(env, type == napi_object, "Wrong argument type. Object expected.");
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of config must be USBConfig.");
     USBConfig config;
     ParseConfigObj(env, configObj, config);
 
@@ -899,12 +896,12 @@ static napi_value PipeGetRawDescriptors(napi_env env, napi_callback_info info)
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {0};
 
-    napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    NAPI_ASSERT(env, (status == napi_ok) && (argc >= PARAM_COUNT_1), "GetRawDescriptors failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
     napi_value obj = argv[INDEX_0];
     napi_valuetype type;
     napi_typeof(env, obj, &type);
-    NAPI_ASSERT(env, type == napi_object, "Wrong argument type. Object expected.");
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of pipe must be USBDevicePipe.");
 
     USBDevicePipe pipe;
     ParseUsbDevicePipe(env, obj, pipe);
@@ -926,12 +923,12 @@ static napi_value PipeGetFileDescriptor(napi_env env, napi_callback_info info)
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {0};
 
-    napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    NAPI_ASSERT(env, (status == napi_ok) && (argc >= PARAM_COUNT_1), "PipeGetFileDescriptor failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
     napi_value obj = argv[INDEX_0];
     napi_valuetype type;
     napi_typeof(env, obj, &type);
-    NAPI_ASSERT(env, type == napi_object, "Wrong argument type. Object expected.");
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of pipe must be USBDevicePipe.");
 
     USBDevicePipe pipe;
     ParseUsbDevicePipe(env, obj, pipe);
@@ -948,12 +945,12 @@ static auto g_controlTransferExecute = [](napi_env env, void *data) {
     USBControlTransferAsyncContext *asyncContext = (USBControlTransferAsyncContext *)data;
     std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
     if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
-        delete [] asyncContext->buffer;
+        delete[] asyncContext->buffer;
         asyncContext->buffer = nullptr;
     }
 
-    const UsbCtrlTransfer tctrl = {asyncContext->reqType, asyncContext->request, asyncContext->value,
-                                   asyncContext->index, asyncContext->timeOut};
+    const UsbCtrlTransfer tctrl = {
+        asyncContext->reqType, asyncContext->request, asyncContext->value, asyncContext->index, asyncContext->timeOut};
     int32_t ret;
     do {
         ret = asyncContext->pipe.ControlTransfer(tctrl, bufferData);
@@ -991,15 +988,21 @@ static auto g_controlTransferComplete = [](napi_env env, napi_status status, voi
     delete asyncContext;
 };
 
-static std::tuple<bool, USBDevicePipe, PipeControlParam, int32_t> GetControlTransferParam(napi_env env,
-    napi_callback_info info)
+static std::tuple<bool, USBDevicePipe, PipeControlParam, int32_t> GetControlTransferParam(
+    napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_3;
     napi_value argv[PARAM_COUNT_3] = {0};
     napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    if (status != napi_ok || argc < PARAM_COUNT_2) {
+    if (status != napi_ok) {
         USB_HILOGE(MODULE_JS_NAPI, "ControlTransfer failed to get cb info\n");
-        return {false, {}, {}, {} };
+        return {false, {}, {}, {}};
+    }
+
+    if (argc < PARAM_COUNT_2) {
+        USB_HILOGE(MODULE_JS_NAPI, "The function at least takes two arguments.\n");
+        ThrowBusinessError(env, SYSPARAM_INVALID_INPUT, "The function at least takes two arguments.");
+        return {false, {}, {}, {}};
     }
 
     // pipe param
@@ -1007,7 +1010,8 @@ static std::tuple<bool, USBDevicePipe, PipeControlParam, int32_t> GetControlTran
     napi_typeof(env, argv[INDEX_0], &type);
     if (type != napi_object) {
         USB_HILOGE(MODULE_JS_NAPI, "index 0 wrong argument type, object expected.\n");
-        return {false, {}, {}, {} };
+        ThrowBusinessError(env, SYSPARAM_INVALID_INPUT, "The type of pipe must be USBDevicePipe.");
+        return {false, {}, {}, {}};
     }
 
     USBDevicePipe pipe;
@@ -1023,16 +1027,22 @@ static std::tuple<bool, USBDevicePipe, PipeControlParam, int32_t> GetControlTran
         napi_get_value_int32(env, argv[INDEX_2], &timeOut);
     }
 
-    return { true, pipe, controlParam, timeOut };
+    return {true, pipe, controlParam, timeOut};
 }
 
 static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
 {
     auto [res, pipe, controlParam, timeOut] = GetControlTransferParam(env, info);
-    NAPI_ASSERT(env, res == true, "GetControlTransferParam failed.");
+    if (!res) {
+        USB_HILOGE(MODULE_JS_NAPI, "GetControlTransferParam failed.");
+        return nullptr;
+    }
 
-    auto asyncContext = new(std::nothrow) USBControlTransferAsyncContext();
-    NAPI_ASSERT(env, asyncContext != nullptr, "New USBControlTransferAsyncContext failed.");
+    auto asyncContext = new (std::nothrow) USBControlTransferAsyncContext();
+    if (asyncContext == nullptr) {
+        USB_HILOGE(MODULE_JS_NAPI, "New USBControlTransferAsyncContext failed.");
+        return nullptr;
+    }
 
     asyncContext->env = env;
     asyncContext->pipe = pipe;
@@ -1043,7 +1053,7 @@ static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
     asyncContext->index = controlParam.index;
 
     if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
-        uint8_t *nativeArraybuffer = new(std::nothrow) uint8_t[controlParam.dataLength];
+        uint8_t *nativeArraybuffer = new (std::nothrow) uint8_t[controlParam.dataLength];
         if (nativeArraybuffer == nullptr) {
             USB_HILOGE(MODULE_JS_NAPI, "new failed");
             delete asyncContext;
@@ -1054,7 +1064,7 @@ static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
         if (ret != EOK) {
             USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed\n");
             delete asyncContext;
-            delete []nativeArraybuffer;
+            delete[] nativeArraybuffer;
             return nullptr;
         }
         asyncContext->buffer = nativeArraybuffer;
@@ -1071,7 +1081,7 @@ static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
     napi_create_string_utf8(env, "PipeControlTransfer", NAPI_AUTO_LENGTH, &resource);
 
     napi_create_async_work(env, nullptr, resource, g_controlTransferExecute, g_controlTransferComplete,
-                           reinterpret_cast<void *>(asyncContext), &asyncContext->work);
+        reinterpret_cast<void *>(asyncContext), &asyncContext->work);
     napi_queue_async_work(env, asyncContext->work);
 
     return result;
@@ -1081,7 +1091,7 @@ static auto g_bulkTransferExecute = [](napi_env env, void *data) {
     USBBulkTransferAsyncContext *asyncContext = reinterpret_cast<USBBulkTransferAsyncContext *>(data);
     std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
     if (asyncContext->endpoint.GetDirection() == USB_ENDPOINT_DIR_OUT) {
-        delete [] asyncContext->buffer;
+        delete[] asyncContext->buffer;
         asyncContext->buffer = nullptr;
     }
 
@@ -1126,19 +1136,21 @@ static bool GetBulkTransferParams(napi_env env, napi_callback_info info, USBBulk
 {
     size_t argc = PARAM_COUNT_4;
     napi_value argv[PARAM_COUNT_4] = {0};
-
-    napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    NAPI_ASSERT_BASE(env, (status == napi_ok) && (argc >= PARAM_COUNT_3), "BulkTransfer failed to get cb info", false);
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT_RETURN_FALSE(
+        env, (argc >= PARAM_COUNT_3), SYSPARAM_INVALID_INPUT, "The function at least takes three arguments.");
 
     napi_valuetype type;
     USBDevicePipe pipe;
     napi_typeof(env, argv[INDEX_0], &type);
-    NAPI_ASSERT_BASE(env, type == napi_object, "BulkTransfer wrong argument type index 0, object expected", false);
+    USB_ASSERT_RETURN_FALSE(
+        env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of pipe must be USBDevicePipe.");
     ParseUsbDevicePipe(env, argv[INDEX_0], pipe);
 
     USBEndpoint ep;
     napi_typeof(env, argv[INDEX_1], &type);
-    NAPI_ASSERT_BASE(env, type == napi_object, "BulkTransfer wrong argument type index 1. Object expected.", false);
+    USB_ASSERT_RETURN_FALSE(
+        env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of endpoint must be USBEndpoint.");
     ParseEndpointObj(env, argv[INDEX_1], ep);
 
     int32_t timeOut = 0;
@@ -1159,13 +1171,13 @@ static bool GetBulkTransferParams(napi_env env, napi_callback_info info, USBBulk
     asyncContext.endpoint = ep;
 
     if (ep.GetDirection() == USB_ENDPOINT_DIR_OUT) {
-        uint8_t *nativeArraybuffer = new(std::nothrow) uint8_t[bufferSize];
-        NAPI_ASSERT_BASE(env, nativeArraybuffer != nullptr, "nativeArraybuffer create failed.", false);
+        uint8_t *nativeArraybuffer = new (std::nothrow) uint8_t[bufferSize];
+        RETURN_IF_WITH_RET(nativeArraybuffer == nullptr, false);
 
         errno_t ret = memcpy_s(nativeArraybuffer, bufferSize, buffer, bufferSize);
         if (ret != EOK) {
             USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed\n");
-            delete []nativeArraybuffer;
+            delete[] nativeArraybuffer;
             return false;
         }
 
@@ -1180,8 +1192,11 @@ static bool GetBulkTransferParams(napi_env env, napi_callback_info info, USBBulk
 
 static napi_value PipeBulkTransfer(napi_env env, napi_callback_info info)
 {
-    auto asyncContext = new(std::nothrow) USBBulkTransferAsyncContext();
-    NAPI_ASSERT(env, asyncContext != nullptr, "Create USBBulkTransferAsyncContext failed.");
+    auto asyncContext = new (std::nothrow) USBBulkTransferAsyncContext();
+    if (asyncContext == nullptr) {
+        USB_HILOGE(MODULE_JS_NAPI, "Create USBBulkTransferAsyncContext failed.");
+        return nullptr;
+    }
 
     napi_value result = nullptr;
     napi_create_promise(env, &asyncContext->deferred, &result);
@@ -1199,7 +1214,7 @@ static napi_value PipeBulkTransfer(napi_env env, napi_callback_info info)
     napi_create_string_utf8(env, "PipeBulkTransfer", NAPI_AUTO_LENGTH, &resource);
 
     napi_status status = napi_create_async_work(env, nullptr, resource, g_bulkTransferExecute, g_bulkTransferComplete,
-                                                reinterpret_cast<void *>(asyncContext), &asyncContext->work);
+        reinterpret_cast<void *>(asyncContext), &asyncContext->work);
     if (status != napi_ok) {
         USB_HILOGE(MODULE_JS_NAPI, "create async work failed");
         return result;
@@ -1214,13 +1229,13 @@ static napi_value PipeClose(napi_env env, napi_callback_info info)
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {0};
 
-    napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    NAPI_ASSERT(env, (status == napi_ok) && (argc >= PARAM_COUNT_1), "PipeClose failed to get cb info");
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
 
     napi_value obj = argv[INDEX_0];
     napi_valuetype type;
     napi_typeof(env, obj, &type);
-    NAPI_ASSERT(env, type == napi_object, "Wrong argument type. Object expected.");
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of pipe must be USBDevicePipe.");
 
     USBDevicePipe pipe;
     ParseUsbDevicePipe(env, obj, pipe);
@@ -1306,8 +1321,10 @@ static napi_value UsbInit(napi_env env, napi_value exports)
 
     napi_property_descriptor desc[] = {
         /* usb core */
-        DECLARE_NAPI_FUNCTION("getDevices", CoreGetDevices), DECLARE_NAPI_FUNCTION("connectDevice", CoreConnectDevice),
-        DECLARE_NAPI_FUNCTION("hasRight", CoreHasRight), DECLARE_NAPI_FUNCTION("requestRight", CoreRequestRight),
+        DECLARE_NAPI_FUNCTION("getDevices", CoreGetDevices),
+        DECLARE_NAPI_FUNCTION("connectDevice", CoreConnectDevice),
+        DECLARE_NAPI_FUNCTION("hasRight", CoreHasRight),
+        DECLARE_NAPI_FUNCTION("requestRight", CoreRequestRight),
         DECLARE_NAPI_FUNCTION("usbFunctionsFromString", CoreUsbFunctionsFromString),
         DECLARE_NAPI_FUNCTION("usbFunctionsToString", CoreUsbFunctionsToString),
         DECLARE_NAPI_FUNCTION("setCurrentFunctions", CoreSetCurrentFunctions),
@@ -1346,12 +1363,12 @@ EXTERN_C_END
  * Module definition
  */
 static napi_module g_module = {.nm_version = 1,
-                               .nm_flags = 0,
-                               .nm_filename = "usb",
-                               .nm_register_func = UsbInit,
-                               .nm_modname = "usb",
-                               .nm_priv = ((void *)0),
-                               .reserved = {0}};
+    .nm_flags = 0,
+    .nm_filename = "usb",
+    .nm_register_func = UsbInit,
+    .nm_modname = "usb",
+    .nm_priv = ((void *)0),
+    .reserved = {0}};
 
 /*
  * Module registration
