@@ -74,8 +74,8 @@ int32_t UsbServerStub::GetBufferMessage(MessageParcel &data, std::vector<uint8_t
     return UEC_OK;
 }
 
-bool UsbServerStub::StubDevice(uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply,
-    MessageOption &option)
+bool UsbServerStub::StubDevice(
+    uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     switch (code) {
         case static_cast<int>(IUsbSrv::USB_FUN_OPEN_DEVICE):
@@ -123,13 +123,16 @@ bool UsbServerStub::StubDevice(uint32_t code, int32_t &result, MessageParcel &da
         case static_cast<int>(IUsbSrv::USB_FUN_GET_FILEDESCRIPTOR):
             result = DoGetFileDescriptor(data, reply, option);
             return true;
+        case static_cast<int>(IUsbSrv::USB_FUN_ADD_RIGHT):
+            result = DoAddRight(data, reply, option);
+            return true;
         default:;
     }
     return false;
 }
 
-bool UsbServerStub::StubHost(uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply,
-    MessageOption &option)
+bool UsbServerStub::StubHost(
+    uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     switch (code) {
         case static_cast<int>(IUsbSrv::USB_FUN_GET_DEVICES):
@@ -185,7 +188,7 @@ bool UsbServerStub::StubHost(uint32_t code, int32_t &result, MessageParcel &data
 int32_t UsbServerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     USB_HILOGD(MODULE_USB_SERVICE, "UsbServerStub::OnRemoteRequest, cmd = %{public}u, flags = %{public}d", code,
-               option.GetFlags());
+        option.GetFlags());
     std::u16string descriptor = UsbServerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
@@ -832,6 +835,19 @@ int32_t UsbServerStub::DoBulkCancel(MessageParcel &data, MessageParcel &reply, M
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
         return ret;
+    }
+    return ret;
+}
+
+int32_t UsbServerStub::DoAddRight(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    std::string bundleName;
+    std::string deviceName;
+    READ_PARCEL_WITH_RET(data, String, bundleName, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, String, deviceName, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = AddRight(bundleName, deviceName);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
     }
     return ret;
 }

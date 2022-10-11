@@ -63,6 +63,18 @@ declare namespace usb {
     function requestRight(deviceName: string): Promise<boolean>;
 
     /**
+     * add device access permission.
+     *
+     * @param bundleName refers to application that require access permissions.
+     * @param deviceName Device name defined by {@link USBDevice.name}.
+     * @return Returns the boolean value  to indicate whether the permission is granted.
+     * @systemapi
+     * @syscap SystemCapability.USB.USBManager
+     * @since 9
+     */
+    function addRight(bundleName: string, deviceName: string): boolean;
+
+    /**
      * Converts the string descriptor of a given USB function list to a numeric mask combination.
      *
      * @param funcs Descriptor of the supported function list.

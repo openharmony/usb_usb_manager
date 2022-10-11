@@ -82,6 +82,7 @@ private:
     int32_t DoBulkRead(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoBulkWrite(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoBulkCancel(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoAddRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
 };
 } // namespace USB
 } // namespace OHOS
