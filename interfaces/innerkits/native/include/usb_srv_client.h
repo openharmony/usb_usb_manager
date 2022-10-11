@@ -81,6 +81,7 @@ public:
     int32_t BulkRead(USBDevicePipe &pip, const USBEndpoint &endpoint, sptr<Ashmem> &ashmem);
     int32_t BulkWrite(USBDevicePipe &pip, const USBEndpoint &endpoint, sptr<Ashmem> &ashmem);
     int32_t BulkCancel(USBDevicePipe &pip, const USBEndpoint &endpoint);
+    int32_t AddRight(const std::string &bundleName, const std::string &deviceName);
 
 private:
     class UsbSrvDeathRecipient : public IRemoteObject::DeathRecipient {

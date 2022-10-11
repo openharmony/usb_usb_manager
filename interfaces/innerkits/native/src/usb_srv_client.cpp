@@ -221,8 +221,8 @@ int32_t UsbSrvClient::ReleaseInterface(USBDevicePipe &pipe, const UsbInterface &
     return ret;
 }
 
-int32_t UsbSrvClient::BulkTransfer(USBDevicePipe &pipe, const USBEndpoint &endpoint, std::vector<uint8_t> &bufferData,
-    int32_t timeOut)
+int32_t UsbSrvClient::BulkTransfer(
+    USBDevicePipe &pipe, const USBEndpoint &endpoint, std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
     int32_t ret = UEC_INTERFACE_INVALID_VALUE;
@@ -239,8 +239,8 @@ int32_t UsbSrvClient::BulkTransfer(USBDevicePipe &pipe, const USBEndpoint &endpo
     return ret;
 }
 
-int32_t UsbSrvClient::ControlTransfer(USBDevicePipe &pipe, const UsbCtrlTransfer &ctrl,
-    std::vector<uint8_t> &bufferData)
+int32_t UsbSrvClient::ControlTransfer(
+    USBDevicePipe &pipe, const UsbCtrlTransfer &ctrl, std::vector<uint8_t> &bufferData)
 {
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
     const UsbDev dev = {pipe.GetBusNum(), pipe.GetDevAddr()};
@@ -262,8 +262,8 @@ int32_t UsbSrvClient::SetConfiguration(USBDevicePipe &pipe, const USBConfig &con
 int32_t UsbSrvClient::SetInterface(USBDevicePipe &pipe, const UsbInterface &interface)
 {
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
-    return proxy_->SetInterface(pipe.GetBusNum(), pipe.GetDevAddr(), interface.GetId(),
-                                interface.GetAlternateSetting());
+    return proxy_->SetInterface(
+        pipe.GetBusNum(), pipe.GetDevAddr(), interface.GetId(), interface.GetAlternateSetting());
 }
 
 int32_t UsbSrvClient::GetRawDescriptors(USBDevicePipe &pipe, std::vector<uint8_t> &bufferData)
@@ -401,6 +401,17 @@ int32_t UsbSrvClient::BulkCancel(USBDevicePipe &pip, const USBEndpoint &endpoint
     int32_t ret = proxy_->BulkCancel(tdev, tpipe);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "failed width ret = %{public}d !", ret);
+    }
+    return ret;
+}
+
+int32_t UsbSrvClient::AddRight(const std::string &bundleName, const std::string &deviceName)
+{
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    USB_HILOGI(MODULE_USB_INNERKIT, "Calling AddRight");
+    int32_t ret = proxy_->AddRight(bundleName, deviceName);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
     }
     return ret;
 }

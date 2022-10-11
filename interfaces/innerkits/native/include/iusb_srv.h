@@ -65,6 +65,7 @@ public:
         USB_FUN_BULK_AYSNC_CANCEL,
         USB_FUN_REG_BULK_CALLBACK,
         USB_FUN_UNREG_BULK_CALLBACK,
+        USB_FUN_ADD_RIGHT,
     };
 
     virtual int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) = 0;
@@ -104,6 +105,7 @@ public:
     virtual int32_t BulkRead(const UsbDev &devInfo, const UsbPipe &pipe, sptr<Ashmem> &ashmem) = 0;
     virtual int32_t BulkWrite(const UsbDev &devInfo, const UsbPipe &pipe, sptr<Ashmem> &ashmem) = 0;
     virtual int32_t BulkCancel(const UsbDev &devInfo, const UsbPipe &pipe) = 0;
+    virtual int32_t AddRight(const std::string &bundleName, const std::string &deviceName) = 0;
 
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.usb.IUsbSrv");

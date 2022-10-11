@@ -97,6 +97,7 @@ Note:If the text contains special characters, please escape them according to th
             </filefilter>
             <filefilter name="binaryFileTypePolicyFilter" desc="Filters for binary file policies" >
                 <filteritem type="filepath" name="figures/.*.png" desc="USB architecture diagram"/>
+                <filteritem type="filepath" name="frameworks/dialog/dialog_ui/usb_right_dialog/usb_right_dialog.hap" desc="USB right dialog"/>
             </filefilter>
         </filefilterlist>
     </oatconfig>
