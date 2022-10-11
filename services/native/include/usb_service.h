@@ -30,10 +30,10 @@
 #include "usb_server_event_handler.h"
 #include "usb_server_stub.h"
 #include "usb_service_subscriber.h"
-#include "v1_0/iusb_interface.h"
-#include "v1_0/iusbd_subscriber.h"
-#include "v1_0/iusbd_bulk_callback.h"
 #include "usbd_type.h"
+#include "v1_0/iusb_interface.h"
+#include "v1_0/iusbd_bulk_callback.h"
+#include "v1_0/iusbd_subscriber.h"
 #include "v1_0/usb_types.h"
 
 using OHOS::HDI::Usb::V1_0::IUsbInterface;
@@ -80,10 +80,10 @@ public:
 
     int32_t ClaimInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t force) override;
     int32_t ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid) override;
-    int32_t BulkTransferRead(const UsbDev &dev, const UsbPipe &pipe, std::vector<uint8_t> &bufferData,
-        int32_t timeOut) override;
-    int32_t BulkTransferWrite(const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &bufferData,
-        int32_t timeOut) override;
+    int32_t BulkTransferRead(
+        const UsbDev &dev, const UsbPipe &pipe, std::vector<uint8_t> &bufferData, int32_t timeOut) override;
+    int32_t BulkTransferWrite(
+        const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &bufferData, int32_t timeOut) override;
     int32_t ControlTransfer(const UsbDev &dev, const UsbCtrlTransfer &ctrl, std::vector<uint8_t> &bufferData) override;
     int32_t SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex) override;
     int32_t GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &configIndex) override;
@@ -109,13 +109,15 @@ public:
     int32_t BulkRead(const UsbDev &devInfo, const UsbPipe &pipe, sptr<Ashmem> &ashmem) override;
     int32_t BulkWrite(const UsbDev &devInfo, const UsbPipe &pipe, sptr<Ashmem> &ashmem) override;
     int32_t BulkCancel(const UsbDev &devInfo, const UsbPipe &pipe) override;
+    int32_t AddRight(const std::string &bundleName, const std::string &deviceName) override;
+
 private:
     class SystemAbilityStatusChangeListener : public SystemAbilityStatusChangeStub {
     public:
         explicit SystemAbilityStatusChangeListener();
         ~SystemAbilityStatusChangeListener() = default;
-        void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
-        void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+        void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+        void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     };
 
 private:

@@ -41,6 +41,7 @@ public:
 private:
     std::pair<int32_t, int32_t> GetDisplayPosition();
     bool GetUserAgreementByDiag(const std::string &deviceName, const std::string &bundleName);
+    bool ShowUsbDialog(const std::string &deviceName, const std::string &bundleName);
     sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
 
     int32_t dialogId_ {-1};
