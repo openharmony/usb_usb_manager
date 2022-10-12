@@ -968,6 +968,22 @@ int32_t UsbService::BulkCancel(const UsbDev &devInfo, const UsbPipe &pipe)
     return ret;
 }
 
+int32_t UsbService::AddRight(const std::string &bundleName, const std::string &deviceName)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "calling AddRight");
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!(usbRightManager_->IsSystemHap())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "AddRight bundleName = %{public}s, deviceName = %{public}s", bundleName.c_str(),
+        deviceName.c_str());
+    return usbRightManager_->AddDeviceRight(deviceName, bundleName);
+}
+
 int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
 {
     if (fd < 0) {
