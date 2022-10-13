@@ -401,7 +401,7 @@ static napi_value CoreGetDevices(napi_env env, napi_callback_info info)
 
     napi_create_array(env, &result);
     int32_t i = 0;
-    for (auto &ent1 : deviceList) {
+    for (const auto &ent1 : deviceList) {
         napi_value element;
         napi_create_object(env, &element);
         napi_value device;

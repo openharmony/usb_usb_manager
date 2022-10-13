@@ -642,7 +642,7 @@ std::string UsbService::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, 
     for (uint32_t i = 0; i < length - DESCRIPTOR_VALUE_START_OFFSET; ++i) {
         tbuf[i] = strV[i + DESCRIPTOR_VALUE_START_OFFSET];
     }
-    std::wstring wstr((wchar_t *)(tbuf), (length - DESCRIPTOR_VALUE_START_OFFSET) / HALF);
+    std::wstring wstr(reinterpret_cast<wchar_t *>(tbuf), (length - DESCRIPTOR_VALUE_START_OFFSET) / HALF);
     strDesc = std::string(wstr.begin(), wstr.end());
     USB_HILOGI(MODULE_USB_SERVICE, "getString idx:%{public}d String:%{public}s length:%{public}d", idx, strDesc.c_str(),
         length);
