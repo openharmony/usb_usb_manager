@@ -801,7 +801,7 @@ declare namespace usb {
          *
          * @since 8
          */
-        USB_REQUEST_DIR_FROM_DEVICE = 0x80
+        USB_REQUEST_DIR_FROM_DEVICE = 1
     }
 
     /**

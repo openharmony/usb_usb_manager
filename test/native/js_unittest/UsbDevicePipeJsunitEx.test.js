@@ -69,7 +69,8 @@ describe('UsbDevicePipeJsFunctionsTestEx', function () {
         if (endpoint.direction == usb.USB_REQUEST_DIR_TO_DEVICE) {
           testParam.outEndpoint = endpoint;
           testParam.maxOutSize = endpoint.maxPacketSize;
-        } else if (endpoint.direction == usb.USB_REQUEST_DIR_FROM_DEVICE) {
+        // after 7 to the left of value, it shows data from device to host
+        } else if (endpoint.direction == (usb.USB_REQUEST_DIR_FROM_DEVICE << 7)) {
           testParam.inEndpoint = endpoint
           testParam.maxInSize = endpoint.maxPacketSize;
         }
