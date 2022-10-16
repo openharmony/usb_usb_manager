@@ -16,6 +16,7 @@
 #include "ipc_types.h"
 #include "message_parcel.h"
 #include "securec.h"
+#include "string_ex.h"
 #include "usb_common.h"
 #include "usb_errors.h"
 #include "usb_request.h"
@@ -118,7 +119,6 @@ int32_t UsbServerProxy::GetDeviceMessageParcel(MessageParcel &data, UsbDevice &d
     int32_t tmp;
     uint8_t tui8;
     uint16_t tui16;
-    std::string tstr;
     READ_PARCEL_WITH_RET(data, Int32, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
     devInfo.SetBusNum(tmp);
     READ_PARCEL_WITH_RET(data, Int32, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
@@ -146,16 +146,17 @@ int32_t UsbServerProxy::GetDeviceMessageParcel(MessageParcel &data, UsbDevice &d
     devInfo.SetbcdUSB(tui16);
     READ_PARCEL_WITH_RET(data, Uint16, tui16, UEC_SERVICE_READ_PARCEL_ERROR);
     devInfo.SetbcdDevice(tui16);
-    READ_PARCEL_WITH_RET(data, String, tstr, UEC_SERVICE_READ_PARCEL_ERROR);
-    devInfo.SetName(tstr);
-    READ_PARCEL_WITH_RET(data, String, tstr, UEC_SERVICE_READ_PARCEL_ERROR);
-    devInfo.SetManufacturerName(tstr);
-    READ_PARCEL_WITH_RET(data, String, tstr, UEC_SERVICE_READ_PARCEL_ERROR);
-    devInfo.SetProductName(tstr);
-    READ_PARCEL_WITH_RET(data, String, tstr, UEC_SERVICE_READ_PARCEL_ERROR);
-    devInfo.SetVersion(tstr);
-    READ_PARCEL_WITH_RET(data, String, tstr, UEC_SERVICE_READ_PARCEL_ERROR);
-    devInfo.SetmSerial(tstr);
+    std::u16string tstr;
+    READ_PARCEL_WITH_RET(data, String16, tstr, UEC_SERVICE_READ_PARCEL_ERROR);
+    devInfo.SetName(Str16ToStr8(tstr));
+    READ_PARCEL_WITH_RET(data, String16, tstr, UEC_SERVICE_READ_PARCEL_ERROR);
+    devInfo.SetManufacturerName(Str16ToStr8(tstr));
+    READ_PARCEL_WITH_RET(data, String16, tstr, UEC_SERVICE_READ_PARCEL_ERROR);
+    devInfo.SetProductName(Str16ToStr8(tstr));
+    READ_PARCEL_WITH_RET(data, String16, tstr, UEC_SERVICE_READ_PARCEL_ERROR);
+    devInfo.SetVersion(Str16ToStr8(tstr));
+    READ_PARCEL_WITH_RET(data, String16, tstr, UEC_SERVICE_READ_PARCEL_ERROR);
+    devInfo.SetmSerial(Str16ToStr8(tstr));
 
     USB_HILOGI(MODULE_USB_INNERKIT, "devName:%{public}s Bus:%{public}d dev:%{public}d ", devInfo.GetName().c_str(),
         devInfo.GetBusNum(), devInfo.GetDevAddr());
@@ -170,7 +171,7 @@ int32_t UsbServerProxy::GetDeviceConfigsMessageParcel(MessageParcel &data, std::
 {
     uint32_t configCount;
     uint8_t tui8;
-    std::string tstr;
+    std::u16string tstr;
     data.ReadUint32(configCount);
 
     int32_t tmp;
@@ -186,8 +187,8 @@ int32_t UsbServerProxy::GetDeviceConfigsMessageParcel(MessageParcel &data, std::
 
         READ_PARCEL_WITH_RET(data, Uint8, tui8, UEC_SERVICE_READ_PARCEL_ERROR);
         config.SetiConfiguration(tui8);
-        READ_PARCEL_WITH_RET(data, String, tstr, UEC_SERVICE_READ_PARCEL_ERROR);
-        config.SetName(tstr);
+        READ_PARCEL_WITH_RET(data, String16, tstr, UEC_SERVICE_READ_PARCEL_ERROR);
+        config.SetName(Str16ToStr8(tstr));
 
         std::vector<UsbInterface> interfaces;
         if (int32_t ret = GetDeviceInterfacesMessageParcel(data, interfaces); ret != UEC_OK) {
@@ -207,7 +208,7 @@ int32_t UsbServerProxy::GetDeviceInterfacesMessageParcel(MessageParcel &data, st
 {
     int32_t tmp, interfaceCount;
     uint8_t tui8;
-    std::string tstr;
+    std::u16string tstr;
     data.ReadInt32(tmp);
     interfaceCount = tmp;
     for (int32_t i = 0; i < interfaceCount; ++i) {
@@ -225,8 +226,8 @@ int32_t UsbServerProxy::GetDeviceInterfacesMessageParcel(MessageParcel &data, st
 
         READ_PARCEL_WITH_RET(data, Uint8, tui8, UEC_SERVICE_READ_PARCEL_ERROR);
         interface.SetiInterface(tui8);
-        READ_PARCEL_WITH_RET(data, String, tstr, UEC_SERVICE_READ_PARCEL_ERROR);
-        interface.SetName(tstr);
+        READ_PARCEL_WITH_RET(data, String16, tstr, UEC_SERVICE_READ_PARCEL_ERROR);
+        interface.SetName(Str16ToStr8(tstr));
 
         std::vector<USBEndpoint> eps;
         if (int32_t ret = GetDeviceEndpointsMessageParcel(data, eps); ret != UEC_OK) {
@@ -305,7 +306,7 @@ bool UsbServerProxy::HasRight(std::string deviceName)
         return false;
     }
 
-    WRITE_PARCEL_WITH_RET(data, String, deviceName, false);
+    WRITE_PARCEL_WITH_RET(data, String16, Str8ToStr16(deviceName), false);
     int32_t ret = remote->SendRequest(static_cast<int32_t>(IUsbSrv::USB_FUN_HAS_RIGHT), data, reply, option);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %{public}d", ret);
@@ -329,11 +330,13 @@ int32_t UsbServerProxy::RequestRight(std::string deviceName)
         USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
         return UEC_INTERFACE_WRITE_PARCEL_ERROR;
     }
-    WRITE_PARCEL_WITH_RET(data, String, deviceName, UEC_INTERFACE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String16, Str8ToStr16(deviceName), UEC_INTERFACE_WRITE_PARCEL_ERROR);
     int32_t ret = remote->SendRequest(static_cast<int32_t>(IUsbSrv::USB_FUN_REQUEST_RIGHT), data, reply, option);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %{public}d", ret);
+        return ret;
     }
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
     return ret;
 }
 
@@ -352,7 +355,9 @@ int32_t UsbServerProxy::RemoveRight(std::string deviceName)
     int32_t ret = remote->SendRequest(static_cast<int32_t>(IUsbSrv::USB_FUN_REMOVE_RIGHT), data, reply, option);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %{public}d", ret);
+        return ret;
     }
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
     return ret;
 }
 
@@ -561,6 +566,7 @@ int32_t UsbServerProxy::ClaimInterface(uint8_t busNum, uint8_t devAddr, uint8_t 
         USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
     return ret;
 }
 
@@ -580,7 +586,9 @@ int32_t UsbServerProxy::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_
     int32_t ret = remote->SendRequest(static_cast<int32_t>(IUsbSrv::USB_FUN_RELEASE_INTERFACE), data, reply, option);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %d", ret);
+        return ret;
     }
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
     return ret;
 }
 int32_t UsbServerProxy::BulkTransferRead(
@@ -610,6 +618,7 @@ int32_t UsbServerProxy::BulkTransferRead(
         return ret;
     }
     USB_HILOGI(MODULE_USBD, "Set buffer message. length = %{public}zu", bufferData.size());
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
     return ret;
 }
 int32_t UsbServerProxy::BulkTransferWrite(
@@ -636,7 +645,9 @@ int32_t UsbServerProxy::BulkTransferWrite(
     ret = remote->SendRequest(static_cast<int32_t>(IUsbSrv::USB_FUN_BULK_TRANSFER_WRITE), data, reply, option);
     if (UEC_OK != ret) {
         USB_HILOGE(MODULE_INNERKIT, "SendRequest ret:%{public}d", ret);
+        return ret;
     }
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
     return ret;
 }
 
@@ -679,7 +690,8 @@ int32_t UsbServerProxy::ControlTransfer(
         }
         USB_HILOGI(MODULE_USBD, "Get buffer message. length = %{public}zu", bufferData.size());
     }
-    return UEC_OK;
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
+    return ret;
 }
 int32_t UsbServerProxy::SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex)
 {
@@ -697,7 +709,9 @@ int32_t UsbServerProxy::SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t
     int32_t ret = remote->SendRequest(static_cast<int32_t>(IUsbSrv::USB_FUN_SET_ACTIVE_CONFIG), data, reply, option);
     if (UEC_OK != ret) {
         USB_HILOGE(MODULE_INNERKIT, "USB_FUN_SET_ACTIVE_CONFIG ret:%{public}d", ret);
+        return ret;
     }
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
     return ret;
 }
 int32_t UsbServerProxy::GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &configIndex)
@@ -737,7 +751,9 @@ int32_t UsbServerProxy::SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t in
     int32_t ret = remote->SendRequest(static_cast<int32_t>(IUsbSrv::USB_FUN_SET_INTERFACE), data, reply, option);
     if (UEC_OK != ret) {
         USB_HILOGE(MODULE_INNERKIT, "USB_FUN_SET_INTERFACE ret:%{public}d", ret);
+        return ret;
     }
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
     return ret;
 }
 int32_t UsbServerProxy::GetRawDescriptor(uint8_t busNum, uint8_t devAddr, std::vector<uint8_t> &bufferData)
@@ -896,8 +912,8 @@ int32_t UsbServerProxy::Close(uint8_t busNum, uint8_t devAddr)
         USB_HILOGE(MODULE_INNERKIT, "queue failed!");
         return ret;
     }
-
-    return UEC_OK;
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
+    return ret;
 }
 
 int32_t UsbServerProxy::RegBulkCallback(const UsbDev &dev, const UsbPipe &pipe, const sptr<IRemoteObject> &cb)

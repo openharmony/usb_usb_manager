@@ -15,11 +15,11 @@
 
 #ifndef USB_DEVICE_H
 #define USB_DEVICE_H
-
 #include <iostream>
 #include <singleton.h>
 #include <sstream>
 #include <vector>
+
 #include "iremote_object.h"
 #include "usb_config.h"
 #include "usb_interface.h"
@@ -144,7 +144,7 @@ public:
         return busNum_;
     }
 
-    bool GetDescConfigCount()
+    uint8_t GetDescConfigCount()
     {
         return descConfigCount_;
     }

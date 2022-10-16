@@ -15,6 +15,7 @@
 
 #include "message_parcel.h"
 #include "securec.h"
+#include "string_ex.h"
 #include "usb_common.h"
 #include "usb_errors.h"
 #include "usb_server_stub.h"
@@ -258,25 +259,27 @@ int32_t UsbServerStub::DoOpenDevice(MessageParcel &data, MessageParcel &reply, M
 
 int32_t UsbServerStub::DoHasRight(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    std::string deviceName = "";
-    READ_PARCEL_WITH_RET(data, String, deviceName, UEC_SERVICE_READ_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(reply, Bool, HasRight(deviceName), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    std::u16string deviceName = u"";
+    READ_PARCEL_WITH_RET(data, String16, deviceName, UEC_SERVICE_READ_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(reply, Bool, HasRight(Str16ToStr8(deviceName)), UEC_SERVICE_WRITE_PARCEL_ERROR);
 
     return UEC_OK;
 }
 
 int32_t UsbServerStub::DoRequestRight(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    std::string deviceName = "";
-    READ_PARCEL_WITH_RET(data, String, deviceName, UEC_SERVICE_READ_PARCEL_ERROR);
-    return RequestRight(deviceName);
+    std::u16string deviceName = u"";
+    READ_PARCEL_WITH_RET(data, String16, deviceName, UEC_SERVICE_READ_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(reply, Int32, RequestRight(Str16ToStr8(deviceName)), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
 }
 
 int32_t UsbServerStub::DoRemoveRight(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     std::string deviceName = "";
     READ_PARCEL_WITH_RET(data, String, deviceName, UEC_SERVICE_READ_PARCEL_ERROR);
-    return RemoveRight(deviceName);
+    WRITE_PARCEL_WITH_RET(reply, Int32, RemoveRight(deviceName), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
 }
 
 int32_t UsbServerStub::DoGetPorts(MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -344,7 +347,9 @@ int32_t UsbServerStub::DoClaimInterface(MessageParcel &data, MessageParcel &repl
     READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_READ_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Uint8, interface, UEC_SERVICE_READ_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Uint8, force, UEC_SERVICE_READ_PARCEL_ERROR);
-    return ClaimInterface(busNum, devAddr, interface, force);
+    WRITE_PARCEL_WITH_RET(
+        reply, Int32, ClaimInterface(busNum, devAddr, interface, force), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
 }
 
 int32_t UsbServerStub::DoReleaseInterface(MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -355,7 +360,8 @@ int32_t UsbServerStub::DoReleaseInterface(MessageParcel &data, MessageParcel &re
     READ_PARCEL_WITH_RET(data, Uint8, busNum, UEC_SERVICE_READ_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_READ_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Uint8, interface, UEC_SERVICE_READ_PARCEL_ERROR);
-    return ReleaseInterface(busNum, devAddr, interface);
+    WRITE_PARCEL_WITH_RET(reply, Int32, ReleaseInterface(busNum, devAddr, interface), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
 }
 
 int32_t UsbServerStub::DoBulkTransferRead(MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -382,6 +388,7 @@ int32_t UsbServerStub::DoBulkTransferRead(MessageParcel &data, MessageParcel &re
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "set buffer failed ret:%{public}d", ret);
     }
+    WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
     return ret;
 }
 
@@ -409,6 +416,7 @@ int32_t UsbServerStub::DoBulkTransferWrite(MessageParcel &data, MessageParcel &r
     if (UEC_OK != ret) {
         USB_HILOGE(MODULE_USBD, "BulkTransferWrite error ret:%{public}d", ret);
     }
+    WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
     return ret;
 }
 
@@ -447,11 +455,11 @@ int32_t UsbServerStub::DoControlTransfer(MessageParcel &data, MessageParcel &rep
 
     if (!bWrite) {
         ret = SetBufferMessage(reply, bufferData);
-        if (UEC_OK != ret) {
+        if (ret != UEC_OK) {
             USB_HILOGE(MODULE_USBD, "Set buffer message error length = %{public}d", ret);
         }
     }
-
+    WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
     return UEC_OK;
 }
 
@@ -463,7 +471,8 @@ int32_t UsbServerStub::DoSetActiveConfig(MessageParcel &data, MessageParcel &rep
     READ_PARCEL_WITH_RET(data, Uint8, busNum, UEC_SERVICE_WRITE_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_WRITE_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Uint8, config, UEC_SERVICE_WRITE_PARCEL_ERROR);
-    return SetActiveConfig(busNum, devAddr, config);
+    WRITE_PARCEL_WITH_RET(reply, Int32, SetActiveConfig(busNum, devAddr, config), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
 }
 
 int32_t UsbServerStub::DoGetActiveConfig(MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -490,7 +499,9 @@ int32_t UsbServerStub::DoSetInterface(MessageParcel &data, MessageParcel &reply,
     READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_WRITE_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Uint8, interfaceId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Uint8, altIndex, UEC_SERVICE_WRITE_PARCEL_ERROR);
-    return SetInterface(busNum, devAddr, interfaceId, altIndex);
+    WRITE_PARCEL_WITH_RET(
+        reply, Int32, SetInterface(busNum, devAddr, interfaceId, altIndex), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
 }
 
 int32_t UsbServerStub::DoGetRawDescriptor(MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -619,6 +630,7 @@ int32_t UsbServerStub::DoClose(MessageParcel &data, MessageParcel &reply, Messag
     if (UEC_OK != ret) {
         USB_HILOGE(MODULE_USB_INNERKIT, "failed ret:%{public}d", ret);
     }
+    WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
     return ret;
 }
 
@@ -668,11 +680,11 @@ int32_t UsbServerStub::SetDeviceMessageParcel(UsbDevice &devInfo, MessageParcel 
     WRITE_PARCEL_WITH_RET(data, Uint8, devInfo.GetbMaxPacketSize0(), UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, Uint16, devInfo.GetbcdUSB(), UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, Uint16, devInfo.GetbcdDevice(), UEC_SERVICE_WRITE_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(data, String, devInfo.GetName(), UEC_SERVICE_WRITE_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(data, String, devInfo.GetManufacturerName(), UEC_SERVICE_WRITE_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(data, String, devInfo.GetProductName(), UEC_SERVICE_WRITE_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(data, String, devInfo.GetVersion(), UEC_SERVICE_WRITE_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(data, String, devInfo.GetmSerial(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String16, Str8ToStr16(devInfo.GetName()), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String16, Str8ToStr16(devInfo.GetManufacturerName()), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String16, Str8ToStr16(devInfo.GetProductName()), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String16, Str8ToStr16(devInfo.GetVersion()), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String16, Str8ToStr16(devInfo.GetmSerial()), UEC_SERVICE_WRITE_PARCEL_ERROR);
 
     USB_HILOGE(MODULE_USB_INNERKIT, "devInfo:%{public}s", devInfo.ToString().c_str());
     WRITE_PARCEL_WITH_RET(data, Int32, devInfo.GetConfigCount(), UEC_SERVICE_WRITE_PARCEL_ERROR);
@@ -688,7 +700,7 @@ int32_t UsbServerStub::SetDeviceConfigsMessageParcel(std::vector<USBConfig> &con
         WRITE_PARCEL_WITH_RET(data, Int32, config.GetMaxPower(), UEC_SERVICE_WRITE_PARCEL_ERROR);
 
         WRITE_PARCEL_WITH_RET(data, Uint8, config.GetiConfiguration(), UEC_SERVICE_WRITE_PARCEL_ERROR);
-        WRITE_PARCEL_WITH_RET(data, String, config.GetName(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+        WRITE_PARCEL_WITH_RET(data, String16, Str8ToStr16(config.GetName()), UEC_SERVICE_WRITE_PARCEL_ERROR);
 
         WRITE_PARCEL_WITH_RET(data, Uint32, config.GetInterfaceCount(), UEC_SERVICE_WRITE_PARCEL_ERROR);
         USB_HILOGI(MODULE_USB_SERVICE, "devInfo=%{public}s", config.ToString().c_str());
@@ -711,7 +723,7 @@ int32_t UsbServerStub::SetDeviceInterfacesMessageParcel(std::vector<UsbInterface
         WRITE_PARCEL_WITH_RET(data, Int32, interface.GetProtocol(), UEC_SERVICE_WRITE_PARCEL_ERROR);
 
         WRITE_PARCEL_WITH_RET(data, Uint8, interface.GetiInterface(), UEC_SERVICE_WRITE_PARCEL_ERROR);
-        WRITE_PARCEL_WITH_RET(data, String, interface.GetName(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+        WRITE_PARCEL_WITH_RET(data, String16, Str8ToStr16(interface.GetName()), UEC_SERVICE_WRITE_PARCEL_ERROR);
 
         WRITE_PARCEL_WITH_RET(data, Int32, interface.GetEndpointCount(), UEC_SERVICE_WRITE_PARCEL_ERROR);
         USB_HILOGI(MODULE_USB_SERVICE, "interface=%{public}s", interface.ToString().c_str());
