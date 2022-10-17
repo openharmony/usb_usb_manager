@@ -33,6 +33,9 @@ namespace {
 constexpr int32_t UI_DIALOG_USB_WIDTH_NARROW = 400;
 constexpr int32_t UI_DIALOG_USB_HEIGHT_NARROW = 240;
 } // namespace
+
+sem_t UsbRightManager::waitDialogDisappear_ {0};
+
 void UsbRightManager::Init() {}
 
 bool UsbRightManager::HasRight(const std::string &deviceName, const std::string &bundleName)
@@ -128,11 +131,17 @@ bool UsbRightManager::ShowUsbDialog(const std::string &deviceName, const std::st
     want.SetElementName("com.usb.right", "UsbServiceExtAbility");
     want.SetParam("bundleName", bundleName);
     want.SetParam("deviceName", deviceName);
-    int32_t result = abmc->StartAbility(want);
-    if (result != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "StartRightService failed, result = %{public}d", result);
+
+    sptr<UsbAbilityConn> usbAbilityConn_ = new (std::nothrow) UsbAbilityConn();
+    sem_init(&waitDialogDisappear_, 1, 0);
+    auto ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
         return false;
     }
+
+    // Waiting for the user to click
+    sem_wait(&waitDialogDisappear_);
     return true;
 }
 
@@ -141,16 +150,14 @@ bool UsbRightManager::GetUserAgreementByDiag(const std::string &deviceName, cons
 #ifdef USB_RIGHT_TEST
     return true;
 #endif
-    if (dialogId_ >= 0) {
-        USB_HILOGW(MODULE_USB_SERVICE, "dialog is already showing");
-        return false;
-    }
-
+    // There can only be one dialog at a time
+    std::lock_guard<std::mutex> guard(dialogRunning_);
     if (!ShowUsbDialog(deviceName, bundleName)) {
         USB_HILOGE(MODULE_USB_SERVICE, "ShowUsbDialog failed");
         return false;
     }
-    return true;
+
+    return HasRight(deviceName, bundleName);
 }
 
 sptr<IBundleMgr> UsbRightManager::GetBundleMgr()
