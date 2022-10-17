@@ -38,7 +38,8 @@ public:
     bool HasRight(const std::string &deviceName, const std::string &bundleName);
     int32_t RequestRight(const std::string &deviceName, const std::string &bundleName);
     bool AddDeviceRight(const std::string &deviceName, const std::string &bundleName);
-    bool RemoveDeviceRight(const std::string &deviceName);
+    bool RemoveDeviceRight(const std::string &deviceName, const std::string &bundleName);
+    bool RemoveDeviceAllRight(const std::string &deviceName);
     bool IsSystemHap();
 
 private:

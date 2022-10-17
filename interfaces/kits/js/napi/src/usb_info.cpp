@@ -462,7 +462,32 @@ static napi_value DeviceAddRight(napi_env env, napi_callback_info info)
     napi_value result;
     int32_t ret = g_usbClient.AddRight(bundleName, deviceName);
     USB_HILOGD(MODULE_JS_NAPI, "Device call AddRight ret: %{public}d", ret);
-    if (ret == 0) {
+    if (ret == UEC_OK) {
+        napi_get_boolean(env, true, &result);
+    } else {
+        napi_get_boolean(env, false, &result);
+    }
+
+    return result;
+}
+
+static napi_value DeviceRemoveRight(napi_env env, napi_callback_info info)
+{
+    size_t argc = PARAM_COUNT_1;
+    napi_value argv[PARAM_COUNT_1] = {0};
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
+
+    napi_valuetype type;
+    NAPI_CHECK(env, napi_typeof(env, argv[INDEX_0], &type), "Get args 1 type failed");
+    USB_ASSERT(env, type == napi_string, SYSPARAM_INVALID_INPUT, "The type of deviceName must be string.");
+    std::string deviceName;
+    NapiUtil::JsValueToString(env, argv[INDEX_0], STR_DEFAULT_SIZE, deviceName);
+
+    napi_value result;
+    int32_t ret = g_usbClient.RemoveRight(deviceName);
+    USB_HILOGD(MODULE_JS_NAPI, "Device call RemoveRight ret: %{public}d", ret);
+    if (ret == UEC_OK) {
         napi_get_boolean(env, true, &result);
     } else {
         napi_get_boolean(env, false, &result);
@@ -1379,6 +1404,7 @@ static napi_value UsbInit(napi_env env, napi_value exports)
         /* fort test get usb service version */
         DECLARE_NAPI_FUNCTION("getVersion", GetVersion),
         DECLARE_NAPI_FUNCTION("addRight", DeviceAddRight),
+        DECLARE_NAPI_FUNCTION("removeRight", DeviceRemoveRight),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
 
