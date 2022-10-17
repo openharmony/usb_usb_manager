@@ -17,9 +17,11 @@
 #define USB_RIGHT_MANAGER_H
 #include <algorithm>
 #include <map>
+#include <mutex>
 #include <string>
 #include <vector>
 
+#include "ability_connect_callback_stub.h"
 #include "bundle_mgr_interface.h"
 #include "usb_common.h"
 
@@ -44,7 +46,21 @@ private:
     bool ShowUsbDialog(const std::string &deviceName, const std::string &bundleName);
     sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
 
-    int32_t dialogId_ {-1};
+    static sem_t waitDialogDisappear_;
+    class UsbAbilityConn : public AAFwk::AbilityConnectionStub {
+        void OnAbilityConnectDone(
+            const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override
+        {
+            USB_HILOGI(MODULE_USB_SERVICE, "connect done");
+        }
+        void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override
+        {
+            USB_HILOGI(MODULE_USB_SERVICE, "disconnect done");
+            sem_post(&waitDialogDisappear_);
+        }
+    };
+
+    std::mutex dialogRunning_;
 };
 } // namespace USB
 } // namespace OHOS
