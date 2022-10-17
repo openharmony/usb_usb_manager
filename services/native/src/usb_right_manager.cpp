@@ -87,12 +87,27 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
     return true;
 }
 
-bool UsbRightManager::RemoveDeviceRight(const std::string &deviceName)
+bool UsbRightManager::RemoveDeviceRight(const std::string &deviceName, const std::string &bundleName)
+{
+    auto it = rightMap.find(deviceName);
+    if (it != rightMap.end()) {
+        auto v = it->second;
+        auto itVevtor = std::find(v.begin(), v.end(), bundleName);
+        if (itVevtor != v.end()) {
+            it->second.erase(itVevtor);
+            return true;
+        }
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "RemoveDeviceRight failed");
+    return false;
+}
+
+bool UsbRightManager::RemoveDeviceAllRight(const std::string &deviceName)
 {
     auto it = rightMap.find(deviceName);
     if (it != rightMap.end()) {
         rightMap.erase(it);
-        USB_HILOGI(MODULE_USB_SERVICE, "removeDeviceRight success");
+        USB_HILOGI(MODULE_USB_SERVICE, "removeDeviceAllRight success");
         return true;
     }
     return false;

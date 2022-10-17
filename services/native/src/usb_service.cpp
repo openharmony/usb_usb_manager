@@ -283,10 +283,18 @@ int32_t UsbService::RemoveRight(std::string deviceName)
         return UEC_SERVICE_INVALID_VALUE;
     }
 
-    if (usbRightManager_->RemoveDeviceRight(deviceName)) {
-        return UEC_OK;
+    std::string bundleName;
+    if (!GetBundleName(bundleName)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "RequestRight GetBundleName false");
+        return UEC_SERVICE_INNER_ERR;
     }
-    return UEC_SERVICE_INNER_ERR;
+
+    if (!usbRightManager_->RemoveDeviceRight(deviceName, bundleName)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "RemoveDeviceRight failed");
+        return UEC_SERVICE_INNER_ERR;
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "RemoveRight done");
+    return UEC_OK;
 }
 
 int32_t UsbService::GetDevices(std::vector<UsbDevice> &deviceList)
@@ -835,7 +843,7 @@ bool UsbService::DelDevice(uint8_t busNum, uint8_t devAddr)
         return false;
     }
 
-    if (!usbRightManager_->RemoveDeviceRight(std::to_string(busNum) + "-" + std::to_string(devAddr))) {
+    if (!usbRightManager_->RemoveDeviceAllRight(std::to_string(busNum) + "-" + std::to_string(devAddr))) {
         USB_HILOGW(MODULE_USB_SERVICE, "remove right failed busNum:%{public}u devAddr:%{public}u", busNum, devAddr);
     }
 
