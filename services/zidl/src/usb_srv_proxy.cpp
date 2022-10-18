@@ -43,12 +43,12 @@ int32_t UsbServerProxy::SetBufferMessage(MessageParcel &data, const std::vector<
         USB_HILOGE(MODULE_USBD, "write length failed:%{public}u", length);
         return UEC_SERVICE_WRITE_PARCEL_ERROR;
     }
-    if ((ptr) && (length > 0) && !data.WriteBuffer((const void *)ptr, length)) {
+    if ((ptr) && (length > 0) && !data.WriteBuffer(static_cast<const void *>(ptr), length)) {
         USB_HILOGE(MODULE_USBD, "write buffer failed length:%{public}u", length);
         return UEC_SERVICE_WRITE_PARCEL_ERROR;
-    } else {
-        USB_HILOGE(MODULE_USBD, "success length:%{public}u", length);
     }
+
+    USB_HILOGI(MODULE_USBD, "success length:%{public}u", length);
     return UEC_OK;
 }
 
@@ -289,7 +289,6 @@ int32_t UsbServerProxy::OpenDevice(uint8_t busNum, uint8_t devAddr)
     ret = remote->SendRequest(static_cast<int32_t>(IUsbSrv::USB_FUN_OPEN_DEVICE), data, reply, option);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %{public}d", ret);
-        return ret;
     }
     return ret;
 }

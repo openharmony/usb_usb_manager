@@ -23,7 +23,7 @@ namespace USB {
     bool UsbMgrUsbFunctionsFromStringFuzzTest(const uint8_t* data, size_t /* size */)
     {
         auto &usbSrvClient = UsbSrvClient::GetInstance();
-        if (usbSrvClient.UsbFunctionsFromString(std::string_view((const char*)data)) == UEC_OK) {
+        if (usbSrvClient.UsbFunctionsFromString(std::string_view(reinterpret_cast<const char*>(data))) == UEC_OK) {
             return false;
         }
         return true;

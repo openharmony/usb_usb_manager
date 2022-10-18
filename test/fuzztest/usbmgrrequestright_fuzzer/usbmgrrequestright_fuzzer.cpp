@@ -23,7 +23,7 @@ namespace USB {
     bool UsbMgrRequestRightFuzzTest(const uint8_t* data, size_t /* size */)
     {
         auto &usbSrvClient = UsbSrvClient::GetInstance();
-        if (usbSrvClient.RequestRight(std::string((const char*)data)) == UEC_OK) {
+        if (usbSrvClient.RequestRight(std::string(reinterpret_cast<const char*>(data))) == UEC_OK) {
             return false;
         }
         return true;

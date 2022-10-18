@@ -45,7 +45,7 @@ int32_t UsbServerStub::SetBufferMessage(MessageParcel &data, const std::vector<u
         USB_HILOGE(MODULE_USBD, "write length failed length:%{public}u", length);
         return UEC_SERVICE_WRITE_PARCEL_ERROR;
     }
-    if ((ptr) && (length > 0) && !data.WriteBuffer((const void *)ptr, length)) {
+    if ((ptr) && (length > 0) && !data.WriteBuffer(static_cast<const void *>(ptr), length)) {
         USB_HILOGE(MODULE_USBD, "writer buffer failed length:%{public}u", length);
         return UEC_SERVICE_WRITE_PARCEL_ERROR;
     }
