@@ -94,7 +94,7 @@ bool UsbRightManager::RemoveDeviceRight(const std::string &deviceName, const std
 {
     auto it = rightMap.find(deviceName);
     if (it != rightMap.end()) {
-        auto v = it->second;
+        auto &v = it->second;
         auto itVevtor = std::find(v.begin(), v.end(), bundleName);
         if (itVevtor != v.end()) {
             it->second.erase(itVevtor);

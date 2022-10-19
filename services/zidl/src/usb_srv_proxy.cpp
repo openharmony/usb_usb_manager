@@ -43,7 +43,7 @@ int32_t UsbServerProxy::SetBufferMessage(MessageParcel &data, const std::vector<
         USB_HILOGE(MODULE_USBD, "write length failed:%{public}u", length);
         return UEC_SERVICE_WRITE_PARCEL_ERROR;
     }
-    if ((ptr) && (length > 0) && !data.WriteBuffer(static_cast<const void *>(ptr), length)) {
+    if ((ptr) && (length > 0) && !data.WriteBuffer(reinterpret_cast<const void *>(ptr), length)) {
         USB_HILOGE(MODULE_USBD, "write buffer failed length:%{public}u", length);
         return UEC_SERVICE_WRITE_PARCEL_ERROR;
     }
