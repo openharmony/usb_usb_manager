@@ -1,0 +1,40 @@
+{
+  "string": [
+    {
+      "name": "entry_desc",
+      "value": "description"
+    },
+    {
+      "name": "UsbDialogAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "UsbDialogAbility_label",
+      "value": "label"
+    },
+    {
+      "name": "MainAbility_desc",
+      "value": "manage the permissions of all applications from the permission and application dimensions"
+    },
+    {
+      "name": "MainAbility_label",
+      "value": "authorization manager"
+    },
+    {
+      "name": "allowButton",
+      "value": "Allow"
+    },
+    {
+      "name": "notAllowButton",
+      "value": "Not Allow"
+    },
+    {
+      "name": "allow",
+      "value": "Whether "
+    },
+    {
+      "name": "use",
+      "value": " allowed to use the "
+    }
+  ]
+}

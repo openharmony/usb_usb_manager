@@ -18,9 +18,9 @@
 #include <algorithm>
 #include <map>
 #include <mutex>
+#include <semaphore.h>
 #include <string>
 #include <vector>
-#include <semaphore.h>
 
 #include "ability_connect_callback_stub.h"
 #include "bundle_mgr_interface.h"
@@ -43,7 +43,6 @@ public:
     bool IsSystemHap();
 
 private:
-    std::pair<int32_t, int32_t> GetDisplayPosition();
     bool GetUserAgreementByDiag(const std::string &deviceName, const std::string &bundleName);
     bool ShowUsbDialog(const std::string &deviceName, const std::string &bundleName);
     sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
