@@ -43,9 +43,8 @@ namespace USB {
         std::array<uint8_t, ASHMEM_MAX_SIZE> tdata;
         tdata.fill('Y');
         uint32_t offset = 0;
-        uint32_t tlen = 0;
         while (offset < MEM_DATA) {
-            tlen = (MEM_DATA - offset) < ASHMEM_MAX_SIZE ? (MEM_DATA - offset) : ASHMEM_MAX_SIZE;
+            uint32_t tlen = (MEM_DATA - offset) < ASHMEM_MAX_SIZE ? (MEM_DATA - offset) : ASHMEM_MAX_SIZE;
             asmptr->WriteToAshmem(tdata.data(), tlen, offset);
             offset += tlen;
         }

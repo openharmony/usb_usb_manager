@@ -36,7 +36,7 @@ namespace USB {
             return false;
         }
 
-        if (usbSrvClient.HasRight(std::string(reinterpret_cast<const char*>(data))) {
+        if (usbSrvClient.HasRight(std::string(reinterpret_cast<const char*>(data)))) {
             return false;
         }
         return true;
