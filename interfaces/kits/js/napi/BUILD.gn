@@ -29,6 +29,34 @@ ohos_shared_library("usb") {
     "${utils_path}/native/src/usb_napi_errors.cpp",
     "src/napi_util.cpp",
     "src/usb_info.cpp",
+    "src/usb_middle.cpp",
+  ]
+  configs = [
+    "${utils_path}:utils_config",
+    ":usbnapi_private_config",
+  ]
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
+  external_deps = [
+    "drivers_interface_usb:usb_idl_headers",
+    "hiviewdfx_hilog_native:libhilog",
+    "napi:ace_napi",
+  ]
+
+  relative_install_dir = "module"
+
+  subsystem_name = "usb"
+  part_name = "usb_manager"
+}
+
+ohos_shared_library("usbv9") {
+  sources = [
+    "${utils_path}/native/src/usb_napi_errors.cpp",
+    "src/napi_util.cpp",
+    "src/usb_info.cpp",
+    "src/usbv9_middle.cpp",
   ]
   configs = [
     "${utils_path}:utils_config",
