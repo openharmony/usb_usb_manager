@@ -12,11 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#ifndef USB_NAPI_ERRORS_H
+#define USB_NAPI_ERRORS_H
+
 #include <map>
 #include <string_view>
-
 #include "napi/native_api.h"
-#ifndef USB_NAPI_ERRORS_H
+
 namespace OHOS {
 namespace USB {
 enum UsbJsErrCode : int32_t {
@@ -68,5 +71,4 @@ void ThrowBusinessError(const napi_env &env, int32_t errCode, const std::string 
 #define NAPI_CHECK_RETURN_FALSE(theCall, loginfo) NAPI_CHECK_BASE(theCall, loginfo, false)
 } // namespace USB
 } // namespace OHOS
-#define USB_NAPI_ERRORS_H
 #endif // USB_NAPI_ERRORS_H

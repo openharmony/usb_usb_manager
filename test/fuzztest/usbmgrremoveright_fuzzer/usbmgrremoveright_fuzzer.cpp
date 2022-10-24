@@ -41,7 +41,7 @@ namespace USB {
             return false;
         }
 
-        if (usbSrvClient.RemoveRight(std::string((const char*)data)) == UEC_OK) {
+        if (usbSrvClient.RemoveRight(std::string(reinterpret_cast<const char*>(data))) == UEC_OK) {
             return false;
         }
         return true;
