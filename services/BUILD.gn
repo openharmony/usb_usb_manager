@@ -52,11 +52,7 @@ ohos_shared_library("usbservice") {
 
   public_configs = [ ":usbsrv_public_config" ]
 
-  deps = [
-    "${usb_manager_path}/frameworks/dialog/dialog_ui/js:dialog_js_files_etc",
-    "//foundation/arkui/ace_engine/interfaces/inner_api/ui_service_manager:ui_service_mgr",
-    "//third_party/jsoncpp:jsoncpp",
-  ]
+  deps = [ "//third_party/jsoncpp:jsoncpp" ]
 
   external_deps = [
     "ability_base:want",
@@ -72,7 +68,6 @@ ohos_shared_library("usbservice") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "window_manager:libdm",
   ]
 
   part_name = "usb_manager"
