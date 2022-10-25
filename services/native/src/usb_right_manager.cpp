@@ -18,21 +18,15 @@
 #include <unistd.h>
 
 #include "ability_manager_client.h"
-#include "display_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
-#include "ui_service_mgr_client.h"
 #include "usb_errors.h"
 
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace USB {
-namespace {
-constexpr int32_t UI_DIALOG_USB_WIDTH_NARROW = 400;
-constexpr int32_t UI_DIALOG_USB_HEIGHT_NARROW = 240;
-} // namespace
 
 sem_t UsbRightManager::waitDialogDisappear_ {0};
 
@@ -114,24 +108,6 @@ bool UsbRightManager::RemoveDeviceAllRight(const std::string &deviceName)
         return true;
     }
     return false;
-}
-
-std::pair<int32_t, int32_t> UsbRightManager::GetDisplayPosition()
-{
-    auto display = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
-    if (display == nullptr) {
-        USB_HILOGI(MODULE_USB_SERVICE, "Dialog GetDefaultDisplay fail, try again.");
-        display = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
-    }
-
-    if (display != nullptr) {
-        USB_HILOGI(
-            MODULE_USB_SERVICE, "Display size: %{public}d x %{public}d", display->GetWidth(), display->GetHeight());
-        return {display->GetWidth(), display->GetHeight()};
-    }
-
-    USB_HILOGI(MODULE_USB_SERVICE, "Dialog get display fail, use default wide.");
-    return {UI_DIALOG_USB_WIDTH_NARROW, UI_DIALOG_USB_HEIGHT_NARROW};
 }
 
 bool UsbRightManager::ShowUsbDialog(const std::string &deviceName, const std::string &bundleName)

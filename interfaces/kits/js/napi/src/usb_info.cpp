@@ -34,6 +34,7 @@
 #include "usb_errors.h"
 #include "usb_napi_errors.h"
 #include "usb_srv_client.h"
+#include "napi_common.h"
 
 using namespace OHOS;
 using namespace OHOS::USB;
@@ -1370,7 +1371,7 @@ EXTERN_C_START
 /*
  * function for module exports
  */
-static napi_value UsbInit(napi_env env, napi_value exports)
+napi_value UsbInit(napi_env env, napi_value exports)
 {
     USB_HILOGD(MODULE_JS_NAPI, "enter");
 
@@ -1415,22 +1416,3 @@ static napi_value UsbInit(napi_env env, napi_value exports)
     return exports;
 }
 EXTERN_C_END
-
-/*
- * Module definition
- */
-static napi_module g_module = {.nm_version = 1,
-    .nm_flags = 0,
-    .nm_filename = "usb",
-    .nm_register_func = UsbInit,
-    .nm_modname = "usb",
-    .nm_priv = ((void *)0),
-    .reserved = {0}};
-
-/*
- * Module registration
- */
-extern "C" __attribute__((constructor)) void RegisterModule(void)
-{
-    napi_module_register(&g_module);
-}

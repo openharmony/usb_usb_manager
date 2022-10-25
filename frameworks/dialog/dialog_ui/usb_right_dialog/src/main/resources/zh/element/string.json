@@ -1,0 +1,20 @@
+{
+  "string": [
+    {
+      "name": "allowButton",
+      "value": "允许"
+    },
+    {
+      "name": "notAllowButton",
+      "value": "不允许"
+    },
+    {
+      "name": "allow",
+      "value": "是否允许 "
+    },
+    {
+      "name": "use",
+      "value": " 使用 "
+    }
+  ]
+}
