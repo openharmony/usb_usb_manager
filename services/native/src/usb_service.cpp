@@ -73,7 +73,9 @@ UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
 }
 UsbService::~UsbService() {}
 
-UsbService::SystemAbilityStatusChangeListener::SystemAbilityStatusChangeListener() {}
+UsbService::SystemAbilityStatusChangeListener::SystemAbilityStatusChangeListener(
+    sptr<UsbServiceSubscriber> usbdSubscriber)
+    : usbdSubscriber_(usbdSubscriber) {}
 
 void UsbService::SystemAbilityStatusChangeListener::OnAddSystemAbility(
     int32_t systemAbilityId, const std::string &deviceId)
@@ -86,6 +88,10 @@ void UsbService::SystemAbilityStatusChangeListener::OnRemoveSystemAbility(
 {
     USB_HILOGI(MODULE_USB_SERVICE, "OnRemoveSystemAbility ID = %{public}d", systemAbilityId);
     if (systemAbilityId == USB_SYSTEM_ABILITY_ID) {
+        sptr<IUsbInterface> usbd_ = IUsbInterface::Get();
+        if (usbd_ != nullptr) {
+            usbd_->UnbindUsbdSubscriber(usbdSubscriber_);
+        }
         exit(0);
     }
 }
@@ -93,17 +99,6 @@ void UsbService::SystemAbilityStatusChangeListener::OnRemoveSystemAbility(
 void UsbService::OnStart()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "usb_service OnStart enter");
-    auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    sptr<ISystemAbilityStatusChange> status = new (std::nothrow) SystemAbilityStatusChangeListener();
-    if (samgrProxy == nullptr || status == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "samgrProxy or SystemAbilityStatusChangeListener is nullptr");
-        return;
-    }
-    int32_t ret = samgrProxy->SubscribeSystemAbility(USB_SYSTEM_ABILITY_ID, status);
-    if (ret != ERR_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "SubscribeSystemAbility failed. ret = %{public}d", ret);
-        return;
-    }
     if (ready_) {
         USB_HILOGE(MODULE_USB_SERVICE, "OnStart is ready, nothing to do");
         return;
@@ -136,6 +131,17 @@ void UsbService::OnStart()
 
     usbPortManager_->Init();
     ready_ = true;
+    auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    sptr<ISystemAbilityStatusChange> status = new (std::nothrow) SystemAbilityStatusChangeListener(usbdSubscriber_);
+    if (samgrProxy == nullptr || status == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "samgrProxy or SystemAbilityStatusChangeListener is nullptr");
+        return;
+    }
+    int32_t ret = samgrProxy->SubscribeSystemAbility(USB_SYSTEM_ABILITY_ID, status);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "SubscribeSystemAbility failed. ret = %{public}d", ret);
+        return;
+    }
     USB_HILOGE(MODULE_USB_SERVICE, "OnStart and add system ability success");
 }
 
