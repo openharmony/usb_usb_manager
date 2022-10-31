@@ -112,10 +112,12 @@ public:
 private:
     class SystemAbilityStatusChangeListener : public SystemAbilityStatusChangeStub {
     public:
-        explicit SystemAbilityStatusChangeListener();
+        explicit SystemAbilityStatusChangeListener(sptr<UsbServiceSubscriber> usbdSubscriber);
         ~SystemAbilityStatusChangeListener() = default;
         void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
         void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    private:
+        sptr<UsbServiceSubscriber> usbdSubscriber_;
     };
 
 private:
