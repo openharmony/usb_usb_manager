@@ -39,7 +39,7 @@ namespace USB {
             return false;
         }
 
-        if (usbSrvClient.RequestInitialize(reinterpret_cast<const UsbRequest&>(data)) == UEC_OK) {
+        if (usbSrvClient.RequestInitialize(reinterpret_cast<UsbRequest &>(data)) == UEC_OK) {
             return false;
         }
         return true;

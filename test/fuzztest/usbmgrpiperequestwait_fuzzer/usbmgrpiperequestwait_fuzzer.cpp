@@ -46,8 +46,9 @@ namespace USB {
             return false;
         }
 
-        if (usbSrvClient.PipeRequestWait(reinterpret_cast<const USBDevicePipe&>(data),
-            reinterpret_cast<int64_t>(data), reinterpret_cast<UsbRequest&>(data))) {
+        ret = usbSrvClient.PipeRequestWait(reinterpret_cast<USBDevicePipe &>(data),
+            reinterpret_cast<int64_t>(data), reinterpret_cast<UsbRequest &>(data));
+        if (ret == UEC_OK) {
             return false;
         }
         return true;
