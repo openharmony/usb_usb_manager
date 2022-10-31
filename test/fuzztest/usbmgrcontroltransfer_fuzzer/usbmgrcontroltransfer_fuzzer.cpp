@@ -47,8 +47,8 @@ namespace USB {
         }
 
         std::vector<uint8_t> buf;
-        ret = usbSrvClient.ControlTransfer(reinterpret_cast<const USBDevicePipe&>(data),
-            reinterpret_cast<const UsbCtrlTransfer&>(data), buf);
+        ret = usbSrvClient.ControlTransfer(
+            reinterpret_cast<USBDevicePipe &>(data), reinterpret_cast<const UsbCtrlTransfer &>(data), buf);
         if (ret == UEC_OK) {
             return false;
         }

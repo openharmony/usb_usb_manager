@@ -40,7 +40,8 @@ namespace USB {
         }
 
         int32_t fd;
-        if (usbSrvClient.GetFileDescriptor(reinterpret_cast<const USBDevicePipe&>(data), fd) == UEC_OK) {
+        ret = usbSrvClient.GetFileDescriptor(reinterpret_cast<USBDevicePipe &>(data), fd);
+        if (ret == UEC_OK) {
             return false;
         }
         return true;

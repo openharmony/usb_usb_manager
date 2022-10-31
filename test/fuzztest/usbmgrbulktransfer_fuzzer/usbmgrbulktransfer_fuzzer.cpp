@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "usbmgrbultransfer_fuzzer.h"
+#include "usbmgrbulktransfer_fuzzer.h"
 
 #include "usb_srv_client.h"
 #include "usb_errors.h"
@@ -47,8 +47,8 @@ namespace USB {
         }
 
         std::vector<uint8_t> buf;
-        ret = usbSrvClient.BulkTransfer(reinterpret_cast<const USBDevicePipe&>(data),
-            reinterpret_cast<const USBEndpoint&>(data), buf, reinterpret_cast<int32_t>(data));
+        ret = usbSrvClient.BulkTransfer(reinterpret_cast<USBDevicePipe &>(data),
+            reinterpret_cast<const USBEndpoint &>(data), buf, reinterpret_cast<int32_t>(data));
         if (ret == UEC_OK) {
             return false;
         }
@@ -65,4 +65,3 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     OHOS::USB::UsbMgrBulkTransferFuzzTest(data, size);
     return 0;
 }
-
