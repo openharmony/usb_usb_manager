@@ -33,14 +33,16 @@ namespace USB {
 
         auto& usbSrvClient = UsbSrvClient::GetInstance();
         sptr<UsbCallbackTest> cb = new UsbCallbackTest();
-        auto ret = usbSrvClient.RegBulkCallback(pipe, interface.GetEndpoints().at(1), cb);
+        auto ret = usbSrvClient.RegBulkCallback(
+            const_cast<USBDevicePipe &>(pipe), const_cast<UsbInterface &>(interface).GetEndpoints().at(1), cb);
         if (ret != UEC_OK) {
             USB_HILOGE(MODULE_USB_SERVICE, "RegBulkCallback failed ret=%{public}d", ret);
             return false;
         }
 
-        if (usbSrvClient.UnRegBulkCallback(reinterpret_cast<const USBDevicePipe&>(data),
-            reinterpret_cast<const USBEndpoint&>(data)) == UEC_OK) {
+        ret = usbSrvClient.UnRegBulkCallback(
+            reinterpret_cast<USBDevicePipe &>(data), reinterpret_cast<const USBEndpoint &>(data));
+        if (ret == UEC_OK) {
             return false;
         }
         return true;

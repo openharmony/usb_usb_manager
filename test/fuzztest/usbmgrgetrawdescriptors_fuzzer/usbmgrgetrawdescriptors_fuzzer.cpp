@@ -40,7 +40,8 @@ namespace USB {
         }
 
         std::vector<uint8_t> buf;
-        if (usbSrvClient.GetRawDescriptors(reinterpret_cast<const USBDevicePipe&>(data), buf) == UEC_OK) {
+        ret = usbSrvClient.GetRawDescriptors(reinterpret_cast<USBDevicePipe &>(data), buf);
+        if (ret == UEC_OK) {
             return false;
         }
         return true;

@@ -39,8 +39,8 @@ namespace USB {
             return false;
         }
 
-        ret = usbSrvClient.ClaimInterface(reinterpret_cast<const USBDevicePipe&>(data),
-            reinterpret_cast<const UsbInterface&>(data), true);
+        ret = usbSrvClient.ClaimInterface(
+            reinterpret_cast<USBDevicePipe &>(data), reinterpret_cast<const UsbInterface &>(data), true);
         if (ret == UEC_OK) {
             return false;
         }

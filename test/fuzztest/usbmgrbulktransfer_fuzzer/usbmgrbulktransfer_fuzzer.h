@@ -16,6 +16,6 @@
 #ifndef USBMGRBULTRANSFER_FUZZER_H
 #define USBMGRBULTRANSFER_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "usbmgrbultransfer_fuzzer"
+#define FUZZ_PROJECT_NAME "usbmgrbulktransfer_fuzzer"
 
 #endif // USBMGRBULTRANSFER_FUZZER_H
