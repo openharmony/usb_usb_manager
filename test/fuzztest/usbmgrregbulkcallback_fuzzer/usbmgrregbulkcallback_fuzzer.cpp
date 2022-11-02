@@ -32,8 +32,9 @@ namespace USB {
             return false;
         }
 
-        if (UsbSrvClient::GetInstance().RegBulkCallback(reinterpret_cast<const USBDevicePipe&>(data),
-            reinterpret_cast<const USBEndpoint&>(data), reinterpret_cast<const sptr<IRemoteObject>&>(data)) == UEC_OK) {
+        int32_t ret = UsbSrvClient::GetInstance().RegBulkCallback(reinterpret_cast<USBDevicePipe &>(data),
+            reinterpret_cast<const USBEndpoint &>(data), reinterpret_cast<const sptr<IRemoteObject> &>(data));
+        if (ret == UEC_OK) {
             return false;
         }
         return true;
