@@ -46,7 +46,7 @@ namespace USB {
             return false;
         }
 
-        if (usbSrvClient.RequestFree(reinterpret_cast<const UsbRequest&>(data)) == UEC_OK) {
+        if (usbSrvClient.RequestFree(reinterpret_cast<UsbRequest &>(data)) == UEC_OK) {
             return false;
         }
         return true;

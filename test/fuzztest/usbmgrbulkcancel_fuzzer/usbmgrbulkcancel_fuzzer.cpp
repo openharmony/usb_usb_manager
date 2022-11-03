@@ -62,8 +62,8 @@ namespace USB {
 
         auto& usbSrvClient = UsbSrvClient::GetInstance();
         sptr<UsbCallbackTest> cb = new UsbCallbackTest();
-        USBEndpoint point = interface.GetEndpoints().at(1);
-        auto ret = usbSrvClient.RegBulkCallback(pipe, point, cb);
+        USBEndpoint point = const_cast<UsbInterface &>(interface).GetEndpoints().at(1);
+        auto ret = usbSrvClient.RegBulkCallback(const_cast<USBDevicePipe &>(pipe), point, cb);
         if (ret != UEC_OK) {
             USB_HILOGE(MODULE_USB_SERVICE, "RegBulkCallback failed ret=%{public}d", ret);
             return false;
@@ -75,13 +75,13 @@ namespace USB {
             return false;
         }
 
-        ret = usbSrvClient.BulkWrite(pipe, point, sharedMem);
+        ret = usbSrvClient.BulkWrite(const_cast<USBDevicePipe &>(pipe), point, sharedMem);
         if (ret != UEC_OK) {
             USB_HILOGE(MODULE_USB_SERVICE, "BulkWrite failed ret=%{public}d", ret);
             return false;
         }
 
-        if (usbSrvClient.BulkCancel(reinterpret_cast<const USBDevicePipe&>(data),
+        if (usbSrvClient.BulkCancel(reinterpret_cast<USBDevicePipe &>(data),
             reinterpret_cast<const USBEndpoint&>(data)) == UEC_OK) {
             return false;
         }
