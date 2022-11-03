@@ -45,7 +45,7 @@ const int32_t USB_REQUEST_TYPE_CLASS = 1;
 const int32_t USB_REQUEST_TYPE_VENDOR = 2;
 
 const int32_t USB_REQUEST_DIR_TO_DEVICE = 0;
-const int32_t USB_REQUEST_DIR_FROM_DEVICE = 1;
+const int32_t USB_REQUEST_DIR_FROM_DEVICE = 0x80;
 
 const int32_t ACM = 1;
 const int32_t ECM = 1 << 1;
