@@ -26,6 +26,8 @@ enum UsbModuleType {
     USB_MODULE_TYPE_KIT = 1,
 };
 
+const std::string PERMISSION_DENIED_SYSAPI = "PERMISSION_DENIED_SYSAPI";
+
 #define USB_OFFSET 100
 
 constexpr int32_t USBFWK_SERVICE_ERR_OFFSET = ErrCodeOffset(SUBSYS_USB, USB_MODULE_TYPE_SERVICE);

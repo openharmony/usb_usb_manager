@@ -25,11 +25,13 @@ namespace USB {
 enum UsbJsErrCode : int32_t {
     SYSPARAM_INVALID_INPUT = 401,
     USB_DEVICE_PERMISSION_DENIED = 14400001,
+    USB_SYSAPI_PERMISSION_DENIED = 202,
 };
 
 const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
-    {SYSPARAM_INVALID_INPUT,       "BusinessError 401:Parameter error."       },
-    {USB_DEVICE_PERMISSION_DENIED, "BusinessError 14400001:Permission denied."},
+    {SYSPARAM_INVALID_INPUT,       "BusinessError 401:Parameter error."                                      },
+    {USB_DEVICE_PERMISSION_DENIED, "BusinessError 14400001:Permission denied."                               },
+    {USB_SYSAPI_PERMISSION_DENIED, "BusinessError 202:Permission denied. Normal application uses system api."},
 };
 
 void ThrowBusinessError(const napi_env &env, int32_t errCode, const std::string &errMsg);
@@ -48,6 +50,12 @@ void ThrowBusinessError(const napi_env &env, int32_t errCode, const std::string 
 #define USB_ASSERT_RETURN_VOID(env, assertion, errCode, errMsg) \
     USB_ASSERT_BASE(env, assertion, errCode, errMsg, NOTHING)
 #define USB_ASSERT_RETURN_FALSE(env, assertion, errCode, errMsg) USB_ASSERT_BASE(env, assertion, errCode, errMsg, false)
+#define USB_ASSERT_RETURN_UNDEF(env, assertion, errCode, errMsg) \
+    do {                                                         \
+        napi_value obj = nullptr;                                \
+        napi_get_undefined(env, &obj);                           \
+        USB_ASSERT_BASE(env, assertion, errCode, errMsg, obj);   \
+    } while (0)
 
 #define NAPI_CHECK(env, theCall, loginfo)                                     \
     do {                                                                      \
