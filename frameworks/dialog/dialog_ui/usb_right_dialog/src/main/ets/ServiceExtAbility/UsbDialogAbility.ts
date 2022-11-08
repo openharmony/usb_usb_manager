@@ -65,7 +65,7 @@ export default class UsbDialogAbility extends extension {
                 width: dis.width,
                 height: dis.height
             }
-            this.createWindow("UsbDialogAbility", window.WindowType.TYPE_DIALOG, navigationBarRect)
+            this.createWindow("UsbDialogAbility", window.WindowType.TYPE_FLOAT, navigationBarRect)
         })
         return new UsbDialogStub("UsbRightDialog");
     }
