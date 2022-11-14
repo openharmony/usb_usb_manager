@@ -42,7 +42,7 @@ class UsbSrvClient final : public DelayedRefSingleton<UsbSrvClient> {
 public:
     DISALLOW_COPY_AND_MOVE(UsbSrvClient);
 
-    int32_t OpenDevice(const UsbDevice &device, USBDevicePipe &pip);
+    int32_t OpenDevice(const UsbDevice &device, USBDevicePipe &pipe);
     bool HasRight(std::string deviceName);
     int32_t RequestRight(std::string deviceName);
     int32_t RemoveRight(std::string deviceName);
@@ -56,9 +56,10 @@ public:
     std::string UsbFunctionsToString(int32_t funcs);
     int32_t ClaimInterface(USBDevicePipe &pip, const UsbInterface &interface, bool force);
     int32_t ReleaseInterface(USBDevicePipe &pip, const UsbInterface &interface);
-    int32_t BulkTransfer(
-        USBDevicePipe &pip, const USBEndpoint &endpoint, std::vector<uint8_t> &bufferData, int32_t timeOut);
-    int32_t ControlTransfer(USBDevicePipe &pip, const UsbCtrlTransfer &ctrl, std::vector<uint8_t> &bufferData);
+    int32_t BulkTransfer(USBDevicePipe &pip, const USBEndpoint &endpoint, std::vector<uint8_t> &bufferData,
+        int32_t timeOut);
+    int32_t ControlTransfer(USBDevicePipe &pip, const HDI::Usb::V1_0::UsbCtrlTransfer &ctrl,
+        std::vector<uint8_t> &bufferData);
     int32_t SetConfiguration(USBDevicePipe &pip, const USBConfig &config);
     int32_t SetInterface(USBDevicePipe &pipe, const UsbInterface &interface);
     int32_t GetRawDescriptors(USBDevicePipe &pipe, std::vector<uint8_t> &bufferData);
@@ -88,7 +89,7 @@ private:
     public:
         UsbSrvDeathRecipient() = default;
         ~UsbSrvDeathRecipient() = default;
-        void OnRemoteDied(const wptr<IRemoteObject> &remote);
+        void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
 
     private:
         DISALLOW_COPY_AND_MOVE(UsbSrvDeathRecipient);

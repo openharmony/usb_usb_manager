@@ -22,6 +22,7 @@
 #include "usb_request.h"
 #include "usb_server_proxy.h"
 
+using namespace OHOS::HDI::Usb::V1_0;
 namespace OHOS {
 namespace USB {
 int32_t UsbServerProxy::SetDeviceMessage(MessageParcel &data, uint8_t busNum, uint8_t devAddr)

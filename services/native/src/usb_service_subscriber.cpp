@@ -27,6 +27,7 @@
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::EventFwk;
+using namespace OHOS::HDI::Usb::V1_0;
 
 namespace OHOS {
 namespace USB {

@@ -36,10 +36,6 @@
 #include "v1_0/iusbd_subscriber.h"
 #include "v1_0/usb_types.h"
 
-using OHOS::HDI::Usb::V1_0::IUsbInterface;
-
-using OHOS::HDI::Usb::V1_0::IUsbdBulkCallback;
-
 namespace OHOS {
 namespace USB {
 const std::string USB_HOST = "usb_host";
@@ -80,19 +76,20 @@ public:
 
     int32_t ClaimInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t force) override;
     int32_t ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid) override;
-    int32_t BulkTransferRead(
-        const UsbDev &dev, const UsbPipe &pipe, std::vector<uint8_t> &bufferData, int32_t timeOut) override;
-    int32_t BulkTransferWrite(
-        const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &bufferData, int32_t timeOut) override;
-    int32_t ControlTransfer(const UsbDev &dev, const UsbCtrlTransfer &ctrl, std::vector<uint8_t> &bufferData) override;
+    int32_t BulkTransferRead(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe,
+        std::vector<uint8_t> &bufferData, int32_t timeOut) override;
+    int32_t BulkTransferWrite(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe,
+        const std::vector<uint8_t> &bufferData, int32_t timeOut) override;
+    int32_t ControlTransfer(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbCtrlTransfer &ctrl,
+        std::vector<uint8_t> &bufferData) override;
     int32_t SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex) override;
     int32_t GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &configIndex) override;
     int32_t SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t altIndex) override;
     int32_t GetRawDescriptor(uint8_t busNum, uint8_t devAddr, std::vector<uint8_t> &bufferData) override;
     int32_t GetFileDescriptor(uint8_t busNum, uint8_t devAddr, int32_t &fd) override;
-    int32_t RequestQueue(const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &clientData,
-        const std::vector<uint8_t> &bufferData) override;
-    int32_t RequestWait(const UsbDev &dev, int32_t timeOut, std::vector<uint8_t> &clientData,
+    int32_t RequestQueue(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe,
+        const std::vector<uint8_t> &clientData, const std::vector<uint8_t> &bufferData) override;
+    int32_t RequestWait(const HDI::Usb::V1_0::UsbDev &dev, int32_t timeOut, std::vector<uint8_t> &clientData,
         std::vector<uint8_t> &bufferData) override;
     int32_t RequestCancel(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t endpointId) override;
     int32_t Close(uint8_t busNum, uint8_t devAddr) override;
@@ -101,14 +98,18 @@ public:
     void UpdateUsbPort(int32_t portId, int32_t powerRole, int32_t dataRole, int32_t mode);
     void UpdateDeviceState(int32_t status);
     int32_t GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &dev);
-    int32_t GetDeviceInfoDescriptor(const UsbDev &uDev, std::vector<uint8_t> &descriptor, UsbDevice &dev);
+    int32_t GetDeviceInfoDescriptor(const HDI::Usb::V1_0::UsbDev &uDev, std::vector<uint8_t> &descriptor,
+        UsbDevice &dev);
     int32_t GetConfigDescriptor(UsbDevice &dev, std::vector<uint8_t> &descriptor);
 
-    int32_t RegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe, const sptr<IRemoteObject> &cb) override;
-    int32_t UnRegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe) override;
-    int32_t BulkRead(const UsbDev &devInfo, const UsbPipe &pipe, sptr<Ashmem> &ashmem) override;
-    int32_t BulkWrite(const UsbDev &devInfo, const UsbPipe &pipe, sptr<Ashmem> &ashmem) override;
-    int32_t BulkCancel(const UsbDev &devInfo, const UsbPipe &pipe) override;
+    int32_t RegBulkCallback(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe,
+        const sptr<IRemoteObject> &cb) override;
+    int32_t UnRegBulkCallback(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe) override;
+    int32_t BulkRead(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe,
+        sptr<Ashmem> &ashmem) override;
+    int32_t BulkWrite(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe,
+        sptr<Ashmem> &ashmem) override;
+    int32_t BulkCancel(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe) override;
     int32_t AddRight(const std::string &bundleName, const std::string &deviceName) override;
 
 private:
@@ -140,8 +141,8 @@ private:
     std::shared_ptr<AppExecFwk::EventRunner> eventRunner_;
     std::shared_ptr<UsbServerEventHandler> handler_;
     sptr<UsbServiceSubscriber> usbdSubscriber_;
-    sptr<IUsbdBulkCallback> hdiCb_ = nullptr;
-    sptr<IUsbInterface> usbd_ = nullptr;
+    sptr<HDI::Usb::V1_0::IUsbdBulkCallback> hdiCb_ = nullptr;
+    sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
 };
 } // namespace USB
 } // namespace OHOS

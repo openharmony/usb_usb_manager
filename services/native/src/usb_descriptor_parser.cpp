@@ -123,7 +123,7 @@ int32_t UsbDescriptorParser::ParseInterfaceDescriptor(
     }
 
     uint32_t descriptorHeaderSize = sizeof(UsbdDescriptorHeader);
-    while ((uint32_t)cursor < length) {
+    while (static_cast<uint32_t>(cursor) < length) {
         if (descriptorHeaderSize >= length) {
             USB_HILOGE(MODULE_USB_SERVICE, "length error");
             return UEC_SERVICE_INVALID_VALUE;
@@ -177,7 +177,7 @@ int32_t UsbDescriptorParser::ParseEndpointDescriptor(
     }
 
     uint32_t descriptorHeaderSize = sizeof(UsbdDescriptorHeader);
-    while ((uint32_t)cursor < length) {
+    while (static_cast<uint32_t>(cursor) < length) {
         if (descriptorHeaderSize >= length) {
             USB_HILOGE(MODULE_USB_SERVICE, "length error");
             return UEC_SERVICE_INVALID_VALUE;

@@ -38,6 +38,7 @@
 
 using namespace OHOS;
 using namespace OHOS::USB;
+using namespace OHOS::HDI::Usb::V1_0;
 
 const int32_t INDEX_0 = 0;
 const int32_t INDEX_1 = 1;
@@ -60,10 +61,10 @@ static void ParseUsbDevicePipe(const napi_env env, const napi_value &obj, USBDev
 
     int32_t busNum = 0;
     NapiUtil::JsObjectToInt(env, obj, "busNum", busNum);
-    pipe.SetBusNum((uint8_t)busNum);
+    pipe.SetBusNum(static_cast<uint8_t>(busNum));
     int32_t devAddr = 0;
     NapiUtil::JsObjectToInt(env, obj, "devAddress", devAddr);
-    pipe.SetDevAddr((uint8_t)devAddr);
+    pipe.SetDevAddr(static_cast<uint8_t>(devAddr));
 }
 
 static void ProcessPromise(const napi_env env, const USBAsyncContext &asyncContext, napi_value &result)

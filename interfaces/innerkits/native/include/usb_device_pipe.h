@@ -19,8 +19,6 @@
 #include "usb_config.h"
 #include "v1_0/usb_types.h"
 
-using OHOS::HDI::Usb::V1_0::UsbCtrlTransfer;
-
 namespace OHOS {
 namespace USB {
 class USBDevicePipe {
@@ -31,7 +29,7 @@ public:
     int32_t ClaimInterface(const UsbInterface &interface, bool force);
     int32_t ReleaseInterface(const UsbInterface &interface);
     int32_t BulkTransfer(const USBEndpoint &endpoint, std::vector<uint8_t> &bufferData, int32_t timeOut);
-    int32_t ControlTransfer(const UsbCtrlTransfer &ctrl, std::vector<uint8_t> &bufferData);
+    int32_t ControlTransfer(const HDI::Usb::V1_0::UsbCtrlTransfer &ctrl, std::vector<uint8_t> &bufferData);
     int32_t SetConfiguration(const USBConfig &config);
     int32_t SetInterface(const UsbInterface &interface);
     int32_t Close();
