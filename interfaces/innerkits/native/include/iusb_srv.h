@@ -22,12 +22,6 @@
 #include "usb_port.h"
 #include "v1_0/usb_types.h"
 
-using OHOS::HDI::Usb::V1_0::UsbCtrlTransfer;
-
-using OHOS::HDI::Usb::V1_0::UsbPipe;
-
-using OHOS::HDI::Usb::V1_0::UsbDev;
-
 namespace OHOS {
 namespace USB {
 class IUsbSrv : public IRemoteBroker {
@@ -82,29 +76,32 @@ public:
     virtual int32_t SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole) = 0;
     virtual int32_t ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid) = 0;
     virtual int32_t ClaimInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t force) = 0;
-    virtual int32_t BulkTransferRead(
-        const UsbDev &dev, const UsbPipe &pipe, std::vector<uint8_t> &bufferData, int32_t timeOut) = 0;
-    virtual int32_t BulkTransferWrite(
-        const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &bufferData, int32_t timeOut) = 0;
-    virtual int32_t ControlTransfer(
-        const UsbDev &dev, const UsbCtrlTransfer &ctrl, std::vector<uint8_t> &bufferData) = 0;
+    virtual int32_t BulkTransferRead(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe,
+        std::vector<uint8_t> &bufferData, int32_t timeOut) = 0;
+    virtual int32_t BulkTransferWrite(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe,
+        const std::vector<uint8_t> &bufferData, int32_t timeOut) = 0;
+    virtual int32_t ControlTransfer(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbCtrlTransfer &ctrl,
+        std::vector<uint8_t> &bufferData) = 0;
     virtual int32_t SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configId) = 0;
     virtual int32_t GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &configId) = 0;
     virtual int32_t SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t altIndex) = 0;
     virtual int32_t GetRawDescriptor(uint8_t busNum, uint8_t devAddr, std::vector<uint8_t> &bufferData) = 0;
     virtual int32_t GetFileDescriptor(uint8_t busNum, uint8_t devAddr, int32_t &fd) = 0;
-    virtual int32_t RequestQueue(const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &clientData,
-        const std::vector<uint8_t> &bufferData) = 0;
-    virtual int32_t RequestWait(
-        const UsbDev &dev, int32_t timeOut, std::vector<uint8_t> &clientData, std::vector<uint8_t> &bufferData) = 0;
+    virtual int32_t RequestQueue(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe,
+        const std::vector<uint8_t> &clientData, const std::vector<uint8_t> &bufferData) = 0;
+    virtual int32_t RequestWait(const HDI::Usb::V1_0::UsbDev &dev, int32_t timeOut, std::vector<uint8_t> &clientData,
+        std::vector<uint8_t> &bufferData) = 0;
     virtual int32_t RequestCancel(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t endpointId) = 0;
     virtual int32_t Close(uint8_t busNum, uint8_t devAddr) = 0;
 
-    virtual int32_t RegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe, const sptr<IRemoteObject> &cb) = 0;
-    virtual int32_t UnRegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe) = 0;
-    virtual int32_t BulkRead(const UsbDev &devInfo, const UsbPipe &pipe, sptr<Ashmem> &ashmem) = 0;
-    virtual int32_t BulkWrite(const UsbDev &devInfo, const UsbPipe &pipe, sptr<Ashmem> &ashmem) = 0;
-    virtual int32_t BulkCancel(const UsbDev &devInfo, const UsbPipe &pipe) = 0;
+    virtual int32_t RegBulkCallback(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe,
+        const sptr<IRemoteObject> &cb) = 0;
+    virtual int32_t UnRegBulkCallback(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe) = 0;
+    virtual int32_t BulkRead(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe,
+        sptr<Ashmem> &ashmem) = 0;
+    virtual int32_t BulkWrite(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe,
+        sptr<Ashmem> &ashmem) = 0;
+    virtual int32_t BulkCancel(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe) = 0;
     virtual int32_t AddRight(const std::string &bundleName, const std::string &deviceName) = 0;
 
 public:

@@ -59,7 +59,7 @@ enum UsbMgrSubModule {
 };
 
 // 0xD002900: subsystem:Usb module:Usb, reserved 8 bit.
-static constexpr unsigned int BASE_USB_DOMAIN_ID = 0xD002900;
+constexpr unsigned int BASE_USB_DOMAIN_ID = 0xD002900;
 
 enum UsbMgrDomainId {
     USBMGR_INNERKIT_DOMAIN = BASE_USB_DOMAIN_ID + MODULE_INNERKIT,
@@ -73,7 +73,7 @@ enum UsbMgrDomainId {
     USB_BUTT,
 };
 
-static constexpr OHOS::HiviewDFX::HiLogLabel USB_MGR_LABEL[USBMGR_MODULE_BUTT] = {
+constexpr OHOS::HiviewDFX::HiLogLabel USB_MGR_LABEL[USBMGR_MODULE_BUTT] = {
     {LOG_CORE, USBMGR_INNERKIT_DOMAIN, "UsbMgrClient"},
     {LOG_CORE, USBMGR_SERVICE_DOMAIN, "UsbMgrService"},
     {LOG_CORE, USBMGR_JAVAKIT_DOMAIN, "UsbMgrJavaService"},

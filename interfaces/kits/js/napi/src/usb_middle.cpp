@@ -22,7 +22,7 @@ static napi_module g_module = {.nm_version = 1,
     .nm_filename = "usb",
     .nm_register_func = UsbInit,
     .nm_modname = "usb",
-    .nm_priv = ((void *)0),
+    .nm_priv = (static_cast<void *>(0)),
     .reserved = {0}};
 
 /*

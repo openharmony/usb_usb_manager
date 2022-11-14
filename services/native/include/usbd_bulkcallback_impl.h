@@ -20,15 +20,11 @@
 #include "iremote_object.h"
 #include "v1_0/iusbd_bulk_callback.h"
 
-using OHOS::IRemoteObject;
-using OHOS::sptr;
-using OHOS::HDI::Usb::V1_0::IUsbdBulkCallback;
-
 namespace OHOS {
 namespace USB {
-class UsbdBulkCallbackImpl : public IUsbdBulkCallback {
+class UsbdBulkCallbackImpl : public HDI::Usb::V1_0::IUsbdBulkCallback {
 public:
-    explicit UsbdBulkCallbackImpl(const sptr<IRemoteObject> &cb) : remote_(cb) {}
+    explicit UsbdBulkCallbackImpl(const OHOS::sptr<OHOS::IRemoteObject> &cb) : remote_(cb) {}
     int32_t OnBulkWriteCallback(int32_t status, int32_t actLength) override;
     int32_t OnBulkReadCallback(int32_t status, int32_t actLength) override;
 
