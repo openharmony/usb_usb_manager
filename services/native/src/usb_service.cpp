@@ -384,7 +384,7 @@ std::string UsbService::UsbFunctionsToString(int32_t funcs)
     }
     if (!(usbRightManager_->IsSystemHap())) {
         USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
-        return "";
+        return PERMISSION_DENIED_SYSAPI;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "calling UsbFunctionsToString");
     return UsbDeviceManager::ConvertToString(funcs);

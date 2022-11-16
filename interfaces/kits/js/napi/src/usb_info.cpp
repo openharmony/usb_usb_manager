@@ -466,9 +466,9 @@ static napi_value DeviceAddRight(napi_env env, napi_callback_info info)
     if (ret == UEC_OK) {
         napi_get_boolean(env, true, &result);
     } else {
+        USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI), USB_SYSAPI_PERMISSION_DENIED, "");
         napi_get_boolean(env, false, &result);
     }
-
     return result;
 }
 
@@ -591,6 +591,8 @@ static napi_value CoreUsbFunctionsFromString(napi_env env, napi_callback_info in
     NapiUtil::JsValueToString(env, argv[INDEX_0], STR_DEFAULT_SIZE, funcs);
 
     int32_t numFuncs = g_usbClient.UsbFunctionsFromString(funcs);
+    USB_HILOGI(MODULE_JS_NAPI, "usb functions from string failed ret = %{public}d", numFuncs);
+    USB_ASSERT_RETURN_UNDEF(env, (numFuncs != UEC_SERVICE_PERMISSION_DENIED_SYSAPI), USB_SYSAPI_PERMISSION_DENIED, "");
 
     napi_value result;
     napi_create_int32(env, numFuncs, &result);
@@ -613,7 +615,7 @@ static napi_value CoreUsbFunctionsToString(napi_env env, napi_callback_info info
     int32_t funcs;
     napi_get_value_int32(env, argv[INDEX_0], &funcs);
     std::string strFuncs = g_usbClient.UsbFunctionsToString(funcs);
-
+    USB_ASSERT_RETURN_UNDEF(env, (strFuncs != PERMISSION_DENIED_SYSAPI), USB_SYSAPI_PERMISSION_DENIED, "");
     napi_value result;
     napi_create_string_utf8(env, strFuncs.c_str(), NAPI_AUTO_LENGTH, &result);
 
@@ -686,6 +688,9 @@ static napi_value CoreGetCurrentFunctions(napi_env env, napi_callback_info info)
     int32_t cfuncs;
     int32_t ret = g_usbClient.GetCurrentFunctions(cfuncs);
     napi_value result;
+    USB_HILOGI(MODULE_JS_NAPI, "get current functions failed ret = %{public}d", ret);
+    USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI), USB_SYSAPI_PERMISSION_DENIED, "");
+
     if (ret != UEC_OK) {
         napi_get_undefined(env, &result);
         USB_HILOGE(MODULE_JS_NAPI, "end call get ports failed ret : %{public}d", ret);
@@ -706,6 +711,9 @@ static napi_value CoreGetPorts(napi_env env, napi_callback_info info)
     std::vector<UsbPort> ports;
     int32_t ret = g_usbClient.GetPorts(ports);
     napi_value result;
+    USB_HILOGI(MODULE_JS_NAPI, "get ports failed ret : %{public}d", ret);
+    USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI), USB_SYSAPI_PERMISSION_DENIED, "");
+
     if (ret != UEC_OK) {
         napi_get_undefined(env, &result);
         USB_HILOGE(MODULE_JS_NAPI, "end call get ports failed ret : %{public}d", ret);
@@ -748,6 +756,9 @@ static napi_value PortGetSupportedModes(napi_env env, napi_callback_info info)
     int32_t result = 0;
     napi_get_value_int32(env, args[INDEX_0], &id);
     int32_t ret = g_usbClient.GetSupportedModes(id, result);
+    USB_HILOGI(MODULE_JS_NAPI, "get supported modes failed ret = %{public}d", ret);
+    USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI), USB_SYSAPI_PERMISSION_DENIED, "");
+
     if (ret) {
         USB_HILOGD(MODULE_JS_NAPI, "false ret = %{public}d", ret);
     }
