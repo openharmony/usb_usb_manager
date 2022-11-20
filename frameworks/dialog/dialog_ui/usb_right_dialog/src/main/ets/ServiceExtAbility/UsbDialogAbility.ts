@@ -37,22 +37,6 @@ export default class UsbDialogAbility extends extension {
         console.log("onCreate want: " + JSON.stringify(want))
         globalThis.extensionContext = this.context;
         globalThis.want = want;
-
-        this.context.resourceManager.getStringValue($r('app.string.allow').id, (error, value) => {
-            if (error != null) {
-                console.log("error is " + error);
-            } else {
-                globalThis.allow = value;
-            }
-        });
-
-        this.context.resourceManager.getStringValue($r('app.string.use').id, (error, value) => {
-            if (error != null) {
-                console.log("error is " + error);
-            } else {
-                globalThis.use = value;
-            }
-        });
         globalThis.windowNum = 0
     }
 

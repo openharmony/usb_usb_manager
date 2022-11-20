@@ -81,13 +81,18 @@ struct ConfirmDialog {
 @Entry
 @Component
 struct IndexHapComponent {
-  private content: string = globalThis.allow + globalThis.want.parameters["bundleName"] + globalThis.use + globalThis.want.parameters["deviceName"];
+  private content: string = ''
+  private allow: string = ''
+  private use: string = ''
   ConfirmDialogController: CustomDialogController = new CustomDialogController( {
     builder: ConfirmDialog({content: this.content}),
     autoCancel: true
   })
 
-  aboutToAppear(): void {
+  async aboutToAppear() {
+    this.allow = await globalThis.getContext().resourceManager.getStringValue($r('app.string.allow'));
+    this.use = await globalThis.getContext().resourceManager.getStringValue($r('app.string.use'));
+    this.content = this.allow + globalThis.want.parameters["bundleName"] + this.use + globalThis.want.parameters["deviceName"];
     this.ConfirmDialogController.open()
   }
   build() {}
