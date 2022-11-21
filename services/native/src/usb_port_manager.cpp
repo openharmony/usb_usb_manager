@@ -176,7 +176,8 @@ void UsbPortManager::ReportPortRoleChangeSysEvent(
     int32_t currentPowerRole, int32_t updatePowerRole, int32_t currentDataRole, int32_t updateDataRole)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Port switch points are as follows:");
-    HiSysEvent::Write("USB", "USB_PORT_ROLE_CHANGED", HiSysEvent::EventType::BEHAVIOR, "CURRENT_POWERROLE",
+    HiSysEventWrite(HiSysEvent::Domain::USB, "USB_PORT_ROLE_CHANGED",
+        HiSysEvent::EventType::BEHAVIOR, "CURRENT_POWERROLE",
         currentPowerRole, "UPDATE_POWERROLE", updatePowerRole, "CURRENT_DATAROLE", currentDataRole, "UPDATE_DATAROLE",
         updateDataRole);
 }
