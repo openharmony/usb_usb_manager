@@ -17,7 +17,7 @@
 #define USB_ERRORS_H
 
 #include <errors.h>
-#include <stdint.h>
+#include <cstdint>
 
 namespace OHOS {
 namespace USB {

@@ -20,6 +20,7 @@
 #include "usb_errors.h"
 #include "usb_server_stub.h"
 
+using namespace OHOS::HDI::Usb::V1_0;
 namespace OHOS {
 namespace USB {
 int32_t UsbServerStub::GetDeviceMessage(MessageParcel &data, uint8_t &busNum, uint8_t &devAddr)
@@ -408,12 +409,12 @@ int32_t UsbServerStub::DoBulkTransferWrite(MessageParcel &data, MessageParcel &r
     const UsbDev tmpDev = {busNum, devAddr};
     const UsbPipe tmpPipe = {interface, endpoint};
     int32_t ret = GetBufferMessage(data, bufferData);
-    if (UEC_OK != ret) {
+    if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "GetBufferMessage failedret:%{public}d", ret);
         return ret;
     }
     ret = BulkTransferWrite(tmpDev, tmpPipe, bufferData, timeOut);
-    if (UEC_OK != ret) {
+    if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "BulkTransferWrite error ret:%{public}d", ret);
     }
     WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
@@ -439,7 +440,7 @@ int32_t UsbServerStub::DoControlTransfer(MessageParcel &data, MessageParcel &rep
     READ_PARCEL_WITH_RET(data, Int32, timeOut, UEC_SERVICE_WRITE_PARCEL_ERROR);
     std::vector<uint8_t> bufferData;
     int32_t ret = GetBufferMessage(data, bufferData);
-    if (UEC_OK != ret) {
+    if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "get error ret:%{public}d", ret);
         return ret;
     }
@@ -512,9 +513,9 @@ int32_t UsbServerStub::DoGetRawDescriptor(MessageParcel &data, MessageParcel &re
     READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_WRITE_PARCEL_ERROR);
     std::vector<uint8_t> bufferData;
     int32_t ret = GetRawDescriptor(busNum, devAddr, bufferData);
-    if (UEC_OK == ret) {
+    if (ret == UEC_OK) {
         ret = SetBufferMessage(reply, bufferData);
-        if (UEC_OK != ret) {
+        if (ret != UEC_OK) {
             USB_HILOGE(MODULE_USBD, "SetBufferMessage failed ret:%{public}d", ret);
         }
     } else {
@@ -531,7 +532,7 @@ int32_t UsbServerStub::DoGetFileDescriptor(MessageParcel &data, MessageParcel &r
     READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_WRITE_PARCEL_ERROR);
     int32_t fd = -1;
     int32_t ret = GetFileDescriptor(busNum, devAddr, fd);
-    if (UEC_OK == ret) {
+    if (ret == UEC_OK) {
         WRITE_PARCEL_WITH_RET(reply, Int32, fd, UEC_SERVICE_WRITE_PARCEL_ERROR);
     } else {
         USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
@@ -553,19 +554,19 @@ int32_t UsbServerStub::DoRequestQueue(MessageParcel &data, MessageParcel &reply,
     std::vector<uint8_t> bufferData;
 
     int32_t ret = UsbServerStub::GetBufferMessage(data, clientData);
-    if (UEC_OK != ret) {
+    if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "GetBufferMessage failed  ret:%{public}d", ret);
         return ret;
     }
     ret = UsbServerStub::GetBufferMessage(data, bufferData);
-    if (UEC_OK != ret) {
+    if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "GetBufferMessage failed  ret:%{public}d", ret);
         return ret;
     }
     const UsbDev tmpDev = {busNum, devAddr};
     const UsbPipe tmpPipe = {ifId, endpoint};
     ret = RequestQueue(tmpDev, tmpPipe, clientData, bufferData);
-    if (UEC_OK != ret) {
+    if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "GetBufferMessage failed ret:%{public}d", ret);
     }
     return ret;
@@ -614,7 +615,7 @@ int32_t UsbServerStub::DoRequestCancel(MessageParcel &data, MessageParcel &reply
     READ_PARCEL_WITH_RET(data, Uint8, interfaceId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Uint8, endpointId, UEC_SERVICE_WRITE_PARCEL_ERROR);
     int32_t ret = RequestCancel(busNum, devAddr, interfaceId, endpointId);
-    if (UEC_OK != ret) {
+    if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "failed ret:%{public}d", ret);
     }
     return ret;
@@ -627,7 +628,7 @@ int32_t UsbServerStub::DoClose(MessageParcel &data, MessageParcel &reply, Messag
     READ_PARCEL_WITH_RET(data, Uint8, busNum, UEC_SERVICE_WRITE_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_WRITE_PARCEL_ERROR);
     int32_t ret = Close(busNum, devAddr);
-    if (UEC_OK != ret) {
+    if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "failed ret:%{public}d", ret);
     }
     WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
@@ -644,7 +645,7 @@ int32_t UsbServerStub::DoGetDevices(MessageParcel &data, MessageParcel &reply, M
     }
     USB_HILOGI(MODULE_SERVICE, "list size = %{public}zu", deviceList.size());
     ret = SetDeviceListMessageParcel(deviceList, reply);
-    if (UEC_OK != ret) {
+    if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "SetDeviceListMessageParcel failed ret:%{public}d", ret);
     }
     return ret;
