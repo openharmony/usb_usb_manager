@@ -22,8 +22,15 @@ using namespace OHOS::HDI::Usb::V1_0;
 
 namespace OHOS {
 namespace USB {
-const int32_t SUPPORTED_MODES = 3;
-
+constexpr int32_t DEFAULT_PORT_ID = 1;
+constexpr int32_t SUPPORTED_MODES = 3;
+constexpr int32_t PARAM_COUNT_TWO = 2;
+constexpr int32_t PARAM_COUNT_THR = 3;
+constexpr int32_t DEFAULT_ROLE_HOST = 1;
+constexpr int32_t DEFAULT_ROLE_DEVICE = 2;
+constexpr uint32_t CMD_INDEX = 1;
+constexpr uint32_t PARAM_INDEX = 2;
+constexpr int32_t HOST_MODE = 2;
 UsbPortManager::UsbPortManager()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::Init start");
@@ -151,26 +158,90 @@ void UsbPortManager::RemovePort(int32_t portId)
     USB_HILOGI(MODULE_USB_SERVICE, "removePort seccess");
 }
 
-bool UsbPortManager::Dump(int fd, const std::string &args)
+void UsbPortManager::GetPortsInfo(int fd)
 {
-    if (args.compare("-a") != 0) {
-        dprintf(fd, "args is not -a\n");
-        return false;
+    std::vector<UsbPort> usbports;
+    int32_t ret = GetPorts(usbports);
+    if (ret != UEC_OK) {
+        dprintf(fd, "%s:GetPorts failed\n", __func__);
+        return;
     }
 
+    if (usbports[0].usbPortStatus.currentMode == HOST_MODE) {
+        dprintf(fd, "get current port %d: host\n", usbports[0].usbPortStatus.currentMode);
+    } else {
+        dprintf(fd, "get current port %d: device\n", usbports[0].usbPortStatus.currentMode);
+    }
+}
+
+void UsbPortManager::GetDumpHelp(int fd)
+{
+    dprintf(fd, "=========== dump the all device port ===========\n");
+    dprintf(fd, "usb_port -a: Query All Port List\n");
+    dprintf(fd, "usb_port -p Q: Query Port\n");
+    dprintf(fd, "usb_port -p 1: Switch to host\n");
+    dprintf(fd, "usb_port -p 2: Switch to device\n");
+    dprintf(fd, "------------------------------------------------\n");
+}
+
+void UsbPortManager::DumpGetSupportPort(int fd)
+{
     dprintf(fd, "Usb Port device status:\n");
     std::vector<UsbPort> ports;
     if (GetPorts(ports) != UEC_OK) {
         dprintf(fd, "UsbPortManager::GetPorts failed, port is empty\n");
-        return UEC_SERVICE_INVALID_VALUE;
+        return;
     }
 
+    if (ports.size() == 0) {
+        dprintf(fd, "all port list is empty\n");
+        return;
+    }
     for (size_t i = 0; i < ports.size(); ++i) {
         dprintf(fd, "id: %d | supportedModes: %d | currentMode: %d | currentPowerRole: %d | currentDataRole: %d\n",
             ports[i].id, ports[i].supportedModes, ports[i].usbPortStatus.currentMode,
             ports[i].usbPortStatus.currentPowerRole, ports[i].usbPortStatus.currentDataRole);
     }
-    return true;
+}
+
+void UsbPortManager::DumpSetPortRoles(int fd, const std::string &args)
+{
+    if (args.compare("Q") == 0) {
+        GetPortsInfo(fd);
+        return;
+    }
+
+    int32_t mode = stoi(args);
+    switch (mode) {
+        case DEFAULT_ROLE_HOST:
+            usbd_->SetPortRole(DEFAULT_PORT_ID, DEFAULT_ROLE_HOST, DEFAULT_ROLE_HOST);
+            GetPortsInfo(fd);
+            break;
+        case DEFAULT_ROLE_DEVICE:
+            usbd_->SetPortRole(DEFAULT_PORT_ID, DEFAULT_ROLE_DEVICE, DEFAULT_ROLE_DEVICE);
+            GetPortsInfo(fd);
+            break;
+        default:
+            dprintf(fd, "port param error, please enter again\n");
+            GetDumpHelp(fd);
+    }
+}
+
+void UsbPortManager::Dump(int fd, const std::vector<std::string> &args)
+{
+    if (args.size() < PARAM_COUNT_TWO || args.size() > PARAM_COUNT_THR) {
+        GetDumpHelp(fd);
+        return;
+    }
+
+    if (args[CMD_INDEX] == "-a" && args.size() == PARAM_COUNT_TWO) {
+        DumpGetSupportPort(fd);
+    } else if (args[CMD_INDEX] == "-p" && args.size() == PARAM_COUNT_THR) {
+        DumpSetPortRoles(fd, args[PARAM_INDEX]);
+    } else {
+        dprintf(fd, "port param error, please enter again\n");
+        GetDumpHelp(fd);
+    }
 }
 
 void UsbPortManager::ReportPortRoleChangeSysEvent(

@@ -40,9 +40,13 @@ public:
     void UpdatePort(int32_t portId, int32_t powerRole, int32_t dataRole, int32_t mode);
     void AddPort(UsbPort &port);
     void RemovePort(int32_t portId);
-    bool Dump(int fd, const std::string &args);
+    void GetDumpHelp(int fd);
+    void Dump(int fd, const std::vector<std::string> &args);
 
 private:
+    void GetPortsInfo(int fd);
+    void DumpGetSupportPort(int fd);
+    void DumpSetPortRoles(int fd, const std::string &args);
     void ReportPortRoleChangeSysEvent(
         int32_t currentPowerRole, int32_t updatePowerRole, int32_t currentDataRole, int32_t updateDataRole);
     std::map<int32_t, UsbPort> portMap_;

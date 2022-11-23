@@ -1020,9 +1020,9 @@ int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
     if (argList[0] == USB_HOST) {
         usbHostManger_->Dump(fd, argList[1]);
     } else if (argList[0] == USB_DEVICE) {
-        usbDeviceManager_->Dump(fd, argList[1]);
+        usbDeviceManager_->Dump(fd, argList);
     } else if (argList[0] == USB_PORT) {
-        usbPortManager_->Dump(fd, argList[1]);
+        usbPortManager_->Dump(fd, argList);
     } else if (argList[0] == USB_HELP) {
         DumpHelp(fd);
     } else {
@@ -1034,11 +1034,13 @@ int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
 
 void UsbService::DumpHelp(int32_t fd)
 {
-    dprintf(fd, "ShowUsage:\n");
-    dprintf(fd, "      -h, --help: dump help\n");
-    dprintf(fd, "      usb_host   -a: dump the all device list info\n");
-    dprintf(fd, "      usb_devive -a: dump the all device and function list info\n");
-    dprintf(fd, "      usb_port   -a: dump the all device port status\n");
+    dprintf(fd, "Refer to the following usage:\n");
+    dprintf(fd, "-h: dump help\n");
+    dprintf(fd, "============= dump the all device ==============\n");
+    dprintf(fd, "usb_host -a: dump the all device list info\n");
+    dprintf(fd, "------------------------------------------------\n");
+    usbDeviceManager_->GetDumpHelp(fd);
+    usbPortManager_->GetDumpHelp(fd);
 }
 } // namespace USB
 } // namespace OHOS

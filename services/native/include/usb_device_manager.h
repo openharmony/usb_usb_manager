@@ -37,9 +37,12 @@ public:
     void UpdateFunctions(int32_t func);
     int32_t GetCurrentFunctions();
     void HandleEvent(int32_t status);
-    bool Dump(int fd, const std::string &args);
+    void GetDumpHelp(int fd);
+    void Dump(int fd, const std::vector<std::string> &args);
 
 private:
+    void DumpGetSupportFunc(int fd);
+    void DumpSetFunc(int fd, const std::string &args);
     void ReportFuncChangeSysEvent(int32_t currentFunctions, int32_t updateFunctions);
     void ReportDevicePlugSysEvent(int32_t currentFunctions, bool connected);
     static constexpr uint32_t functionSettable_ =

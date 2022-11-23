@@ -14,6 +14,7 @@
  */
 
 #include "usb_device_manager.h"
+#include <hdf_base.h>
 #include "common_event_data.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
@@ -29,6 +30,10 @@ using namespace OHOS::HDI::Usb::V1_0;
 
 namespace OHOS {
 namespace USB {
+constexpr int32_t PARAM_COUNT_TWO = 2;
+constexpr int32_t PARAM_COUNT_THR = 3;
+constexpr uint32_t CMD_INDEX = 1;
+constexpr uint32_t PARAM_INDEX = 2;
 const std::map<std::string_view, uint32_t> UsbDeviceManager::FUNCTION_MAPPING_N2C = {
     {UsbSrvSupport::FUNCTION_NAME_NONE, UsbSrvSupport::FUNCTION_NONE},
     {UsbSrvSupport::FUNCTION_NAME_ACM, UsbSrvSupport::FUNCTION_ACM},
@@ -172,17 +177,59 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     ReportDevicePlugSysEvent(currentFunctions_, connected_);
 }
 
-bool UsbDeviceManager::Dump(int fd, const std::string &args)
+void UsbDeviceManager::GetDumpHelp(int fd)
 {
-    if (args.compare("-a") != 0) {
-        dprintf(fd, "args is not -a\n");
-        return false;
-    }
+    dprintf(fd, "========= dump the all device function =========\n");
+    dprintf(fd, "usb_device -a:    Query all function\n");
+    dprintf(fd, "usb_device -f Q:  Query Current function\n");
+    dprintf(fd, "usb_device -f 0:  Switch to function:none\n");
+    dprintf(fd, "usb_device -f 1:  Switch to function:acm\n");
+    dprintf(fd, "usb_device -f 2:  Switch to function:ecm\n");
+    dprintf(fd, "usb_device -f 3:  Switch to function:acm&ecm\n");
+    dprintf(fd, "usb_device -f 4:  Switch to function:hdc\n");
+    dprintf(fd, "usb_device -f 5:  Switch to function:acm&hdc\n");
+    dprintf(fd, "usb_device -f 6:  Switch to function:ecm&hdc\n");
+    dprintf(fd, "usb_device -f 32: Switch to function:rndis\n");
+    dprintf(fd, "usb_device -f 512:Switch to function:storage\n");
+    dprintf(fd, "usb_device -f 36: Switch to function:rndis&hdc\n");
+    dprintf(fd, "usb_device -f 516:Switch to function:storage&hdc\n");
+    dprintf(fd, "------------------------------------------------\n");
+}
 
+void UsbDeviceManager::DumpGetSupportFunc(int fd)
+{
     dprintf(fd, "Usb Device function list info:\n");
     dprintf(fd, "current function: %s\n", ConvertToString(currentFunctions_).c_str());
     dprintf(fd, "supported functions list: %s\n", ConvertToString(functionSettable_).c_str());
-    return true;
+}
+
+void UsbDeviceManager::DumpSetFunc(int fd, const std::string &args)
+{
+    if (args.compare("Q") == 0) {
+        dprintf(fd, "current function: %s\n", ConvertToString(currentFunctions_).c_str());
+        return;
+    }
+
+    int32_t func = stoi(args);
+    UpdateFunctions(func);
+    dprintf(fd, "current function: %s\n", ConvertToString(currentFunctions_).c_str());
+}
+
+void UsbDeviceManager::Dump(int fd, const std::vector<std::string> &args)
+{
+    if (args.size() < PARAM_COUNT_TWO || args.size() > PARAM_COUNT_THR) {
+        GetDumpHelp(fd);
+        return;
+    }
+
+    if (args[CMD_INDEX] == "-a" && args.size() == PARAM_COUNT_TWO) {
+        DumpGetSupportFunc(fd);
+    } else if (args[CMD_INDEX] == "-f" && args.size() == PARAM_COUNT_THR) {
+        DumpSetFunc(fd, args[PARAM_INDEX]);
+    } else {
+        dprintf(fd, "func param error, please enter again\n");
+        GetDumpHelp(fd);
+    }
 }
 
 void UsbDeviceManager::ReportFuncChangeSysEvent(int32_t currentFunctions, int32_t updateFunctions)
