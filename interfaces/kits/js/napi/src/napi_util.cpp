@@ -179,7 +179,7 @@ void NapiUtil::Uint8ArrayToJsValue(
 {
     uint8_t *nativeArraybuffer = nullptr;
     napi_value nativeValue = nullptr;
-    napi_create_arraybuffer(env, bufferSize, (void **)&nativeArraybuffer, &nativeValue);
+    napi_create_arraybuffer(env, bufferSize, reinterpret_cast<void **>(&nativeArraybuffer), &nativeValue);
 
     errno_t ret = memcpy_s(nativeArraybuffer, bufferSize, uint8Buffer.data(), bufferSize);
     if (ret != EOK) {

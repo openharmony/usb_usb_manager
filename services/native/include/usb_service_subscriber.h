@@ -18,18 +18,14 @@
 
 #include "v1_0/iusbd_subscriber.h"
 
-using OHOS::HDI::Usb::V1_0::USBDeviceInfo;
-
-using OHOS::HDI::Usb::V1_0::PortInfo;
-
 namespace OHOS {
 namespace USB {
 class UsbServiceSubscriber : public OHOS::HDI::Usb::V1_0::IUsbdSubscriber {
 public:
     UsbServiceSubscriber();
     ~UsbServiceSubscriber() = default;
-    int32_t DeviceEvent(const USBDeviceInfo &info) override;
-    int32_t PortChangedEvent(const PortInfo &info) override;
+    int32_t DeviceEvent(const HDI::Usb::V1_0::USBDeviceInfo &info) override;
+    int32_t PortChangedEvent(const HDI::Usb::V1_0::PortInfo &info) override;
 };
 } // namespace USB
 } // namespace OHOS

@@ -39,6 +39,7 @@
 #include "usbd_bulkcallback_impl.h"
 
 using OHOS::sptr;
+using namespace OHOS::HDI::Usb::V1_0;
 
 namespace OHOS {
 namespace USB {

@@ -25,6 +25,7 @@
 using namespace OHOS::AAFwk;
 using namespace OHOS::EventFwk;
 using namespace OHOS::HiviewDFX;
+using namespace OHOS::HDI::Usb::V1_0;
 
 namespace OHOS {
 namespace USB {
@@ -51,7 +52,7 @@ UsbDeviceManager::UsbDeviceManager()
 bool UsbDeviceManager::AreSettableFunctions(int32_t funcs)
 {
     return static_cast<uint32_t>(funcs) == UsbSrvSupport::FUNCTION_NONE ||
-        ((~FUNCTION_SETTABLE & static_cast<uint32_t>(funcs)) == 0);
+        ((~functionSettable_ & static_cast<uint32_t>(funcs)) == 0);
 }
 
 uint32_t UsbDeviceManager::ConvertFromString(std::string_view strFun)
@@ -68,13 +69,13 @@ uint32_t UsbDeviceManager::ConvertFromString(std::string_view strFun)
     std::vector<std::string_view> vModeStr;
     size_t pos = 0;
     while (pos < len) {
-        size_t find_pos = strFun.find(",", pos);
-        if (find_pos == strFun.npos) {
+        size_t findPos = strFun.find(",", pos);
+        if (findPos == strFun.npos) {
             vModeStr.push_back(strFun.substr(pos, len - pos));
             break;
         }
-        vModeStr.push_back(strFun.substr(pos, find_pos - pos));
-        pos = find_pos + 1;
+        vModeStr.push_back(strFun.substr(pos, findPos - pos));
+        pos = findPos + 1;
     }
 
     uint32_t ret = 0;
@@ -94,7 +95,7 @@ uint32_t UsbDeviceManager::ConvertFromString(std::string_view strFun)
 std::string UsbDeviceManager::ConvertToString(uint32_t function)
 {
     std::string stream;
-    if (function <= UsbSrvSupport::FUNCTION_NONE || function > FUNCTION_SETTABLE) {
+    if (function <= UsbSrvSupport::FUNCTION_NONE || function > functionSettable_) {
         stream = std::string {UsbSrvSupport::FUNCTION_NAME_NONE};
         return stream;
     }
@@ -180,7 +181,7 @@ bool UsbDeviceManager::Dump(int fd, const std::string &args)
 
     dprintf(fd, "Usb Device function list info:\n");
     dprintf(fd, "current function: %s\n", ConvertToString(currentFunctions_).c_str());
-    dprintf(fd, "supported functions list: %s\n", ConvertToString(FUNCTION_SETTABLE).c_str());
+    dprintf(fd, "supported functions list: %s\n", ConvertToString(functionSettable_).c_str());
     return true;
 }
 

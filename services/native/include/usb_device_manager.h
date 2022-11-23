@@ -25,8 +25,6 @@
 #include "v1_0/iusb_interface.h"
 #include "v1_0/iusbd_subscriber.h"
 
-using OHOS::HDI::Usb::V1_0::IUsbInterface;
-
 namespace OHOS {
 namespace USB {
 class UsbDeviceManager {
@@ -44,13 +42,13 @@ public:
 private:
     void ReportFuncChangeSysEvent(int32_t currentFunctions, int32_t updateFunctions);
     void ReportDevicePlugSysEvent(int32_t currentFunctions, bool connected);
-    static constexpr uint32_t FUNCTION_SETTABLE =
+    static constexpr uint32_t functionSettable_ =
         UsbSrvSupport::FUNCTION_HDC | UsbSrvSupport::FUNCTION_ACM | UsbSrvSupport::FUNCTION_ECM |
         UsbSrvSupport::FUNCTION_RNDIS | UsbSrvSupport::FUNCTION_STORAGE;
     static const std::map<std::string_view, uint32_t> FUNCTION_MAPPING_N2C;
     int32_t currentFunctions_ {UsbSrvSupport::FUNCTION_HDC};
     bool connected_ {false};
-    sptr<IUsbInterface> usbd_ = nullptr;
+    sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
 };
 } // namespace USB
 } // namespace OHOS

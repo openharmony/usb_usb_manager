@@ -21,6 +21,7 @@
 #include "usb_request.h"
 #include "usb_srv_client.h"
 
+using namespace OHOS::HDI::Usb::V1_0;
 namespace OHOS {
 namespace USB {
 USBDevicePipe::USBDevicePipe() {}

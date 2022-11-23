@@ -24,8 +24,6 @@
 #include "usb_port.h"
 #include "v1_0/iusb_interface.h"
 
-using OHOS::HDI::Usb::V1_0::IUsbInterface;
-
 namespace OHOS {
 namespace USB {
 class UsbPortManager {
@@ -48,7 +46,7 @@ private:
     void ReportPortRoleChangeSysEvent(
         int32_t currentPowerRole, int32_t updatePowerRole, int32_t currentDataRole, int32_t updateDataRole);
     std::map<int32_t, UsbPort> portMap_;
-    sptr<IUsbInterface> usbd_ = nullptr;
+    sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
 };
 } // namespace USB
 } // namespace OHOS

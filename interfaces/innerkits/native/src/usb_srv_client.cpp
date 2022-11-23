@@ -24,6 +24,7 @@
 #include "usb_device.h"
 #include "usb_errors.h"
 
+using namespace OHOS::HDI::Usb::V1_0;
 namespace OHOS {
 namespace USB {
 const uint8_t CLAIM_FORCE_1 = 1;
