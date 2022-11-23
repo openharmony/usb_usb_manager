@@ -30,6 +30,7 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::USB;
 using namespace std;
+using namespace OHOS::HDI::Usb::V1_0;
 
 namespace OHOS {
 namespace USB {
