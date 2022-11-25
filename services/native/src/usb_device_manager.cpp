@@ -177,7 +177,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     ReportDevicePlugSysEvent(currentFunctions_, connected_);
 }
 
-void UsbDeviceManager::GetDumpHelp(int fd)
+void UsbDeviceManager::GetDumpHelp(int32_t fd)
 {
     dprintf(fd, "========= dump the all device function =========\n");
     dprintf(fd, "usb_device -a:    Query all function\n");
@@ -196,26 +196,43 @@ void UsbDeviceManager::GetDumpHelp(int fd)
     dprintf(fd, "------------------------------------------------\n");
 }
 
-void UsbDeviceManager::DumpGetSupportFunc(int fd)
+void UsbDeviceManager::DumpGetSupportFunc(int32_t fd)
 {
     dprintf(fd, "Usb Device function list info:\n");
     dprintf(fd, "current function: %s\n", ConvertToString(currentFunctions_).c_str());
     dprintf(fd, "supported functions list: %s\n", ConvertToString(functionSettable_).c_str());
 }
 
-void UsbDeviceManager::DumpSetFunc(int fd, const std::string &args)
+void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
 {
+    int32_t currentFunction;
+    int32_t ret;
     if (args.compare("Q") == 0) {
-        dprintf(fd, "current function: %s\n", ConvertToString(currentFunctions_).c_str());
+        ret = usbd_->GetCurrentFunctions(currentFunction);
+        if (ret != UEC_OK) {
+            dprintf(fd, "GetCurrentFunctions failed: %d\n", __LINE__);
+            return;
+        }
+        dprintf(fd, "current function: %s\n", ConvertToString(currentFunction).c_str());
         return;
     }
 
-    int32_t func = stoi(args);
-    UpdateFunctions(func);
-    dprintf(fd, "current function: %s\n", ConvertToString(currentFunctions_).c_str());
+    int32_t mode = stoi(args);
+    ret = usbd_->SetCurrentFunctions(mode);
+    if (ret != UEC_OK) {
+        dprintf(fd, "SetCurrentFunctions failed");
+        return;
+    }
+    ret = usbd_->GetCurrentFunctions(currentFunction);
+    if (ret != UEC_OK) {
+        dprintf(fd, "GetCurrentFunctions failed: %d\n", __LINE__);
+        return;
+    }
+
+    dprintf(fd, "current function: %s\n", ConvertToString(currentFunction).c_str());
 }
 
-void UsbDeviceManager::Dump(int fd, const std::vector<std::string> &args)
+void UsbDeviceManager::Dump(int32_t fd, const std::vector<std::string> &args)
 {
     if (args.size() < PARAM_COUNT_TWO || args.size() > PARAM_COUNT_THR) {
         GetDumpHelp(fd);

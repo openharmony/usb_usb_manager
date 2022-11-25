@@ -38,16 +38,18 @@ namespace OHOS {
 namespace USB {
 namespace Core {
 constexpr int32_t SLEEP_TIME = 3;
-constexpr int32_t TEST_PORT_ID = 1;
-constexpr int32_t TEST_POWER_ROLE = 2;
-constexpr int32_t TEST_DATAR_ROLE = 2;
+constexpr int32_t USB_FUNCTION_INVALID = -1;
+constexpr int32_t USB_PORT_ID_INVALID = 5;
+constexpr int32_t USB_POWER_ROLE_INVALID = 5;
+constexpr int32_t USB_DATA_ROLE_INVALID = 5;
 void UsbCoreTest::SetUpTestCase(void)
 {
     auto &srvClient = UsbSrvClient::GetInstance();
-    auto ret = srvClient.SetPortRole(TEST_PORT_ID, TEST_POWER_ROLE, TEST_DATAR_ROLE);
+    auto ret = srvClient.SetPortRole(
+        UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::DATA_ROLE_DEVICE, UsbSrvSupport::POWER_ROLE_SINK);
     sleep(SLEEP_TIME);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest:: [Device] SetPortRole=%{public}d", ret);
-    ASSERT_TRUE(ret == 0);
+    ASSERT_EQ(0, ret);
     if (ret != 0) {
         exit(0);
     }
@@ -72,10 +74,10 @@ HWTEST_F(UsbCoreTest, GetCurrentFunctions001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetCurrentFunctions001 : SetConfig");
     auto &instance = UsbSrvClient::GetInstance();
-    int32_t funcs = 0;
-    funcs = instance.GetCurrentFunctions(funcs);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::funcs=%{public}d", funcs);
-    ASSERT_TRUE(funcs == 0);
+    int32_t funcs = static_cast<int32_t>(UsbSrvSupport::FUNCTION_NONE);
+    int32_t ret = instance.GetCurrentFunctions(funcs);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::ret=%{public}d", ret);
+    ASSERT_EQ(0, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetCurrentFunctions001 : SetConfig");
 }
 
@@ -88,9 +90,9 @@ HWTEST_F(UsbCoreTest, SetCurrentFunctions001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetCurrentFunctions001 : SetConfig");
     auto &instance = UsbSrvClient::GetInstance();
-    int32_t isok = instance.SetCurrentFunctions(1);
+    int32_t isok = instance.SetCurrentFunctions(UsbSrvSupport::FUNCTION_ACM);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", isok);
-    ASSERT_TRUE(isok == 0);
+    ASSERT_EQ(0, isok);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions001 : SetConfig");
 }
 
@@ -103,9 +105,9 @@ HWTEST_F(UsbCoreTest, SetCurrentFunctions002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetCurrentFunctions002 : SetConfig");
     auto &instance = UsbSrvClient::GetInstance();
-    int32_t isok = instance.SetCurrentFunctions(2);
+    int32_t isok = instance.SetCurrentFunctions(UsbSrvSupport::FUNCTION_ECM);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", isok);
-    ASSERT_TRUE(isok == 0);
+    ASSERT_EQ(0, isok);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions002 : SetConfig");
 }
 
@@ -118,9 +120,10 @@ HWTEST_F(UsbCoreTest, SetCurrentFunctions003, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetCurrentFunctions003 : SetConfig");
     auto &instance = UsbSrvClient::GetInstance();
-    int32_t isok = instance.SetCurrentFunctions(3);
+    int32_t funcs = UsbSrvSupport::FUNCTION_ACM | UsbSrvSupport::FUNCTION_ECM;
+    int32_t isok = instance.SetCurrentFunctions(funcs);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", isok);
-    ASSERT_TRUE(isok == 0);
+    ASSERT_EQ(0, isok);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions003 : SetConfig");
 }
 
@@ -133,9 +136,9 @@ HWTEST_F(UsbCoreTest, SetCurrentFunctions004, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetCurrentFunctions004 : SetConfig");
     auto &instance = UsbSrvClient::GetInstance();
-    int32_t isok = instance.SetCurrentFunctions(4);
+    int32_t isok = instance.SetCurrentFunctions(UsbSrvSupport::FUNCTION_HDC);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", isok);
-    ASSERT_TRUE(isok == 0);
+    ASSERT_EQ(0, isok);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions004 : SetConfig");
 }
 
@@ -148,9 +151,10 @@ HWTEST_F(UsbCoreTest, SetCurrentFunctions005, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetCurrentFunctions005 : SetConfig");
     auto &instance = UsbSrvClient::GetInstance();
-    int32_t isok = instance.SetCurrentFunctions(5);
+    int32_t funcs = UsbSrvSupport::FUNCTION_ACM | UsbSrvSupport::FUNCTION_HDC;
+    int32_t isok = instance.SetCurrentFunctions(funcs);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", isok);
-    ASSERT_TRUE(isok == 0);
+    ASSERT_EQ(0, isok);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions005 : SetConfig");
 }
 
@@ -163,9 +167,10 @@ HWTEST_F(UsbCoreTest, SetCurrentFunctions006, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetCurrentFunctions006 : SetConfig");
     auto &instance = UsbSrvClient::GetInstance();
-    int32_t isok = instance.SetCurrentFunctions(6);
+    int32_t funcs = UsbSrvSupport::FUNCTION_ECM | UsbSrvSupport::FUNCTION_HDC;
+    int32_t isok = instance.SetCurrentFunctions(funcs);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", isok);
-    ASSERT_TRUE(isok == 0);
+    ASSERT_EQ(0, isok);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions006 : SetConfig");
 }
 
@@ -178,10 +183,28 @@ HWTEST_F(UsbCoreTest, SetCurrentFunctions007, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetCurrentFunctions007 : SetConfig");
     auto &instance = UsbSrvClient::GetInstance();
-    int32_t isok = instance.SetCurrentFunctions(8);
+    int32_t isok = instance.SetCurrentFunctions(UsbSrvSupport::FUNCTION_MTP);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", isok);
-    ASSERT_TRUE(isok != 0);
+    ASSERT_NE(0, isok);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions007 : SetConfig");
+}
+
+/**
+ * @tc.name: SetCurrentFunctions008
+ * @tc.desc: Test functions to SetCurrentFunctions(int32_t funcs)
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbCoreTest, SetCurrentFunctions008, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetCurrentFunctions008 : SetConfig");
+    auto &instance = UsbSrvClient::GetInstance();
+    int32_t isok = instance.SetCurrentFunctions(UsbSrvSupport::FUNCTION_NONE);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", isok);
+    ASSERT_EQ(0, isok);
+    USB_HILOGI(MODULE_USB_SERVICE, "the function was set to none successfully");
+    isok = instance.SetCurrentFunctions(UsbSrvSupport::FUNCTION_HDC);
+    ASSERT_EQ(0, isok);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions008 : SetConfig");
 }
 
 /**
@@ -195,7 +218,7 @@ HWTEST_F(UsbCoreTest, UsbFunctionsFromString001, TestSize.Level1)
     auto &instance = UsbSrvClient::GetInstance();
     int32_t funcCode = instance.UsbFunctionsFromString(UsbSrvSupport::FUNCTION_NAME_NONE);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::functionsFromString=%{public}d", funcCode);
-    ASSERT_TRUE(funcCode != UEC_SERVICE_INVALID_VALUE);
+    ASSERT_NE(UEC_SERVICE_INVALID_VALUE, funcCode);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbFunctionsFromString001 : SetConfig");
 }
 
@@ -210,7 +233,7 @@ HWTEST_F(UsbCoreTest, UsbFunctionsFromString002, TestSize.Level1)
     auto &instance = UsbSrvClient::GetInstance();
     int32_t funcCode = instance.UsbFunctionsFromString(UsbSrvSupport::FUNCTION_NAME_HDC);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::functionsFromString=%{public}d", funcCode);
-    ASSERT_TRUE(funcCode != UEC_SERVICE_INVALID_VALUE);
+    ASSERT_NE(UEC_SERVICE_INVALID_VALUE, funcCode);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbFunctionsFromString002 : SetConfig");
 }
 
@@ -225,7 +248,7 @@ HWTEST_F(UsbCoreTest, UsbFunctionsFromString003, TestSize.Level1)
     auto &instance = UsbSrvClient::GetInstance();
     int32_t funcCode = instance.UsbFunctionsFromString(UsbSrvSupport::FUNCTION_NAME_ACM);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::functionsFromString=%{public}d", funcCode);
-    ASSERT_TRUE(funcCode != UEC_SERVICE_INVALID_VALUE);
+    ASSERT_NE(UEC_SERVICE_INVALID_VALUE, funcCode);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbFunctionsFromString003 : SetConfig");
 }
 
@@ -240,7 +263,7 @@ HWTEST_F(UsbCoreTest, UsbFunctionsFromString004, TestSize.Level1)
     auto &instance = UsbSrvClient::GetInstance();
     int32_t funcCode = instance.UsbFunctionsFromString(UsbSrvSupport::FUNCTION_NAME_ECM);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::functionsFromString=%{public}d", funcCode);
-    ASSERT_TRUE(funcCode != UEC_SERVICE_INVALID_VALUE);
+    ASSERT_NE(UEC_SERVICE_INVALID_VALUE, funcCode);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbFunctionsFromString004 : SetConfig");
 }
 
@@ -256,7 +279,7 @@ HWTEST_F(UsbCoreTest, UsbFunctionsFromString005, TestSize.Level1)
     std::string funcs = "qwerts";
     int32_t funcCode = instance.UsbFunctionsFromString(funcs);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::functionsFromString=%{public}d", funcCode);
-    ASSERT_TRUE(funcCode == UEC_SERVICE_INVALID_VALUE);
+    ASSERT_EQ(UEC_SERVICE_INVALID_VALUE, funcCode);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbFunctionsFromString005 : SetConfig");
 }
 
@@ -272,7 +295,7 @@ HWTEST_F(UsbCoreTest, UsbFunctionsFromString006, TestSize.Level1)
     std::string funcs = "zxcbvx";
     int32_t funcCode = instance.UsbFunctionsFromString(funcs);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::functionsFromString=%{public}d", funcCode);
-    ASSERT_TRUE(funcCode == UEC_SERVICE_INVALID_VALUE);
+    ASSERT_EQ(UEC_SERVICE_INVALID_VALUE, funcCode);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbFunctionsFromString006 : SetConfig");
 }
 
@@ -346,7 +369,7 @@ HWTEST_F(UsbCoreTest, UsbFunctionsToString005, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbFunctionsToString005 : SetConfig");
     auto &instance = UsbSrvClient::GetInstance();
-    std::string funcName = instance.UsbFunctionsToString(-1);
+    std::string funcName = instance.UsbFunctionsToString(USB_FUNCTION_INVALID);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbFunctionServiceTest::UsbFunctionsToString=%{public}s", funcName.c_str());
     ASSERT_TRUE(!(funcName.empty()));
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbFunctionsToString005 : SetConfig");
@@ -387,7 +410,7 @@ HWTEST_F(UsbCoreTest, UsbHasRight002, TestSize.Level1)
     ASSERT_FALSE(result);
     int32_t ret = UsbSrvClient.RequestRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::UsbHasRight002 RequestRight=%{public}d", result);
-    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(0, ret);
     result = UsbSrvClient.HasRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::UsbHasRight002 HasRight=%{public}d", result);
     ASSERT_TRUE(result);
@@ -411,7 +434,7 @@ HWTEST_F(UsbCoreTest, UsbHasRight003, TestSize.Level1)
     ASSERT_TRUE(result);
     int32_t ret = UsbSrvClient.RemoveRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::UsbHasRight003 RemoveRight=%{public}d", result);
-    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(0, ret);
     deviceName = "device_81";
     result = UsbSrvClient.HasRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::UsbHasRight003 HasRight=%{public}d", result);
@@ -436,13 +459,13 @@ HWTEST_F(UsbCoreTest, UsbHasRight004, TestSize.Level1)
     ASSERT_FALSE(result);
     int32_t ret = UsbSrvClient.RequestRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::UsbHasRight004 RequestRight=%{public}d", result);
-    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(0, ret);
     result = UsbSrvClient.HasRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::UsbHasRight004 HasRight=%{public}d", result);
     ASSERT_TRUE(result);
     ret = UsbSrvClient.RemoveRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::Usbrequestright003 RemoveRight=%{public}d", result);
-    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(0, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbHasRight004: SetConfig");
 }
 
@@ -460,13 +483,13 @@ HWTEST_F(UsbCoreTest, Usbrequestright001, TestSize.Level1)
     std::string deviceName = "device_83";
     int32_t ret = UsbSrvClient.RequestRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::Usbrequestright001 RequestRight=%{public}d", ret);
-    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(0, ret);
     bool result = UsbSrvClient.HasRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::Usbrequestright001 HasRight=%{public}d", result);
     ASSERT_TRUE(result);
     ret = UsbSrvClient.RemoveRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::Usbrequestright003 RemoveRight=%{public}d", result);
-    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(0, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbrequestright001: SetConfig");
 }
 
@@ -486,13 +509,13 @@ HWTEST_F(UsbCoreTest, Usbrequestright003, TestSize.Level1)
     ASSERT_FALSE(result);
     int32_t ret = UsbSrvClient.RequestRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::Usbrequestright003 RequestRight=%{public}d", result);
-    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(0, ret);
     result = UsbSrvClient.HasRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::Usbrequestright003 HasRight=%{public}d", result);
     ASSERT_TRUE(result);
     ret = UsbSrvClient.RemoveRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::Usbrequestright003 RemoveRight=%{public}d", result);
-    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(0, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbrequestright003: SetConfig");
 }
 
@@ -511,7 +534,7 @@ HWTEST_F(UsbCoreTest, GetPorts001, TestSize.Level1)
     std::vector<UsbPort> portlist;
     auto ports = usbSrvClient.GetPorts(portlist);
     USB_HILOGD(MODULE_USB_SERVICE, "Get UsbPort size=%{public}zu", portlist.size());
-    ASSERT_TRUE(ports == 0);
+    ASSERT_EQ(0, ports);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetPorts001 : GetPorts");
 }
 
@@ -527,10 +550,10 @@ HWTEST_F(UsbCoreTest, GetSupportedModes001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetSupportedModes001 : GetSupportedModes");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    int32_t result = 0;
-    auto modes = UsbSrvClient.GetSupportedModes(0, result);
+    int32_t result;
+    auto modes = UsbSrvClient.GetSupportedModes(UsbSrvSupport::PORT_MODE_NONE, result);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", modes);
-    ASSERT_TRUE(modes != 0);
+    ASSERT_NE(modes, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetSupportedModes001 : GetSupportedModes");
 }
 
@@ -546,10 +569,10 @@ HWTEST_F(UsbCoreTest, GetSupportedModes002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetSupportedModes002 : GetSupportedModes");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    int32_t result = 0;
-    auto modes = UsbSrvClient.GetSupportedModes(-1, result);
+    int32_t result;
+    auto modes = UsbSrvClient.GetSupportedModes(USB_PORT_ID_INVALID, result);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", modes);
-    ASSERT_TRUE(modes != 0);
+    ASSERT_NE(modes, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetSupportedModes002 : GetSupportedModes");
 }
 
@@ -566,9 +589,9 @@ HWTEST_F(UsbCoreTest, GetSupportedModes003, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetSupportedModes003 : GetSupportedModes");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     int32_t result = 0;
-    auto modes = UsbSrvClient.GetSupportedModes(0xFFFFFFFF, result);
+    auto modes = UsbSrvClient.GetSupportedModes(0xFFFFFFFF, result); // 0xFFFFFFFF:Maximum anomaly portId
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", modes);
-    ASSERT_TRUE(modes != 0);
+    ASSERT_NE(modes, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetSupportedModes003 : GetSupportedModes");
 }
 
@@ -584,10 +607,10 @@ HWTEST_F(UsbCoreTest, GetSupportedModes004, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetSupportedModes004 : GetSupportedModes");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    int32_t result = 0;
-    auto modes = UsbSrvClient.GetSupportedModes(1, result);
+    int32_t result;
+    auto modes = UsbSrvClient.GetSupportedModes(UsbSrvSupport::PORT_MODE_DEVICE, result);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", modes);
-    ASSERT_TRUE(modes == 0);
+    ASSERT_EQ(0, modes);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetSupportedModes004 : GetSupportedModes");
 }
 
@@ -603,9 +626,10 @@ HWTEST_F(UsbCoreTest, SetPortRole001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetPortRole001 : SetPortRole");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.SetPortRole(1, 1, 1);
+    auto ret = UsbSrvClient.SetPortRole(
+        UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::POWER_ROLE_SOURCE, UsbSrvSupport::DATA_ROLE_HOST);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", ret);
-    ASSERT_TRUE(ret == 0);
+    ASSERT_EQ(0, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetPortRole001 : SetPortRole");
 }
 
@@ -621,9 +645,10 @@ HWTEST_F(UsbCoreTest, SetPortRole002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetPortRole002 : SetPortRole");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.SetPortRole(2, 1, 1);
+    auto ret = UsbSrvClient.SetPortRole(
+        UsbSrvSupport::PORT_MODE_HOST, UsbSrvSupport::POWER_ROLE_SOURCE, UsbSrvSupport::DATA_ROLE_HOST);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", ret);
-    ASSERT_TRUE(ret != 0);
+    ASSERT_NE(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetPortRole002 : SetPortRole");
 }
 
@@ -639,9 +664,10 @@ HWTEST_F(UsbCoreTest, SetPortRole003, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetPortRole003 : SetPortRole");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.SetPortRole(1, 4, 2);
+    auto ret = UsbSrvClient.SetPortRole(
+        UsbSrvSupport::PORT_MODE_DEVICE, USB_POWER_ROLE_INVALID, UsbSrvSupport::DATA_ROLE_DEVICE);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", ret);
-    ASSERT_TRUE(ret != 0);
+    ASSERT_NE(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetPortRole003 : SetPortRole");
 }
 
@@ -656,9 +682,10 @@ HWTEST_F(UsbCoreTest, SetPortRole004, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetPortRole004 : SetPortRole");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.SetPortRole(1, 1, 5);
+    auto ret = UsbSrvClient.SetPortRole(
+        UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::POWER_ROLE_SOURCE, USB_DATA_ROLE_INVALID);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", ret);
-    ASSERT_TRUE(ret != 0);
+    ASSERT_NE(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetPortRole004 : SetPortRole");
 }
 
@@ -673,9 +700,9 @@ HWTEST_F(UsbCoreTest, SetPortRole005, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetPortRole005 : SetPortRole");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.SetPortRole(1, 5, 5);
+    auto ret = UsbSrvClient.SetPortRole(UsbSrvSupport::PORT_MODE_DEVICE, USB_POWER_ROLE_INVALID, USB_DATA_ROLE_INVALID);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", ret);
-    ASSERT_TRUE(ret != 0);
+    ASSERT_NE(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetPortRole005 : SetPortRole");
 }
 
@@ -690,9 +717,9 @@ HWTEST_F(UsbCoreTest, SetPortRole006, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetPortRole006 : SetPortRole");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.SetPortRole(5, 1, 5);
+    auto ret = UsbSrvClient.SetPortRole(USB_PORT_ID_INVALID, UsbSrvSupport::POWER_ROLE_SOURCE, USB_DATA_ROLE_INVALID);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", ret);
-    ASSERT_TRUE(ret != 0);
+    ASSERT_NE(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetPortRole006 : SetPortRole");
 }
 
@@ -707,9 +734,9 @@ HWTEST_F(UsbCoreTest, SetPortRole007, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetPortRole007 : SetPortRole");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.SetPortRole(2, 5, 5);
+    auto ret = UsbSrvClient.SetPortRole(UsbSrvSupport::PORT_MODE_HOST, USB_POWER_ROLE_INVALID, USB_DATA_ROLE_INVALID);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", ret);
-    ASSERT_TRUE(ret != 0);
+    ASSERT_NE(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetPortRole007 : SetPortRole");
 }
 
@@ -724,9 +751,10 @@ HWTEST_F(UsbCoreTest, SetPortRole008, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetPortRole008 : SetPortRole");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.SetPortRole(1, 2, 2);
+    auto ret = UsbSrvClient.SetPortRole(
+        UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::DATA_ROLE_DEVICE, UsbSrvSupport::POWER_ROLE_SINK);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", ret);
-    ASSERT_TRUE(ret == 0);
+    ASSERT_EQ(0, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetPortRole008 : SetPortRole");
 }
 } // Core
