@@ -88,7 +88,7 @@ private:
     class UsbSrvDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         UsbSrvDeathRecipient() = default;
-        ~UsbSrvDeathRecipient() = default;
+        ~UsbSrvDeathRecipient() override = default;
         void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
 
     private:

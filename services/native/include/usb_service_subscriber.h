@@ -23,7 +23,7 @@ namespace USB {
 class UsbServiceSubscriber : public OHOS::HDI::Usb::V1_0::IUsbdSubscriber {
 public:
     UsbServiceSubscriber();
-    ~UsbServiceSubscriber() = default;
+    ~UsbServiceSubscriber() override = default;
     int32_t DeviceEvent(const HDI::Usb::V1_0::USBDeviceInfo &info) override;
     int32_t PortChangedEvent(const HDI::Usb::V1_0::PortInfo &info) override;
 };
