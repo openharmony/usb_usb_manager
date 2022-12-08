@@ -388,7 +388,7 @@ static void ParseDeviceObj(const napi_env env, const napi_value deviceObj, UsbDe
 static napi_value CoreGetDevices(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
-    napi_value argv[PARAM_COUNT_1] = {0};
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     USB_ASSERT(env, (argc == PARAM_COUNT_0), SYSPARAM_INVALID_INPUT, "The function takes no arguments.");
 
@@ -418,7 +418,7 @@ static napi_value CoreGetDevices(napi_env env, napi_callback_info info)
 static napi_value CoreConnectDevice(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
-    napi_value argv[PARAM_COUNT_1] = {0};
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
 
@@ -446,7 +446,7 @@ static napi_value CoreConnectDevice(napi_env env, napi_callback_info info)
 static napi_value DeviceAddRight(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_2;
-    napi_value argv[PARAM_COUNT_2] = {0};
+    napi_value argv[PARAM_COUNT_2] = {nullptr};
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_2), SYSPARAM_INVALID_INPUT, "The function takes two argument.");
 
@@ -476,7 +476,7 @@ static napi_value DeviceAddRight(napi_env env, napi_callback_info info)
 static napi_value DeviceRemoveRight(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
-    napi_value argv[PARAM_COUNT_1] = {0};
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
 
@@ -501,7 +501,7 @@ static napi_value DeviceRemoveRight(napi_env env, napi_callback_info info)
 static napi_value CoreHasRight(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
-    napi_value args[PARAM_COUNT_1] = {0};
+    napi_value args[PARAM_COUNT_1] = {nullptr};
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
 
@@ -543,7 +543,7 @@ static auto g_requestRightComplete = [](napi_env env, napi_status status, void *
 static napi_value CoreRequestRight(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
-    napi_value args[PARAM_COUNT_1] = {0};
+    napi_value args[PARAM_COUNT_1] = {nullptr};
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
 
@@ -578,7 +578,7 @@ static napi_value CoreRequestRight(napi_env env, napi_callback_info info)
 static napi_value CoreUsbFunctionsFromString(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
-    napi_value argv[PARAM_COUNT_1] = {0};
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
@@ -604,7 +604,7 @@ static napi_value CoreUsbFunctionsFromString(napi_env env, napi_callback_info in
 static napi_value CoreUsbFunctionsToString(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
-    napi_value argv[PARAM_COUNT_1] = {0};
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
@@ -646,7 +646,7 @@ static auto g_setCurrentFunctionComplete = [](napi_env env, napi_status status, 
 static napi_value CoreSetCurrentFunctions(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
-    napi_value argv[PARAM_COUNT_1] = {0};
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
@@ -682,7 +682,7 @@ static napi_value CoreSetCurrentFunctions(napi_env env, napi_callback_info info)
 static napi_value CoreGetCurrentFunctions(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
-    napi_value argv[PARAM_COUNT_1] = {0};
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc == PARAM_COUNT_0), SYSPARAM_INVALID_INPUT, "The function takes no arguments.");
 
@@ -705,7 +705,7 @@ static napi_value CoreGetCurrentFunctions(napi_env env, napi_callback_info info)
 static napi_value CoreGetPorts(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
-    napi_value argv[PARAM_COUNT_1] = {0};
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc == PARAM_COUNT_0), SYSPARAM_INVALID_INPUT, "The function takes no arguments.");
 
@@ -744,7 +744,7 @@ static napi_value CoreGetPorts(napi_env env, napi_callback_info info)
 static napi_value PortGetSupportedModes(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
-    napi_value args[PARAM_COUNT_1] = {0};
+    napi_value args[PARAM_COUNT_1] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
@@ -793,7 +793,7 @@ static auto g_setPortRoleComplete = [](napi_env env, napi_status status, void *d
 static napi_value PortSetPortRole(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_3;
-    napi_value args[PARAM_COUNT_3] = {0};
+    napi_value args[PARAM_COUNT_3] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_3), SYSPARAM_INVALID_INPUT, "The function takes three arguments.");
@@ -840,7 +840,7 @@ static napi_value PortSetPortRole(napi_env env, napi_callback_info info)
 static napi_value PipeClaimInterface(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_3;
-    napi_value argv[PARAM_COUNT_3] = {0};
+    napi_value argv[PARAM_COUNT_3] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_2), SYSPARAM_INVALID_INPUT, "The function at least takes two arguments.");
@@ -877,7 +877,7 @@ static napi_value PipeClaimInterface(napi_env env, napi_callback_info info)
 static napi_value PipeReleaseInterface(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_2;
-    napi_value argv[PARAM_COUNT_2] = {0};
+    napi_value argv[PARAM_COUNT_2] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_2), SYSPARAM_INVALID_INPUT, "The function takes two arguments.");
@@ -906,7 +906,7 @@ static napi_value PipeReleaseInterface(napi_env env, napi_callback_info info)
 static napi_value PipeSetInterface(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_2;
-    napi_value argv[PARAM_COUNT_2] = {0};
+    napi_value argv[PARAM_COUNT_2] = {nullptr};
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_2), SYSPARAM_INVALID_INPUT, "The function takes two arguments.");
 
@@ -934,7 +934,7 @@ static napi_value PipeSetInterface(napi_env env, napi_callback_info info)
 static napi_value PipeSetConfiguration(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_2;
-    napi_value argv[PARAM_COUNT_2] = {0};
+    napi_value argv[PARAM_COUNT_2] = {nullptr};
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_2), SYSPARAM_INVALID_INPUT, "The function takes two arguments.");
 
@@ -962,7 +962,7 @@ static napi_value PipeSetConfiguration(napi_env env, napi_callback_info info)
 static napi_value PipeGetRawDescriptors(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
-    napi_value argv[PARAM_COUNT_1] = {0};
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
@@ -989,7 +989,7 @@ static napi_value PipeGetRawDescriptors(napi_env env, napi_callback_info info)
 static napi_value PipeGetFileDescriptor(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
-    napi_value argv[PARAM_COUNT_1] = {0};
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
@@ -1060,7 +1060,7 @@ static std::tuple<bool, USBDevicePipe, PipeControlParam, int32_t> GetControlTran
     napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_3;
-    napi_value argv[PARAM_COUNT_3] = {0};
+    napi_value argv[PARAM_COUNT_3] = {nullptr};
     napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (status != napi_ok) {
         USB_HILOGE(MODULE_JS_NAPI, "ControlTransfer failed to get cb info\n");
@@ -1203,7 +1203,7 @@ static auto g_bulkTransferComplete = [](napi_env env, napi_status status, void *
 static bool GetBulkTransferParams(napi_env env, napi_callback_info info, USBBulkTransferAsyncContext &asyncContext)
 {
     size_t argc = PARAM_COUNT_4;
-    napi_value argv[PARAM_COUNT_4] = {0};
+    napi_value argv[PARAM_COUNT_4] = {nullptr};
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT_RETURN_FALSE(
         env, (argc >= PARAM_COUNT_3), SYSPARAM_INVALID_INPUT, "The function at least takes three arguments.");
@@ -1295,7 +1295,7 @@ static napi_value PipeBulkTransfer(napi_env env, napi_callback_info info)
 static napi_value PipeClose(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
-    napi_value argv[PARAM_COUNT_1] = {0};
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");

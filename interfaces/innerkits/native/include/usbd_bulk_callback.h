@@ -27,7 +27,7 @@ public:
     };
 
     explicit UsbdBulkCallBack() : OHOS::IPCObjectStub(u"UsbdBulkCallback.V1_0") {}
-    virtual ~UsbdBulkCallBack() = default;
+    ~UsbdBulkCallBack() override = default;
     int32_t OnRemoteRequest(uint32_t code, OHOS::MessageParcel &data, OHOS::MessageParcel &reply,
         OHOS::MessageOption &option) override;
     virtual int32_t OnBulkWriteCallback(int32_t status, int32_t actLength) = 0;

@@ -25,7 +25,7 @@ class UsbService;
 class UsbServerEventHandler : public AppExecFwk::EventHandler {
 public:
     UsbServerEventHandler(const std::shared_ptr<AppExecFwk::EventRunner> &runner, const wptr<UsbService> &service);
-    ~UsbServerEventHandler() = default;
+    ~UsbServerEventHandler() override = default;
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event) override;
 
 private:
