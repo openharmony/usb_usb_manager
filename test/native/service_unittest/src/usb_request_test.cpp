@@ -25,6 +25,7 @@
 #include "iusb_srv.h"
 #include "system_ability_definition.h"
 #include "usb_common.h"
+#include "usb_common_test.h"
 #include "usb_device_pipe.h"
 #include "usb_request.h"
 #include "usb_srv_client.h"
@@ -34,6 +35,7 @@ using namespace testing::ext;
 using namespace OHOS::USB;
 using namespace OHOS;
 using namespace std;
+using namespace OHOS::USB::Common;
 
 namespace OHOS {
 namespace USB {
@@ -43,6 +45,7 @@ constexpr int32_t TAG_SIZE = 50;
 constexpr int32_t BUFFER_SIZE = 255;
 void UsbRequestTest::SetUpTestCase(void)
 {
+    UsbCommonTest::SetTestCaseHapApply();
     auto &srvClient = UsbSrvClient::GetInstance();
     auto ret = srvClient.SetPortRole(1, 1, 1);
     sleep(SLEEP_TIME);
@@ -64,7 +67,10 @@ void UsbRequestTest::TearDownTestCase(void)
     USB_HILOGI(MODULE_USB_SERVICE, "End UsbdRequestTest");
 }
 
-void UsbRequestTest::SetUp(void) {}
+void UsbRequestTest::SetUp(void)
+{
+    UsbCommonTest::SetTestCaseHapApply();
+}
 
 void UsbRequestTest::TearDown(void) {}
 /**

@@ -626,18 +626,23 @@ static napi_value CoreUsbFunctionsToString(napi_env env, napi_callback_info info
 static auto g_setCurrentFunctionExecute = [](napi_env env, void *data) {
     USBFunctionAsyncContext *asyncContext = reinterpret_cast<USBFunctionAsyncContext *>(data);
     int32_t ret = g_usbClient.SetCurrentFunctions(asyncContext->functions);
-    if (ret == UEC_OK) {
-        asyncContext->status = napi_ok;
-    } else {
-        asyncContext->status = napi_generic_failure;
-    }
+    asyncContext->errCode = ret;
 };
 
 static auto g_setCurrentFunctionComplete = [](napi_env env, napi_status status, void *data) {
     USBFunctionAsyncContext *asyncContext = reinterpret_cast<USBFunctionAsyncContext *>(data);
     napi_value queryResult = nullptr;
-    napi_get_boolean(env, asyncContext->status == napi_ok, &queryResult);
 
+    if (asyncContext->errCode == UEC_OK) {
+        asyncContext->status = napi_ok;
+        napi_get_boolean(env, true, &queryResult);
+    } else if (asyncContext->errCode == UEC_SERVICE_PERMISSION_DENIED_SYSAPI) {
+        asyncContext->status = napi_generic_failure;
+        queryResult = CreateBusinessError((env), USB_SYSAPI_PERMISSION_DENIED, "");
+    } else {
+        asyncContext->status = napi_generic_failure;
+        napi_get_boolean(env, false, &queryResult);
+    }
     ProcessPromise(env, *asyncContext, queryResult);
     napi_delete_async_work(env, asyncContext->work);
     delete asyncContext;
@@ -772,19 +777,23 @@ static napi_value PortGetSupportedModes(napi_env env, napi_callback_info info)
 static auto g_setPortRoleExecute = [](napi_env env, void *data) {
     USBPortRoleAsyncContext *asyncContext = reinterpret_cast<USBPortRoleAsyncContext *>(data);
     int32_t ret = g_usbClient.SetPortRole(asyncContext->portId, asyncContext->powerRole, asyncContext->dataRole);
-    if (ret == UEC_OK) {
-        asyncContext->status = napi_ok;
-    } else {
-        asyncContext->status = napi_generic_failure;
-    }
+    asyncContext->errCode = ret;
 };
 
 static auto g_setPortRoleComplete = [](napi_env env, napi_status status, void *data) {
     USBPortRoleAsyncContext *asyncContext = reinterpret_cast<USBPortRoleAsyncContext *>(data);
     napi_value queryResult = nullptr;
 
-    napi_get_boolean(env, asyncContext->status == napi_ok, &queryResult);
-
+    if (asyncContext->errCode == UEC_OK) {
+        asyncContext->status = napi_ok;
+        napi_get_boolean(env, true, &queryResult);
+    } else if (asyncContext->errCode == UEC_SERVICE_PERMISSION_DENIED_SYSAPI) {
+        asyncContext->status = napi_generic_failure;
+        queryResult = CreateBusinessError((env), USB_SYSAPI_PERMISSION_DENIED, "");
+    } else {
+        asyncContext->status = napi_generic_failure;
+        napi_get_boolean(env, false, &queryResult);
+    }
     ProcessPromise(env, *asyncContext, queryResult);
     napi_delete_async_work(env, asyncContext->work);
     delete asyncContext;

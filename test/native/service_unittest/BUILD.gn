@@ -28,7 +28,10 @@ config("module_private_config") {
 
 ohos_unittest("test_usbdevicepipe") {
   module_out_path = module_output_path
-  sources = [ "src/usb_device_pipe_test.cpp" ]
+  sources = [
+    "src/usb_common_test.cpp",
+    "src/usb_device_pipe_test.cpp",
+  ]
 
   configs = [
     "${utils_path}:utils_config",
@@ -43,6 +46,9 @@ ohos_unittest("test_usbdevicepipe") {
 
   external_deps = [
     "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
@@ -60,6 +66,7 @@ ohos_unittest("test_bulkcallback") {
   sources = [
     "${usb_manager_path}/test/common/src/usb_callback_test.cpp",
     "src/usb_bulkcallback_test.cpp",
+    "src/usb_common_test.cpp",
   ]
 
   configs = [
@@ -75,6 +82,9 @@ ohos_unittest("test_bulkcallback") {
 
   external_deps = [
     "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
@@ -89,7 +99,10 @@ ohos_unittest("test_bulkcallback") {
 
 ohos_unittest("test_usbrequest") {
   module_out_path = module_output_path
-  sources = [ "src/usb_request_test.cpp" ]
+  sources = [
+    "src/usb_common_test.cpp",
+    "src/usb_request_test.cpp",
+  ]
 
   configs = [
     "${utils_path}:utils_config",
@@ -104,6 +117,9 @@ ohos_unittest("test_usbrequest") {
 
   external_deps = [
     "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
@@ -118,7 +134,10 @@ ohos_unittest("test_usbrequest") {
 
 ohos_unittest("test_usbcore") {
   module_out_path = module_output_path
-  sources = [ "src/usb_core_test.cpp" ]
+  sources = [
+    "src/usb_common_test.cpp",
+    "src/usb_core_test.cpp",
+  ]
 
   configs = [
     "${utils_path}:utils_config",
@@ -133,6 +152,9 @@ ohos_unittest("test_usbcore") {
 
   external_deps = [
     "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",

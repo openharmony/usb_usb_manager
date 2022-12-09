@@ -24,6 +24,7 @@
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "system_ability_definition.h"
+#include "usb_common_test.h"
 #include "usb_srv_client.h"
 
 using namespace testing::ext;
@@ -31,6 +32,7 @@ using namespace OHOS;
 using namespace OHOS::USB;
 using namespace std;
 using namespace OHOS::HDI::Usb::V1_0;
+using namespace OHOS::USB::Common;
 
 namespace OHOS {
 namespace USB {
@@ -39,6 +41,7 @@ constexpr int32_t SLEEP_TIME = 3;
 constexpr int32_t BUFFER_SIZE = 255;
 void UsbDevicePipeTest::SetUpTestCase(void)
 {
+    UsbCommonTest::SetTestCaseHapApply();
     auto &srvClient = UsbSrvClient::GetInstance();
     auto ret = srvClient.SetPortRole(1, 1, 1);
     sleep(SLEEP_TIME);
@@ -61,7 +64,10 @@ void UsbDevicePipeTest::TearDownTestCase(void)
     USB_HILOGI(MODULE_USB_SERVICE, "End UsbDevicePipeTest");
 }
 
-void UsbDevicePipeTest::SetUp(void) {}
+void UsbDevicePipeTest::SetUp(void)
+{
+    UsbCommonTest::SetTestCaseHapApply();
+}
 
 void UsbDevicePipeTest::TearDown(void) {}
 

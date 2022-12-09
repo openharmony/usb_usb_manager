@@ -31,23 +31,32 @@ std::optional<std::string_view> GetErrMsgByErrCode(int32_t errCode)
     return obj->second;
 }
 
-void ThrowBusinessError(const napi_env &env, int32_t errCode, const std::string &errMsg)
+napi_value CreateBusinessError(const napi_env &env, int32_t errCode, const std::string &errMsg)
 {
     auto commMsg = GetErrMsgByErrCode(errCode);
+    napi_value result;
     if (!commMsg.has_value()) {
+        napi_get_undefined(env, &result);
         USB_HILOGE(MODULE_JS_NAPI, "get error code failed");
-        return;
+        return result;
     }
     std::string cMsg(std::string(commMsg.value()) + errMsg);
     napi_value message = nullptr;
-    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, cMsg.c_str(), NAPI_AUTO_LENGTH, &message));
+    NAPI_CALL(env, napi_create_string_utf8(env, cMsg.c_str(), NAPI_AUTO_LENGTH, &message));
 
     napi_value code = nullptr;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, errCode, &code));
+    NAPI_CALL(env, napi_create_int32(env, errCode, &code));
 
     napi_value businessError = nullptr;
     napi_create_error(env, nullptr, message, &businessError);
     napi_set_named_property(env, businessError, "code", code);
+    return businessError;
+}
+
+void ThrowBusinessError(const napi_env &env, int32_t errCode, const std::string &errMsg)
+{
+    napi_value businessError = nullptr;
+    businessError = CreateBusinessError(env, errCode, errMsg);
     napi_throw(env, businessError);
 }
 } // namespace USB

@@ -21,9 +21,11 @@
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
+#include "tokenid_kit.h"
 #include "usb_errors.h"
 
 using namespace OHOS::AppExecFwk;
+using namespace OHOS::Security::AccessToken;
 
 namespace OHOS {
 namespace USB {
@@ -172,13 +174,14 @@ sptr<IBundleMgr> UsbRightManager::GetBundleMgr()
 
 bool UsbRightManager::IsSystemHap()
 {
-    pid_t uid = IPCSkeleton::GetCallingUid();
-    auto bundleMgr = GetBundleMgr();
-    if (bundleMgr == nullptr) {
-        USB_HILOGW(MODULE_USB_SERVICE, "BundleMgr is nullptr, return false");
+    uint64_t tokenid = IPCSkeleton::GetCallingFullTokenID();
+    USB_HILOGW(MODULE_USB_SERVICE, "tokenid %{public}lld", tokenid);
+    bool isSystemApp = TokenIdKit::IsSystemAppByFullTokenID(tokenid);
+    if (!isSystemApp) {
+        USB_HILOGW(MODULE_USB_SERVICE, "not is sysapp, return false");
         return false;
     }
-    return bundleMgr->CheckIsSystemAppByUid(uid);
+    return true;
 }
 } // namespace USB
 } // namespace OHOS
