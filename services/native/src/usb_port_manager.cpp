@@ -16,13 +16,13 @@
 #include "usb_port_manager.h"
 #include "hisysevent.h"
 #include "usb_errors.h"
+#include "usb_srv_support.h"
 
 using namespace OHOS::HiviewDFX;
 using namespace OHOS::HDI::Usb::V1_0;
 
 namespace OHOS {
 namespace USB {
-constexpr int32_t DEFAULT_PORT_ID = 1;
 constexpr int32_t SUPPORTED_MODES = 3;
 constexpr int32_t PARAM_COUNT_TWO = 2;
 constexpr int32_t PARAM_COUNT_THR = 3;
@@ -158,7 +158,7 @@ void UsbPortManager::RemovePort(int32_t portId)
     USB_HILOGI(MODULE_USB_SERVICE, "removePort seccess");
 }
 
-void UsbPortManager::GetPortsInfo(int fd)
+void UsbPortManager::GetPortsInfo(int32_t fd)
 {
     std::vector<UsbPort> usbports;
     int32_t ret = GetPorts(usbports);
@@ -174,7 +174,7 @@ void UsbPortManager::GetPortsInfo(int fd)
     }
 }
 
-void UsbPortManager::GetDumpHelp(int fd)
+void UsbPortManager::GetDumpHelp(int32_t fd)
 {
     dprintf(fd, "=========== dump the all device port ===========\n");
     dprintf(fd, "usb_port -a: Query All Port List\n");
@@ -184,7 +184,7 @@ void UsbPortManager::GetDumpHelp(int fd)
     dprintf(fd, "------------------------------------------------\n");
 }
 
-void UsbPortManager::DumpGetSupportPort(int fd)
+void UsbPortManager::DumpGetSupportPort(int32_t fd)
 {
     dprintf(fd, "Usb Port device status:\n");
     std::vector<UsbPort> ports;
@@ -204,7 +204,7 @@ void UsbPortManager::DumpGetSupportPort(int fd)
     }
 }
 
-void UsbPortManager::DumpSetPortRoles(int fd, const std::string &args)
+void UsbPortManager::DumpSetPortRoles(int32_t fd, const std::string &args)
 {
     if (args.compare("Q") == 0) {
         GetPortsInfo(fd);
@@ -214,11 +214,13 @@ void UsbPortManager::DumpSetPortRoles(int fd, const std::string &args)
     int32_t mode = stoi(args);
     switch (mode) {
         case DEFAULT_ROLE_HOST:
-            usbd_->SetPortRole(DEFAULT_PORT_ID, DEFAULT_ROLE_HOST, DEFAULT_ROLE_HOST);
+            usbd_->SetPortRole(
+                UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::POWER_ROLE_SOURCE, UsbSrvSupport::DATA_ROLE_HOST);
             GetPortsInfo(fd);
             break;
         case DEFAULT_ROLE_DEVICE:
-            usbd_->SetPortRole(DEFAULT_PORT_ID, DEFAULT_ROLE_DEVICE, DEFAULT_ROLE_DEVICE);
+            usbd_->SetPortRole(
+                UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::POWER_ROLE_SINK, UsbSrvSupport::DATA_ROLE_DEVICE);
             GetPortsInfo(fd);
             break;
         default:
@@ -227,7 +229,7 @@ void UsbPortManager::DumpSetPortRoles(int fd, const std::string &args)
     }
 }
 
-void UsbPortManager::Dump(int fd, const std::vector<std::string> &args)
+void UsbPortManager::Dump(int32_t fd, const std::vector<std::string> &args)
 {
     if (args.size() < PARAM_COUNT_TWO || args.size() > PARAM_COUNT_THR) {
         GetDumpHelp(fd);
