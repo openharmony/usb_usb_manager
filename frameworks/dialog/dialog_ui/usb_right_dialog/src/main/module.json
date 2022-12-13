@@ -34,11 +34,6 @@
         "visible": false,
         "type": "service"
       }
-    ],
-    "requestPermissions": [
-      {
-        "name": "ohos.permission.MANAGE_DISPOSED_APP_STATUS"
-      }
     ]
   }
 }
