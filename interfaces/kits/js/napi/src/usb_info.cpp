@@ -40,17 +40,17 @@ using namespace OHOS;
 using namespace OHOS::USB;
 using namespace OHOS::HDI::Usb::V1_0;
 
-const int32_t INDEX_0 = 0;
-const int32_t INDEX_1 = 1;
-const int32_t INDEX_2 = 2;
-const int32_t INDEX_3 = 3;
-const int32_t PARAM_COUNT_0 = 0;
-const int32_t PARAM_COUNT_1 = 1;
-const int32_t PARAM_COUNT_2 = 2;
-const int32_t PARAM_COUNT_3 = 3;
-const int32_t PARAM_COUNT_4 = 4;
-const int32_t STR_DEFAULT_SIZE = 256;
-const int32_t DEFAULT_DESCRIPTION_SIZE = 32;
+static constexpr int32_t INDEX_0 = 0;
+static constexpr int32_t INDEX_1 = 1;
+static constexpr int32_t INDEX_2 = 2;
+static constexpr int32_t INDEX_3 = 3;
+static constexpr int32_t PARAM_COUNT_0 = 0;
+static constexpr int32_t PARAM_COUNT_1 = 1;
+static constexpr int32_t PARAM_COUNT_2 = 2;
+static constexpr int32_t PARAM_COUNT_3 = 3;
+static constexpr int32_t PARAM_COUNT_4 = 4;
+static constexpr int32_t STR_DEFAULT_SIZE = 256;
+static constexpr int32_t DEFAULT_DESCRIPTION_SIZE = 32;
 
 static void ParseUsbDevicePipe(const napi_env env, const napi_value &obj, USBDevicePipe &pipe)
 {
