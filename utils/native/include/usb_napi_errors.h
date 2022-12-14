@@ -35,6 +35,7 @@ const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
 };
 
 void ThrowBusinessError(const napi_env &env, int32_t errCode, const std::string &errMsg);
+napi_value CreateBusinessError(const napi_env &env, int32_t errCode, const std::string &errMsg);
 
 #define USB_ASSERT_BASE(env, assertion, errCode, errMsg, retVal) \
     do {                                                         \

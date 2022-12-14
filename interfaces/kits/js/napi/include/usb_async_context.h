@@ -73,12 +73,14 @@ struct USBRightAsyncContext : USBAsyncContext {
 
 struct USBFunctionAsyncContext : USBAsyncContext {
     int32_t functions;
+    int32_t errCode;
 };
 
 struct USBPortRoleAsyncContext : USBAsyncContext {
     int32_t portId;
     int32_t powerRole;
     int32_t dataRole;
+    int32_t errCode;
 };
 
 struct USBControlTransferAsyncContext : USBAsyncContext {

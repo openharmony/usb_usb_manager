@@ -25,6 +25,7 @@
 #include "iservice_registry.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
+#include "usb_common_test.h"
 #include "usb_errors.h"
 #include "usb_srv_client.h"
 #include "usb_srv_support.h"
@@ -33,6 +34,7 @@ using namespace testing::ext;
 using namespace OHOS::USB;
 using namespace OHOS;
 using namespace std;
+using namespace OHOS::USB::Common;
 
 namespace OHOS {
 namespace USB {
@@ -44,6 +46,7 @@ constexpr int32_t USB_POWER_ROLE_INVALID = 5;
 constexpr int32_t USB_DATA_ROLE_INVALID = 5;
 void UsbCoreTest::SetUpTestCase(void)
 {
+    UsbCommonTest::SetTestCaseHapApply();
     auto &srvClient = UsbSrvClient::GetInstance();
     auto ret = srvClient.SetPortRole(
         UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::DATA_ROLE_DEVICE, UsbSrvSupport::POWER_ROLE_SINK);
@@ -61,7 +64,10 @@ void UsbCoreTest::TearDownTestCase(void)
     USB_HILOGI(MODULE_USB_SERVICE, "End UsbCoreTest");
 }
 
-void UsbCoreTest::SetUp(void) {}
+void UsbCoreTest::SetUp(void)
+{
+    UsbCommonTest::SetTestCaseHapApply();
+}
 
 void UsbCoreTest::TearDown(void) {}
 

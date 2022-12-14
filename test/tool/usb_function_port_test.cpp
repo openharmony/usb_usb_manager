@@ -14,10 +14,12 @@
  */
 
 #include "usb_srv_client.h"
+#include "usb_common_test.h"
 
 using namespace std;
 using namespace OHOS;
 using namespace OHOS::USB;
+using namespace OHOS::USB::Common;
 
 static constexpr int32_t DEFAULT_PORT_ID = 1;
 static constexpr int32_t DEFAULT_ROLE_HOST = 1;
@@ -122,6 +124,8 @@ static inline bool isNumber(string_view strv)
 
 int32_t main(int32_t argc, char *argv[])
 {
+    UsbCommonTest::SetTestCaseHapApply();
+
     if (argc < MIN_ARG_NUM) {
         PrintHelp();
         return 0;

@@ -28,6 +28,7 @@
 #include "securec.h"
 #include "system_ability_definition.h"
 #include "usb_callback_test.h"
+#include "usb_common_test.h"
 #include "usb_errors.h"
 #include "usb_srv_client.h"
 
@@ -35,6 +36,7 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::USB;
 using namespace std;
+using namespace OHOS::USB::Common;
 
 namespace OHOS {
 namespace USB {
@@ -75,6 +77,7 @@ static int32_t InitAshmemOne(sptr<Ashmem> &asmptr, int32_t asmSize, uint8_t rflg
 
 void UsbBulkcallbackTest::SetUpTestCase(void)
 {
+    UsbCommonTest::SetTestCaseHapApply();
     auto &srvClient = UsbSrvClient::GetInstance();
     auto ret = srvClient.SetPortRole(1, 1, 1);
     sleep(SLEEP_TIME);
@@ -97,7 +100,10 @@ void UsbBulkcallbackTest::TearDownTestCase(void)
     USB_HILOGI(MODULE_USB_SERVICE, "End UsbBulkcallbackTest");
 }
 
-void UsbBulkcallbackTest::SetUp(void) {}
+void UsbBulkcallbackTest::SetUp(void)
+{
+    UsbCommonTest::SetTestCaseHapApply();
+}
 
 void UsbBulkcallbackTest::TearDown(void) {}
 
