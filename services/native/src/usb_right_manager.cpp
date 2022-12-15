@@ -175,7 +175,6 @@ sptr<IBundleMgr> UsbRightManager::GetBundleMgr()
 bool UsbRightManager::IsSystemHap()
 {
     uint64_t tokenid = IPCSkeleton::GetCallingFullTokenID();
-    USB_HILOGW(MODULE_USB_SERVICE, "tokenid %{public}lld", tokenid);
     bool isSystemApp = TokenIdKit::IsSystemAppByFullTokenID(tokenid);
     if (!isSystemApp) {
         USB_HILOGW(MODULE_USB_SERVICE, "not is sysapp, return false");
