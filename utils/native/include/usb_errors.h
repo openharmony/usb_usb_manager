@@ -76,6 +76,17 @@ enum UsbErrCode {
     UEC_SERVICE_PERMISSION_DENIED_SYSAPI,
     UEC_SERVICE_END,
 };
+
+enum UsbRightErrCode {
+    USB_RIGHT_OK = 0,
+    USB_RIGHT_RDB_EXECUTE_FAILTURE = -1,
+    USB_RIGHT_RDB_NO_INIT = -2,
+    USB_RIGHT_RDB_EMPTY = -3,
+    USB_RIGHT_PERMISSION_DENIED = -4,
+    USB_RIGHT_NOP = -5,
+    USB_RIGHT_OVERFLOW = -6,
+};
+
 } // namespace USB
 } // namespace OHOS
 #endif // USB_ERRORS_H
