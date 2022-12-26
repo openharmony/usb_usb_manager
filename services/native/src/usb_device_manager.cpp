@@ -252,7 +252,7 @@ void UsbDeviceManager::Dump(int32_t fd, const std::vector<std::string> &args)
 void UsbDeviceManager::ReportFuncChangeSysEvent(int32_t currentFunctions, int32_t updateFunctions)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Device function Indicates the switch point information:");
-    HiSysEventWrite(HiSysEvent::Domain::USB, "USB_FUNCTION_CHANGED",
+    HiSysEventWrite(HiSysEvent::Domain::USB, "FUNCTION_CHANGED",
         HiSysEvent::EventType::BEHAVIOR, "CURRENT_FUNCTION",
         currentFunctions_, "UPDATE_FUNCTION", updateFunctions);
 }
@@ -260,7 +260,7 @@ void UsbDeviceManager::ReportFuncChangeSysEvent(int32_t currentFunctions, int32_
 void UsbDeviceManager::ReportDevicePlugSysEvent(int32_t currentFunctions, bool connected)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Device mode Indicates the insertion and removal information:");
-    HiSysEventWrite(HiSysEvent::Domain::USB, "USB_PLUG_IN_OUT_DEVICE_MODE",
+    HiSysEventWrite(HiSysEvent::Domain::USB, "PLUG_IN_OUT_DEVICE_MODE",
         HiSysEvent::EventType::BEHAVIOR, "CURRENT_FUNCTIONS",
         currentFunctions, "CONNECTED", connected);
 }
