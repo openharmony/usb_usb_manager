@@ -132,7 +132,7 @@ bool UsbHostManager::Dump(int fd, const std::string &args)
 void UsbHostManager::ReportHostPlugSysEvent(const std::string &event, const UsbDevice &dev)
 {
     USB_HILOGI(MODULE_SERVICE, "Host mode Indicates the insertion and removal information");
-    HiSysEventWrite(HiSysEvent::Domain::USB, "USB_PLUG_IN_OUT_HOST_MODE", HiSysEvent::EventType::BEHAVIOR,
+    HiSysEventWrite(HiSysEvent::Domain::USB, "PLUG_IN_OUT_HOST_MODE", HiSysEvent::EventType::BEHAVIOR,
         "DEVICE_NAME", dev.GetName(), "DEVICE_PROTOCOL", dev.GetProtocol(), "DEVICE_CLASS", dev.GetClass(),
         "VENDOR_ID", dev.GetVendorId(), "PRODUCT_ID", dev.GetProductId(), "VERSION", dev.GetVersion(),
         "EVENT_NAME", event);
