@@ -41,10 +41,14 @@ public:
     bool RemoveDeviceRight(const std::string &deviceName, const std::string &bundleName);
     bool RemoveDeviceAllRight(const std::string &deviceName);
     bool IsSystemHap();
+    bool IsSystemApp();
 
 private:
     bool GetUserAgreementByDiag(const std::string &deviceName, const std::string &bundleName);
     bool ShowUsbDialog(const std::string &deviceName, const std::string &bundleName);
+    bool IsSystemCore();
+    bool IsSystemBasic();
+    bool IsSystemApl();
     sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
 
     static sem_t waitDialogDisappear_;

@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #include "ability_manager_client.h"
+#include "accesstoken_kit.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
@@ -172,7 +173,41 @@ sptr<IBundleMgr> UsbRightManager::GetBundleMgr()
     return bundleMgr;
 }
 
-bool UsbRightManager::IsSystemHap()
+static bool IsTokenAplMatch(ATokenAplEnum apl)
+{
+    uint64_t tokenId = IPCSkeleton::GetCallingFullTokenID();
+    HapTokenInfo info;
+    AccessTokenKit::GetHapTokenInfo(tokenId, info);
+    if (info.apl == apl) {
+        return true;
+    }
+    return false;
+}
+
+bool UsbRightManager::IsSystemCore()
+{
+    bool isMatch = IsTokenAplMatch(ATokenAplEnum::APL_SYSTEM_CORE);
+    if (!isMatch) {
+        USB_HILOGW(MODULE_USB_SERVICE, "access token denied");
+    }
+    return isMatch;
+}
+
+bool UsbRightManager::IsSystemBasic()
+{
+    bool isMatch = IsTokenAplMatch(ATokenAplEnum::APL_SYSTEM_BASIC);
+    if (!isMatch) {
+        USB_HILOGW(MODULE_USB_SERVICE, "access token denied");
+    }
+    return isMatch;
+}
+
+bool UsbRightManager::IsSystemApl()
+{
+    return IsSystemBasic() || IsSystemCore();
+}
+
+bool UsbRightManager::IsSystemApp()
 {
     uint64_t tokenid = IPCSkeleton::GetCallingFullTokenID();
     bool isSystemApp = TokenIdKit::IsSystemAppByFullTokenID(tokenid);
@@ -181,6 +216,15 @@ bool UsbRightManager::IsSystemHap()
         return false;
     }
     return true;
+}
+
+bool UsbRightManager::IsSystemHap()
+{
+    if (IsSystemApl() || IsSystemApp()) {
+        return true;
+    }
+    USB_HILOGW(MODULE_USB_SERVICE, "not system apl or system app, return false");
+    return false;
 }
 } // namespace USB
 } // namespace OHOS
