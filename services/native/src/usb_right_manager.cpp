@@ -176,8 +176,8 @@ sptr<IBundleMgr> UsbRightManager::GetBundleMgr()
 static bool IsTokenAplMatch(ATokenAplEnum apl)
 {
     uint64_t tokenId = IPCSkeleton::GetCallingFullTokenID();
-    HapTokenInfo info;
-    AccessTokenKit::GetHapTokenInfo(tokenId, info);
+    NativeTokenInfo info;
+    AccessTokenKit::GetNativeTokenInfo(tokenId, info);
     if (info.apl == apl) {
         return true;
     }
