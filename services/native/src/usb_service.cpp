@@ -996,7 +996,12 @@ int32_t UsbService::AddRight(const std::string &bundleName, const std::string &d
     }
     USB_HILOGI(MODULE_USB_SERVICE, "AddRight bundleName = %{public}s, deviceName = %{public}s", bundleName.c_str(),
         deviceName.c_str());
-    return usbRightManager_->AddDeviceRight(deviceName, bundleName);
+    if (!usbRightManager_->AddDeviceRight(deviceName, bundleName)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "AddDeviceRight failed");
+        return UEC_SERVICE_INNER_ERR;
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "AddRight done");
+    return UEC_OK;
 }
 
 int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
