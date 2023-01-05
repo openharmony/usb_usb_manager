@@ -30,10 +30,6 @@ namespace OHOS {
 namespace USB {
 class UsbRightManager {
 public:
-    typedef std::vector<std::string> BundleNameList;
-    typedef std::map<std::string, BundleNameList> RightMap;
-    RightMap rightMap;
-
     void Init();
     bool HasRight(const std::string &deviceName, const std::string &bundleName);
     int32_t RequestRight(const std::string &deviceName, const std::string &bundleName);
@@ -44,6 +40,10 @@ public:
     bool IsSystemApp();
 
 private:
+    typedef std::vector<std::string> BundleNameList;
+    typedef std::map<std::string, BundleNameList> RightMap;
+    RightMap rightMap_;
+
     bool GetUserAgreementByDiag(const std::string &deviceName, const std::string &bundleName);
     bool ShowUsbDialog(const std::string &deviceName, const std::string &bundleName);
     bool IsSystemCore();

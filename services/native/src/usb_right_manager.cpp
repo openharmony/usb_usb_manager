@@ -37,8 +37,8 @@ void UsbRightManager::Init() {}
 
 bool UsbRightManager::HasRight(const std::string &deviceName, const std::string &bundleName)
 {
-    auto itMap = rightMap.find(deviceName);
-    if (itMap == rightMap.end()) {
+    auto itMap = rightMap_.find(deviceName);
+    if (itMap == rightMap_.end()) {
         USB_HILOGE(MODULE_USB_SERVICE, "hasRight deviceName false");
         return false;
     } else {
@@ -69,28 +69,29 @@ int32_t UsbRightManager::RequestRight(const std::string &deviceName, const std::
 
 bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::string &bundleName)
 {
-    auto itMap = rightMap.find(deviceName);
-    if (itMap != rightMap.end()) {
+    auto itMap = rightMap_.find(deviceName);
+    if (itMap != rightMap_.end()) {
         auto v = itMap->second;
         auto itVevtor = std::find(v.begin(), v.end(), bundleName);
         if (itVevtor != v.end()) {
-            USB_HILOGE(MODULE_USB_SERVICE, "addDeviceRight false");
-            return false;
+            USB_HILOGI(MODULE_USB_SERVICE, "Have been authorized");
+            return true;
         }
         itMap->second.push_back(bundleName);
-        USB_HILOGI(MODULE_USB_SERVICE, "addDeviceRight success");
+        USB_HILOGI(MODULE_USB_SERVICE, "bundleName success");
+        return true;
     }
     BundleNameList bundleNameList;
     bundleNameList.push_back(bundleName);
-    rightMap.insert(RightMap::value_type(deviceName, bundleNameList));
-    USB_HILOGI(MODULE_USB_SERVICE, "addDeviceRight success");
+    rightMap_.insert(RightMap::value_type(deviceName, bundleNameList));
+    USB_HILOGI(MODULE_USB_SERVICE, "AddDeviceRight success");
     return true;
 }
 
 bool UsbRightManager::RemoveDeviceRight(const std::string &deviceName, const std::string &bundleName)
 {
-    auto it = rightMap.find(deviceName);
-    if (it != rightMap.end()) {
+    auto it = rightMap_.find(deviceName);
+    if (it != rightMap_.end()) {
         auto &v = it->second;
         auto itVevtor = std::find(v.begin(), v.end(), bundleName);
         if (itVevtor != v.end()) {
@@ -104,9 +105,9 @@ bool UsbRightManager::RemoveDeviceRight(const std::string &deviceName, const std
 
 bool UsbRightManager::RemoveDeviceAllRight(const std::string &deviceName)
 {
-    auto it = rightMap.find(deviceName);
-    if (it != rightMap.end()) {
-        rightMap.erase(it);
+    auto it = rightMap_.find(deviceName);
+    if (it != rightMap_.end()) {
+        rightMap_.erase(it);
         USB_HILOGI(MODULE_USB_SERVICE, "removeDeviceAllRight success");
         return true;
     }
