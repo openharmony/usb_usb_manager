@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,8 +34,6 @@ constexpr int64_t USB_RIGHT_VALID_PERIOD_MIN = 0;
 constexpr int64_t USB_RIGHT_VALID_PERIOD_MAX = 0xFFFFFFFFL;
 constexpr int64_t USB_RIGHT_VALID_PERIOD_SET = 300;
 
-constexpr int32_t USB_RIGHT_USER_INVALID = -1;
-
 struct UsbRightAppInfo {
     uint32_t primaryKeyId; /* table primary key */
     int32_t uid;           /* app install user id */
@@ -66,7 +64,7 @@ public:
     bool IsRecordExpired(
         int32_t uid, const std::string &deviceName, const std::string &bundleName, uint64_t expiredTime);
     /* query if permission record is expired by time info */
-    bool IsRecordExpired(struct UsbRightAppInfo &info, uint64_t expiredTime);
+    bool IsRecordExpired(const struct UsbRightAppInfo &info, uint64_t expiredTime);
 
     /* add (user, device, app) record */
     int32_t AddRightRecord(const std::string &deviceName, const std::string &bundleName, struct UsbRightAppInfo &info);
@@ -100,6 +98,8 @@ public:
     int32_t DeleteDeviceRightRecord(int32_t uid, const std::string &deviceName);
     /* delete (user, app) record */
     int32_t DeleteAppRightRecord(int32_t uid, const std::string &bundleName);
+    /* delete (user, apps) record */
+    int32_t DeleteAppsRightRecord(int32_t uid, const std::vector<std::string> &bundleNames);
     /* delete (user) record */
     int32_t DeleteUidRightRecord(int32_t uid);
     /* delete (user, time) expired record */
@@ -113,16 +113,17 @@ private:
 
     int32_t CheckIfNeedUpdateEx(
         bool &isUpdate, int32_t uid, const std::string &deviceName, const std::string &bundleName);
-
     int32_t AddOrUpdateRightRecordEx(bool isUpdate, int32_t uid, const std::string &deviceName,
         const std::string &bundleName, struct UsbRightAppInfo &info);
-
     int32_t QueryRightRecordCount(void);
-
     int32_t GetResultSetTableInfo(
         const std::unique_ptr<OHOS::NativeRdb::AbsSharedResultSet> &resultSet, struct UsbRightTableInfo &table);
     int32_t GetResultRightRecordEx(const std::unique_ptr<OHOS::NativeRdb::AbsSharedResultSet> &resultSet,
         std::vector<struct UsbRightAppInfo> &infos);
+    int32_t QueryAndGetResult(const OHOS::NativeRdb::RdbPredicates &rdbPredicates,
+        const std::vector<std::string> &columns, std::vector<struct UsbRightAppInfo> &infos);
+    int32_t DeleteAndNoOtherOperation(const std::string &whereClause, const std::vector<std::string> &whereArgs);
+    int32_t DeleteAndNoOtherOperation(const OHOS::NativeRdb::RdbPredicates &rdbPredicates);
 
     static std::shared_ptr<UsbRightDbHelper> instance_;
     std::mutex databaseMutex_;
