@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -49,6 +49,7 @@ void UsbPortManager::Init()
 
 int32_t UsbPortManager::GetPorts(std::vector<UsbPort> &ports)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (portMap_.size() > 0) {
         for (auto it = portMap_.begin(); it != portMap_.end(); ++it) {
             ports.push_back(it->second);
@@ -71,6 +72,7 @@ int32_t UsbPortManager::GetPorts(std::vector<UsbPort> &ports)
 
 int32_t UsbPortManager::GetSupportedModes(int32_t portId, int32_t &supportedModes)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     auto it = portMap_.find(portId);
     if (it != portMap_.end()) {
         supportedModes = it->second.supportedModes;
@@ -114,6 +116,7 @@ int32_t UsbPortManager::QueryPort()
 void UsbPortManager::UpdatePort(int32_t portId, int32_t powerRole, int32_t dataRole, int32_t mode)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::updatePort run");
+    std::lock_guard<std::mutex> lock(mutex_);
     auto it = portMap_.find(portId);
     if (it != portMap_.end()) {
         if (it->second.id == portId) {
@@ -132,6 +135,7 @@ void UsbPortManager::UpdatePort(int32_t portId, int32_t powerRole, int32_t dataR
 void UsbPortManager::AddPort(UsbPort &port)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "addPort run");
+    std::lock_guard<std::mutex> lock(mutex_);
     auto res = portMap_.insert(std::map<int32_t, UsbPort>::value_type(port.id, port));
     if (!res.second) {
         USB_HILOGW(MODULE_USB_SERVICE, "addPort port id duplicated");
@@ -143,6 +147,7 @@ void UsbPortManager::AddPort(UsbPort &port)
 void UsbPortManager::RemovePort(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "removePort run");
+    std::lock_guard<std::mutex> lock(mutex_);
     size_t num = portMap_.erase(portId);
     if (num == 0) {
         USB_HILOGW(MODULE_USB_SERVICE, "removePort false");
