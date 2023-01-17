@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <map>
+#include <mutex>
 #include <string>
 #include <vector>
 #include "usb_common.h"
@@ -49,6 +50,7 @@ private:
     void DumpSetPortRoles(int32_t fd, const std::string &args);
     void ReportPortRoleChangeSysEvent(
         int32_t currentPowerRole, int32_t updatePowerRole, int32_t currentDataRole, int32_t updateDataRole);
+    std::mutex mutex_;
     std::map<int32_t, UsbPort> portMap_;
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
 };
