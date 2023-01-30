@@ -48,6 +48,7 @@
         "base_group": [],
         "fwk_group": [
           "//base/usb/usb_manager/interfaces/innerkits:usbsrv_client",
+          "//base/usb/usb_manager/interfaces/kits/js/napi:usbmanager",
           "//base/usb/usb_manager/interfaces/kits/js/napi:usbv9",
           "//base/usb/usb_manager/interfaces/kits/js/napi:usb"
         ],
