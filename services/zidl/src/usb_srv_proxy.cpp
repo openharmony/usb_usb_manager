@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -207,7 +207,8 @@ int32_t UsbServerProxy::GetDeviceConfigsMessageParcel(MessageParcel &data, std::
 
 int32_t UsbServerProxy::GetDeviceInterfacesMessageParcel(MessageParcel &data, std::vector<UsbInterface> &interfaces)
 {
-    int32_t tmp, interfaceCount;
+    int32_t tmp;
+    int32_t interfaceCount;
     uint8_t tui8;
     std::u16string tstr;
     data.ReadInt32(tmp);
@@ -248,7 +249,8 @@ int32_t UsbServerProxy::GetDeviceInterfacesMessageParcel(MessageParcel &data, st
 
 int32_t UsbServerProxy::GetDeviceEndpointsMessageParcel(MessageParcel &data, std::vector<USBEndpoint> &eps)
 {
-    int32_t tmp, epCount;
+    int32_t tmp;
+    int32_t epCount;
     uint32_t attributes;
     uint32_t address;
     READ_PARCEL_WITH_RET(data, Int32, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
