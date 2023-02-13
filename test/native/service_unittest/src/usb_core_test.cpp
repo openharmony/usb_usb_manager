@@ -191,7 +191,7 @@ HWTEST_F(UsbCoreTest, SetCurrentFunctions007, TestSize.Level1)
     auto &instance = UsbSrvClient::GetInstance();
     int32_t isok = instance.SetCurrentFunctions(UsbSrvSupport::FUNCTION_MTP);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", isok);
-    ASSERT_NE(0, isok);
+    ASSERT_EQ(0, isok);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions007 : SetConfig");
 }
 
@@ -204,13 +204,92 @@ HWTEST_F(UsbCoreTest, SetCurrentFunctions008, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetCurrentFunctions008 : SetConfig");
     auto &instance = UsbSrvClient::GetInstance();
+    int32_t isok = instance.SetCurrentFunctions(UsbSrvSupport::FUNCTION_PTP);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", isok);
+    ASSERT_EQ(0, isok);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions008 : SetConfig");
+}
+
+/**
+ * @tc.name: SetCurrentFunctions009
+ * @tc.desc: Test functions to SetCurrentFunctions(int32_t funcs)
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbCoreTest, SetCurrentFunctions009, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetCurrentFunctions009 : SetConfig");
+    auto &instance = UsbSrvClient::GetInstance();
+    int32_t funcs = UsbSrvSupport::FUNCTION_MTP | UsbSrvSupport::FUNCTION_HDC;
+    int32_t isok = instance.SetCurrentFunctions(funcs);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", isok);
+    ASSERT_EQ(0, isok);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions009 : SetConfig");
+}
+
+/**
+ * @tc.name: SetCurrentFunctions010
+ * @tc.desc: Test functions to SetCurrentFunctions(int32_t funcs)
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbCoreTest, SetCurrentFunctions010, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetCurrentFunctions010 : SetConfig");
+    auto &instance = UsbSrvClient::GetInstance();
+    int32_t funcs = UsbSrvSupport::FUNCTION_PTP | UsbSrvSupport::FUNCTION_HDC;
+    int32_t isok = instance.SetCurrentFunctions(funcs);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", isok);
+    ASSERT_EQ(0, isok);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions010 : SetConfig");
+}
+
+/**
+ * @tc.name: SetCurrentFunctions011
+ * @tc.desc: Test functions to SetCurrentFunctions(int32_t funcs)
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbCoreTest, SetCurrentFunctions011, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetCurrentFunctions011 : SetConfig");
+    auto &instance = UsbSrvClient::GetInstance();
+    int32_t funcs = UsbSrvSupport::FUNCTION_ACM | UsbSrvSupport::FUNCTION_MTP | UsbSrvSupport::FUNCTION_HDC;
+    int32_t isok = instance.SetCurrentFunctions(funcs);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", isok);
+    ASSERT_EQ(0, isok);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions011 : SetConfig");
+}
+
+/**
+ * @tc.name: SetCurrentFunctions012
+ * @tc.desc: Test functions to SetCurrentFunctions(int32_t funcs)
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbCoreTest, SetCurrentFunctions012, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetCurrentFunctions012 : SetConfig");
+    auto &instance = UsbSrvClient::GetInstance();
+    int32_t funcs = UsbSrvSupport::FUNCTION_ACM | UsbSrvSupport::FUNCTION_PTP | UsbSrvSupport::FUNCTION_HDC;
+    int32_t isok = instance.SetCurrentFunctions(funcs);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", isok);
+    ASSERT_EQ(0, isok);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions012 : SetConfig");
+}
+
+/**
+ * @tc.name: SetCurrentFunctions013
+ * @tc.desc: Test functions to SetCurrentFunctions(int32_t funcs)
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbCoreTest, SetCurrentFunctions013, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetCurrentFunctions013 : SetConfig");
+    auto &instance = UsbSrvClient::GetInstance();
     int32_t isok = instance.SetCurrentFunctions(UsbSrvSupport::FUNCTION_NONE);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", isok);
     ASSERT_EQ(0, isok);
     USB_HILOGI(MODULE_USB_SERVICE, "the function was set to none successfully");
     isok = instance.SetCurrentFunctions(UsbSrvSupport::FUNCTION_HDC);
     ASSERT_EQ(0, isok);
-    USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions008 : SetConfig");
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions013 : SetConfig");
 }
 
 /**
