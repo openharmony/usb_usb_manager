@@ -904,6 +904,10 @@ bool UsbService::GetBundleName(std::string &bundleName)
 
 int32_t UsbService::RegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe, const sptr<IRemoteObject> &cb)
 {
+    if (cb == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "cb is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     if (hdiCb_ == nullptr) {
         hdiCb_ = new UsbdBulkCallbackImpl(cb);
     }
