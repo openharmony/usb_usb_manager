@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,13 +15,12 @@
 
 #include "usb_service.h"
 
-#include <ipc_skeleton.h>
-#include <unistd.h>
-
 #include <cstdio>
 #include <iostream>
+#include <ipc_skeleton.h>
 #include <sstream>
 #include <string>
+#include <unistd.h>
 
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
@@ -75,8 +74,9 @@ UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
 UsbService::~UsbService() {}
 
 UsbService::SystemAbilityStatusChangeListener::SystemAbilityStatusChangeListener(
-    sptr<UsbServiceSubscriber> usbdSubscriber)
-    : usbdSubscriber_(usbdSubscriber) {}
+    sptr<UsbServiceSubscriber> usbdSubscriber) : usbdSubscriber_(usbdSubscriber)
+{
+}
 
 void UsbService::SystemAbilityStatusChangeListener::OnAddSystemAbility(
     int32_t systemAbilityId, const std::string &deviceId)
@@ -131,6 +131,8 @@ void UsbService::OnStart()
     }
 
     usbPortManager_->Init();
+
+    (void)usbRightManager_->Init();
     ready_ = true;
     auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     sptr<ISystemAbilityStatusChange> status = new (std::nothrow) SystemAbilityStatusChangeListener(usbdSubscriber_);
@@ -249,6 +251,20 @@ int32_t UsbService::OpenDevice(uint8_t busNum, uint8_t devAddr)
     return ret;
 }
 
+std::string UsbService::GetDeviceVidPidSerialNumber(std::string deviceName)
+{
+    std::string strDesc = "test";
+    std::lock_guard<std::mutex> guard(mutex_);
+    for (auto it = deviceVidPidMap_.begin(); it != deviceVidPidMap_.end(); ++it) {
+        USB_HILOGI(MODULE_USB_SERVICE, " it->first = %{public}s", it->first.c_str());
+        if (it->first == deviceName) {
+            strDesc = it->second;
+            break;
+        }
+    }
+    return strDesc;
+}
+
 bool UsbService::HasRight(std::string deviceName)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbRightManager HasRight");
@@ -263,7 +279,8 @@ bool UsbService::HasRight(std::string deviceName)
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return false;
     }
-    return usbRightManager_->HasRight(deviceName, bundleName);
+
+    return usbRightManager_->HasRight(GetDeviceVidPidSerialNumber(deviceName), bundleName);
 }
 
 int32_t UsbService::RequestRight(std::string deviceName)
@@ -280,7 +297,7 @@ int32_t UsbService::RequestRight(std::string deviceName)
         return UEC_SERVICE_INVALID_VALUE;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "RequestRight bundleName = %{public}s", bundleName.c_str());
-    return usbRightManager_->RequestRight(deviceName, bundleName);
+    return usbRightManager_->RequestRight(deviceName, GetDeviceVidPidSerialNumber(deviceName), bundleName);
 }
 
 int32_t UsbService::RemoveRight(std::string deviceName)
@@ -296,7 +313,7 @@ int32_t UsbService::RemoveRight(std::string deviceName)
         return UEC_SERVICE_INNER_ERR;
     }
 
-    if (!usbRightManager_->RemoveDeviceRight(deviceName, bundleName)) {
+    if (!usbRightManager_->RemoveDeviceRight(GetDeviceVidPidSerialNumber(deviceName), bundleName)) {
         USB_HILOGE(MODULE_USB_SERVICE, "RemoveDeviceRight failed");
         return UEC_SERVICE_INNER_ERR;
     }
@@ -828,6 +845,15 @@ bool UsbService::AddDevice(uint8_t busNum, uint8_t devAddr)
         return false;
     }
 
+    std::string name = std::to_string(busNum) + "-" + std::to_string(devAddr);
+    std::string uniqueName = std::to_string(devInfo->GetVendorId()) + "-" + std::to_string(devInfo->GetProductId()) +
+        "-" + devInfo->GetmSerial();
+    USB_HILOGI(MODULE_USB_SERVICE, "add to map: name=%{public}s id=%{public}s", name.c_str(), uniqueName.c_str());
+    {
+        std::lock_guard<std::mutex> guard(mutex_);
+        deviceVidPidMap_.insert(std::pair<std::string, std::string>(name, uniqueName));
+    }
+
     if (usbHostManger_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbHostManger_");
         return false;
@@ -850,8 +876,19 @@ bool UsbService::DelDevice(uint8_t busNum, uint8_t devAddr)
         return false;
     }
 
-    if (!usbRightManager_->RemoveDeviceAllRight(std::to_string(busNum) + "-" + std::to_string(devAddr))) {
+    std::string name = std::to_string(busNum) + "-" + std::to_string(devAddr);
+    if (!usbRightManager_->RemoveDeviceAllRight(GetDeviceVidPidSerialNumber(name))) {
         USB_HILOGW(MODULE_USB_SERVICE, "remove right failed busNum:%{public}u devAddr:%{public}u", busNum, devAddr);
+    }
+
+    {
+        std::lock_guard<std::mutex> guard(mutex_);
+        for (auto it = deviceVidPidMap_.begin(); it != deviceVidPidMap_.end(); ++it) {
+            if (it->first == name) {
+                deviceVidPidMap_.erase(it);
+                break;
+            }
+        }
     }
 
     return usbHostManger_->DelDevice(busNum, devAddr);
@@ -1000,7 +1037,7 @@ int32_t UsbService::AddRight(const std::string &bundleName, const std::string &d
     }
     USB_HILOGI(MODULE_USB_SERVICE, "AddRight bundleName = %{public}s, deviceName = %{public}s", bundleName.c_str(),
         deviceName.c_str());
-    if (!usbRightManager_->AddDeviceRight(deviceName, bundleName)) {
+    if (!usbRightManager_->AddDeviceRight(GetDeviceVidPidSerialNumber(deviceName), bundleName)) {
         USB_HILOGE(MODULE_USB_SERVICE, "AddDeviceRight failed");
         return UEC_SERVICE_INNER_ERR;
     }

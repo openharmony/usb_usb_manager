@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -37,6 +37,8 @@ ohos_shared_library("usbservice") {
     "native/src/usb_device_manager.cpp",
     "native/src/usb_host_manager.cpp",
     "native/src/usb_port_manager.cpp",
+    "native/src/usb_right_database.cpp",
+    "native/src/usb_right_db_helper.cpp",
     "native/src/usb_right_manager.cpp",
     "native/src/usb_serial_reader.cpp",
     "native/src/usb_server_event_handler.cpp",
@@ -68,6 +70,9 @@ ohos_shared_library("usbservice") {
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "os_account:os_account_innerkits",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]

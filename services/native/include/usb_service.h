@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 
 #include <map>
 #include <vector>
+
 #include "delayed_sp_singleton.h"
 #include "iremote_object.h"
 #include "iusb_srv.h"
@@ -128,6 +129,7 @@ private:
     bool InitUsbd();
     bool IsCommonEventServiceAbilityExist();
     bool GetBundleName(std::string &bundleName);
+    std::string GetDeviceVidPidSerialNumber(std::string deviceName);
     int32_t FillDevStrings(UsbDevice &dev);
     std::string GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, uint8_t idx);
     void DumpHelp(int32_t fd);
@@ -143,6 +145,7 @@ private:
     sptr<UsbServiceSubscriber> usbdSubscriber_;
     sptr<HDI::Usb::V1_0::IUsbdBulkCallback> hdiCb_ = nullptr;
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
+    std::map<std::string, std::string> deviceVidPidMap_;
 };
 } // namespace USB
 } // namespace OHOS

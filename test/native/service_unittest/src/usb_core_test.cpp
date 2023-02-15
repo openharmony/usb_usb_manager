@@ -464,7 +464,7 @@ HWTEST_F(UsbCoreTest, UsbFunctionsToString005, TestSize.Level1)
  * @tc.name: UsbHasRight001
  * @tc.desc: Test functions of HasRight
  * @tc.desc: bool HasRight(std::string deviceName)
- * @tc.desc: Before RequestRight, HasRight return false.
+ * @tc.desc: Setup case as system hap: Before RequestRight, HasRight return true.
  * @tc.type: FUNC
  */
 HWTEST_F(UsbCoreTest, UsbHasRight001, TestSize.Level1)
@@ -474,7 +474,7 @@ HWTEST_F(UsbCoreTest, UsbHasRight001, TestSize.Level1)
     std::string deviceName = "device_80";
     bool result = UsbSrvClient.HasRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::UsbHasRight001 HasRight=%{public}d", result);
-    ASSERT_FALSE(result);
+    ASSERT_TRUE(result);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbHasRight001: SetConfig");
 }
 
@@ -482,7 +482,7 @@ HWTEST_F(UsbCoreTest, UsbHasRight001, TestSize.Level1)
  * @tc.name: UsbHasRight002
  * @tc.desc: Test functions of HasRight
  * @tc.desc: bool HasRight(std::string deviceName)
- * @tc.desc: After RequestRight, HasRight return true.
+ * @tc.desc: Setup case as system hap: After RequestRight, HasRight return true.
  * @tc.type: FUNC
  */
 HWTEST_F(UsbCoreTest, UsbHasRight002, TestSize.Level1)
@@ -492,7 +492,7 @@ HWTEST_F(UsbCoreTest, UsbHasRight002, TestSize.Level1)
     std::string deviceName = "device_80";
     bool result = UsbSrvClient.HasRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::UsbHasRight002 HasRight=%{public}d", result);
-    ASSERT_FALSE(result);
+    ASSERT_TRUE(result);
     int32_t ret = UsbSrvClient.RequestRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::UsbHasRight002 RequestRight=%{public}d", result);
     ASSERT_EQ(0, ret);
@@ -506,7 +506,7 @@ HWTEST_F(UsbCoreTest, UsbHasRight002, TestSize.Level1)
  * @tc.name: UsbHasRight003
  * @tc.desc: Test functions of HasRight
  * @tc.desc: bool HasRight(std::string deviceName)
- * @tc.desc: After RemoveRight, HasRight return false.
+ * @tc.desc: Setup case as system hap: After RemoveRight, HasRight return true.
  * @tc.type: FUNC
  */
 HWTEST_F(UsbCoreTest, UsbHasRight003, TestSize.Level1)
@@ -523,7 +523,7 @@ HWTEST_F(UsbCoreTest, UsbHasRight003, TestSize.Level1)
     deviceName = "device_81";
     result = UsbSrvClient.HasRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::UsbHasRight003 HasRight=%{public}d", result);
-    ASSERT_FALSE(result);
+    ASSERT_TRUE(result);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbHasRight003: SetConfig");
 }
 
@@ -531,7 +531,7 @@ HWTEST_F(UsbCoreTest, UsbHasRight003, TestSize.Level1)
  * @tc.name: UsbHasRight004
  * @tc.desc: Test functions of HasRight
  * @tc.desc: bool HasRight(std::string deviceName)
- * @tc.desc: RequestRight then RemoveRight
+ * @tc.desc: Setup case as system hap: RequestRight then RemoveRight
  * @tc.type: FUNC
  */
 HWTEST_F(UsbCoreTest, UsbHasRight004, TestSize.Level1)
@@ -541,7 +541,7 @@ HWTEST_F(UsbCoreTest, UsbHasRight004, TestSize.Level1)
     std::string deviceName = "device_82";
     bool result = UsbSrvClient.HasRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::UsbHasRight004 HasRight=%{public}d", result);
-    ASSERT_FALSE(result);
+    ASSERT_TRUE(result);
     int32_t ret = UsbSrvClient.RequestRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::UsbHasRight004 RequestRight=%{public}d", result);
     ASSERT_EQ(0, ret);
@@ -558,7 +558,7 @@ HWTEST_F(UsbCoreTest, UsbHasRight004, TestSize.Level1)
  * @tc.name: Usbrequestright001
  * @tc.desc: Test functions of requestright
  * @tc.desc: int32_t requestright(std::string deviceName)
- * @tc.desc: RequestRight then RemoveRight
+ * @tc.desc: Setup case as system hap: RequestRight then RemoveRight
  * @tc.type: FUNC
  */
 HWTEST_F(UsbCoreTest, Usbrequestright001, TestSize.Level1)
@@ -591,7 +591,7 @@ HWTEST_F(UsbCoreTest, Usbrequestright003, TestSize.Level1)
     std::string deviceName = "device_81";
     bool result = UsbSrvClient.HasRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::Usbrequestright003 HasRight=%{public}d", result);
-    ASSERT_FALSE(result);
+    ASSERT_TRUE(result);
     int32_t ret = UsbSrvClient.RequestRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::Usbrequestright003 RequestRight=%{public}d", result);
     ASSERT_EQ(0, ret);
