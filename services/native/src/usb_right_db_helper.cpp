@@ -249,7 +249,7 @@ int32_t UsbRightDbHelper::QueryRightRecordUids(std::vector<std::string> &uids)
     }
     resultSet->GetRowIndex(position);
     resultSet->IsEnded(endFlag);
-    USB_HILOGD(MODULE_USB_SERVICE, "row=%{public}d col=%{public}d pos=%{public}d ret=%{public}d end=%{public}s",
+    USB_HILOGD(MODULE_USB_SERVICE, "row=%{public}d col=%{public}d pos=%{public}d ret=%{public}zu end=%{public}s",
         table.rowCount, table.columnCount, position, uids.size(), (endFlag ? "yes" : "no"));
     return uids.size();
 }
@@ -301,7 +301,7 @@ int32_t UsbRightDbHelper::QueryRightRecordApps(int32_t uid, std::vector<std::str
     int32_t position = 0;
     resultSet->GetRowIndex(position);
     resultSet->IsEnded(endFlag);
-    USB_HILOGD(MODULE_USB_SERVICE, "row=%{public}d col=%{public}d pos=%{public}d ret=%{public}d end=%{public}s",
+    USB_HILOGD(MODULE_USB_SERVICE, "row=%{public}d col=%{public}d pos=%{public}d ret=%{public}zu end=%{public}s",
         table.rowCount, table.columnCount, position, apps.size(), (endFlag ? "yes" : "no"));
     return apps.size();
 }
@@ -566,7 +566,7 @@ int32_t UsbRightDbHelper::GetResultRightRecordEx(
     int32_t position = 0;
     resultSet->GetRowIndex(position);
     resultSet->IsEnded(endFlag);
-    USB_HILOGD(MODULE_USB_SERVICE, "row=%{public}d col=%{public}d pos=%{public}d ret=%{public}d end=%{public}s",
+    USB_HILOGD(MODULE_USB_SERVICE, "row=%{public}d col=%{public}d pos=%{public}d ret=%{public}zu end=%{public}s",
         table.rowCount, table.columnCount, position, infos.size(), (endFlag ? "yes" : "no"));
     return infos.size();
 }
