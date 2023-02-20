@@ -17,6 +17,7 @@
 #define USB_COMMON_TEST_H
 
 #include "accesstoken_kit.h"
+#include "hdf_log.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
 
@@ -26,6 +27,9 @@ namespace Common {
 class UsbCommonTest {
 public:
     static void SetTestCaseHapApply();
+    static void SetTestCaseNative (TokenInfoParams *infoInstance);
+    static void GrantPermissionSysNative();
+    static void GrantPermissionNormalNative();
 };
 } // Common
 } // USB

@@ -67,10 +67,7 @@ void UsbRequestTest::TearDownTestCase(void)
     USB_HILOGI(MODULE_USB_SERVICE, "End UsbdRequestTest");
 }
 
-void UsbRequestTest::SetUp(void)
-{
-    UsbCommonTest::SetTestCaseHapApply();
-}
+void UsbRequestTest::SetUp(void) {}
 
 void UsbRequestTest::TearDown(void) {}
 /**

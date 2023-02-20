@@ -100,10 +100,7 @@ void UsbBulkcallbackTest::TearDownTestCase(void)
     USB_HILOGI(MODULE_USB_SERVICE, "End UsbBulkcallbackTest");
 }
 
-void UsbBulkcallbackTest::SetUp(void)
-{
-    UsbCommonTest::SetTestCaseHapApply();
-}
+void UsbBulkcallbackTest::SetUp(void) {}
 
 void UsbBulkcallbackTest::TearDown(void) {}
 
