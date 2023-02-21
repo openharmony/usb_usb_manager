@@ -64,10 +64,7 @@ void UsbDevicePipeTest::TearDownTestCase(void)
     USB_HILOGI(MODULE_USB_SERVICE, "End UsbDevicePipeTest");
 }
 
-void UsbDevicePipeTest::SetUp(void)
-{
-    UsbCommonTest::SetTestCaseHapApply();
-}
+void UsbDevicePipeTest::SetUp(void) {}
 
 void UsbDevicePipeTest::TearDown(void) {}
 

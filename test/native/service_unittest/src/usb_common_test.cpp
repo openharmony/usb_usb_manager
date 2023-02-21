@@ -35,12 +35,56 @@ HapPolicyParams policy = {
     .domain = "domain"
 };
 
+TokenInfoParams g_normalInfoInstance = {
+    .dcapsNum = 0,
+    .permsNum = 0,
+    .aclsNum = 0,
+    .dcaps = nullptr,
+    .perms = nullptr,
+    .acls = nullptr,
+    .processName = "usb_manager",
+    .aplStr = "normal",
+};
+
+TokenInfoParams g_sysInfoInstance = {
+    .dcapsNum = 0,
+    .permsNum = 0,
+    .aclsNum = 0,
+    .dcaps = nullptr,
+    .perms = nullptr,
+    .acls = nullptr,
+    .processName = "usb_manager",
+    .aplStr = "system_basic",
+};
+
 void UsbCommonTest::SetTestCaseHapApply (void)
 {
     AccessTokenKit::AllocHapToken(g_InfoParams, policy);
     AccessTokenIDEx tokenID = AccessTokenKit::GetHapTokenIDEx(g_InfoParams.userID, g_InfoParams.bundleName,
         g_InfoParams.instIndex);
     SetSelfTokenID(tokenID.tokenIDEx);
+}
+
+void UsbCommonTest::SetTestCaseNative (TokenInfoParams *infoInstance)
+{
+    uint64_t tokenId = GetAccessTokenId(infoInstance);
+    int ret = SetSelfTokenID(tokenId);
+    if (ret == 0) {
+        HDF_LOGI("SetSelfTokenID success");
+    } else {
+        HDF_LOGE("SetSelfTokenID fail");
+    }
+    AccessTokenKit::ReloadNativeTokenInfo();
+}
+
+void UsbCommonTest::GrantPermissionSysNative()
+{
+    SetTestCaseNative(&g_sysInfoInstance);
+}
+
+void UsbCommonTest::GrantPermissionNormalNative()
+{
+    SetTestCaseNative(&g_normalInfoInstance);
 }
 } // Common
 } // USB
