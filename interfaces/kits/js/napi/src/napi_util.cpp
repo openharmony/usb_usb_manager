@@ -165,7 +165,7 @@ bool NapiUtil::JsUint8ArrayParse(
     USB_ASSERT_RETURN_FALSE(
         env, type == napi_uint8_array, SYSPARAM_INVALID_INPUT, "The type of buffer must be Uint8Array.");
     USB_ASSERT_RETURN_FALSE(
-        env, bufferSize != 0, SYSPARAM_INVALID_INPUT, "The size of buffer must be greater than zero.");
+        env, bufferSize != 0, SYSPARAM_INVALID_INPUT, "The size of buffer must be a positive number.");
     return true;
 }
 

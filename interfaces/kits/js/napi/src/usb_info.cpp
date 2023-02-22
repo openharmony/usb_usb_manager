@@ -1103,7 +1103,7 @@ static std::tuple<bool, USBDevicePipe, PipeControlParam, int32_t> GetControlTran
     if (argc > PARAM_COUNT_2) {
         napi_typeof(env, argv[INDEX_2], &type);
         if (type != napi_number) {
-            USB_HILOGE(MODULE_JS_NAPI, "index 2 wrong argument type, number expected.\n");
+            USB_HILOGE(MODULE_JS_NAPI, "index 2 wrong argument type, number expected.");
             ThrowBusinessError(env, SYSPARAM_INVALID_INPUT, "The type of timeOut must be positive number.");
             return {false, {}, {}, {}};
         }
