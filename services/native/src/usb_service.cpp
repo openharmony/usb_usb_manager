@@ -73,6 +73,28 @@ UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
 }
 UsbService::~UsbService() {}
 
+int32_t UsbService::SetUsbd(const sptr<IUsbInterface> &usbd)
+{
+    if (usbd == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService usbd is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    usbd_ = usbd;
+
+    if (usbPortManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbPortManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    usbPortManager_->SetUsbd(usbd);
+
+    if (usbDeviceManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbDeviceManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    usbDeviceManager_->SetUsbd(usbd);
+    return UEC_OK;
+}
+
 UsbService::SystemAbilityStatusChangeListener::SystemAbilityStatusChangeListener(
     sptr<UsbServiceSubscriber> usbdSubscriber) : usbdSubscriber_(usbdSubscriber)
 {

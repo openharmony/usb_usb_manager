@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -52,6 +52,16 @@ UsbDeviceManager::UsbDeviceManager()
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::Get inteface failed");
     }
+}
+
+int32_t UsbDeviceManager::SetUsbd(const sptr<IUsbInterface> &usbd)
+{
+    if (usbd == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager usbd is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    usbd_ = usbd;
+    return UEC_OK;
 }
 
 bool UsbDeviceManager::AreSettableFunctions(int32_t funcs)

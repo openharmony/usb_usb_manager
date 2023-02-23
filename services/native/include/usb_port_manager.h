@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,6 +34,7 @@ public:
 
     void Init();
     void Init(int32_t test);
+    int32_t SetUsbd(const sptr<HDI::Usb::V1_0::IUsbInterface> &usbd);
     int32_t GetPorts(std::vector<UsbPort> &ports);
     int32_t GetSupportedModes(int32_t portId, int32_t &supportedModes);
     void SetPortRoles(int32_t portId, int32_t powerRole, int32_t dataRole);

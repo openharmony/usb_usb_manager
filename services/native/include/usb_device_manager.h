@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,6 +32,7 @@ public:
     UsbDeviceManager();
     static bool AreSettableFunctions(int32_t funcs);
 
+    int32_t SetUsbd(const sptr<HDI::Usb::V1_0::IUsbInterface> &usbd);
     static uint32_t ConvertFromString(std::string_view funcs);
     static std::string ConvertToString(uint32_t func);
     void UpdateFunctions(int32_t func);
