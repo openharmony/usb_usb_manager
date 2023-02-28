@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +27,6 @@
 using namespace OHOS::HDI::Usb::V1_0;
 namespace OHOS {
 namespace USB {
-const uint8_t CLAIM_FORCE_1 = 1;
 UsbSrvClient::UsbSrvClient()
 {
     Connect();
@@ -45,13 +44,20 @@ int32_t UsbSrvClient::Connect()
         USB_HILOGE(MODULE_USB_INNERKIT, "fail to get SystemAbilityManager");
         return UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED;
     }
-    sptr<IRemoteObject> remoteObject_ = sm->CheckSystemAbility(USB_SYSTEM_ABILITY_ID);
-    if (remoteObject_ == nullptr) {
+    sptr<IRemoteObject> remoteObject = sm->CheckSystemAbility(USB_SYSTEM_ABILITY_ID);
+    if (remoteObject == nullptr) {
         USB_HILOGE(MODULE_USB_INNERKIT, "GetSystemAbility failed.");
         return UEC_INTERFACE_GET_USB_SERVICE_FAILED;
     }
-    proxy_ = iface_cast<IUsbSrv>(remoteObject_);
+    proxy_ = iface_cast<IUsbSrv>(remoteObject);
     USB_HILOGI(MODULE_USB_INNERKIT, "Connect UsbService ok.");
+    sptr<IRemoteObject> deathObject = proxy_->AsObject();
+    if (deathObject == nullptr) {
+        USB_HILOGI(MODULE_USB_INNERKIT, "deathObject is null.");
+        return UEC_INTERFACE_DEAD_OBJECT;
+    }
+    deathRecipient_  = new UsbSrvDeathRecipient();
+    deathObject->AddDeathRecipient(deathRecipient_);
     return UEC_OK;
 }
 
