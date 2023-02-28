@@ -92,7 +92,7 @@ HWTEST_F(UsbCoreTest, GetCurrentFunctions001, TestSize.Level1)
 HWTEST_F(UsbCoreTest, GetCurrentFunctions002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetCurrentFunctions002 : SetConfig");
-    UsbCommonTest::GrantPermissionSysNative();
+    UsbCommonTest::GrantPermissionNormalNative();
     auto &instance = UsbSrvClient::GetInstance();
     int32_t funcs = static_cast<int32_t>(UsbSrvSupport::FUNCTION_NONE);
     int32_t ret = instance.GetCurrentFunctions(funcs);
