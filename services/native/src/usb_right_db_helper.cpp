@@ -641,8 +641,9 @@ int32_t UsbRightDbHelper::AddOrUpdateRightRecordEx(bool isUpdate, int32_t uid, c
     values.PutLong("validPeriod", info.validPeriod);
     values.PutString("deviceName", deviceName);
     values.PutString("bundleName", bundleName);
-    USB_HILOGD(MODULE_USB_SERVICE, "info: requestTime=%{public}" PRIu64 " validPeriod=%{public}" PRIu64 " uid=%{public}d dev=%{public}s app=%{public}s",
-        info.requestTime, info.validPeriod, uid, deviceName.c_str(), bundleName.c_str());
+    USB_HILOGD(MODULE_USB_SERVICE, "info: requestTime=%{public}" PRIu64 " validPeriod=%{public}" PRIu64
+        " uid=%{public}d dev=%{public}s app=%{public}s", info.requestTime, info.validPeriod, uid,
+        deviceName.c_str(), bundleName.c_str());
     if (isUpdate) {
         USB_HILOGI(MODULE_USB_SERVICE, " UPDATE table SET key1=value1,... WHERE ...");
         int32_t changedRows = 0;
