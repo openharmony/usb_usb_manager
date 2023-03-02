@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -277,9 +277,9 @@ int32_t UsbServerStub::DoRequestRight(MessageParcel &data, MessageParcel &reply,
 
 int32_t UsbServerStub::DoRemoveRight(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    std::string deviceName = "";
-    READ_PARCEL_WITH_RET(data, String, deviceName, UEC_SERVICE_READ_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(reply, Int32, RemoveRight(deviceName), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    std::u16string deviceName = u"";
+    READ_PARCEL_WITH_RET(data, String16, deviceName, UEC_SERVICE_READ_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(reply, Int32, RemoveRight(Str16ToStr8(deviceName)), UEC_SERVICE_WRITE_PARCEL_ERROR);
     return UEC_OK;
 }
 
