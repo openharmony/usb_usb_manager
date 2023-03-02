@@ -54,6 +54,16 @@ void UsbPortManager::Init()
     }
 }
 
+int32_t UsbPortManager::SetUsbd(const sptr<IUsbInterface> &usbd)
+{
+    if (usbd == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager usbd is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    usbd_ = usbd;
+    return UEC_OK;
+}
+
 int32_t UsbPortManager::GetPorts(std::vector<UsbPort> &ports)
 {
     std::lock_guard<std::mutex> lock(mutex_);
