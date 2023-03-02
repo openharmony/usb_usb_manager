@@ -22,7 +22,6 @@ config("module_private_config") {
     "include",
     "//third_party/googletest/googlemock/include",
     "//third_party/jsoncpp/include/json",
-    "${usb_manager_path}/interfaces/innerkits/native/include",
     "${usb_manager_path}/interfaces/kits/js/napi/include",
     "${usb_manager_path}/utils/native/include",
     "${usb_manager_path}/test/common/include",

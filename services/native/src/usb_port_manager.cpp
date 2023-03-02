@@ -152,7 +152,7 @@ void UsbPortManager::UpdatePort(int32_t portId, int32_t powerRole, int32_t dataR
 void UsbPortManager::AddPort(UsbPort &port)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "addPort run");
-    std::lock_guard<std::mutex> lock(mutex_);
+
     auto res = portMap_.insert(std::map<int32_t, UsbPort>::value_type(port.id, port));
     if (!res.second) {
         USB_HILOGW(MODULE_USB_SERVICE, "addPort port id duplicated");

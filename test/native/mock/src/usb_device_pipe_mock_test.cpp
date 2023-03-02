@@ -106,14 +106,21 @@ void UsbDevicePipeMockTest::SetUpTestCase(void)
     EXPECT_EQ(0, ret);
     EXPECT_FALSE(devList.empty()) << "devList NULL";
     device_ = MockUsbImpl::FindDeviceInfo(devList);
+
+    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
+    ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
+    EXPECT_EQ(0, ret);
 }
 
 void UsbDevicePipeMockTest::TearDownTestCase(void)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest TearDownTestCase");
-    USBDeviceInfo info = {ACT_DEVDOWN, BUS_NUM_OK, DEV_ADDR_OK};
     EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = mockUsbImpl_->SubscriberDeviceEvent(info);
+    auto ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
+    EXPECT_EQ(0, ret);
+
+    USBDeviceInfo info = {ACT_DEVDOWN, BUS_NUM_OK, DEV_ADDR_OK};
+    ret = mockUsbImpl_->SubscriberDeviceEvent(info);
     EXPECT_EQ(0, ret);
 
     mockUsbImpl_->UnbindUsbdSubscriber(nullptr);
@@ -142,14 +149,6 @@ HWTEST_F(UsbDevicePipeMockTest, getDevices001, TestSize.Level1)
     EXPECT_EQ(0, ret);
     EXPECT_FALSE(devList.empty()) << "devList NULL";
     UsbDevice device = MockUsbImpl::FindDeviceInfo(devList);
-
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 /**
  * @tc.name: UsbOpenDevice001
@@ -159,743 +158,538 @@ HWTEST_F(UsbDevicePipeMockTest, getDevices001, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbOpenDevice001, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
+    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
+    auto ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
+    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
+    ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead001
+ * @tc.name: UsbControlTransferRead001
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Positive test: parameters correctly
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead001, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead001, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     struct UsbCtrlTransfer ctrlData = {USB_ENDPOINT_DIR_IN, USB_SERVICE_REQ_GET_CONFIGURATION, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(TRANSFER_LEN_SHORT);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead001 ControlTransfer=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead001 ControlTransfer=%{public}d", ret);
     EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead002
+ * @tc.name: UsbControlTransferRead002
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, busNum error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead002, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead002, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     dev_.busNum = BUS_NUM_INVALID;
     struct UsbCtrlTransfer ctrlData = {USB_ENDPOINT_DIR_IN, USB_SERVICE_REQ_GET_CONFIGURATION, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(TRANSFER_LEN_SHORT);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead002 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead002 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead003
+ * @tc.name: UsbControlTransferRead003
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, devAddr error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead003, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead003, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     dev_.devAddr = DEV_ADDR_INVALID;
     struct UsbCtrlTransfer ctrlData = {USB_ENDPOINT_DIR_IN, USB_SERVICE_REQ_GET_CONFIGURATION, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(TRANSFER_LEN_SHORT);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead003 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead003 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
     dev_.devAddr = DEV_ADDR_OK;
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead004
+ * @tc.name: UsbControlTransferRead004
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Positive test: parameters correctly
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead004, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead004, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     struct UsbCtrlTransfer ctrlData = {
         USB_ENDPOINT_DIR_IN, USB_SERVICE_REQ_GET_DESCRIPTOR, CTL_VALUE, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(TRANSFER_LEN_SHORT);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead004 ControlTransfer=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead004 ControlTransfer=%{public}d", ret);
     EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead005
+ * @tc.name: UsbControlTransferRead005
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, busNum error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead005, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead005, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     dev_.busNum = BUS_NUM_INVALID;
     struct UsbCtrlTransfer ctrlData = {
         USB_ENDPOINT_DIR_IN, USB_SERVICE_REQ_GET_DESCRIPTOR, CTL_VALUE, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(TRANSFER_LEN_SHORT);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead005 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead005 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead006
+ * @tc.name: UsbControlTransferRead006
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, devAddr error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead006, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead006, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     dev_.devAddr = DEV_ADDR_INVALID;
     struct UsbCtrlTransfer ctrlData = {
         USB_ENDPOINT_DIR_IN, USB_SERVICE_REQ_GET_DESCRIPTOR, CTL_VALUE, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(TRANSFER_LEN_SHORT);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead006 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead006 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead007
+ * @tc.name: UsbControlTransferRead007
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Positive test: parameters correctly
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead007, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead007, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     struct UsbCtrlTransfer ctrlData = {
         USB_ENDPOINT_DIR_IN | USB_REQUEST_TARGET_INTERFACE, USB_SERVICE_REQ_GET_INTERFACE, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead007 ControlTransfer=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead007 ControlTransfer=%{public}d", ret);
     EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead008
+ * @tc.name: UsbControlTransferRead008
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, busNum error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead008, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead008, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     dev_.busNum = BUS_NUM_INVALID;
     struct UsbCtrlTransfer ctrlData = {
         USB_ENDPOINT_DIR_IN | USB_REQUEST_TARGET_INTERFACE, USB_SERVICE_REQ_GET_INTERFACE, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead008 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead008 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead009
+ * @tc.name: UsbControlTransferRead009
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, devAddr error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead009, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead009, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     dev_.devAddr = DEV_ADDR_INVALID;
     struct UsbCtrlTransfer ctrlData = {
         USB_ENDPOINT_DIR_IN | USB_REQUEST_TARGET_INTERFACE, USB_SERVICE_REQ_GET_INTERFACE, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead009 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead009 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead010
+ * @tc.name: UsbControlTransferRead010
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Positive test: parameters correctly
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead010, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead010, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     struct UsbCtrlTransfer ctrlData = {USB_ENDPOINT_DIR_IN, USB_SERVICE_REQ_GET_STATUS, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead010 ControlTransfer=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead010 ControlTransfer=%{public}d", ret);
     EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead011
+ * @tc.name: UsbControlTransferRead011
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, busNum error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead011, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead011, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     dev_.busNum = BUS_NUM_INVALID;
     struct UsbCtrlTransfer ctrlData = {USB_ENDPOINT_DIR_IN, USB_SERVICE_REQ_GET_STATUS, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead011 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead011 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead012
+ * @tc.name: UsbControlTransferRead012
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, devAddr error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead012, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead012, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     dev_.devAddr = DEV_ADDR_INVALID;
     struct UsbCtrlTransfer ctrlData = {USB_ENDPOINT_DIR_IN, USB_SERVICE_REQ_GET_STATUS, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead012 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead012 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead0013
+ * @tc.name: UsbControlTransferRead0013
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Positive test: parameters correctly
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead0013, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead0013, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     struct UsbCtrlTransfer ctrlData = {
         USB_ENDPOINT_DIR_IN | USB_REQUEST_TARGET_INTERFACE, USB_SERVICE_REQ_GET_STATUS, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead0013 ControlTransfer=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead0013 ControlTransfer=%{public}d", ret);
     EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead0014
+ * @tc.name: UsbControlTransferRead0014
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, busNum error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead0014, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead0014, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     dev_.busNum = BUS_NUM_INVALID;
     struct UsbCtrlTransfer ctrlData = {
         USB_ENDPOINT_DIR_IN | USB_REQUEST_TARGET_INTERFACE, USB_SERVICE_REQ_GET_STATUS, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead0014 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead0014 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead0015
+ * @tc.name: UsbControlTransferRead0015
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, devAddr error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead0015, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead0015, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     dev_.devAddr = DEV_ADDR_INVALID;
     struct UsbCtrlTransfer ctrlData = {
         USB_ENDPOINT_DIR_IN | USB_REQUEST_TARGET_INTERFACE, USB_SERVICE_REQ_GET_STATUS, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead0015 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead0015 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead016
+ * @tc.name: UsbControlTransferRead016
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Positive test: parameters correctly
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead016, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead016, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     struct UsbCtrlTransfer ctrlData = {
         USB_ENDPOINT_DIR_IN | USB_REQUEST_TARGET_ENDPOINT, USB_SERVICE_REQ_GET_STATUS, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(TRANSFER_LEN_LONG);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead016 ControlTransfer=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead016 ControlTransfer=%{public}d", ret);
     EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead017
+ * @tc.name: UsbControlTransferRead017
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, busNum error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead017, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead017, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     dev_.busNum = BUS_NUM_INVALID;
     struct UsbCtrlTransfer ctrlData = {
         USB_ENDPOINT_DIR_IN | USB_REQUEST_TARGET_ENDPOINT, USB_SERVICE_REQ_GET_STATUS, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(TRANSFER_LEN_LONG);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead017 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead017 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead018
+ * @tc.name: UsbControlTransferRead018
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, devAddr error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead018, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead018, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     dev_.devAddr = DEV_ADDR_INVALID;
     struct UsbCtrlTransfer ctrlData = {
         USB_ENDPOINT_DIR_IN | USB_REQUEST_TARGET_ENDPOINT, USB_SERVICE_REQ_GET_STATUS, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(TRANSFER_LEN_LONG);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead018 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead018 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead019
+ * @tc.name: UsbControlTransferRead019
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Positive test: parameters correctly
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead019, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead019, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     struct UsbCtrlTransfer ctrlData = {
         USB_ENDPOINT_DIR_IN | USB_REQUEST_TARGET_ENDPOINT, USB_SERVICE_REQ_SYNCH_FRAME, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead019 ControlTransfer=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead019 ControlTransfer=%{public}d", ret);
     EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead020
+ * @tc.name: UsbControlTransferRead020
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, busNum error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead020, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead020, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     dev_.busNum = BUS_NUM_INVALID;
     struct UsbCtrlTransfer ctrlData = {
         USB_ENDPOINT_DIR_IN | USB_REQUEST_TARGET_ENDPOINT, USB_SERVICE_REQ_SYNCH_FRAME, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead020 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead020 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferRead021
+ * @tc.name: UsbControlTransferRead021
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, devAddr error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferRead021, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferRead021, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     dev_.devAddr = DEV_ADDR_INVALID;
     struct UsbCtrlTransfer ctrlData = {
         USB_ENDPOINT_DIR_IN | USB_REQUEST_TARGET_ENDPOINT, USB_SERVICE_REQ_SYNCH_FRAME, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferRead(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferRead021 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferRead021 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::ret=%{public}d", ret);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferWrite001
+ * @tc.name: UsbControlTransferWrite001
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Positive test: parameters correctly
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferWrite001, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferWrite001, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     struct UsbCtrlTransfer ctrlData = {USB_ENDPOINT_DIR_OUT | USB_SERVICE_TYPE_CLASS | USB_REQUEST_TARGET_INTERFACE,
         USB_SERVICE_CDC_REQ_SET_LINE_CODING, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferWrite(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferWrite001 ControlTransfer=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::ret=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferWrite001 ControlTransfer=%{public}d", ret);
     EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferWrite002
+ * @tc.name: UsbControlTransferWrite002
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, busNum error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferWrite002, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferWrite002, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     struct UsbCtrlTransfer ctrlData = {USB_ENDPOINT_DIR_OUT | USB_SERVICE_TYPE_CLASS | USB_REQUEST_TARGET_INTERFACE,
         USB_SERVICE_CDC_REQ_SET_LINE_CODING, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     dev_.busNum = BUS_NUM_INVALID;
     EXPECT_CALL(*mockUsbImpl_, ControlTransferWrite(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferWrite002 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferWrite002 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::ret=%{public}d", ret);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferWrite003
+ * @tc.name: UsbControlTransferWrite003
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, devAddr error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferWrite003, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferWrite003, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     struct UsbCtrlTransfer ctrlData = {USB_ENDPOINT_DIR_OUT | USB_SERVICE_TYPE_CLASS | USB_REQUEST_TARGET_INTERFACE,
         USB_SERVICE_CDC_REQ_SET_LINE_CODING, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferWrite(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
     dev_.devAddr = DEV_ADDR_INVALID;
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferWrite003 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferWrite003 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::ret=%{public}d", ret);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferWrite004
+ * @tc.name: UsbControlTransferWrite004
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Positive test: parameters correctly
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferWrite004, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferWrite004, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     struct UsbCtrlTransfer ctrlData = {USB_ENDPOINT_DIR_OUT | USB_SERVICE_TYPE_CLASS | USB_REQUEST_TARGET_INTERFACE,
         USB_SERVICE_CDC_REQ_SET_CONTROL_LINE_STATE, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferWrite(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferWrite002 ControlTransfer=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::ret=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferWrite002 ControlTransfer=%{public}d", ret);
     EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferWrite005
+ * @tc.name: UsbControlTransferWrite005
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, busNum error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferWrite005, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferWrite005, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     struct UsbCtrlTransfer ctrlData = {USB_ENDPOINT_DIR_OUT | USB_SERVICE_TYPE_CLASS | USB_REQUEST_TARGET_INTERFACE,
         USB_SERVICE_CDC_REQ_SET_CONTROL_LINE_STATE, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     EXPECT_CALL(*mockUsbImpl_, ControlTransferWrite(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
     dev_.busNum = BUS_NUM_INVALID;
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferWrite006 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferWrite006 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::ret=%{public}d", ret);
-    EXPECT_EQ(0, ret);
 }
 
 /**
- * @tc.name: UsbcontrolstansferWrite006
+ * @tc.name: UsbControlTransferWrite006
  * @tc.desc: Test functions to ControlTransfer
  * @tc.desc: Negative test: parameters exception, devAddr error
  * @tc.type: FUNC
  */
-HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferWrite006, TestSize.Level1)
+HWTEST_F(UsbDevicePipeMockTest, UsbControlTransferWrite006, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     struct UsbCtrlTransfer ctrlData = {USB_ENDPOINT_DIR_OUT | USB_SERVICE_TYPE_CLASS | USB_REQUEST_TARGET_INTERFACE,
         USB_SERVICE_CDC_REQ_SET_CONTROL_LINE_STATE, 0, 0, TRANSFER_TIME_OUT};
     std::vector<uint8_t> ctrlBuffer(BUFFER_SIZE);
     dev_.devAddr = DEV_ADDR_INVALID;
     EXPECT_CALL(*mockUsbImpl_, ControlTransferWrite(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbcontrolstansferWrite006 ControlTransfer=%{public}d", ret);
+    auto ret = usbSrv_->ControlTransfer(dev_, ctrlData, ctrlBuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbControlTransferWrite006 ControlTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::ret=%{public}d", ret);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -906,19 +700,11 @@ HWTEST_F(UsbDevicePipeMockTest, UsbcontrolstansferWrite006, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbClaimInterface001, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().front();
     uint8_t interfaceId = interface.GetId();
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbClaimInterface001 ClaimInterface=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 }
 
@@ -930,19 +716,11 @@ HWTEST_F(UsbDevicePipeMockTest, UsbClaimInterface001, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbClaimInterface002, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().front();
     uint8_t interfaceId = interface.GetId();
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, false);
-    EXPECT_EQ(0, ret);
-
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, false);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbClaimInterface002 ClaimInterface=%{public}d", ret);
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 }
 
@@ -954,18 +732,11 @@ HWTEST_F(UsbDevicePipeMockTest, UsbClaimInterface002, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbClaimInterface003, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbClaimInterface003 ClaimInterface=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 }
 
@@ -977,19 +748,11 @@ HWTEST_F(UsbDevicePipeMockTest, UsbClaimInterface003, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbClaimInterface004, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, false);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, false);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbClaimInterface004 ClaimInterface=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 }
 
@@ -1001,23 +764,16 @@ HWTEST_F(UsbDevicePipeMockTest, UsbClaimInterface004, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbClaimInterface005, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().front();
     uint8_t interfaceId = interface.GetId();
     dev_.busNum = BUS_NUM_INVALID;
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbClaimInterface005 ClaimInterface=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -1028,22 +784,15 @@ HWTEST_F(UsbDevicePipeMockTest, UsbClaimInterface005, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbClaimInterface006, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().front();
     uint8_t interfaceId = interface.GetId();
     dev_.devAddr = DEV_ADDR_INVALID;
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbClaimInterface006 ClaimInterface=%{public}d", ret);
     EXPECT_NE(ret, 0);
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -1054,23 +803,16 @@ HWTEST_F(UsbDevicePipeMockTest, UsbClaimInterface006, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbClaimInterface007, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
     dev_.busNum = BUS_NUM_INVALID;
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbClaimInterface007 ClaimInterface=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -1081,23 +823,16 @@ HWTEST_F(UsbDevicePipeMockTest, UsbClaimInterface007, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbClaimInterface008, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
     dev_.devAddr = DEV_ADDR_INVALID;
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbClaimInterface008 ClaimInterface=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -1108,19 +843,11 @@ HWTEST_F(UsbDevicePipeMockTest, UsbClaimInterface008, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbReleaseInterface001, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(0);
     uint8_t interfaceId = interface.GetId();
     EXPECT_CALL(*mockUsbImpl_, ReleaseInterface(testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ReleaseInterface(dev_.busNum, dev_.devAddr, interfaceId);
+    auto ret = usbSrv_->ReleaseInterface(dev_.busNum, dev_.devAddr, interfaceId);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbReleaseInterface001 ReleaseInterface=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 }
 
@@ -1132,22 +859,15 @@ HWTEST_F(UsbDevicePipeMockTest, UsbReleaseInterface001, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbReleaseInterface002, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(0);
     uint8_t interfaceId = interface.GetId();
     dev_.busNum = BUS_NUM_INVALID;
     EXPECT_CALL(*mockUsbImpl_, ReleaseInterface(testing::_, testing::_)).WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ReleaseInterface(dev_.busNum, dev_.devAddr, interfaceId);
+    auto ret = usbSrv_->ReleaseInterface(dev_.busNum, dev_.devAddr, interfaceId);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbReleaseInterface002 ReleaseInterface=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -1158,22 +878,15 @@ HWTEST_F(UsbDevicePipeMockTest, UsbReleaseInterface002, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbReleaseInterface003, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(0);
     uint8_t interfaceId = interface.GetId();
     dev_.devAddr = DEV_ADDR_INVALID;
     EXPECT_CALL(*mockUsbImpl_, ReleaseInterface(testing::_, testing::_)).WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ReleaseInterface(dev_.busNum, dev_.devAddr, interfaceId);
+    auto ret = usbSrv_->ReleaseInterface(dev_.busNum, dev_.devAddr, interfaceId);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbReleaseInterface003 ReleaseInterface=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -1184,23 +897,15 @@ HWTEST_F(UsbDevicePipeMockTest, UsbReleaseInterface003, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbReleaseInterface004, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     EXPECT_EQ(0, ret);
 
     EXPECT_CALL(*mockUsbImpl_, ReleaseInterface(testing::_, testing::_)).WillRepeatedly(Return(0));
     ret = usbSrv_->ReleaseInterface(dev_.busNum, dev_.devAddr, interfaceId);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbReleaseInterface004 ReleaseInterface=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 }
 
@@ -1212,22 +917,15 @@ HWTEST_F(UsbDevicePipeMockTest, UsbReleaseInterface004, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbReleaseInterface005, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
     dev_.busNum = BUS_NUM_INVALID;
     EXPECT_CALL(*mockUsbImpl_, ReleaseInterface(testing::_, testing::_)).WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ReleaseInterface(dev_.busNum, dev_.devAddr, interfaceId);
+    auto ret = usbSrv_->ReleaseInterface(dev_.busNum, dev_.devAddr, interfaceId);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbReleaseInterface005 ReleaseInterface=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -1238,22 +936,15 @@ HWTEST_F(UsbDevicePipeMockTest, UsbReleaseInterface005, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbReleaseInterface006, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
     dev_.devAddr = DEV_ADDR_INVALID;
     EXPECT_CALL(*mockUsbImpl_, ReleaseInterface(testing::_, testing::_)).WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->ReleaseInterface(dev_.busNum, dev_.devAddr, interfaceId);
+    auto ret = usbSrv_->ReleaseInterface(dev_.busNum, dev_.devAddr, interfaceId);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbReleaseInterface006 ReleaseInterface=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -1265,14 +956,10 @@ HWTEST_F(UsbDevicePipeMockTest, UsbReleaseInterface006, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer001, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     EXPECT_EQ(0, ret);
 
     USBEndpoint point = interface.GetEndpoints().front();
@@ -1282,10 +969,6 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer001, TestSize.Level1)
         .WillRepeatedly(Return(0));
     ret = usbSrv_->BulkTransferRead(dev_, pipe, bulkBuffer, TRANSFER_TIME_OUT);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbBulkTransfer001 BulkTransfer=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 }
 
@@ -1298,15 +981,11 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer001, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer002, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
 
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     EXPECT_EQ(0, ret);
 
     std::vector<uint8_t> bulkBuffer = {'b', 'u', 'l', 'k', ' ', 'r', 'e', 'a', 'd', '0', '0', '2'};
@@ -1316,10 +995,6 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer002, TestSize.Level1)
         .WillRepeatedly(Return(0));
     ret = usbSrv_->BulkTransferRead(dev_, pipe, bulkBuffer, TRANSFER_TIME);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbBulkTransfer002 BulkTransfer=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 }
 
@@ -1332,14 +1007,10 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer002, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer003, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     EXPECT_EQ(0, ret);
 
     dev_.busNum = BUS_NUM_INVALID;
@@ -1353,10 +1024,6 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer003, TestSize.Level1)
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbBulkTransfer003 ret=%{public}d", ret);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -1368,14 +1035,10 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer003, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer004, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     EXPECT_EQ(0, ret);
 
     dev_.devAddr = DEV_ADDR_INVALID;
@@ -1389,9 +1052,6 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer004, TestSize.Level1)
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -1403,14 +1063,10 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer004, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer005, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     EXPECT_EQ(0, ret);
 
     USBEndpoint point = interface.GetEndpoints().front();
@@ -1422,10 +1078,6 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer005, TestSize.Level1)
     ret = usbSrv_->BulkTransferRead(dev_, pipe, bulkBuffer, TRANSFER_TIME_OUT);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbBulkTransfer005 BulkTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -1437,14 +1089,10 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer005, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer006, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     EXPECT_EQ(0, ret);
 
     USBEndpoint point = interface.GetEndpoints().front();
@@ -1456,10 +1104,6 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer006, TestSize.Level1)
     ret = usbSrv_->BulkTransferRead(dev_, pipe, bulkBuffer, TRANSFER_TIME_OUT);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbBulkTransfer006 BulkTransfer=%{public}d", ret);
     EXPECT_NE(ret, 0);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -1471,14 +1115,10 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer006, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer007, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     EXPECT_EQ(0, ret);
 
     USBEndpoint point = interface.GetEndpoints().at(1);
@@ -1488,10 +1128,6 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer007, TestSize.Level1)
         .WillRepeatedly(Return(0));
     ret = usbSrv_->BulkTransferWrite(dev_, pipe, bulkBuffer, TRANSFER_TIME_OUT);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbBulkTransfer007 BulkTransfer=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 }
 
@@ -1504,14 +1140,10 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer007, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer008, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     EXPECT_EQ(0, ret);
 
     dev_.devAddr = DEV_ADDR_INVALID;
@@ -1525,9 +1157,6 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer008, TestSize.Level1)
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -1539,14 +1168,10 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer008, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer009, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     EXPECT_EQ(0, ret);
 
     dev_.busNum = BUS_NUM_INVALID;
@@ -1560,9 +1185,6 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer009, TestSize.Level1)
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -1574,14 +1196,10 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer009, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer010, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(1);
     uint8_t interfaceId = interface.GetId();
     EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
     EXPECT_EQ(0, ret);
 
     USBEndpoint point = interface.GetEndpoints().at(1);
@@ -1591,10 +1209,6 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer010, TestSize.Level1)
         .WillRepeatedly(Return(0));
     ret = usbSrv_->BulkTransferWrite(dev_, pipe, bulkBuffer, TRANSFER_TIME);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::UsbBulkTransfer010 BulkTransfer=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 }
 
@@ -1606,20 +1220,11 @@ HWTEST_F(UsbDevicePipeMockTest, UsbBulkTransfer010, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, SetConfiguration001, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     USBConfig config = device_.GetConfigs().front();
     uint8_t configIndex = config.GetiConfiguration();
     EXPECT_CALL(*mockUsbImpl_, SetConfig(testing::_, testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->SetActiveConfig(dev_.busNum, dev_.devAddr, configIndex);
+    auto ret = usbSrv_->SetActiveConfig(dev_.busNum, dev_.devAddr, configIndex);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::SetConfiguration001 SetConfiguration=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::SetConfiguration001 ret=%{public}d", ret);
     EXPECT_EQ(0, ret);
 }
 
@@ -1631,22 +1236,15 @@ HWTEST_F(UsbDevicePipeMockTest, SetConfiguration001, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, SetConfiguration002, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     USBConfig config = device_.GetConfigs().front();
     uint8_t configIndex = config.GetiConfiguration();
     dev_.busNum = BUS_NUM_INVALID;
     EXPECT_CALL(*mockUsbImpl_, SetConfig(testing::_, testing::_)).WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->SetActiveConfig(dev_.busNum, dev_.devAddr, configIndex);
+    auto ret = usbSrv_->SetActiveConfig(dev_.busNum, dev_.devAddr, configIndex);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::SetConfiguration002 ret=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -1657,22 +1255,15 @@ HWTEST_F(UsbDevicePipeMockTest, SetConfiguration002, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, SetConfiguration003, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     USBConfig config = device_.GetConfigs().front();
     uint8_t configIndex = config.GetiConfiguration();
     dev_.devAddr = DEV_ADDR_INVALID;
     EXPECT_CALL(*mockUsbImpl_, SetConfig(testing::_, testing::_)).WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->SetActiveConfig(dev_.busNum, dev_.devAddr, configIndex);
+    auto ret = usbSrv_->SetActiveConfig(dev_.busNum, dev_.devAddr, configIndex);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::SetConfiguration003 SetConfiguration=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -1683,13 +1274,13 @@ HWTEST_F(UsbDevicePipeMockTest, SetConfiguration003, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, Close001, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
+    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
+    auto ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::Close001 close=%{public}d", ret);
     EXPECT_EQ(0, ret);
 
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::Close001 close=%{public}d", ret);
+    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
+    ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 }
 
@@ -1701,19 +1292,15 @@ HWTEST_F(UsbDevicePipeMockTest, Close001, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, Close002, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     dev_.busNum = BUS_NUM_INVALID;
     EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
+    auto ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::Close002 close=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
+    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
+    ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 }
 
@@ -1725,20 +1312,266 @@ HWTEST_F(UsbDevicePipeMockTest, Close002, TestSize.Level1)
  */
 HWTEST_F(UsbDevicePipeMockTest, Close003, TestSize.Level1)
 {
-    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
-
     dev_.devAddr = DEV_ADDR_INVALID;
     EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(RETVAL_INVALID));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
+    auto ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::Close003 ret=%{public}d", ret);
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
+    EXPECT_CALL(*mockUsbImpl_, OpenDevice(testing::_)).WillRepeatedly(Return(0));
+    ret = usbSrv_->OpenDevice(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
+}
+
+/**
+ * @tc.name: SetInterface001
+ * @tc.desc: Test functions to SetInterface(const UsbInterface &interface);
+ * @tc.desc: Positive test: parameters correctly
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeMockTest, SetInterface001, TestSize.Level1)
+{
+    UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(0);
+    uint8_t interfaceId = interface.GetId();
+    EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    EXPECT_EQ(0, ret);
+
+    uint8_t altIndex = interface.GetAlternateSetting();
+    EXPECT_CALL(*mockUsbImpl_, SetInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
+    ret = usbSrv_->SetInterface(dev_.busNum, dev_.devAddr, interfaceId, altIndex);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::SetInterface001 SetInterface=%{public}d", ret);
+    EXPECT_EQ(0, ret);
+}
+
+/**
+ * @tc.name: SetInterface002
+ * @tc.desc: Test functions to SetInterface(const UsbInterface &interface);
+ * @tc.desc: Negative test: parameters exception, busNum error
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeMockTest, SetInterface002, TestSize.Level1)
+{
+    UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(0);
+    uint8_t interfaceId = interface.GetId();
+    EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    EXPECT_EQ(0, ret);
+
+    dev_.busNum = BUS_NUM_INVALID;
+    uint8_t altIndex = interface.GetAlternateSetting();
+    EXPECT_CALL(*mockUsbImpl_, SetInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(RETVAL_INVALID));
+    ret = usbSrv_->SetInterface(dev_.busNum, dev_.devAddr, interfaceId, altIndex);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::SetInterface002 SetInterface=%{public}d", ret);
+    EXPECT_NE(ret, 0);
+
+    dev_.busNum = BUS_NUM_OK;
+}
+
+/**
+ * @tc.name: SetInterface003
+ * @tc.desc: Test functions to SetInterface(const UsbInterface &interface);
+ * @tc.desc: Negative test: parameters exception, devAddr error
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeMockTest, SetInterface003, TestSize.Level1)
+{
+    UsbInterface interface = device_.GetConfigs().front().GetInterfaces().at(0);
+    uint8_t interfaceId = interface.GetId();
+    EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    EXPECT_EQ(0, ret);
+
+    dev_.devAddr = DEV_ADDR_INVALID;
+    uint8_t altIndex = interface.GetAlternateSetting();
+    EXPECT_CALL(*mockUsbImpl_, SetInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(RETVAL_INVALID));
+    ret = usbSrv_->SetInterface(dev_.busNum, dev_.devAddr, interfaceId, altIndex);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::SetInterface003 SetInterface=%{public}d", ret);
+    EXPECT_NE(ret, 0);
+
+    dev_.devAddr = DEV_ADDR_OK;
+}
+
+/**
+ * @tc.name: SetInterface004
+ * @tc.desc: Test functions to  SetInterface(const UsbInterface &interface);
+ * @tc.desc: Positive test: parameters correctly
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeMockTest, SetInterface004, TestSize.Level1)
+{
+    UsbInterface interface = device_.GetConfigs().at(0).GetInterfaces().at(1);
+    uint8_t interfaceId = interface.GetId();
+    EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    EXPECT_EQ(0, ret);
+
+    uint8_t altIndex = interface.GetAlternateSetting();
+    EXPECT_CALL(*mockUsbImpl_, SetInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
+    ret = usbSrv_->SetInterface(dev_.busNum, dev_.devAddr, interfaceId, altIndex);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::SetInterface004 SetInterface=%{public}d", ret);
+    EXPECT_EQ(0, ret);
+}
+
+/**
+ * @tc.name: SetInterface005
+ * @tc.desc: Test functions to  SetInterface(const UsbInterface &interface);
+ * @tc.desc: Negative test: parameters exception, busNum error
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeMockTest, SetInterface005, TestSize.Level1)
+{
+    UsbInterface interface = device_.GetConfigs().at(0).GetInterfaces().at(1);
+    uint8_t interfaceId = interface.GetId();
+
+    EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    EXPECT_EQ(0, ret);
+
+    dev_.busNum = BUS_NUM_INVALID;
+    uint8_t altIndex = interface.GetAlternateSetting();
+    EXPECT_CALL(*mockUsbImpl_, SetInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(RETVAL_INVALID));
+    ret = usbSrv_->SetInterface(dev_.busNum, dev_.devAddr, interfaceId, altIndex);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::SetInterface005 SetInterface=%{public}d", ret);
+    EXPECT_NE(ret, 0);
+
+    dev_.busNum = BUS_NUM_OK;
+}
+
+/**
+ * @tc.name: SetInterface006
+ * @tc.desc: Test functions to  SetInterface(const UsbInterface &interface);
+ * @tc.desc: Negative test: parameters exception, devAddr error
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeMockTest, SetInterface006, TestSize.Level1)
+{
+    UsbInterface interface = device_.GetConfigs().at(0).GetInterfaces().at(1);
+    uint8_t interfaceId = interface.GetId();
+    EXPECT_CALL(*mockUsbImpl_, ClaimInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
+    auto ret = usbSrv_->ClaimInterface(dev_.busNum, dev_.devAddr, interfaceId, true);
+    EXPECT_EQ(0, ret);
+
+    dev_.devAddr = DEV_ADDR_INVALID;
+    uint8_t altIndex = interface.GetAlternateSetting();
+    EXPECT_CALL(*mockUsbImpl_, SetInterface(testing::_, testing::_, testing::_)).WillRepeatedly(Return(RETVAL_INVALID));
+    ret = usbSrv_->SetInterface(dev_.busNum, dev_.devAddr, interfaceId, altIndex);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::SetInterface006 SetInterface=%{public}d", ret);
+    EXPECT_NE(ret, 0);
+
+    dev_.devAddr = DEV_ADDR_OK;
+}
+
+/**
+ * @tc.name: GetRawDescriptors001
+ * @tc.desc: Test functions to GetRawDescriptors
+ * @tc.desc: Positive test: parameters correctly
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeMockTest, GetRawDescriptors001, TestSize.Level1)
+{
+    std::vector<uint8_t> buffer;
+    auto ret = usbSrv_->GetRawDescriptor(dev_.busNum, dev_.devAddr, buffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::GetRawDescriptors001 GetRawDescriptors=%{public}d", ret);
+    EXPECT_EQ(0, ret);
+}
+
+/**
+ * @tc.name: GetRawDescriptors002
+ * @tc.desc: Test functions to GetRawDescriptors
+ * @tc.desc: Negative test: parameters exception, busNum error
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeMockTest, GetRawDescriptors002, TestSize.Level1)
+{
+    std::vector<uint8_t> buffer;
+    dev_.busNum = BUS_NUM_INVALID;
+    auto ret = usbSrv_->GetRawDescriptor(dev_.busNum, dev_.devAddr, buffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::GetRawDescriptors002 GetRawDescriptors=%{public}d", ret);
+    EXPECT_NE(ret, 0);
+
+    dev_.busNum = BUS_NUM_OK;
+}
+
+/**
+ * @tc.name: GetRawDescriptors003
+ * @tc.desc: Test functions to GetRawDescriptors
+ * @tc.desc: Negative test: parameters exception, devAddr error
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeMockTest, GetRawDescriptors003, TestSize.Level1)
+{
+    std::vector<uint8_t> buffer;
+    dev_.devAddr = DEV_ADDR_INVALID;
+    auto ret = usbSrv_->GetRawDescriptor(dev_.busNum, dev_.devAddr, buffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::GetRawDescriptors003 GetRawDescriptors=%{public}d", ret);
+    EXPECT_NE(ret, 0);
+
+    dev_.devAddr = DEV_ADDR_OK;
+}
+
+/**
+ * @tc.name: GetFileDescriptors001
+ * @tc.desc: Test functions to GetRawDescriptors
+ * @tc.desc: Positive test: parameters correctly
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeMockTest, GetFileDescriptors001, TestSize.Level1)
+{
+    std::vector<uint8_t> buffer;
+    auto ret = usbSrv_->GetRawDescriptor(dev_.busNum, dev_.devAddr, buffer);
+    EXPECT_EQ(0, ret);
+
+    int32_t fd = 0;
+    EXPECT_CALL(*mockUsbImpl_, GetFileDescriptor(testing::_, testing::_)).WillRepeatedly(Return(0));
+    ret = usbSrv_->GetFileDescriptor(dev_.busNum, dev_.devAddr, fd);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::GetFileDescriptors001 GetFileDescriptor=%{public}d", ret);
+    EXPECT_EQ(0, ret);
+}
+
+/**
+ * @tc.name: GetFileDescriptors002
+ * @tc.desc: Test functions to GetRawDescriptors
+ * @tc.desc: Negative test: parameters exception, busNum error
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeMockTest, GetFileDescriptors002, TestSize.Level1)
+{
+    std::vector<uint8_t> buffer;
+    auto ret = usbSrv_->GetRawDescriptor(dev_.busNum, dev_.devAddr, buffer);
+    EXPECT_EQ(0, ret);
+
+    dev_.busNum = BUS_NUM_INVALID;
+    int32_t fd = 0;
+    EXPECT_CALL(*mockUsbImpl_, GetFileDescriptor(testing::_, testing::_)).WillRepeatedly(Return(RETVAL_INVALID));
+    ret = usbSrv_->GetFileDescriptor(dev_.busNum, dev_.devAddr, fd);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::GetFileDescriptors002 GetFileDescriptor=%{public}d", ret);
+    EXPECT_NE(ret, 0);
+
+    dev_.busNum = BUS_NUM_OK;
+}
+
+/**
+ * @tc.name: GetFileDescriptors003
+ * @tc.desc: Test functions to GetRawDescriptors
+ * @tc.desc: Negative test: parameters exception, devAddr error
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeMockTest, GetFileDescriptors003, TestSize.Level1)
+{
+    std::vector<uint8_t> buffer;
+    auto ret = usbSrv_->GetRawDescriptor(dev_.busNum, dev_.devAddr, buffer);
+    EXPECT_EQ(0, ret);
+
+    dev_.devAddr = DEV_ADDR_INVALID;
+    int32_t fd = 0;
+    EXPECT_CALL(*mockUsbImpl_, GetFileDescriptor(testing::_, testing::_)).WillRepeatedly(Return(RETVAL_INVALID));
+    ret = usbSrv_->GetFileDescriptor(dev_.busNum, dev_.devAddr, fd);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeMockTest::GetFileDescriptors003 GetFileDescriptor=%{public}d", ret);
+    EXPECT_NE(ret, 0);
+
+    dev_.devAddr = DEV_ADDR_OK;
 }
 } // namespace USB
 } // namespace OHOS
