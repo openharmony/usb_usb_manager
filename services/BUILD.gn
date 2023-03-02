@@ -35,6 +35,7 @@ ohos_shared_library("usbservice") {
     "${usb_manager_path}/services/zidl/src/usb_srv_stub.cpp",
     "native/src/usb_descriptor_parser.cpp",
     "native/src/usb_device_manager.cpp",
+    "native/src/usb_function_switch_window.cpp",
     "native/src/usb_host_manager.cpp",
     "native/src/usb_port_manager.cpp",
     "native/src/usb_right_database.cpp",

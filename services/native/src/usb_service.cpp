@@ -153,7 +153,7 @@ void UsbService::OnStart()
     }
 
     usbPortManager_->Init();
-
+    (void)usbDeviceManager_->Init();
     (void)usbRightManager_->Init();
     ready_ = true;
     auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();

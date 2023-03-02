@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+<!-- Copyright (c) 2021-2023 Huawei Device Co., Ltd.
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
      You may obtain a copy of the License at
@@ -100,6 +100,9 @@ Note:If the text contains special characters, please escape them according to th
                 <filteritem type="filepath" name="frameworks/dialog/dialog_ui/signature/am.p7b" desc="signature file"/>
                 <filteritem type="filepath" name="frameworks/dialog/dialog_ui/AppScope/resources/base/media/app_icon.png" desc="app icon"/>
                 <filteritem type="filepath" name="frameworks/dialog/dialog_ui/usb_right_dialog/src/main/resources/base/media/icon.png" desc="icon"/>
+                <filteritem type="filepath" name="frameworks/dialog/functionswitch_ui/signature/com.ohos.functionswitchdialog.p7b" desc="signature file"/>
+                <filteritem type="filepath" name="frameworks/dialog/functionswitch_ui/usb_function_dialog/src/main/resources/base/media/app_icon.png" desc="app icon"/>
+                <filteritem type="filepath" name="frameworks/dialog/functionswitch_ui/usb_function_dialog/src/main/resources/base/media/icon.png" desc="icon"/>
             </filefilter>
         </filefilterlist>
     </oatconfig>
