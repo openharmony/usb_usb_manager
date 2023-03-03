@@ -103,7 +103,6 @@ void UsbCoreMockTest::TearDownTestCase(void)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreMockTest TearDownTestCase");
     USBDeviceInfo info = {ACT_DOWNDEVICE, BUS_NUM_OK, DEV_ADDR_OK};
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
     auto ret = mockUsbImpl_->SubscriberDeviceEvent(info);
     EXPECT_EQ(0, ret);
 

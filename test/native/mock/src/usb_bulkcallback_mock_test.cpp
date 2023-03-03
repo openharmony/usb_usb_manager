@@ -129,9 +129,12 @@ void UsbBulkcallbackMockTest::SetUpTestCase(void)
 void UsbBulkcallbackMockTest::TearDownTestCase(void)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackMockTest TearDownTestCase");
-    USBDeviceInfo info = {ACT_DEVDOWN, BUS_NUM_OK, DEV_ADDR_OK};
     EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    auto ret = mockUsbImpl_->SubscriberDeviceEvent(info);
+    auto ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
+    EXPECT_EQ(0, ret);
+
+    USBDeviceInfo info = {ACT_DEVDOWN, BUS_NUM_OK, DEV_ADDR_OK};
+    ret = mockUsbImpl_->SubscriberDeviceEvent(info);
     EXPECT_EQ(0, ret);
 
     mockUsbImpl_->UnbindUsbdSubscriber(nullptr);
@@ -158,6 +161,7 @@ void UsbBulkcallbackMockTest::TearDown(void) {}
 HWTEST_F(UsbBulkcallbackMockTest, RegBulkCallback001, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().front();
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     EXPECT_CALL(*mockUsbImpl_, RegBulkCallback(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
@@ -167,10 +171,6 @@ HWTEST_F(UsbBulkcallbackMockTest, RegBulkCallback001, TestSize.Level1)
 
     EXPECT_CALL(*mockUsbImpl_, UnRegBulkCallback(testing::_, testing::_)).WillRepeatedly(Return(0));
     ret = usbSrv_->UnRegBulkCallback(dev_, pipe);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 }
 
@@ -184,6 +184,7 @@ HWTEST_F(UsbBulkcallbackMockTest, RegBulkCallback001, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, RegBulkCallback002, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().at(1);
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     EXPECT_CALL(*mockUsbImpl_, RegBulkCallback(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
@@ -193,10 +194,6 @@ HWTEST_F(UsbBulkcallbackMockTest, RegBulkCallback002, TestSize.Level1)
 
     EXPECT_CALL(*mockUsbImpl_, UnRegBulkCallback(testing::_, testing::_)).WillRepeatedly(Return(0));
     ret = usbSrv_->UnRegBulkCallback(dev_, pipe);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 }
 
@@ -210,6 +207,7 @@ HWTEST_F(UsbBulkcallbackMockTest, RegBulkCallback002, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, RegBulkCallback003, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().at(1);
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     dev_.busNum = BUS_NUM_INVALID;
@@ -224,9 +222,6 @@ HWTEST_F(UsbBulkcallbackMockTest, RegBulkCallback003, TestSize.Level1)
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -239,6 +234,7 @@ HWTEST_F(UsbBulkcallbackMockTest, RegBulkCallback003, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, RegBulkCallback004, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().at(1);
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     dev_.devAddr = DEV_ADDR_INVALID;
@@ -253,9 +249,6 @@ HWTEST_F(UsbBulkcallbackMockTest, RegBulkCallback004, TestSize.Level1)
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -267,6 +260,7 @@ HWTEST_F(UsbBulkcallbackMockTest, RegBulkCallback004, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, BulkRead001, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().front();
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     EXPECT_CALL(*mockUsbImpl_, RegBulkCallback(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
@@ -289,10 +283,6 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkRead001, TestSize.Level1)
     EXPECT_CALL(*mockUsbImpl_, BulkCancel(testing::_, testing::_)).WillRepeatedly(Return(0));
     ret = usbSrv_->BulkCancel(dev_, pipe);
     EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -304,6 +294,7 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkRead001, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, BulkRead002, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().at(1);
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     EXPECT_CALL(*mockUsbImpl_, RegBulkCallback(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
@@ -326,10 +317,6 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkRead002, TestSize.Level1)
     EXPECT_CALL(*mockUsbImpl_, BulkCancel(testing::_, testing::_)).WillRepeatedly(Return(0));
     ret = usbSrv_->BulkCancel(dev_, pipe);
     EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -341,6 +328,7 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkRead002, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, BulkRead003, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().front();
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     EXPECT_CALL(*mockUsbImpl_, RegBulkCallback(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
@@ -365,10 +353,6 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkRead003, TestSize.Level1)
     EXPECT_CALL(*mockUsbImpl_, BulkCancel(testing::_, testing::_)).WillRepeatedly(Return(0));
     ret = usbSrv_->BulkCancel(dev_, pipe);
     EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -380,6 +364,7 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkRead003, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, BulkRead004, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().front();
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     EXPECT_CALL(*mockUsbImpl_, RegBulkCallback(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
@@ -404,10 +389,6 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkRead004, TestSize.Level1)
     EXPECT_CALL(*mockUsbImpl_, BulkCancel(testing::_, testing::_)).WillRepeatedly(Return(0));
     ret = usbSrv_->BulkCancel(dev_, pipe);
     EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -419,6 +400,7 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkRead004, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, BulkWrite001, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().at(1);
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     EXPECT_CALL(*mockUsbImpl_, RegBulkCallback(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
@@ -441,10 +423,6 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkWrite001, TestSize.Level1)
     EXPECT_CALL(*mockUsbImpl_, BulkCancel(testing::_, testing::_)).WillRepeatedly(Return(0));
     ret = usbSrv_->BulkCancel(dev_, pipe);
     EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -456,6 +434,7 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkWrite001, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, BulkWrite002, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().front();
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     EXPECT_CALL(*mockUsbImpl_, RegBulkCallback(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
@@ -478,10 +457,6 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkWrite002, TestSize.Level1)
     EXPECT_CALL(*mockUsbImpl_, BulkCancel(testing::_, testing::_)).WillRepeatedly(Return(0));
     ret = usbSrv_->BulkCancel(dev_, pipe);
     EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -493,6 +468,7 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkWrite002, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, BulkWrite003, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().at(1);
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     EXPECT_CALL(*mockUsbImpl_, RegBulkCallback(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
@@ -517,10 +493,6 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkWrite003, TestSize.Level1)
     EXPECT_CALL(*mockUsbImpl_, BulkCancel(testing::_, testing::_)).WillRepeatedly(Return(0));
     ret = usbSrv_->BulkCancel(dev_, pipe);
     EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -532,6 +504,7 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkWrite003, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, BulkWrite004, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().at(1);
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     EXPECT_CALL(*mockUsbImpl_, RegBulkCallback(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
@@ -556,10 +529,6 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkWrite004, TestSize.Level1)
     EXPECT_CALL(*mockUsbImpl_, BulkCancel(testing::_, testing::_)).WillRepeatedly(Return(0));
     ret = usbSrv_->BulkCancel(dev_, pipe);
     EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -571,6 +540,7 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkWrite004, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, BulkCancel001, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().front();
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     EXPECT_CALL(*mockUsbImpl_, RegBulkCallback(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
@@ -598,10 +568,6 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkCancel001, TestSize.Level1)
     ret = usbSrv_->BulkCancel(dev_, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackMockTest::BulkCancel001 BulkCancel=%{public}d", ret);
     EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -613,6 +579,7 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkCancel001, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, BulkCancel002, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().front();
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     EXPECT_CALL(*mockUsbImpl_, RegBulkCallback(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
@@ -642,10 +609,6 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkCancel002, TestSize.Level1)
     ret = usbSrv_->BulkCancel(dev_, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackMockTest::BulkCancel002 BulkCancel=%{public}d", ret);
     EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -657,6 +620,7 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkCancel002, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, BulkCancel003, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().front();
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     EXPECT_CALL(*mockUsbImpl_, RegBulkCallback(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
@@ -686,10 +650,6 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkCancel003, TestSize.Level1)
     ret = usbSrv_->BulkCancel(dev_, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackMockTest::BulkCancel003 BulkCancel=%{public}d", ret);
     EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -701,6 +661,7 @@ HWTEST_F(UsbBulkcallbackMockTest, BulkCancel003, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, UnRegBulkCallback001, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().front();
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     EXPECT_CALL(*mockUsbImpl_, RegBulkCallback(testing::_, testing::_, testing::_)).WillRepeatedly(Return(0));
@@ -710,10 +671,6 @@ HWTEST_F(UsbBulkcallbackMockTest, UnRegBulkCallback001, TestSize.Level1)
     EXPECT_CALL(*mockUsbImpl_, UnRegBulkCallback(testing::_, testing::_)).WillRepeatedly(Return(0));
     ret = usbSrv_->UnRegBulkCallback(dev_, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackMockTest::UnRegBulkCallback001 UnRegBulkCallback=%{public}d", ret);
-    EXPECT_EQ(0, ret);
-
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
     EXPECT_EQ(0, ret);
 }
 
@@ -726,6 +683,7 @@ HWTEST_F(UsbBulkcallbackMockTest, UnRegBulkCallback001, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, UnRegBulkCallback002, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().front();
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     dev_.busNum = BUS_NUM_INVALID;
@@ -740,9 +698,6 @@ HWTEST_F(UsbBulkcallbackMockTest, UnRegBulkCallback002, TestSize.Level1)
     EXPECT_NE(ret, 0);
 
     dev_.busNum = BUS_NUM_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 
 /**
@@ -754,6 +709,7 @@ HWTEST_F(UsbBulkcallbackMockTest, UnRegBulkCallback002, TestSize.Level1)
 HWTEST_F(UsbBulkcallbackMockTest, UnRegBulkCallback003, TestSize.Level1)
 {
     sptr<UsbCallbackTest> cb = new UsbCallbackTest();
+    EXPECT_NE(cb, nullptr);
     USBEndpoint point = interface_.GetEndpoints().front();
     UsbPipe pipe = {point.GetInterfaceId(), point.GetAddress()};
     dev_.devAddr = DEV_ADDR_INVALID;
@@ -768,9 +724,6 @@ HWTEST_F(UsbBulkcallbackMockTest, UnRegBulkCallback003, TestSize.Level1)
     EXPECT_NE(ret, 0);
 
     dev_.devAddr = DEV_ADDR_OK;
-    EXPECT_CALL(*mockUsbImpl_, CloseDevice(testing::_)).WillRepeatedly(Return(0));
-    ret = usbSrv_->Close(dev_.busNum, dev_.devAddr);
-    EXPECT_EQ(0, ret);
 }
 } // namespace USB
 } // namespace OHOS

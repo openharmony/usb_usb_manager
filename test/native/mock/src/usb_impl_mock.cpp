@@ -98,13 +98,6 @@ int32_t MockUsbImpl::UnbindUsbdSubscriber(const sptr<IUsbdSubscriber> &subscribe
 int32_t MockUsbImpl::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole)
 {
     int32_t mode = UsbSrvSupport::PORT_MODE_DEVICE;
-    if (powerRole == UsbSrvSupport::POWER_ROLE_SOURCE && dataRole == UsbSrvSupport::DATA_ROLE_HOST) {
-        mode = UsbSrvSupport::PORT_MODE_HOST;
-    }
-
-    if (powerRole == UsbSrvSupport::POWER_ROLE_SINK && dataRole == UsbSrvSupport::DATA_ROLE_DEVICE) {
-        mode = UsbSrvSupport::PORT_MODE_DEVICE;
-    }
 
     if (portId != DEFAULT_PORT_ID) {
         return HDF_FAILURE;
@@ -114,6 +107,14 @@ int32_t MockUsbImpl::SetPortRole(int32_t portId, int32_t powerRole, int32_t data
     }
     if (dataRole <= UsbSrvSupport::DTA_ROLE_NONE || dataRole > UsbSrvSupport::DATA_ROLE_DEVICE) {
         return HDF_FAILURE;
+    }
+
+    if (powerRole == UsbSrvSupport::POWER_ROLE_SOURCE && dataRole == UsbSrvSupport::DATA_ROLE_HOST) {
+        mode = UsbSrvSupport::PORT_MODE_HOST;
+    }
+
+    if (powerRole == UsbSrvSupport::POWER_ROLE_SINK && dataRole == UsbSrvSupport::DATA_ROLE_DEVICE) {
+        mode = UsbSrvSupport::PORT_MODE_DEVICE;
     }
 
     portInfo_.portId = portId;
