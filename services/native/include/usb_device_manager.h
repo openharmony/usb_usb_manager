@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "usb_common.h"
+#include "usb_function_switch_window.h"
 #include "usb_srv_support.h"
 #include "v1_0/iusb_interface.h"
 #include "v1_0/iusbd_subscriber.h"
@@ -30,6 +31,7 @@ namespace USB {
 class UsbDeviceManager {
 public:
     UsbDeviceManager();
+    int32_t Init();
     static bool AreSettableFunctions(int32_t funcs);
 
     int32_t SetUsbd(const sptr<HDI::Usb::V1_0::IUsbInterface> &usbd);
@@ -42,12 +44,13 @@ public:
     void Dump(int32_t fd, const std::vector<std::string> &args);
 
 private:
+    void ProcessFunctionSwitchWindow(int32_t status);
     void DumpGetSupportFunc(int32_t fd);
     void DumpSetFunc(int32_t fd, const std::string &args);
     void ReportFuncChangeSysEvent(int32_t currentFunctions, int32_t updateFunctions);
     void ReportDevicePlugSysEvent(int32_t currentFunctions, bool connected);
-    static constexpr uint32_t functionSettable_ =
-        UsbSrvSupport::FUNCTION_HDC | UsbSrvSupport::FUNCTION_ACM | UsbSrvSupport::FUNCTION_ECM |
+    static constexpr uint32_t functionSettable_ = UsbSrvSupport::FUNCTION_HDC | UsbSrvSupport::FUNCTION_ACM |
+        UsbSrvSupport::FUNCTION_ECM | UsbSrvSupport::FUNCTION_MTP | UsbSrvSupport::FUNCTION_PTP |
         UsbSrvSupport::FUNCTION_RNDIS | UsbSrvSupport::FUNCTION_STORAGE;
     static const std::map<std::string_view, uint32_t> FUNCTION_MAPPING_N2C;
     int32_t currentFunctions_ {UsbSrvSupport::FUNCTION_HDC};

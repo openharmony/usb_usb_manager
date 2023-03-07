@@ -1,0 +1,39 @@
+{
+  "module": {
+    "name": "usb_function_switch_window",
+    "type": "feature",
+    "srcEntrance": "./ets/Application/MyAbilityStage.ets",
+    "description": "$string:entry_desc",
+    "mainElement": "MainAbility",
+    "deviceTypes": [
+      "default",
+      "tablet"
+    ],
+    "deliveryWithInstall": true,
+    "installationFree": false,
+    "pages": "$profile:main_pages",
+    "abilities": [
+      {
+        "name": "usb_function_switch.MainAbility",
+        "startWindowIcon": "$media:icon",
+        "srcEntrance": "./ets/MainAbility/MainAbility.ets",
+        "description": "$string:MainAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:MainAbility_label",
+        "visible": false,
+        "launchType": "standard"
+      }
+    ],
+    "extensionAbilities": [
+      {
+        "name": "UsbFunctionSwitchExtAbility",
+        "srcEntrance": "./ets/ServiceExtAbility/UsbFunctionSwitchWindowAbility.ets",
+        "description": "$string:UsbFunctionSwitchWindowAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:UsbFunctionSwitchWindowAbility_label",
+        "visible": false,
+        "type": "service"
+      }
+    ]
+  }
+}

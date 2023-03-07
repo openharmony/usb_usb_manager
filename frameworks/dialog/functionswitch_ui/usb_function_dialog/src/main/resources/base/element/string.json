@@ -1,0 +1,28 @@
+{
+  "string": [
+    {
+      "name": "entry_desc",
+      "value": "usb function switch popup window when connect to PC"
+    },
+    {
+      "name": "UsbFunctionSwitchWindowAbility_desc",
+      "value": "ext ability"
+    },
+    {
+      "name": "UsbFunctionSwitchWindowAbility_label",
+      "value": "ext ability"
+    },
+    {
+      "name": "MainAbility_desc",
+      "value": "switch usb function when connect to PC: charge only, transfer file or transfer picture"
+    },
+    {
+      "name": "MainAbility_label",
+      "value": "switch usb function"
+    },
+    {
+      "name": "permission_reason",
+      "value": "allow send notirycation in foreground and background"
+    }
+  ]
+}
