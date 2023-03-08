@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,6 +45,8 @@ static void PrintHelp()
     printf("-f 4: Switch to function:hdc\n");
     printf("-f 5: Switch to function:acm&hdc\n");
     printf("-f 6: Switch to function:ecm&hdc\n");
+    printf("-f 8: Switch to function:mtp\n");
+    printf("-f 16: Switch to function:ptp\n");
     printf("-f 32: Switch to function:rndis\n");
     printf("-f 512: Switch to function:storage\n");
     printf("-f 36: Switch to function:rndis&hdc\n");

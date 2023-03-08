@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -122,6 +122,8 @@ private:
         std::vector<struct UsbRightAppInfo> &infos);
     int32_t QueryAndGetResult(const OHOS::NativeRdb::RdbPredicates &rdbPredicates,
         const std::vector<std::string> &columns, std::vector<struct UsbRightAppInfo> &infos);
+    int32_t QueryAndGetResultColumnValues(const OHOS::NativeRdb::RdbPredicates &rdbPredicates,
+        const std::vector<std::string> &columns, const std::string &columnName, std::vector<std::string> &columnValues);
     int32_t DeleteAndNoOtherOperation(const std::string &whereClause, const std::vector<std::string> &whereArgs);
     int32_t DeleteAndNoOtherOperation(const OHOS::NativeRdb::RdbPredicates &rdbPredicates);
 

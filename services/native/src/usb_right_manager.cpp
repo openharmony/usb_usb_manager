@@ -28,6 +28,7 @@
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "os_account_manager.h"
+#include "string_ex.h"
 #include "system_ability_definition.h"
 #include "tokenid_kit.h"
 #include "usb_errors.h"
@@ -72,7 +73,7 @@ public:
             int32_t uid = want.GetParams().GetIntParam("userId", USB_RIGHT_USERID_DEFAULT);
             std::string bundleName = want.GetBundle();
             int32_t ret = UsbRightManager::CleanUpRightAppUninstalled(uid, bundleName);
-            USB_HILOGI(MODULE_USB_SERVICE,
+            USB_HILOGD(MODULE_USB_SERVICE,
                 "recv event uninstall: event=%{public}s bunndleName=%{public}s uid=%{public}d, delete_ret=%{public}d",
                 wantAction.c_str(), bundleName.c_str(), uid, ret);
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_UID_REMOVED ||
@@ -80,7 +81,7 @@ public:
             int32_t totalUsers = 0;
             int32_t deleteUsers = 0;
             int32_t ret = UsbRightManager::CleanUpRightUserDeleted(totalUsers, deleteUsers);
-            USB_HILOGI(MODULE_USB_SERVICE,
+            USB_HILOGD(MODULE_USB_SERVICE,
                 "recv event user delete: event=%{public}s, delete detail[%{public}d/%{public}d]: %{public}d",
                 wantAction.c_str(), deleteUsers, totalUsers, ret);
         }
@@ -100,12 +101,12 @@ int32_t UsbRightManager::Init()
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_REMOVED);
     CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     std::shared_ptr<RightSubscriber> subscriber = std::make_shared<RightSubscriber>(subscriberInfo);
-    int32_t ret = CommonEventManager::SubscribeCommonEvent(subscriber);
-    if (ret != UEC_OK) {
+    bool ret = CommonEventManager::SubscribeCommonEvent(subscriber);
+    if (!ret) {
         USB_HILOGW(MODULE_USB_SERVICE, "subscriber event for right manager failed: %{public}d", ret);
-        ret = UEC_SERVICE_INNER_ERR;
+        return UEC_SERVICE_INNER_ERR;
     }
-    return ret;
+    return UEC_OK;
 }
 
 bool UsbRightManager::HasRight(const std::string &deviceName, const std::string &bundleName)
@@ -160,7 +161,7 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
     uint64_t installTime = 0;
     uint64_t updateTime = 0;
     if (!GetBundleInstallAndUpdateTime(uid, bundleName, installTime, updateTime)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "get app install time and update time failed: app=%{public}s uid=%{public}d",
+        USB_HILOGE(MODULE_USB_SERVICE, "get app install time and update time failed: %{public}s/%{public}d",
             bundleName.c_str(), uid);
         return false;
     }
@@ -174,9 +175,8 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     int32_t ret = helper->AddOrUpdateRightRecord(uid, deviceName, bundleName, info);
     if (ret < 0) {
-        USB_HILOGE(MODULE_USB_SERVICE,
-            "add or update failed: dev=%{public}s app=%{public}s uid=%{public}d, ret=%{public}d", deviceName.c_str(),
-            bundleName.c_str(), uid, ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "add or update failed: %{public}s/%{public}s/%{public}d, ret=%{public}d",
+            deviceName.c_str(), bundleName.c_str(), uid, ret);
         return false;
     }
     return true;
@@ -185,7 +185,7 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
 bool UsbRightManager::RemoveDeviceRight(const std::string &deviceName, const std::string &bundleName)
 {
     if (IsSystemHap()) {
-        USB_HILOGI(MODULE_USB_SERVICE, "system app, bypass: dev=%{public}s app=%{public}s", deviceName.c_str(),
+        USB_HILOGD(MODULE_USB_SERVICE, "system app, bypass: dev=%{public}s app=%{public}s", deviceName.c_str(),
             bundleName.c_str());
         return true;
     }
@@ -198,8 +198,8 @@ bool UsbRightManager::RemoveDeviceRight(const std::string &deviceName, const std
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     int32_t ret = helper->DeleteRightRecord(uid, deviceName, bundleName);
     if (ret < 0) {
-        USB_HILOGE(MODULE_USB_SERVICE, "delete failed: dev=%{public}s app=%{public}s uid=%{public}d",
-            deviceName.c_str(), bundleName.c_str(), uid);
+        USB_HILOGE(MODULE_USB_SERVICE, "delete failed: %{public}s/%{public}s/%{public}d", deviceName.c_str(),
+            bundleName.c_str(), uid);
         return false;
     }
     return true;
@@ -207,11 +207,7 @@ bool UsbRightManager::RemoveDeviceRight(const std::string &deviceName, const std
 
 bool UsbRightManager::RemoveDeviceAllRight(const std::string &deviceName)
 {
-    if (IsSystemHap()) {
-        USB_HILOGI(MODULE_USB_SERVICE, "system app, bypass: dev=%{public}s", deviceName.c_str());
-        return true;
-    }
-    USB_HILOGD(MODULE_USB_SERVICE, "delete temporary allowed record");
+    USB_HILOGD(MODULE_USB_SERVICE, "device %{public}s detached, process right", deviceName.c_str());
     CleanUpRightTemporaryExpired(deviceName);
     TidyUpRight(TIGHT_UP_USB_RIGHT_RECORD_ALL);
     return true;
@@ -391,9 +387,32 @@ int32_t UsbRightManager::IsOsAccountExists(int32_t id, bool &isAccountExists)
     return USB_RIGHT_OK;
 }
 
+int32_t UsbRightManager::CleanUpRightExpired(std::vector<std::string> &devices)
+{
+    USB_HILOGD(MODULE_USB_SERVICE, "clean up expired right: size=%{public}zu", devices.size());
+    size_t len = devices.size();
+    int32_t ret = USB_RIGHT_OK;
+    for (size_t i = 0; i < len; i++) {
+        std::string dev = devices.at(i);
+        ret = CleanUpRightTemporaryExpired(dev);
+        if (ret != USB_RIGHT_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE,
+                "failed(%{public}zu/%{public}zu): delete temporary expiried record, dev=%{public}s", i, len,
+                dev.c_str());
+            continue;
+        }
+    }
+    int32_t uid = USB_RIGHT_USERID_INVALID;
+    GetCurrentUserId(uid);
+    ret = CleanUpRightNormalExpired(uid);
+    if (ret != USB_RIGHT_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "delete expired record with uid(%{public}d) failed: %{public}d", uid, ret);
+    }
+    return ret;
+}
+
 int32_t UsbRightManager::CleanUpRightAppUninstalled(int32_t uid, int32_t &totalApps, int32_t &deleteApps)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "clean up right when app uninstalled: uid=%{public}d", uid);
     std::vector<std::string> apps;
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     int32_t ret = helper->QueryRightRecordApps(uid, apps);
@@ -401,28 +420,26 @@ int32_t UsbRightManager::CleanUpRightAppUninstalled(int32_t uid, int32_t &totalA
         /* error or empty record */
         return USB_RIGHT_NOP;
     }
-    size_t len = apps.size();
+    totalApps = static_cast<int32_t>(apps.size());
     deleteApps = 0;
-    for (size_t i = 0; i < len; i++) {
+    for (int32_t i = 0; i < totalApps; i++) {
         std::string app = apps.at(i);
         if (!IsAppInstalled(uid, app)) {
             ret = helper->DeleteAppRightRecord(uid, app);
             if (ret != USB_RIGHT_OK) {
-                USB_HILOGW(MODULE_USB_SERVICE, "delete reord with uninstall app failed: app=%{public}s, ret=%{public}d",
-                    app.c_str(), ret);
+                USB_HILOGW(MODULE_USB_SERVICE, "clean failed: app=%{public}s, ret=%{public}d", app.c_str(), ret);
                 continue;
             }
             deleteApps++;
         }
     }
-    totalApps = apps.size();
+    USB_HILOGD(MODULE_USB_SERVICE, "clean uninstall app record[%{public}d/%{public}d]: uid=%{public}d", deleteApps,
+        totalApps, uid);
     return ret;
 }
 
 int32_t UsbRightManager::CleanUpRightAppUninstalled(int32_t uid, const std::string &bundleName)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "clean up right when app uninstalled: uid=%{public}d, bundleName=%{public}s", uid,
-        bundleName.c_str());
     std::vector<std::string> apps;
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     int32_t ret = helper->QueryRightRecordApps(uid, apps);
@@ -430,19 +447,14 @@ int32_t UsbRightManager::CleanUpRightAppUninstalled(int32_t uid, const std::stri
         /* error or empty record */
         return USB_RIGHT_NOP;
     }
-    size_t len = apps.size();
-    for (size_t i = 0; i < len; i++) {
-        std::string app = apps.at(i);
-        if (app == bundleName) {
-            ret = helper->DeleteAppRightRecord(uid, app);
-            if (ret != USB_RIGHT_OK) {
-                USB_HILOGW(MODULE_USB_SERVICE,
-                    "delete reord when uninstall app: uid=%{public}d, bundleName=%{public}s, ret=%{public}d", uid,
-                    app.c_str(), ret);
-                continue;
-            }
-        }
+    int32_t index = 0;
+    if (!StringVectorFound(apps, bundleName, index)) {
+        /* app not in record, ignore */
+        return USB_RIGHT_NOP;
     }
+    ret = helper->DeleteAppRightRecord(uid, apps.at(index));
+    USB_HILOGD(MODULE_USB_SERVICE, "clean[%{public}d/%{public}zu]: uid=%{public}d, app=%{public}s, ret=%{public}d",
+        index, apps.size(), uid, bundleName.c_str(), ret);
     return ret;
 }
 
@@ -451,6 +463,19 @@ void UsbRightManager::StringVectorSortAndUniq(std::vector<std::string> &strings)
     sort(strings.begin(), strings.end());
     auto last = unique(strings.begin(), strings.end());
     strings.erase(last, strings.end());
+}
+
+bool UsbRightManager::StringVectorFound(
+    const std::vector<std::string> &strings, const std::string &value, int32_t &index)
+{
+    size_t len = strings.size();
+    for (size_t i = 0; i < len; i++) {
+        if (value == strings.at(i)) {
+            index = static_cast<int32_t>(i);
+            return true;
+        }
+    }
+    return false;
 }
 
 int32_t UsbRightManager::CleanUpRightAppReinstalled(int32_t uid, int32_t &totalApps, int32_t &deleteApps)
@@ -501,7 +526,6 @@ int32_t UsbRightManager::CleanUpRightAppReinstalled(int32_t uid, int32_t &totalA
 
 int32_t UsbRightManager::CleanUpRightUserDeleted(int32_t &totalUsers, int32_t &deleteUsers)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "clean up right when uid deleted");
     std::vector<std::string> rightRecordUids;
     bool isAccountExists = false;
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
@@ -513,18 +537,24 @@ int32_t UsbRightManager::CleanUpRightUserDeleted(int32_t &totalUsers, int32_t &d
     size_t len = rightRecordUids.size();
     deleteUsers = 0;
     for (size_t i = 0; i < len; i++) {
-        ret = IsOsAccountExists(std::stoul(rightRecordUids.at(i)), isAccountExists);
+        int32_t uid = 0;
+        if (!StrToInt(rightRecordUids.at(i), uid)) {
+            USB_HILOGE(MODULE_USB_SERVICE, "convert failed: %{public}s", rightRecordUids.at(i).c_str());
+            continue;
+        }
+        ret = IsOsAccountExists(uid, isAccountExists);
         if (ret != USB_RIGHT_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "call IsOsAccountExists failed");
+            USB_HILOGE(MODULE_USB_SERVICE, "call IsOsAccountExists failed: %{public}d", ret);
             continue;
         }
         if (!isAccountExists) {
-            USB_HILOGE(MODULE_USB_SERVICE, "detecte delete uid: %{public}lu", std::stoul(rightRecordUids.at(i)));
-            (void)helper->DeleteUidRightRecord(std::stoul(rightRecordUids.at(i)));
+            ret = helper->DeleteUidRightRecord(uid);
+            USB_HILOGE(MODULE_USB_SERVICE, "detecte delete uid=%{public}d: %{public}d", uid, ret);
             deleteUsers++;
         }
+        USB_HILOGD(MODULE_USB_SERVICE, "uid exist, ignore: %{public}d", uid);
     }
-    totalUsers = rightRecordUids.size();
+    totalUsers = static_cast<int32_t>(rightRecordUids.size());
     return USB_RIGHT_OK;
 }
 
@@ -533,7 +563,7 @@ int32_t UsbRightManager::CleanUpRightTemporaryExpired(const std::string &deviceN
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     int32_t ret = helper->DeleteValidPeriodRightRecord(USB_RIGHT_VALID_PERIOD_MIN, deviceName);
     if (ret != USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "failed: delete temporary expiried record");
+        USB_HILOGE(MODULE_USB_SERVICE, "failed: delete temporary expiried record: dev=%{public}s", deviceName.c_str());
     }
     return ret;
 }
