@@ -353,7 +353,7 @@ int32_t UsbServerProxy::RemoveRight(std::string deviceName)
         USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
         return UEC_INTERFACE_WRITE_PARCEL_ERROR;
     }
-    WRITE_PARCEL_WITH_RET(data, String, deviceName, UEC_INTERFACE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String16, Str8ToStr16(deviceName), UEC_INTERFACE_WRITE_PARCEL_ERROR);
     int32_t ret = remote->SendRequest(static_cast<int32_t>(IUsbSrv::USB_FUN_REMOVE_RIGHT), data, reply, option);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %{public}d", ret);
