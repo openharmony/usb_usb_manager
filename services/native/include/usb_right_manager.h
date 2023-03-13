@@ -42,7 +42,7 @@ public:
     bool RemoveDeviceAllRight(const std::string &deviceName);
     bool IsSystemHap();
     bool IsSystemApp();
-
+    int32_t CleanUpRightExpired(std::vector<std::string> &devices);
     static int32_t CleanUpRightUserDeleted(int32_t &totalUsers, int32_t &deleteUsers);
     static int32_t CleanUpRightAppUninstalled(int32_t uid, const std::string &bundleName);
     static int32_t IsOsAccountExists(int32_t id, bool &isAccountExists);
@@ -78,6 +78,7 @@ private:
         int32_t uid, const std::string &bundleName, uint64_t &installTime, uint64_t &updateTime);
     uint64_t GetCurrentTimestamp();
     void StringVectorSortAndUniq(std::vector<std::string> &strings);
+    static bool StringVectorFound(const std::vector<std::string> &strings, const std::string &value, int32_t &index);
 
     int32_t CleanUpRightAppUninstalled(int32_t uid, int32_t &totalApps, int32_t &deleteApps);
     int32_t CleanUpRightTemporaryExpired(const std::string &deviceName);

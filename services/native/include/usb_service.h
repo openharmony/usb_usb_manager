@@ -133,6 +133,7 @@ private:
     std::string GetDeviceVidPidSerialNumber(std::string deviceName);
     int32_t FillDevStrings(UsbDevice &dev);
     std::string GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, uint8_t idx);
+    int32_t InitUsbRight();
     void DumpHelp(int32_t fd);
     bool ready_ = false;
     int32_t commEventRetryTimes_ = 0;
