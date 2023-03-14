@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -160,17 +160,10 @@ bool NapiUtil::JsUint8ArrayParse(
         USB_HILOGW(MODULE_JS_NAPI, "get typedarray info failed, status: %{public}d", infoStatus);
         return false;
     }
-
-    if (type != napi_uint8_array) {
-        USB_HILOGW(MODULE_JS_NAPI, "not Uint8Array type: %{public}d", type);
-        return false;
-    }
-
-    if (bufferSize == 0) {
-        USB_HILOGW(MODULE_JS_NAPI, "bufferSize error");
-        return false;
-    }
-
+    USB_ASSERT_RETURN_FALSE(
+        env, type == napi_uint8_array, SYSPARAM_INVALID_INPUT, "The type of buffer must be Uint8Array.");
+    USB_ASSERT_RETURN_FALSE(
+        env, bufferSize != 0, SYSPARAM_INVALID_INPUT, "The size of buffer must be a positive number.");
     return true;
 }
 

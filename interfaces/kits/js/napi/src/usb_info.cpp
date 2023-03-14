@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1080,7 +1080,13 @@ static std::tuple<bool, USBDevicePipe, PipeControlParam, int32_t> GetControlTran
 
     // timeOut param
     int32_t timeOut = 0;
-    if (argc >= PARAM_COUNT_3) {
+    if (argc > PARAM_COUNT_2) {
+        napi_typeof(env, argv[INDEX_2], &type);
+        if (type != napi_number) {
+            USB_HILOGE(MODULE_JS_NAPI, "index 2 wrong argument type, number expected.");
+            ThrowBusinessError(env, SYSPARAM_INVALID_INPUT, "The type of timeOut must be positive number.");
+            return {false, {}, {}, {}};
+        }
         napi_get_value_int32(env, argv[INDEX_2], &timeOut);
     }
 
@@ -1212,6 +1218,9 @@ static bool GetBulkTransferParams(napi_env env, napi_callback_info info, USBBulk
 
     int32_t timeOut = 0;
     if (argc > PARAM_COUNT_3) {
+        napi_typeof(env, argv[INDEX_3], &type);
+        USB_ASSERT_RETURN_FALSE(
+            env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of timeOut must be number.");
         napi_get_value_int32(env, argv[INDEX_3], &timeOut);
     }
 
