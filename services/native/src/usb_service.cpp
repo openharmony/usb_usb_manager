@@ -975,7 +975,11 @@ bool UsbService::GetBundleName(std::string &bundleName)
     if (bundleMgr == nullptr) {
         return false;
     }
-    bundleMgr->GetBundleNameForUid(uid, bundleName);
+
+    ErrCode ret = bundleMgr->GetNameForUid(uid, bundleName);
+    if (ret != ERR_OK) {
+        return false;
+    }
     return true;
 }
 
