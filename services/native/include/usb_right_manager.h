@@ -83,7 +83,7 @@ private:
     int32_t CleanUpRightAppUninstalled(int32_t uid, int32_t &totalApps, int32_t &deleteApps);
     int32_t CleanUpRightTemporaryExpired(const std::string &deviceName);
     int32_t CleanUpRightNormalExpired(int32_t uid);
-    int32_t CleanUpRightAppReinstalled(int32_t uid, int32_t &totalApps, int32_t &deleteApps);
+    int32_t CleanUpRightAppReinstalled(int32_t uid, uint32_t &totalApps, uint32_t &deleteApps);
     int32_t TidyUpRight(uint32_t choose);
 };
 
