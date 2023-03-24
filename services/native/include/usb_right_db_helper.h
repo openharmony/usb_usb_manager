@@ -32,7 +32,7 @@ namespace USB {
 /* unit: second */
 constexpr int64_t USB_RIGHT_VALID_PERIOD_MIN = 0;
 constexpr int64_t USB_RIGHT_VALID_PERIOD_MAX = 0xFFFFFFFFL;
-constexpr int64_t USB_RIGHT_VALID_PERIOD_SET = 300;
+constexpr uint64_t USB_RIGHT_VALID_PERIOD_SET = 300;
 
 struct UsbRightAppInfo {
     uint32_t primaryKeyId; /* table primary key */
@@ -103,7 +103,7 @@ public:
     /* delete (user) record */
     int32_t DeleteUidRightRecord(int32_t uid);
     /* delete (user, time) expired record */
-    int32_t DeleteNormalExpiredRightRecord(int32_t uid, long expiredTime);
+    int32_t DeleteNormalExpiredRightRecord(int32_t uid, uint64_t expiredTime);
     /* delete (validTime, device) record */
     int32_t DeleteValidPeriodRightRecord(long validPeriod, const std::string &deviceName);
 

@@ -478,7 +478,7 @@ bool UsbRightManager::StringVectorFound(
     return false;
 }
 
-int32_t UsbRightManager::CleanUpRightAppReinstalled(int32_t uid, int32_t &totalApps, int32_t &deleteApps)
+int32_t UsbRightManager::CleanUpRightAppReinstalled(int32_t uid, uint32_t &totalApps, uint32_t &deleteApps)
 {
     std::vector<std::string> apps;
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
@@ -570,7 +570,7 @@ int32_t UsbRightManager::CleanUpRightTemporaryExpired(const std::string &deviceN
 
 int32_t UsbRightManager::CleanUpRightNormalExpired(int32_t uid)
 {
-    int64_t nowTime = GetCurrentTimestamp();
+    uint64_t nowTime = GetCurrentTimestamp();
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     int32_t ret = helper->DeleteNormalExpiredRightRecord(uid, nowTime);
     if (ret != USB_RIGHT_OK) {
@@ -615,10 +615,10 @@ int32_t UsbRightManager::TidyUpRight(uint32_t choose)
         USB_HILOGD(MODULE_USB_SERVICE, "delete expired record: %{public}d", ret);
     }
     if ((choose & TIGHT_UP_USB_RIGHT_RECORD_APP_REINSTALLED) != 0) {
-        int32_t totalReinstalledApps = 0;
-        int32_t deleteReinstalledApps = 0;
+        uint32_t totalReinstalledApps = 0;
+        uint32_t deleteReinstalledApps = 0;
         ret = CleanUpRightAppReinstalled(uid, totalReinstalledApps, deleteReinstalledApps);
-        USB_HILOGD(MODULE_USB_SERVICE, "delete app reinstalled record[%{public}d/%{public}d]: %{public}d",
+        USB_HILOGD(MODULE_USB_SERVICE, "delete app reinstalled record[%{public}u/%{public}u]: %{public}d",
             deleteReinstalledApps, totalReinstalledApps, ret);
     }
     return ret;

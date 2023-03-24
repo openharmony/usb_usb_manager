@@ -400,7 +400,7 @@ int32_t UsbRightDbHelper::DeleteUidRightRecord(int32_t uid)
     return ret;
 }
 
-int32_t UsbRightDbHelper::DeleteNormalExpiredRightRecord(int32_t uid, long expiredTime)
+int32_t UsbRightDbHelper::DeleteNormalExpiredRightRecord(int32_t uid, uint64_t expiredTime)
 {
     std::lock_guard<std::mutex> guard(databaseMutex_);
     std::string whereClause = {"uid = ? AND requestTime < ? AND validPeriod NOT IN (?, ?)"};
@@ -408,8 +408,8 @@ int32_t UsbRightDbHelper::DeleteNormalExpiredRightRecord(int32_t uid, long expir
         std::to_string(USB_RIGHT_VALID_PERIOD_MIN), std::to_string(USB_RIGHT_VALID_PERIOD_MAX)};
     int32_t ret = DeleteAndNoOtherOperation(whereClause, whereArgs);
     if (ret != USB_RIGHT_OK) {
-        USB_HILOGE(
-            MODULE_USB_SERVICE, "failed: delete(uid=%{public}d, expr<%{public}ld): %{public}d", uid, expiredTime, ret);
+        USB_HILOGE(MODULE_USB_SERVICE,
+         "failed: delete(uid=%{public}d, expr<%{public}" PRIu64 "): %{public}d", uid, expiredTime, ret);
     }
     return ret;
 }
@@ -437,7 +437,7 @@ int32_t UsbRightDbHelper::GetResultSetTableInfo(
         USB_HILOGE(MODULE_USB_SERVICE, "get table info failed");
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
-    int32_t columnNamesCount = columnNames.size();
+    int32_t columnNamesCount = static_cast<int32_t>(columnNames.size());
     for (int32_t i = 0; i < columnNamesCount; i++) {
         std::string &columnName = columnNames.at(i);
         if (columnName == "id") {
