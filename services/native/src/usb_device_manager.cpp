@@ -211,7 +211,7 @@ void UsbDeviceManager::ProcessFunctionSwitchWindow(int32_t status)
         if (!window_->DismissFunctionSwitchWindow()) {
             USB_HILOGE(MODULE_USB_SERVICE, "start dismiss usb service switch window failed");
         }
-        int32_t targetFunction = currentFunctions_;
+        uint32_t targetFunction = static_cast<uint32_t>(currentFunctions_);
         targetFunction &= ~(UsbSrvSupport::FUNCTION_MTP | UsbSrvSupport::FUNCTION_PTP);
         int32_t ret = usbd_->SetCurrentFunctions(targetFunction);
         if (ret != UEC_OK) {
