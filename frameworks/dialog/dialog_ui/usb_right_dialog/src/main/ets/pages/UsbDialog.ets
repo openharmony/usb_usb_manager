@@ -86,7 +86,7 @@ struct IndexHapComponent {
   private use: string = ''
   ConfirmDialogController: CustomDialogController = new CustomDialogController( {
     builder: ConfirmDialog({content: this.content}),
-    autoCancel: true
+    autoCancel: false
   })
 
   async aboutToAppear() {
