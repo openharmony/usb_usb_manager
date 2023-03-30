@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import usbV9 from '@ohos.usbV9'
+import usbManager from '@ohos.usbManager'
 import featureAbility from '@ohos.ability.featureAbility'
 
 // allow,notAllow button style
@@ -57,7 +57,7 @@ struct ConfirmDialog {
         Text($r('app.string.allowButton'))
           .ControlBtn(this.allowFontColor)
           .onClick(() => {
-            usbV9.addRight(globalThis.want.parameters["bundleName"], globalThis.want.parameters["deviceName"])
+            usbManager.addRight(globalThis.want.parameters["bundleName"], globalThis.want.parameters["deviceName"])
             this.destruction()
           })
         Text('|')

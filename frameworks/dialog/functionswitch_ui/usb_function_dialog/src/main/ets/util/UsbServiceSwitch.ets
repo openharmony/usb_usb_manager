@@ -14,7 +14,7 @@
  */
 
 import Logger from '../util/Logger';
-import usbV9 from '@ohos.usbV9';
+import usbManager from '@ohos.usbManager';
 
 const TAG: string = 'usbfunctionswitchwindow_UsbServiceSwitch';
 
@@ -29,7 +29,7 @@ class UsbServiceSwitch {
   private tarFunc: number = USBFUNCTION_ID.NONE;
 
   async serviceChoose(chooseId: number): Promise<void> {
-    this.curFunc = usbV9.getCurrentFunctions();
+    this.curFunc = usbManager.getCurrentFunctions();
     Logger.info(TAG, `choose ${chooseId}, current ${this.curFunc}`);
     if (typeof (this.curFunc) == undefined) {
       Logger.error(TAG, 'undefined, error');
@@ -53,7 +53,7 @@ class UsbServiceSwitch {
     }
 
     Logger.info(TAG, `setFunctions: current ${JSON.stringify(this.curFunc)}, target ${JSON.stringify(this.tarFunc)}`);
-    usbV9.setCurrentFunctions(this.tarFunc).then((data) => {
+    usbManager.setCurrentFunctions(this.tarFunc).then((data) => {
       Logger.info(TAG, `setCurrentFunctions success: ${JSON.stringify(data)}`);
     }).catch((err) => {
       Logger.error(TAG, `setCurrentFunctions failed:${JSON.stringify(err)}`);
