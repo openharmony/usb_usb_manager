@@ -189,10 +189,8 @@ void UsbDeviceManager::HandleEvent(int32_t status)
 
     CommonEventData data(want);
     CommonEventPublishInfo publishInfo;
-    publishInfo.SetOrdered(true);
-    USB_HILOGI(MODULE_SERVICE,
-        "send COMMON_EVENT_USB_STATE broadcast connected:%{public}d, currentFunctions:%{public}u", connected_,
-        currentFunctions_);
+    USB_HILOGI(MODULE_SERVICE, "send COMMON_EVENT_USB_STATE broadcast connected:%{public}d, "
+        "currentFunctions:%{public}d", connected_, currentFunctions_);
     CommonEventManager::PublishCommonEvent(data, publishInfo);
     ReportDevicePlugSysEvent(currentFunctions_, connected_);
     ProcessFunctionSwitchWindow(status);

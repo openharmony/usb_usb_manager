@@ -978,6 +978,7 @@ bool UsbService::GetBundleName(std::string &bundleName)
 
     ErrCode ret = bundleMgr->GetNameForUid(uid, bundleName);
     if (ret != ERR_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "failed to obtain bundleName");
         return false;
     }
     return true;
