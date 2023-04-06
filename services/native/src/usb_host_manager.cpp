@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -107,7 +107,6 @@ bool UsbHostManager::PublishCommonEvent(const std::string &event, const UsbDevic
     data.SetData(jsonString);
 
     CommonEventPublishInfo publishInfo;
-    publishInfo.SetOrdered(true);
     USB_HILOGI(MODULE_SERVICE, "send %{public}s broadcast device:%{public}s", event.c_str(), jsonString.c_str());
     ReportHostPlugSysEvent(event, dev);
     return CommonEventManager::PublishCommonEvent(data, publishInfo);
