@@ -147,6 +147,8 @@ bool NapiUtil::JsUint8ArrayParse(
 {
     bool isTypedArray = false;
     if (napi_is_typedarray(env, object, &isTypedArray) != napi_ok || !isTypedArray) {
+        USB_ASSERT_RETURN_FALSE(
+           env, isTypedArray, SYSPARAM_INVALID_INPUT, "The type of buffer must be TypedArray.");
         USB_HILOGW(MODULE_JS_NAPI, "invalid type");
         return false;
     }
