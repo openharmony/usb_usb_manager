@@ -22,7 +22,7 @@ class UsbDialogStub extends rpc.RemoteObject {
   constructor(des) {
     super(des);
   }
-  onRemoteRequest(code, data, reply, option) {
+  onRemoteRequest(code, data, reply, option): boolean {
     return true;
   }
 }
@@ -40,7 +40,7 @@ export default class UsbDialogAbility extends extension {
     globalThis.windowNum = 0;
   }
 
-  onConnect(want) {
+  onConnect(want): rpc.RemoteObject {
     console.log('onConnect want: ' + JSON.stringify(want));
     display.getDefaultDisplay().then(dis => {
       let navigationBarRect = {
