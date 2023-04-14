@@ -25,6 +25,13 @@
 using namespace OHOS::HDI::Usb::V1_0;
 namespace OHOS {
 namespace USB {
+
+constexpr int32_t MAX_DEVICE_NUM = 127;
+constexpr int32_t MAX_CONFIG_NUM  = 100;
+constexpr int32_t MAX_INTERFACE_NUM = 100;
+constexpr int32_t MAX_ENDPOINT_NUM = 32;
+constexpr int32_t MAX_PORT_NUM = 100;
+
 int32_t UsbServerProxy::SetDeviceMessage(MessageParcel &data, uint8_t busNum, uint8_t devAddr)
 {
     WRITE_PARCEL_WITH_RET(data, Uint8, busNum, UEC_SERVICE_WRITE_PARCEL_ERROR);
@@ -106,6 +113,10 @@ int32_t UsbServerProxy::GetDeviceListMessageParcel(MessageParcel &data, std::vec
 {
     int32_t count;
     READ_PARCEL_WITH_RET(data, Int32, count, UEC_SERVICE_READ_PARCEL_ERROR);
+    if (count > MAX_DEVICE_NUM) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "the maximum number of devices is exceeded!");
+        return ERR_INVALID_VALUE;
+    }
 
     for (int32_t i = 0; i < count; ++i) {
         UsbDevice devInfo;
@@ -177,6 +188,10 @@ int32_t UsbServerProxy::GetDeviceConfigsMessageParcel(MessageParcel &data, std::
 
     int32_t tmp;
     uint32_t attributes;
+    if (configCount > MAX_CONFIG_NUM) {
+        USB_HILOGE(MODULE_USB_SERVICE, "the maximum number of configurations is exceeded!");
+        return ERR_INVALID_VALUE;
+    }
     for (uint32_t i = 0; i < configCount; ++i) {
         USBConfig config;
         READ_PARCEL_WITH_RET(data, Int32, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
@@ -213,6 +228,10 @@ int32_t UsbServerProxy::GetDeviceInterfacesMessageParcel(MessageParcel &data, st
     std::u16string tstr;
     data.ReadInt32(tmp);
     interfaceCount = tmp;
+    if (interfaceCount > MAX_INTERFACE_NUM) {
+        USB_HILOGE(MODULE_USB_SERVICE, "the maximum number of interfaces is exceeded!");
+        return ERR_INVALID_VALUE;
+    }
     for (int32_t i = 0; i < interfaceCount; ++i) {
         UsbInterface interface;
         READ_PARCEL_WITH_RET(data, Int32, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
@@ -255,6 +274,10 @@ int32_t UsbServerProxy::GetDeviceEndpointsMessageParcel(MessageParcel &data, std
     uint32_t address;
     READ_PARCEL_WITH_RET(data, Int32, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
     epCount = tmp;
+    if (epCount > MAX_ENDPOINT_NUM) {
+        USB_HILOGE(MODULE_USB_SERVICE, "the maximum number of endpoints is exceeded!");
+        return ERR_INVALID_VALUE;
+    }
     for (int32_t i = 0; i < epCount; ++i) {
         USBEndpoint ep;
         READ_PARCEL_WITH_RET(data, Uint32, address, UEC_SERVICE_READ_PARCEL_ERROR);
@@ -479,6 +502,10 @@ int32_t UsbServerProxy::GetPorts(std::vector<UsbPort> &ports)
     int32_t size;
     READ_PARCEL_WITH_RET(reply, Int32, size, UEC_INTERFACE_READ_PARCEL_ERROR);
     USB_HILOGI(MODULE_USB_INNERKIT, "GetPorts size %{public}d", size);
+    if (size > MAX_PORT_NUM) {
+        USB_HILOGE(MODULE_INNERKIT, "the maximum number of ports is exceeded!");
+        return ERR_INVALID_VALUE;
+    }
     for (int32_t i = 0; i < size; ++i) {
         USB_HILOGI(MODULE_USB_INNERKIT, "ParseUsbPort : %{public}d", i);
         ret = ParseUsbPort(reply, ports);
