@@ -167,7 +167,7 @@ usb.setCurrentFunctions(funType).then(data => {
 
 ## Repositories Involved`<a name="section63151229062"></a>`
 
-[Drive Subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/driver-subsystem.md)
+[Drive Subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/driver.md)
 
 [drivers\_peripheral](https://gitee.com/openharmony/drivers_peripheral/blob/master/README.md)
 
