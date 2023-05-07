@@ -29,7 +29,6 @@
         "hiviewdfx_hilog_native",
         "ability_base",
         "eventhandler",
-        "window_manager",
         "jsoncpp",
         "napi",
         "bundle_framework",
@@ -38,8 +37,12 @@
         "ipc",
         "safwk",
         "c_utils",
-        "ace_engine",
-        "samgr"
+        "samgr",
+        "access_token",
+        "os_account",
+        "relational_store",
+        "ability_runtime",
+        "hisysevent_native"
       ],
       "third_party": []
     },

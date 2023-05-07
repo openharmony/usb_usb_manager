@@ -28,6 +28,7 @@ UsbRightDataBase::UsbRightDataBase()
     std::string rightDatabaseName = USB_RIGHT_DB_PATH + USB_RIGHT_DB_NAME;
     int32_t errCode = OHOS::NativeRdb::E_OK;
     OHOS::NativeRdb::RdbStoreConfig config(rightDatabaseName);
+    config.SetSecurityLevel(NativeRdb::SecurityLevel::S1);
     UsbRightDataBaseCallBack sqliteOpenHelperCallback;
     store_ = OHOS::NativeRdb::RdbHelper::GetRdbStore(config, DATABASE_OPEN_VERSION, sqliteOpenHelperCallback, errCode);
     if (errCode != OHOS::NativeRdb::E_OK) {
