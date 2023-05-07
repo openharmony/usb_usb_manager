@@ -11,12 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/usb/usb_manager/usbmgr.gni")
+import("./../../../../usbmgr.gni")
 
 config("usbnapi_private_config") {
   include_dirs = [
-    "//foundation/arkui/napi/native_engine",
-    "//foundation/arkui/napi/interfaces/kits",
+    "./../../../../../../../foundation/arkui/napi/native_engine",
+    "./../../../../../../../foundation/arkui/napi/interfaces/kits",
     "//third_party/node/src",
     "//third_party/jsoncpp/include/json",
     "${usb_manager_path}/interfaces/kits/js/napi/include",
