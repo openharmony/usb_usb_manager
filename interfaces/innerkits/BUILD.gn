@@ -53,6 +53,6 @@ ohos_shared_library("usbsrv_client") {
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
-
+  subsystem_name = "usb"
   part_name = "usb_manager"
 }
