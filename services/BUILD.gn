@@ -68,6 +68,7 @@ ohos_shared_library("usbservice") {
     "drivers_interface_usb:libusb_proxy_1.0",
     "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
+    "init:libbegetutil",
     "os_account:os_account_innerkits",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",

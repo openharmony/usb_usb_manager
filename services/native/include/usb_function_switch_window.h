@@ -20,9 +20,11 @@
 
 #include "ability_connect_callback_stub.h"
 #include "bundle_mgr_interface.h"
+#include "parameter.h"
 #include "usb_common.h"
 #include "usb_srv_support.h"
 
+#define PARAM_BUF_LEN 128
 namespace OHOS {
 namespace USB {
 
