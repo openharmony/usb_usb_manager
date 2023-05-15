@@ -354,6 +354,9 @@ int32_t UsbService::GetDevices(std::vector<UsbDevice> &deviceList)
     usbHostManger_->GetDevices(devices);
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices.size());
     for (auto it = devices.begin(); it != devices.end(); ++it) {
+        if (!(usbRightManager_->IsSystemHap())) {
+            it->second->SetmSerial("");
+        }
         deviceList.push_back(*it->second);
     }
     return UEC_OK;
