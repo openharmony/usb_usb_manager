@@ -700,8 +700,7 @@ std::string UsbService::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, 
     }
     std::wstring wstr(reinterpret_cast<wchar_t *>(tbuf), (length - DESCRIPTOR_VALUE_START_OFFSET) / HALF);
     strDesc = std::string(wstr.begin(), wstr.end());
-    USB_HILOGI(MODULE_USB_SERVICE, "getString idx:%{public}d String:%{public}s length:%{public}d", idx, strDesc.c_str(),
-        length);
+    USB_HILOGI(MODULE_USB_SERVICE, "getString idx:%{public}d length:%{public}d", idx, length);
     delete[] tbuf;
     return strDesc;
 }
@@ -731,9 +730,8 @@ int32_t UsbService::FillDevStrings(UsbDevice &dev)
     dev.SetProductName(GetDevStringValFromIdx(busNum, devAddr, dev.GetiProduct()));
     dev.SetmSerial(GetDevStringValFromIdx(busNum, devAddr, dev.GetiSerialNumber()));
     USB_HILOGI(MODULE_USB_SERVICE,
-        "iSerial:%{public}d mSerial:%{public}s Manufactur:%{public}s product:%{public}s "
-        "version:%{public}s",
-        dev.GetiSerialNumber(), dev.GetmSerial().c_str(), dev.GetManufacturerName().c_str(),
+        "iSerial:%{public}d Manufactur:%{public}s product:%{public}s " "version:%{public}s",
+        dev.GetiSerialNumber(), dev.GetManufacturerName().c_str(),
         dev.GetProductName().c_str(), dev.GetVersion().c_str());
 
     std::vector<USBConfig> configs;
@@ -872,7 +870,7 @@ bool UsbService::AddDevice(uint8_t busNum, uint8_t devAddr)
     std::string name = std::to_string(busNum) + "-" + std::to_string(devAddr);
     std::string uniqueName = std::to_string(devInfo->GetVendorId()) + "-" + std::to_string(devInfo->GetProductId()) +
         "-" + devInfo->GetmSerial();
-    USB_HILOGI(MODULE_USB_SERVICE, "map+: %{public}s<->%{public}s", name.c_str(), uniqueName.c_str());
+    USB_HILOGI(MODULE_USB_SERVICE, "map+: %{public}s", name.c_str());
     {
         std::lock_guard<std::mutex> guard(mutex_);
         deviceVidPidMap_.insert(std::pair<std::string, std::string>(name, uniqueName));

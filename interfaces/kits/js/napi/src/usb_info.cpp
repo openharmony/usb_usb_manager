@@ -871,8 +871,11 @@ static napi_value PipeClaimInterface(napi_env env, napi_callback_info info)
     bool isForce = false;
     if (argc >= PARAM_COUNT_3) {
         napi_typeof(env, argv[INDEX_2], &type);
-        USB_ASSERT(env, type == napi_boolean, SYSPARAM_INVALID_INPUT, "The type of force must be boolean.");
-        napi_get_value_bool(env, argv[INDEX_2], &isForce);
+        if (type == napi_boolean) {
+            napi_get_value_bool(env, argv[INDEX_2], &isForce);
+        } else {
+            USB_HILOGW(MODULE_JS_NAPI, "The type of force must be boolean.");
+        }
     }
 
     int32_t ret = pipe.ClaimInterface(interface, isForce);
@@ -1102,12 +1105,11 @@ static std::tuple<bool, USBDevicePipe, PipeControlParam, int32_t> GetControlTran
     int32_t timeOut = 0;
     if (argc > PARAM_COUNT_2) {
         napi_typeof(env, argv[INDEX_2], &type);
-        if (type != napi_number) {
-            USB_HILOGE(MODULE_JS_NAPI, "index 2 wrong argument type, number expected.");
-            ThrowBusinessError(env, SYSPARAM_INVALID_INPUT, "The type of timeOut must be positive number.");
-            return {false, {}, {}, {}};
+        if (type == napi_number) {
+            napi_get_value_int32(env, argv[INDEX_2], &timeOut);
+        } else {
+            USB_HILOGW(MODULE_JS_NAPI, "index 2 wrong argument type, number expected.");
         }
-        napi_get_value_int32(env, argv[INDEX_2], &timeOut);
     }
 
     return {true, pipe, controlParam, timeOut};
@@ -1239,9 +1241,11 @@ static bool GetBulkTransferParams(napi_env env, napi_callback_info info, USBBulk
     int32_t timeOut = 0;
     if (argc > PARAM_COUNT_3) {
         napi_typeof(env, argv[INDEX_3], &type);
-        USB_ASSERT_RETURN_FALSE(
-            env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of timeOut must be number.");
-        napi_get_value_int32(env, argv[INDEX_3], &timeOut);
+        if (type == napi_number) {
+            napi_get_value_int32(env, argv[INDEX_3], &timeOut);
+        } else {
+            USB_HILOGW(MODULE_JS_NAPI, "The type of timeOut must be number.");
+        }
     }
 
     uint8_t *buffer = nullptr;

@@ -112,7 +112,7 @@ int32_t UsbRightManager::Init()
 bool UsbRightManager::HasRight(const std::string &deviceName, const std::string &bundleName)
 {
     if (IsSystemHap()) {
-        USB_HILOGW(MODULE_USB_SERVICE, "system app, bypass: dev=%{public}s app=%{public}s", deviceName.c_str(),
+        USB_HILOGW(MODULE_USB_SERVICE, "system app, bypass: dev=%{private}s app=%{public}s", deviceName.c_str(),
             bundleName.c_str());
         return true;
     }
@@ -123,7 +123,7 @@ bool UsbRightManager::HasRight(const std::string &deviceName, const std::string 
         return true;
     }
     uint64_t nowTime = GetCurrentTimestamp();
-    USB_HILOGD(MODULE_USB_SERVICE, "info: uid=%{public}d dev=%{public}s app=%{public}s", uid, deviceName.c_str(),
+    USB_HILOGD(MODULE_USB_SERVICE, "info: uid=%{public}d dev=%{private}s app=%{public}s", uid, deviceName.c_str(),
         bundleName.c_str());
 
     (void)TidyUpRight(TIGHT_UP_USB_RIGHT_RECORD_EXPIRED);
@@ -136,7 +136,7 @@ bool UsbRightManager::HasRight(const std::string &deviceName, const std::string 
 int32_t UsbRightManager::RequestRight(
     const std::string &busDev, const std::string &deviceName, const std::string &bundleName)
 {
-    USB_HILOGD(MODULE_USB_SERVICE, "RequestRight: busDev=%{public}s device=%{public}s app=%{public}s", busDev.c_str(),
+    USB_HILOGD(MODULE_USB_SERVICE, "RequestRight: busdev=%{private}s device=%{public}s app=%{public}s", busDev.c_str(),
         deviceName.c_str(), bundleName.c_str());
     if (HasRight(deviceName, bundleName)) {
         USB_HILOGE(MODULE_USB_SERVICE, "device has Right ");
@@ -185,7 +185,7 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
 bool UsbRightManager::RemoveDeviceRight(const std::string &deviceName, const std::string &bundleName)
 {
     if (IsSystemHap()) {
-        USB_HILOGD(MODULE_USB_SERVICE, "system app, bypass: dev=%{public}s app=%{public}s", deviceName.c_str(),
+        USB_HILOGD(MODULE_USB_SERVICE, "system app, bypass: dev=%{private}s app=%{public}s", deviceName.c_str(),
             bundleName.c_str());
         return true;
     }
@@ -207,7 +207,7 @@ bool UsbRightManager::RemoveDeviceRight(const std::string &deviceName, const std
 
 bool UsbRightManager::RemoveDeviceAllRight(const std::string &deviceName)
 {
-    USB_HILOGD(MODULE_USB_SERVICE, "device %{public}s detached, process right", deviceName.c_str());
+    USB_HILOGD(MODULE_USB_SERVICE, "device %{private}s detached, process right", deviceName.c_str());
     CleanUpRightTemporaryExpired(deviceName);
     TidyUpRight(TIGHT_UP_USB_RIGHT_RECORD_ALL);
     return true;
@@ -397,7 +397,7 @@ int32_t UsbRightManager::CleanUpRightExpired(std::vector<std::string> &devices)
         ret = CleanUpRightTemporaryExpired(dev);
         if (ret != USB_RIGHT_OK) {
             USB_HILOGE(MODULE_USB_SERVICE,
-                "failed(%{public}zu/%{public}zu): delete temporary expiried record, dev=%{public}s", i, len,
+                "failed(%{public}zu/%{public}zu): delete temporary expiried record, dev=%{private}s", i, len,
                 dev.c_str());
             continue;
         }
@@ -563,7 +563,7 @@ int32_t UsbRightManager::CleanUpRightTemporaryExpired(const std::string &deviceN
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     int32_t ret = helper->DeleteValidPeriodRightRecord(USB_RIGHT_VALID_PERIOD_MIN, deviceName);
     if (ret != USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "failed: delete temporary expiried record: dev=%{public}s", deviceName.c_str());
+        USB_HILOGE(MODULE_USB_SERVICE, "failed: delete temporary expiried record: dev=%{private}s", deviceName.c_str());
     }
     return ret;
 }
