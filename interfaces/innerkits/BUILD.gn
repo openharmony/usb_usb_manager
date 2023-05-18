@@ -54,5 +54,6 @@ ohos_shared_library("usbsrv_client") {
     "samgr:samgr_proxy",
   ]
   subsystem_name = "usb"
+  innerapi_tags = [ "platformsdk" ]
   part_name = "usb_manager"
 }
