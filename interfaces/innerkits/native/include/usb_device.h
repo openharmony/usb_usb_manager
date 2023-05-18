@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -315,7 +315,7 @@ public:
         Json::Value device;
         device["busNum"] = busNum_;
         device["devAddress"] = devAddr_;
-        device["serial"] = serial_;
+        device["serial"] = "";
         device["name"] = name_;
         device["manufacturerName"] = manufacturerName_;
         device["productName"] = productName_;
