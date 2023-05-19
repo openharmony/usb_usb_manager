@@ -19,33 +19,33 @@ let TAG = 'UsbRightDialog_MainAbility:';
 
 export default class MainAbility extends Ability {
   onCreate(want, launchParam): void {
-    console.log(TAG + "MainAbility onCreate, ability name is " + want.abilityName + ".");
+    console.log(TAG + 'MainAbility onCreate, ability name is ' + want.abilityName + '.');
     globalThis.context = this.context;
   }
 
   onWindowStageCreate(windowStage): void {
     // Main window is created, set main page for this ability
-    console.log(TAG + "MainAbility onWindowStageCreate.");
+    console.log(TAG + 'MainAbility onWindowStageCreate.');
 
     windowStage.setUIContent(this.context, 'pages/UsbDialog', null);
   }
 
   onForeground(): void {
     // Ability has brought to foreground
-    console.log(TAG + "MainAbility onForeground.");
+    console.log(TAG + 'MainAbility onForeground.');
   }
 
   onBackground(): void {
     // Ability has back to background
-    console.log(TAG + "MainAbility onBackground.");
+    console.log(TAG + 'MainAbility onBackground.');
   }
 
   onDestroy(): void {
-    console.log(TAG + "MainAbility onDestroy.");
+    console.log(TAG + 'MainAbility onDestroy.');
   }
 
   onWindowStageDestroy(): void {
     // Main window is destroyed, release UI related resources
-    console.log(TAG + "MainAbility onWindowStageDestroy.");
+    console.log(TAG + 'MainAbility onWindowStageDestroy.');
   }
 };
