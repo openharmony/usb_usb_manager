@@ -60,7 +60,19 @@ int32_t UsbFunctionSwitchWindow::Init()
 bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "pop up function switch window");
+    char paramValue[PARAM_BUF_LEN] = { 0 };
+    const char defaultValue[PARAM_BUF_LEN] = { 0 };
     std::lock_guard<std::mutex> guard(opMutex_);
+    int32_t ret = GetParameter("persist.usb.setting.gadget_conn_prompt", defaultValue, paramValue, sizeof(paramValue));
+    if (ret < 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetParameter fail");
+        return false;
+    }
+    ret = strcmp(paramValue, "true");
+    if (ret != 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "not allow open");
+        return false;
+    }
     if (windowAction_ == UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_FORBID) {
         USB_HILOGI(MODULE_USB_SERVICE, "forbid: pop up function switch window");
         return false;
