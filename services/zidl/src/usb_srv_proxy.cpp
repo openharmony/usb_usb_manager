@@ -175,7 +175,6 @@ int32_t UsbServerProxy::GetDeviceMessageParcel(MessageParcel &data, UsbDevice &d
     std::vector<USBConfig> configs;
     GetDeviceConfigsMessageParcel(data, configs);
     devInfo.SetConfigs(configs);
-    USB_HILOGI(MODULE_USB_INNERKIT, "ToString : %{public}s", devInfo.ToString().c_str());
     return UEC_OK;
 }
 
