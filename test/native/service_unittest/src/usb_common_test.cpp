@@ -15,26 +15,11 @@
 
 #include "usb_common_test.h"
 
-static constexpr int32_t DEFAULT_API_VERSION = 8;
 using namespace OHOS::Security::AccessToken;
 
 namespace OHOS {
 namespace USB {
 namespace Common {
-static HapInfoParams g_InfoParams = {
-    .userID = 1,
-    .bundleName = "usb",
-    .instIndex = 0,
-    .appIDDesc = "usb_test",
-    .apiVersion = DEFAULT_API_VERSION,
-    .isSystemApp = true
-};
-
-HapPolicyParams policy = {
-    .apl = APL_SYSTEM_BASIC,
-    .domain = "domain"
-};
-
 TokenInfoParams g_normalInfoInstance = {
     .dcapsNum = 0,
     .permsNum = 0,
@@ -57,15 +42,7 @@ TokenInfoParams g_sysInfoInstance = {
     .aplStr = "system_basic",
 };
 
-void UsbCommonTest::SetTestCaseHapApply (void)
-{
-    AccessTokenKit::AllocHapToken(g_InfoParams, policy);
-    AccessTokenIDEx tokenID = AccessTokenKit::GetHapTokenIDEx(g_InfoParams.userID, g_InfoParams.bundleName,
-        g_InfoParams.instIndex);
-    SetSelfTokenID(tokenID.tokenIDEx);
-}
-
-void UsbCommonTest::SetTestCaseNative (TokenInfoParams *infoInstance)
+void UsbCommonTest::SetTestCaseNative(TokenInfoParams *infoInstance)
 {
     uint64_t tokenId = GetAccessTokenId(infoInstance);
     int ret = SetSelfTokenID(tokenId);
@@ -86,6 +63,6 @@ void UsbCommonTest::GrantPermissionNormalNative()
 {
     SetTestCaseNative(&g_normalInfoInstance);
 }
-} // Common
-} // USB
-} // OHOS
+} // namespace Common
+} // namespace USB
+} // namespace OHOS

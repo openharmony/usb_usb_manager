@@ -96,7 +96,8 @@ int32_t UsbService::SetUsbd(const sptr<IUsbInterface> &usbd)
 }
 
 UsbService::SystemAbilityStatusChangeListener::SystemAbilityStatusChangeListener(
-    sptr<UsbServiceSubscriber> usbdSubscriber) : usbdSubscriber_(usbdSubscriber)
+    sptr<UsbServiceSubscriber> usbdSubscriber)
+    : usbdSubscriber_(usbdSubscriber)
 {
 }
 
@@ -290,16 +291,21 @@ std::string UsbService::GetDeviceVidPidSerialNumber(std::string deviceName)
 bool UsbService::HasRight(std::string deviceName)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbRightManager HasRight");
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return false;
+    }
+
+    if (usbRightManager_->IsSystemHap()) {
+        USB_HILOGW(MODULE_USB_SERVICE, "system app, bypass: dev=%{public}s", deviceName.c_str());
+        return true;
+    }
     std::string bundleName;
     if (!GetBundleName(bundleName)) {
         USB_HILOGE(MODULE_USB_SERVICE, "HasRight GetBundleName false");
         return false;
     }
 
-    if (usbRightManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
-        return false;
-    }
     USB_HILOGI(MODULE_USB_SERVICE, "bundle=%{public}s, device=%{public}s", bundleName.c_str(), deviceName.c_str());
     return usbRightManager_->HasRight(GetDeviceVidPidSerialNumber(deviceName), bundleName);
 }
@@ -307,16 +313,20 @@ bool UsbService::HasRight(std::string deviceName)
 int32_t UsbService::RequestRight(std::string deviceName)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbRightManager RequestRight");
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INNER_ERR;
+    }
+    if (usbRightManager_->IsSystemHap()) {
+        USB_HILOGW(MODULE_USB_SERVICE, "system app, bypass: dev=%{public}s", deviceName.c_str());
+        return UEC_OK;
+    }
     std::string bundleName;
     if (!GetBundleName(bundleName)) {
         USB_HILOGI(MODULE_USB_SERVICE, "RequestRight GetBundleName false");
         return UEC_SERVICE_INNER_ERR;
     }
 
-    if (usbRightManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
     USB_HILOGI(MODULE_USB_SERVICE, "bundle=%{public}s, device=%{public}s", bundleName.c_str(), deviceName.c_str());
     return usbRightManager_->RequestRight(deviceName, GetDeviceVidPidSerialNumber(deviceName), bundleName);
 }
@@ -326,6 +336,11 @@ int32_t UsbService::RemoveRight(std::string deviceName)
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
+    }
+
+    if (usbRightManager_->IsSystemHap()) {
+        USB_HILOGW(MODULE_USB_SERVICE, "system app, bypass: dev=%{public}s", deviceName.c_str());
+        return UEC_OK;
     }
 
     std::string bundleName;
@@ -730,9 +745,10 @@ int32_t UsbService::FillDevStrings(UsbDevice &dev)
     dev.SetProductName(GetDevStringValFromIdx(busNum, devAddr, dev.GetiProduct()));
     dev.SetmSerial(GetDevStringValFromIdx(busNum, devAddr, dev.GetiSerialNumber()));
     USB_HILOGI(MODULE_USB_SERVICE,
-        "iSerial:%{public}d Manufactur:%{public}s product:%{public}s " "version:%{public}s",
-        dev.GetiSerialNumber(), dev.GetManufacturerName().c_str(),
-        dev.GetProductName().c_str(), dev.GetVersion().c_str());
+        "iSerial:%{public}d Manufactur:%{public}s product:%{public}s "
+        "version:%{public}s",
+        dev.GetiSerialNumber(), dev.GetManufacturerName().c_str(), dev.GetProductName().c_str(),
+        dev.GetVersion().c_str());
 
     std::vector<USBConfig> configs;
     configs = dev.GetConfigs();

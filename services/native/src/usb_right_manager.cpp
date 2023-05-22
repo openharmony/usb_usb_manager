@@ -111,11 +111,6 @@ int32_t UsbRightManager::Init()
 
 bool UsbRightManager::HasRight(const std::string &deviceName, const std::string &bundleName)
 {
-    if (IsSystemHap()) {
-        USB_HILOGW(MODULE_USB_SERVICE, "system app, bypass: dev=%{private}s app=%{public}s", deviceName.c_str(),
-            bundleName.c_str());
-        return true;
-    }
     int32_t uid = USB_RIGHT_USERID_INVALID;
     GetCurrentUserId(uid);
     if (uid == USB_RIGHT_USERID_CONSOLE) {
@@ -184,11 +179,6 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
 
 bool UsbRightManager::RemoveDeviceRight(const std::string &deviceName, const std::string &bundleName)
 {
-    if (IsSystemHap()) {
-        USB_HILOGD(MODULE_USB_SERVICE, "system app, bypass: dev=%{private}s app=%{public}s", deviceName.c_str(),
-            bundleName.c_str());
-        return true;
-    }
     int32_t uid = USB_RIGHT_USERID_INVALID;
     GetCurrentUserId(uid);
     if (uid == USB_RIGHT_USERID_CONSOLE) {
