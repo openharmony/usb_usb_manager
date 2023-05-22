@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "usb_srv_client.h"
 #include "usb_common_test.h"
+#include "usb_srv_client.h"
 
 using namespace std;
 using namespace OHOS;
@@ -126,7 +126,7 @@ static inline bool isNumber(string_view strv)
 
 int32_t main(int32_t argc, char *argv[])
 {
-    UsbCommonTest::SetTestCaseHapApply();
+    UsbCommonTest::GrantPermissionSysNative();
 
     if (argc < MIN_ARG_NUM) {
         PrintHelp();
@@ -150,4 +150,3 @@ int32_t main(int32_t argc, char *argv[])
     }
     return 0;
 }
-

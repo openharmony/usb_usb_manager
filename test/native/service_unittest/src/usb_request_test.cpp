@@ -45,7 +45,7 @@ constexpr int32_t TAG_SIZE = 50;
 constexpr int32_t BUFFER_SIZE = 255;
 void UsbRequestTest::SetUpTestCase(void)
 {
-    UsbCommonTest::SetTestCaseHapApply();
+    UsbCommonTest::GrantPermissionSysNative();
     auto &srvClient = UsbSrvClient::GetInstance();
     auto ret = srvClient.SetPortRole(1, 1, 1);
     sleep(SLEEP_TIME);
