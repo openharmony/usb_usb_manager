@@ -22,8 +22,8 @@
     "adapted_system_type": [
       "standard"
     ],
-    "rom": "128k",
-    "ram": "6M",
+    "rom": "4111KB",
+    "ram": "6660KB",
     "deps": {
       "components": [
         "hiviewdfx_hilog_native",
@@ -34,6 +34,7 @@
         "bundle_framework",
         "common_event_service",
         "drivers_interface_usb",
+        "init",
         "ipc",
         "safwk",
         "c_utils",
