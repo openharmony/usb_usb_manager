@@ -658,6 +658,29 @@ ohos_fuzztest("UsbMgrBulkCancelFuzzTest") {
   ]
 }
 
+ohos_fuzztest("UsbMgrFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file = "${usb_manager_path}/test/fuzztest/usbmgr_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "c_utils:utils",
+    "drivers_interface_usb:usb_idl_headers",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources = [ "usbmgr_fuzzer/usbmgr_fuzzer.cpp" ]
+}
+
 group("fuzztest") {
   testonly = true
   deps = []
@@ -669,6 +692,7 @@ group("fuzztest") {
     ":UsbMgrClaimInterfaceFuzzTest",
     ":UsbMgrCloseFuzzTest",
     ":UsbMgrControlTransferFuzzTest",
+    ":UsbMgrFuzzTest",
     ":UsbMgrGetFileDescriptorFuzzTest",
     ":UsbMgrGetRawDescriptorsFuzzTest",
     ":UsbMgrGetSupportedModesFuzzTest",
