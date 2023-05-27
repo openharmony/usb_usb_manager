@@ -26,7 +26,6 @@ namespace USB {
 namespace Common {
 class UsbCommonTest {
 public:
-    static void SetTestCaseHapApply();
     static void SetTestCaseNative (TokenInfoParams *infoInstance);
     static void GrantPermissionSysNative();
     static void GrantPermissionNormalNative();
