@@ -29,7 +29,6 @@
         "hiviewdfx_hilog_native",
         "ability_base",
         "eventhandler",
-        "jsoncpp",
         "napi",
         "bundle_framework",
         "common_event_service",
@@ -45,7 +44,9 @@
         "ability_runtime",
         "hisysevent_native"
       ],
-      "third_party": []
+      "third_party": [
+        "jsoncpp"
+      ]
     },
     "build": {
       "group_type": {
