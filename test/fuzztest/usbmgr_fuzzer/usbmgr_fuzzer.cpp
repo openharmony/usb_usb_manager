@@ -16,7 +16,6 @@
 #include "usbmgr_fuzzer.h"
 #include <cstddef>
 #include <cstdint>
-#include "usb_errors.h"
 #include "usb_service.h"
 using namespace OHOS::HDI::Usb::V1_0;
 using namespace OHOS::USB;
