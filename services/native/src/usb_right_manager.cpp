@@ -33,10 +33,15 @@
 #include "tokenid_kit.h"
 #include "usb_errors.h"
 #include "usb_right_db_helper.h"
+#include "usb_napi_errors.h"
+#include "usb_srv_support.h"
 
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::EventFwk;
 using namespace OHOS::Security::AccessToken;
+
+
+#define PARAM_BUF_LEN 128
 
 namespace OHOS {
 namespace USB {
@@ -375,6 +380,29 @@ int32_t UsbRightManager::IsOsAccountExists(int32_t id, bool &isAccountExists)
         return USB_RIGHT_FAILURE;
     }
     return USB_RIGHT_OK;
+}
+
+int32_t UsbRightManager::HasSetFuncRight(int32_t functions)
+{
+    if (!IsSystemHap()) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    }
+    if (!(functions & UsbSrvSupport::FUNCTION_HDC)) {
+        return UEC_OK;
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "Set up function permission validation");
+    char paramValue[PARAM_BUF_LEN] = { 0 };
+    int32_t ret = GetParameter("persist.hdc.control", "true", paramValue, sizeof(paramValue));
+    if (ret < 0) {
+        USB_HILOGW(MODULE_USB_SERVICE, "GetParameter fail");
+    }
+    ret = strcmp(paramValue, "true");
+    if (ret != 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "HDC setup failed");
+        return UEC_SERVICE_PERMISSION_CHECK_HDC;
+    }
+    return UEC_OK;
 }
 
 int32_t UsbRightManager::CleanUpRightExpired(std::vector<std::string> &devices)

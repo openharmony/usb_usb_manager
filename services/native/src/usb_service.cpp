@@ -401,11 +401,12 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    if (!(usbRightManager_->IsSystemHap())) {
-        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
-    }
 
+    int32_t ret = usbRightManager_->HasSetFuncRight(functions);
+    if (ret != 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "HasSetFuncRight fail");
+        return ret;
+    }
     if (usbDeviceManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbDeviceManager_");
         return UEC_SERVICE_INVALID_VALUE;

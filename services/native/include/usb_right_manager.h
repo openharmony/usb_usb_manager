@@ -26,6 +26,7 @@
 #include "ability_connect_callback_stub.h"
 #include "bundle_mgr_interface.h"
 #include "usb_common.h"
+#include "parameter.h"
 
 namespace OHOS {
 namespace USB {
@@ -46,6 +47,7 @@ public:
     static int32_t CleanUpRightUserDeleted(int32_t &totalUsers, int32_t &deleteUsers);
     static int32_t CleanUpRightAppUninstalled(int32_t uid, const std::string &bundleName);
     static int32_t IsOsAccountExists(int32_t id, bool &isAccountExists);
+    int32_t HasSetFuncRight(int32_t functions);
 
 private:
     bool GetUserAgreementByDiag(
