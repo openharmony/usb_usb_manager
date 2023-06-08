@@ -696,6 +696,7 @@ static napi_value CoreGetCurrentFunctions(napi_env env, napi_callback_info info)
     napi_value result;
     USB_HILOGI(MODULE_JS_NAPI, "get current functions failed ret = %{public}d", ret);
     USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI), USB_SYSAPI_PERMISSION_DENIED, "");
+    USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_CHECK_HDC), USB_HDC_PERMISSION_DENIED, "");
 
     if (ret != UEC_OK) {
         napi_get_undefined(env, &result);
