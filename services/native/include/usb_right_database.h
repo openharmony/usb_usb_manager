@@ -59,9 +59,9 @@ public:
     int32_t Delete(int32_t &changedRows, const std::string &whereClause, const std::vector<std::string> &whereArgs);
     int32_t ExecuteSql(const std::string &sql,
         const std::vector<OHOS::NativeRdb::ValueObject> &bindArgs = std::vector<OHOS::NativeRdb::ValueObject>());
-    std::unique_ptr<OHOS::NativeRdb::AbsSharedResultSet> QuerySql(
+    std::shared_ptr<OHOS::NativeRdb::ResultSet> QuerySql(
         const std::string &sql, const std::vector<std::string> &selectionArgs);
-    std::unique_ptr<OHOS::NativeRdb::AbsSharedResultSet> Query(
+    std::shared_ptr<OHOS::NativeRdb::ResultSet> Query(
         const OHOS::NativeRdb::AbsRdbPredicates &predicates, const std::vector<std::string> &columns);
     int32_t BeginTransaction();
     int32_t Commit();

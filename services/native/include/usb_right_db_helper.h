@@ -117,8 +117,8 @@ private:
         const std::string &bundleName, struct UsbRightAppInfo &info);
     int32_t QueryRightRecordCount(void);
     int32_t GetResultSetTableInfo(
-        const std::unique_ptr<OHOS::NativeRdb::AbsSharedResultSet> &resultSet, struct UsbRightTableInfo &table);
-    int32_t GetResultRightRecordEx(const std::unique_ptr<OHOS::NativeRdb::AbsSharedResultSet> &resultSet,
+        const std::shared_ptr<OHOS::NativeRdb::ResultSet> &resultSet, struct UsbRightTableInfo &table);
+    int32_t GetResultRightRecordEx(const std::shared_ptr<OHOS::NativeRdb::ResultSet> &resultSet,
         std::vector<struct UsbRightAppInfo> &infos);
     int32_t QueryAndGetResult(const OHOS::NativeRdb::RdbPredicates &rdbPredicates,
         const std::vector<std::string> &columns, std::vector<struct UsbRightAppInfo> &infos);
