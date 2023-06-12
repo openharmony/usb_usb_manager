@@ -117,7 +117,7 @@ declare namespace usbManager {
    * @param funcs Numeric mask combination of the supported function list.
    * @returns Returns **true** if the setting is successful; returns **false** otherwise.
    * @throws {BusinessError} 401 - The parameter types do not match or parameter is not specified.
-   * @throws {BusinessError} 14400002 - The HDC is disabled by the system.
+   * @throws {BusinessError} 14400002 - Permission denied.The HDC is disabled by the system.
    * @systemapi
    * @syscap SystemCapability.USB.USBManager
    * @since 9
