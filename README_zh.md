@@ -31,7 +31,7 @@ base/usb/usb_manager
 └── utils                       # 工具和通用层
 ```
 ## 接口<a name="section19472752218"></a>
-### [外部接口](https://gitee.com/openharmony/usb_manager/blob/master/interfaces/kits/js/@ohos.usb.d.ts)
+### [外部接口](interfaces/kits/js/@ohos.usbManager.d.ts)
 
 ### 内部接口
 #### Host 功能接口
