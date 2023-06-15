@@ -133,7 +133,7 @@ int32_t UsbRightDbHelper::QueryAndGetResult(const RdbPredicates &rdbPredicates, 
         USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error: %{public}d", ret);
         return ret;
     }
-    std::unique_ptr<AbsSharedResultSet> resultSet = rightDatabase_->Query(rdbPredicates, columns);
+    auto resultSet = rightDatabase_->Query(rdbPredicates, columns);
     if (resultSet == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "Query error");
         (void)rightDatabase_->RollBack();
@@ -224,7 +224,7 @@ int32_t UsbRightDbHelper::QueryAndGetResultColumnValues(const RdbPredicates &rdb
         USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error: %{public}d", ret);
         return ret;
     }
-    std::unique_ptr<AbsSharedResultSet> resultSet = rightDatabase_->Query(rdbPredicates, columns);
+    auto resultSet = rightDatabase_->Query(rdbPredicates, columns);
     if (resultSet == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "Query error");
         (void)rightDatabase_->RollBack();
@@ -427,7 +427,7 @@ int32_t UsbRightDbHelper::DeleteValidPeriodRightRecord(long validPeriod, const s
 }
 
 int32_t UsbRightDbHelper::GetResultSetTableInfo(
-    const std::unique_ptr<OHOS::NativeRdb::AbsSharedResultSet> &resultSet, struct UsbRightTableInfo &table)
+    const std::shared_ptr<OHOS::NativeRdb::ResultSet> &resultSet, struct UsbRightTableInfo &table)
 {
     int32_t rowCount = 0;
     int32_t columnCount = 0;
@@ -476,7 +476,7 @@ int32_t UsbRightDbHelper::GetResultSetTableInfo(
 }
 
 int32_t UsbRightDbHelper::GetResultRightRecordEx(
-    const std::unique_ptr<OHOS::NativeRdb::AbsSharedResultSet> &resultSet, std::vector<struct UsbRightAppInfo> &infos)
+    const std::shared_ptr<OHOS::NativeRdb::ResultSet> &resultSet, std::vector<struct UsbRightAppInfo> &infos)
 {
     struct UsbRightTableInfo table;
     int32_t ret = GetResultSetTableInfo(resultSet, table);
@@ -559,7 +559,7 @@ int32_t UsbRightDbHelper::CheckIfNeedUpdateEx(
         ->And()
         ->EqualTo("bundleName", bundleName)
         ->EndWrap();
-    std::unique_ptr<AbsSharedResultSet> resultSet = rightDatabase_->Query(rdbPredicates, columns);
+    auto resultSet = rightDatabase_->Query(rdbPredicates, columns);
     if (resultSet == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "Query error");
         (void)rightDatabase_->RollBack();
@@ -613,7 +613,7 @@ int32_t UsbRightDbHelper::QueryRightRecordCount()
     }
     std::vector<std::string> columns;
     RdbPredicates rdbPredicates(USB_RIGHT_TABLE_NAME);
-    std::unique_ptr<AbsSharedResultSet> resultSet = rightDatabase_->Query(rdbPredicates, columns);
+    auto resultSet = rightDatabase_->Query(rdbPredicates, columns);
     if (resultSet == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "Query error");
         (void)rightDatabase_->RollBack();

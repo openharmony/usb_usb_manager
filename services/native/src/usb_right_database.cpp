@@ -180,7 +180,7 @@ int32_t UsbRightDataBase::ExecuteSql(const std::string &sql, const std::vector<O
     return USB_RIGHT_OK;
 }
 
-std::unique_ptr<OHOS::NativeRdb::AbsSharedResultSet> UsbRightDataBase::QuerySql(
+std::shared_ptr<OHOS::NativeRdb::ResultSet> UsbRightDataBase::QuerySql(
     const std::string &sql, const std::vector<std::string> &selectionArgs)
 {
     if (store_ == nullptr) {
@@ -190,7 +190,7 @@ std::unique_ptr<OHOS::NativeRdb::AbsSharedResultSet> UsbRightDataBase::QuerySql(
     return store_->QuerySql(sql);
 }
 
-std::unique_ptr<OHOS::NativeRdb::AbsSharedResultSet> UsbRightDataBase::Query(
+std::shared_ptr<OHOS::NativeRdb::ResultSet> UsbRightDataBase::Query(
     const OHOS::NativeRdb::AbsRdbPredicates &predicates, const std::vector<std::string> &columns)
 {
     if (store_ == nullptr) {
