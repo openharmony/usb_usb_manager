@@ -80,52 +80,52 @@ bool UsbServerStub::StubDevice(
     uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     switch (code) {
-        case static_cast<int>(IUsbSrv::USB_FUN_OPEN_DEVICE):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_OPEN_DEVICE):
             result = DoOpenDevice(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_HAS_RIGHT):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_HAS_RIGHT):
             result = DoHasRight(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_REQUEST_RIGHT):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REQUEST_RIGHT):
             result = DoRequestRight(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_REMOVE_RIGHT):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REMOVE_RIGHT):
             result = DoRemoveRight(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_GET_PORTS):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_PORTS):
             result = DoGetPorts(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_GET_SUPPORTED_MODES):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_SUPPORTED_MODES):
             result = DoGetSupportedModes(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_SET_PORT_ROLE):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_SET_PORT_ROLE):
             result = DoSetPortRole(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_CLAIM_INTERFACE):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_CLAIM_INTERFACE):
             result = DoClaimInterface(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_RELEASE_INTERFACE):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_RELEASE_INTERFACE):
             result = DoReleaseInterface(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_BULK_TRANSFER_READ):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_TRANSFER_READ):
             result = DoBulkTransferRead(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_BULK_TRANSFER_WRITE):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_TRANSFER_WRITE):
             result = DoBulkTransferWrite(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_CONTROL_TRANSFER):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_CONTROL_TRANSFER):
             result = DoControlTransfer(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_REG_BULK_CALLBACK):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REG_BULK_CALLBACK):
             result = DoRegBulkCallback(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_UNREG_BULK_CALLBACK):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_UNREG_BULK_CALLBACK):
             result = DoUnRegBulkCallback(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_GET_FILEDESCRIPTOR):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_FILEDESCRIPTOR):
             result = DoGetFileDescriptor(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_ADD_RIGHT):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_ADD_RIGHT):
             result = DoAddRight(data, reply, option);
             return true;
         default:;
@@ -137,49 +137,49 @@ bool UsbServerStub::StubHost(
     uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     switch (code) {
-        case static_cast<int>(IUsbSrv::USB_FUN_GET_DEVICES):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_DEVICES):
             result = DoGetDevices(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_GET_CURRENT_FUNCTIONS):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_CURRENT_FUNCTIONS):
             result = DoGetCurrentFunctions(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_SET_CURRENT_FUNCTIONS):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_SET_CURRENT_FUNCTIONS):
             result = DoSetCurrentFunctions(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_USB_FUNCTIONS_FROM_STRING):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_USB_FUNCTIONS_FROM_STRING):
             result = DoUsbFunctionsFromString(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_USB_FUNCTIONS_TO_STRING):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_USB_FUNCTIONS_TO_STRING):
             result = DoUsbFunctionsToString(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_CLOSE_DEVICE):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_CLOSE_DEVICE):
             result = DoClose(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_REQUEST_QUEUE):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REQUEST_QUEUE):
             result = DoRequestQueue(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_REQUEST_WAIT):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REQUEST_WAIT):
             result = DoRequestWait(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_SET_INTERFACE):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_SET_INTERFACE):
             result = DoSetInterface(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_SET_ACTIVE_CONFIG):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_SET_ACTIVE_CONFIG):
             result = DoSetActiveConfig(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_REQUEST_CANCEL):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REQUEST_CANCEL):
             result = DoRequestCancel(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_BULK_AYSNC_READ):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_AYSNC_READ):
             result = DoBulkRead(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_BULK_AYSNC_WRITE):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_AYSNC_WRITE):
             result = DoBulkWrite(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_BULK_AYSNC_CANCEL):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_AYSNC_CANCEL):
             result = DoBulkCancel(data, reply, option);
             return true;
-        case static_cast<int>(IUsbSrv::USB_FUN_GET_DESCRIPTOR):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_DESCRIPTOR):
             result = DoGetRawDescriptor(data, reply, option);
             return true;
         default:;
