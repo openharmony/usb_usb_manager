@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,42 +26,6 @@ namespace OHOS {
 namespace USB {
 class IUsbSrv : public IRemoteBroker {
 public:
-    enum {
-        USB_FUN_HAS_RIGHT = 0,
-        USB_FUN_REQUEST_RIGHT,
-        USB_FUN_REMOVE_RIGHT,
-        USB_FUN_OPEN_DEVICE,
-        USB_FUN_GET_DEVICE,
-        USB_FUN_GET_DEVICES,
-        USB_FUN_GET_CURRENT_FUNCTIONS,
-        USB_FUN_SET_CURRENT_FUNCTIONS,
-        USB_FUN_USB_FUNCTIONS_FROM_STRING,
-        USB_FUN_USB_FUNCTIONS_TO_STRING,
-        USB_FUN_CLAIM_INTERFACE,
-        USB_FUN_RELEASE_INTERFACE,
-        USB_FUN_BULK_TRANSFER_READ,
-        USB_FUN_BULK_TRANSFER_WRITE,
-        USB_FUN_CONTROL_TRANSFER,
-        USB_FUN_SET_ACTIVE_CONFIG,
-        USB_FUN_GET_ACTIVE_CONFIG,
-        USB_FUN_SET_INTERFACE,
-        USB_FUN_GET_PORTS,
-        USB_FUN_GET_SUPPORTED_MODES,
-        USB_FUN_SET_PORT_ROLE,
-        USB_FUN_REQUEST_QUEUE,
-        USB_FUN_REQUEST_WAIT,
-        USB_FUN_REQUEST_CANCEL,
-        USB_FUN_GET_DESCRIPTOR,
-        USB_FUN_GET_FILEDESCRIPTOR,
-        USB_FUN_CLOSE_DEVICE,
-        USB_FUN_BULK_AYSNC_READ,
-        USB_FUN_BULK_AYSNC_WRITE,
-        USB_FUN_BULK_AYSNC_CANCEL,
-        USB_FUN_REG_BULK_CALLBACK,
-        USB_FUN_UNREG_BULK_CALLBACK,
-        USB_FUN_ADD_RIGHT,
-    };
-
     virtual int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) = 0;
     virtual bool HasRight(std::string deviceName) = 0;
     virtual int32_t RequestRight(std::string deviceName) = 0;
