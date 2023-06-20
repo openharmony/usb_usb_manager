@@ -24,6 +24,7 @@
 #include "iusb_srv.h"
 #include "system_ability.h"
 #include "system_ability_status_change_stub.h"
+#include "timer.h"
 #include "usb_device_manager.h"
 #include "usb_host_manager.h"
 #include "usb_port_manager.h"
@@ -48,6 +49,7 @@ class UsbService : public SystemAbility, public UsbServerStub {
     DECLARE_DELAYED_SP_SINGLETON(UsbService);
 
 public:
+    enum UnLoadSaType { UNLOAD_SA_DELAY, UNLOAD_SA_IMMEDIATELY };
     void OnStart() override;
     void OnStop() override;
     int Dump(int fd, const std::vector<std::u16string> &args) override;
@@ -100,19 +102,20 @@ public:
     void UpdateUsbPort(int32_t portId, int32_t powerRole, int32_t dataRole, int32_t mode);
     void UpdateDeviceState(int32_t status);
     int32_t GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &dev);
-    int32_t GetDeviceInfoDescriptor(const HDI::Usb::V1_0::UsbDev &uDev, std::vector<uint8_t> &descriptor,
-        UsbDevice &dev);
+    int32_t GetDeviceInfoDescriptor(
+        const HDI::Usb::V1_0::UsbDev &uDev, std::vector<uint8_t> &descriptor, UsbDevice &dev);
     int32_t GetConfigDescriptor(UsbDevice &dev, std::vector<uint8_t> &descriptor);
 
     int32_t RegBulkCallback(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe,
         const sptr<IRemoteObject> &cb) override;
     int32_t UnRegBulkCallback(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe) override;
-    int32_t BulkRead(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe,
-        sptr<Ashmem> &ashmem) override;
-    int32_t BulkWrite(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe,
-        sptr<Ashmem> &ashmem) override;
+    int32_t BulkRead(
+        const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe, sptr<Ashmem> &ashmem) override;
+    int32_t BulkWrite(
+        const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe, sptr<Ashmem> &ashmem) override;
     int32_t BulkCancel(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe) override;
     int32_t AddRight(const std::string &bundleName, const std::string &deviceName) override;
+    void UnLoadSelf(UnLoadSaType type);
 
 private:
     class SystemAbilityStatusChangeListener : public SystemAbilityStatusChangeStub {
@@ -121,8 +124,14 @@ private:
         ~SystemAbilityStatusChangeListener() = default;
         void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
         void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+
     private:
         sptr<UsbServiceSubscriber> usbdSubscriber_;
+    };
+
+    class UsbdDeathRecipient : public IRemoteObject::DeathRecipient {
+    public:
+        void OnRemoteDied(const wptr<IRemoteObject> &object) override;
     };
 
 private:
@@ -148,6 +157,9 @@ private:
     sptr<HDI::Usb::V1_0::IUsbdBulkCallback> hdiCb_ = nullptr;
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
     std::map<std::string, std::string> deviceVidPidMap_;
+    Utils::Timer unloadSelfTimer_ {"unLoadTimer"};
+    uint32_t unloadSelfTimerId_ {UINT32_MAX};
+    sptr<IRemoteObject::DeathRecipient> recipient_;
 };
 } // namespace USB
 } // namespace OHOS

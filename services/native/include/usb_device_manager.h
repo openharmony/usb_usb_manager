@@ -42,6 +42,7 @@ public:
     void HandleEvent(int32_t status);
     void GetDumpHelp(int32_t fd);
     void Dump(int32_t fd, const std::vector<std::string> &args);
+    bool IsGadgetConnected(void);
 
 private:
     void ProcessFunctionSwitchWindow(int32_t status);
