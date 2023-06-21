@@ -388,7 +388,7 @@ int32_t UsbRightManager::HasSetFuncRight(int32_t functions)
         USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
         return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
     }
-    if (!(functions & UsbSrvSupport::FUNCTION_HDC)) {
+    if (!(static_cast<uint32_t>(functions) & UsbSrvSupport::FUNCTION_HDC)) {
         return UEC_OK;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "Set up function permission validation");
