@@ -306,5 +306,9 @@ void UsbDeviceManager::ReportDevicePlugSysEvent(int32_t currentFunctions, bool c
         HiSysEvent::EventType::BEHAVIOR, "CURRENT_FUNCTIONS",
         currentFunctions, "CONNECTED", connected);
 }
+bool UsbDeviceManager::IsGadgetConnected(void)
+{
+    return connected_;
+}
 } // namespace USB
 } // namespace OHOS

@@ -76,6 +76,7 @@ int32_t UsbServiceSubscriber::DeviceEvent(const USBDeviceInfo &info)
 
     if (status == ACT_UPDEVICE || status == ACT_DOWNDEVICE) {
         pms->UpdateDeviceState(status);
+        pms->UnLoadSelf(UsbService::UnLoadSaType::UNLOAD_SA_DELAY);
         return UEC_OK;
     }
 
@@ -88,7 +89,7 @@ int32_t UsbServiceSubscriber::DeviceEvent(const USBDeviceInfo &info)
         USB_HILOGI(MODULE_USB_SERVICE, "usb detached");
         pms->DelDevice(busNum, devAddr);
     }
-
+    pms->UnLoadSelf(UsbService::UnLoadSaType::UNLOAD_SA_DELAY);
     return UEC_OK;
 }
 } // namespace USB

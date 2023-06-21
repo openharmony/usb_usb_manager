@@ -24,8 +24,10 @@
 
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
+#include "common_timer_errors.h"
 #include "file_ex.h"
 #include "if_system_ability_manager.h"
+#include "iproxy_broker.h"
 #include "iservice_registry.h"
 #include "iusb_srv.h"
 #include "securec.h"
@@ -54,6 +56,7 @@ constexpr int32_t BIT_SHIFT_4 = 4;
 constexpr int32_t BIT_HIGH_4 = 0xF0;
 constexpr int32_t BIT_LOW_4 = 0x0F;
 constexpr int32_t SERVICE_STARTUP_MAX_TIME = 30;
+constexpr uint32_t UNLOAD_SA_TIMER_INTERVAL = 30 * 1000;
 } // namespace
 
 auto pms = DelayedSpSingleton<UsbService>::GetInstance();
@@ -116,7 +119,6 @@ void UsbService::SystemAbilityStatusChangeListener::OnRemoveSystemAbility(
         if (usbd_ != nullptr) {
             usbd_->UnbindUsbdSubscriber(usbdSubscriber_);
         }
-        exit(0);
     }
 }
 
@@ -214,6 +216,13 @@ bool UsbService::InitUsbd()
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::usbd_ is nullptr");
         return false;
     }
+    recipient_ = new UsbdDeathRecipient();
+    sptr<IRemoteObject> remote = OHOS::HDI::hdi_objcast<HDI::Usb::V1_0::IUsbInterface>(usbd_);
+    if (!remote->AddDeathRecipient(recipient_)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "add DeathRecipient failed");
+        return false;
+    }
+
     ErrCode ret = usbd_->BindUsbdSubscriber(usbdSubscriber_);
     USB_HILOGI(MODULE_USB_SERVICE, "entry InitUsbd ret: %{public}d", ret);
     return SUCCEEDED(ret);
@@ -233,6 +242,9 @@ void UsbService::OnStop()
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return;
     }
+    sptr<IRemoteObject> remote = OHOS::HDI::hdi_objcast<HDI::Usb::V1_0::IUsbInterface>(usbd_);
+    remote->RemoveDeathRecipient(recipient_);
+    recipient_.clear();
     usbd_->UnbindUsbdSubscriber(usbdSubscriber_);
 }
 
@@ -1150,6 +1162,58 @@ void UsbService::DumpHelp(int32_t fd)
     dprintf(fd, "------------------------------------------------\n");
     usbDeviceManager_->GetDumpHelp(fd);
     usbPortManager_->GetDumpHelp(fd);
+}
+
+void UsbService::UnLoadSelf(UnLoadSaType type)
+{
+    auto task = []() {
+        auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (samgrProxy == nullptr) {
+            USB_HILOGE(MODULE_USB_SERVICE, "get samgr failed");
+            return;
+        }
+
+        auto ret = samgrProxy->UnloadSystemAbility(USB_SYSTEM_ABILITY_ID);
+        if (ret != UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "unload failed");
+        }
+    };
+
+    if (type == UNLOAD_SA_IMMEDIATELY) {
+        task();
+        return;
+    }
+
+    if (usbHostManger_ == nullptr || usbDeviceManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbHostManger_ or usbDeviceManager_");
+        return;
+    }
+
+    unloadSelfTimer_.Unregister(unloadSelfTimerId_);
+    unloadSelfTimer_.Shutdown();
+
+    std::map<std::string, UsbDevice *> devices;
+    usbHostManger_->GetDevices(devices);
+    if (devices.size() != 0 || usbDeviceManager_->IsGadgetConnected()) { // delay unload conditions
+        USB_HILOGW(MODULE_USB_SERVICE, "not need unload");
+        return;
+    }
+
+    if (auto ret = unloadSelfTimer_.Setup(); ret != Utils::TIMER_ERR_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "set up timer failed %{public}u", ret);
+        return;
+    }
+    unloadSelfTimerId_ = unloadSelfTimer_.Register(task, UNLOAD_SA_TIMER_INTERVAL, true);
+}
+
+void UsbService::UsbdDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
+{
+    auto pms = DelayedSpSingleton<UsbService>::GetInstance();
+    if (pms == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "failed to GetInstance");
+        return;
+    }
+    pms->UnLoadSelf(UNLOAD_SA_IMMEDIATELY);
 }
 } // namespace USB
 } // namespace OHOS
