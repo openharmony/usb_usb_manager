@@ -71,6 +71,7 @@ ohos_shared_library("usbservice") {
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
+    "ipc:ipc_single",
     "napi:ace_napi",
     "os_account:os_account_innerkits",
     "relational_store:native_rdb",
