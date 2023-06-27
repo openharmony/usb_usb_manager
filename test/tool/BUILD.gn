@@ -40,7 +40,7 @@ ohos_executable("usb_function_port_test") {
     "access_token:libtoken_setproc",
     "c_utils:utils",
     "drivers_interface_usb:libusb_proxy_1.0",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
   install_enable = false

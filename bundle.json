@@ -1,83 +1,82 @@
 {
-  "name": "@ohos/usb_manager",
-  "version": "3.1.0",
-  "description": "usb manager",
-  "publishAs": "code-segment",
-  "segment": {
-    "destPath": "base/usb/usb_manager"
-  },
-  "repository": "https://gitee.com/openharmony/usb_manager",
-  "license": "Apache License 2.0",
-  "dirs": {},
-  "scripts": {},
-  "component": {
-    "name": "usb_manager",
-    "subsystem": "usb",
-    "syscap": [
-      "SystemCapability.USB.USBManager"
-    ],
-    "hisysevent_config": [
-      "//base/usb/usb_manager/hisysevent.yaml"
-    ],
-    "adapted_system_type": [
-      "standard"
-    ],
-    "rom": "4111KB",
-    "ram": "6660KB",
-    "deps": {
-      "components": [
-        "hiviewdfx_hilog_native",
-        "ability_base",
-        "eventhandler",
-        "napi",
-        "bundle_framework",
-        "common_event_service",
-        "drivers_interface_usb",
-        "init",
-        "ipc",
-        "safwk",
-        "c_utils",
-        "samgr",
-        "access_token",
-        "os_account",
-        "relational_store",
-        "ability_runtime",
-        "hisysevent_native"
-      ],
-      "third_party": [
-        "jsoncpp"
-      ]
+    "name": "@ohos/usb_manager",
+    "version": "3.1.0",
+    "description": "usb manager",
+    "publishAs": "code-segment",
+    "segment": {
+        "destPath": "base/usb/usb_manager"
     },
-    "build": {
-      "group_type": {
-        "base_group": [],
-        "fwk_group": [
-          "//base/usb/usb_manager/interfaces/innerkits:usbsrv_client",
-          "//base/usb/usb_manager/interfaces/kits/js/napi:usbmanager",
-          "//base/usb/usb_manager/interfaces/kits/js/napi:usb"
+    "repository": "https://gitee.com/openharmony/usb_manager",
+    "license": "Apache License 2.0",
+    "dirs": {},
+    "scripts": {},
+    "component": {
+        "name": "usb_manager",
+        "subsystem": "usb",
+        "syscap": [
+            "SystemCapability.USB.USBManager"
         ],
-        "service_group": [
-          "//base/usb/usb_manager/sa_profile:usbmgr_sa_profile",
-          "//base/usb/usb_manager/services:usbservice",
-          "//base/usb/usb_manager/services:usb_service.init",
-          "//base/usb/usb_manager/etc:usb_etc_files"
-        ]
-      },
-      "inner_kits": [
-        {
-          "name": "//base/usb/usb_manager/interfaces/innerkits:usbsrv_client",
-          "header": {
-            "header_files": [
-              "usb_srv_client.h",
-              "iusb_srv.h"
+        "hisysevent_config": [
+            "//base/usb/usb_manager/hisysevent.yaml"
+        ],
+        "adapted_system_type": [
+            "standard"
+        ],
+        "rom": "4111KB",
+        "ram": "6660KB",
+        "deps": {
+            "components": [
+                "hiviewdfx_hilog_native",
+                "hilog",
+                "ability_base",
+                "eventhandler",
+                "napi",
+                "bundle_framework",
+                "common_event_service",
+                "drivers_interface_usb",
+                "init",
+                "ipc",
+                "safwk",
+                "c_utils",
+                "samgr",
+                "access_token",
+                "os_account",
+                "relational_store",
+                "ability_runtime",
+                "hisysevent"
             ],
-            "header_base": "//base/usb/usb_manager/interfaces/innerkits/native/include"
-          }
+            "third_party": [
+                "jsoncpp"
+            ]
+        },
+        "build": {
+            "group_type": {
+                "base_group": [],
+                "fwk_group": [
+                    "//base/usb/usb_manager/interfaces/innerkits:usbsrv_client",
+                    "//base/usb/usb_manager/interfaces/kits/js/napi:usbmanager",
+                    "//base/usb/usb_manager/interfaces/kits/js/napi:usb"
+                ],
+                "service_group": [
+                    "//base/usb/usb_manager/sa_profile:usbmgr_sa_profile",
+                    "//base/usb/usb_manager/services:usbservice",
+                    "//base/usb/usb_manager/services:usb_service.init",
+                    "//base/usb/usb_manager/etc:usb_etc_files"
+                ]
+            },
+            "inner_kits": [{
+                "name": "//base/usb/usb_manager/interfaces/innerkits:usbsrv_client",
+                "header": {
+                    "header_files": [
+                        "usb_srv_client.h",
+                        "iusb_srv.h"
+                    ],
+                    "header_base": "//base/usb/usb_manager/interfaces/innerkits/native/include"
+                }
+            }],
+            "test": [
+                "//base/usb/usb_manager/test/native:usb_unittest_test"
+            ]
         }
-      ],
-      "test": [
-        "//base/usb/usb_manager/test/native:usb_unittest_test"
-      ]
     }
-  }
 }
