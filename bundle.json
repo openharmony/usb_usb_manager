@@ -26,7 +26,6 @@
         "ram": "6660KB",
         "deps": {
             "components": [
-                "hiviewdfx_hilog_native",
                 "hilog",
                 "ability_base",
                 "eventhandler",
