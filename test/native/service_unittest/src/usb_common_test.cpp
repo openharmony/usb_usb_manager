@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "usb_common_test.h"
+#include "hilog_wrapper.h"
 
 using namespace OHOS::Security::AccessToken;
 
@@ -47,9 +48,9 @@ void UsbCommonTest::SetTestCaseNative(TokenInfoParams *infoInstance)
     uint64_t tokenId = GetAccessTokenId(infoInstance);
     int ret = SetSelfTokenID(tokenId);
     if (ret == 0) {
-        HDF_LOGI("SetSelfTokenID success");
+        USB_HILOGI(MODULE_USB_SERVICE, "SetSelfTokenID success %{public}d", __LINE__);
     } else {
-        HDF_LOGE("SetSelfTokenID fail");
+        USB_HILOGE(MODULE_USB_SERVICE, "SetSelfTokenID fail %{public}d", __LINE__);
     }
     AccessTokenKit::ReloadNativeTokenInfo();
 }
