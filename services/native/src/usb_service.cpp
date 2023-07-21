@@ -59,7 +59,7 @@ constexpr int32_t SERVICE_STARTUP_MAX_TIME = 30;
 constexpr uint32_t UNLOAD_SA_TIMER_INTERVAL = 30 * 1000;
 } // namespace
 
-auto pms = DelayedSpSingleton<UsbService>::GetInstance();
+auto g_serviceInstance = DelayedSpSingleton<UsbService>::GetInstance();
 const bool G_REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSpSingleton<UsbService>::GetInstance().GetRefPtr());
 
@@ -184,9 +184,9 @@ bool UsbService::Init()
         }
     }
     if (handler_ == nullptr) {
-        handler_ = std::make_shared<UsbServerEventHandler>(eventRunner_, pms);
+        handler_ = std::make_shared<UsbServerEventHandler>(eventRunner_, g_serviceInstance);
 
-        if (!Publish(pms)) {
+        if (!Publish(g_serviceInstance)) {
             USB_HILOGE(MODULE_USB_SERVICE, "OnStart register to system ability manager failed.");
             return false;
         }
@@ -879,7 +879,7 @@ bool UsbService::AddDevice(uint8_t busNum, uint8_t devAddr)
 {
     UsbDevice *devInfo = new (std::nothrow) UsbDevice();
     if (devInfo == nullptr) {
-        USB_HILOGI(MODULE_USB_SERVICE, "new failed");
+        USB_HILOGE(MODULE_USB_SERVICE, "new failed");
         return false;
     }
 

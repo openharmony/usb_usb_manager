@@ -119,7 +119,7 @@ bool UsbRightManager::HasRight(const std::string &deviceName, const std::string 
     int32_t uid = USB_RIGHT_USERID_INVALID;
     GetCurrentUserId(uid);
     if (uid == USB_RIGHT_USERID_CONSOLE) {
-        USB_HILOGE(MODULE_USB_SERVICE, "console called, bypass");
+        USB_HILOGW(MODULE_USB_SERVICE, "console called, bypass");
         return true;
     }
     uint64_t nowTime = GetCurrentTimestamp();
@@ -139,7 +139,7 @@ int32_t UsbRightManager::RequestRight(
     USB_HILOGD(MODULE_USB_SERVICE, "RequestRight: busdev=%{private}s device=%{public}s app=%{public}s", busDev.c_str(),
         deviceName.c_str(), bundleName.c_str());
     if (HasRight(deviceName, bundleName)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "device has Right ");
+        USB_HILOGW(MODULE_USB_SERVICE, "device has Right ");
         return UEC_OK;
     }
     if (!GetUserAgreementByDiag(busDev, deviceName, bundleName)) {
