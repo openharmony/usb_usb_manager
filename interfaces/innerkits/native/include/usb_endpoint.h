@@ -30,8 +30,8 @@ public:
     {
         this->address_ = address;
         this->attributes_ = attributes;
-        this->interval_ = interval;
-        this->maxPacketSize_ = maxPacketSize;
+        this->interval_ = static_cast<int32_t>(interval);
+        this->maxPacketSize_ = static_cast<int32_t>(maxPacketSize);
     }
 
     explicit USBEndpoint(const Json::Value &endpoint)

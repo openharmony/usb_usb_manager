@@ -31,9 +31,9 @@ public:
     USBConfig(uint32_t id, uint32_t attributes, std::string name, uint32_t maxPower,
         std::vector<UsbInterface> interfaces)
     {
-        this->id_ = id;
+        this->id_ = static_cast<int32_t>(id);
         this->attributes_ = attributes;
-        this->maxPower_ = maxPower;
+        this->maxPower_ = static_cast<int32_t>(maxPower);
         this->name_ = name;
         this->interfaces_ = interfaces;
     }
