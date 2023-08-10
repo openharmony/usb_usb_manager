@@ -73,7 +73,7 @@ bool UsbCoreMockTest::GetBundleName(std::string &bundleName)
         USB_HILOGE(MODULE_USB_SERVICE, "bundleMgr is nullptr");
         return false;
     }
-    bundleMgr->GetBundleNameForUid(uid, bundleName);
+    bundleMgr->GetNameForUid(uid, bundleName);
     return true;
 }
 
