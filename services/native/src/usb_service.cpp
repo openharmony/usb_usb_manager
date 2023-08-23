@@ -511,7 +511,12 @@ int32_t UsbService::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataR
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    return usbd_->SetPortRole(portId, powerRole, dataRole);
+    auto ret = usbd_->SetPortRole(portId, powerRole, dataRole);
+    if (ret == HDF_ERR_NOT_SUPPORT) {
+        USB_HILOGE(MODULE_USB_SERVICE, "SetPortRole not support");
+        return UEC_SERVICE_NOT_SUPPORT_SWITCH_PORT;
+    }
+    return ret;
 }
 
 int32_t UsbService::ClaimInterface(uint8_t busNum, uint8_t devAddr, uint8_t interface, uint8_t force)

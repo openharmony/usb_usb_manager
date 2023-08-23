@@ -27,13 +27,16 @@ enum UsbJsErrCode : int32_t {
     USB_DEVICE_PERMISSION_DENIED = 14400001,
     USB_SYSAPI_PERMISSION_DENIED = 202,
     USB_HDC_PERMISSION_DENIED = 14400002,
+    USB_NOT_SUPPORT_SWITCH_PORT = 14400003,
 };
 
 const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
-    {SYSPARAM_INVALID_INPUT,       "BusinessError 401:Parameter error."                                      },
-    {USB_DEVICE_PERMISSION_DENIED, "BusinessError 14400001:Permission denied."                               },
-    {USB_SYSAPI_PERMISSION_DENIED, "BusinessError 202:Permission denied. Normal application uses system api."},
-    {USB_HDC_PERMISSION_DENIED,    "BusinessError 14400002:Permission denied.The HDC is disabled by the system."}
+    {SYSPARAM_INVALID_INPUT,       "BusinessError 401:Parameter error."                                         },
+    {USB_DEVICE_PERMISSION_DENIED, "BusinessError 14400001:Permission denied."                                  },
+    {USB_SYSAPI_PERMISSION_DENIED, "BusinessError 202:Permission denied. Normal application uses system api."   },
+    {USB_HDC_PERMISSION_DENIED,    "BusinessError 14400002:Permission denied.The HDC is disabled by the system."},
+    {USB_NOT_SUPPORT_SWITCH_PORT,
+     "BusinessError 14400003:Unsupported operation.The current device does not support port role switching."    },
 };
 
 void ThrowBusinessError(const napi_env &env, int32_t errCode, const std::string &errMsg);

@@ -82,6 +82,7 @@ void UsbBulkcallbackTest::SetUpTestCase(void)
     auto ret = srvClient.SetPortRole(1, 1, 1);
     sleep(SLEEP_TIME);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbBulkcallbackTest:: [Device] SetPortRole=%{public}d", ret);
+    ret = UsbCommonTest::SwitchErrCode(ret);
     ASSERT_TRUE(ret == 0);
     if (ret != 0) {
         exit(0);

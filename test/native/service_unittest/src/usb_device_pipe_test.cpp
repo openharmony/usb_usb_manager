@@ -26,6 +26,7 @@
 #include "system_ability_definition.h"
 #include "usb_common_test.h"
 #include "usb_srv_client.h"
+#include "usb_errors.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -39,6 +40,7 @@ namespace USB {
 namespace DevicePipe {
 constexpr int32_t SLEEP_TIME = 3;
 constexpr int32_t BUFFER_SIZE = 255;
+
 void UsbDevicePipeTest::SetUpTestCase(void)
 {
     UsbCommonTest::GrantPermissionSysNative();
@@ -46,6 +48,7 @@ void UsbDevicePipeTest::SetUpTestCase(void)
     auto ret = srvClient.SetPortRole(1, 1, 1);
     sleep(SLEEP_TIME);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest:: [Device] SetPortRole=%{public}d", ret);
+    ret = UsbCommonTest::SwitchErrCode(ret);
     ASSERT_TRUE(ret == 0);
     if (ret != 0) {
         exit(0);
