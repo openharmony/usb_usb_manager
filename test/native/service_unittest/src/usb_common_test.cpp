@@ -14,6 +14,7 @@
  */
 
 #include "usb_common_test.h"
+#include "usb_errors.h"
 #include "hilog_wrapper.h"
 
 using namespace OHOS::Security::AccessToken;
@@ -64,6 +65,12 @@ void UsbCommonTest::GrantPermissionNormalNative()
 {
     SetTestCaseNative(&g_normalInfoInstance);
 }
+
+int32_t UsbCommonTest::SwitchErrCode(int32_t ret)
+{
+    return ret == UEC_SERVICE_NOT_SUPPORT_SWITCH_PORT ? UEC_OK : ret;
+}
+
 } // namespace Common
 } // namespace USB
 } // namespace OHOS

@@ -793,6 +793,9 @@ static auto g_setPortRoleComplete = [](napi_env env, napi_status status, void *d
     } else if (asyncContext->errCode == UEC_SERVICE_PERMISSION_DENIED_SYSAPI) {
         asyncContext->status = napi_generic_failure;
         queryResult = CreateBusinessError((env), USB_SYSAPI_PERMISSION_DENIED, "");
+    } else if (asyncContext->errCode == UEC_SERVICE_NOT_SUPPORT_SWITCH_PORT) {
+        asyncContext->status = napi_generic_failure;
+        queryResult = CreateBusinessError((env), USB_NOT_SUPPORT_SWITCH_PORT, "");
     } else {
         asyncContext->status = napi_generic_failure;
         napi_get_boolean(env, false, &queryResult);

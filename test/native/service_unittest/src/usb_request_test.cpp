@@ -43,6 +43,7 @@ namespace Request {
 constexpr int32_t SLEEP_TIME = 3;
 constexpr int32_t TAG_SIZE = 50;
 constexpr int32_t BUFFER_SIZE = 255;
+
 void UsbRequestTest::SetUpTestCase(void)
 {
     UsbCommonTest::GrantPermissionSysNative();
@@ -50,6 +51,7 @@ void UsbRequestTest::SetUpTestCase(void)
     auto ret = srvClient.SetPortRole(1, 1, 1);
     sleep(SLEEP_TIME);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbdRequestTest:: [Device] SetPortRole=%{public}d", ret);
+    ret = UsbCommonTest::SwitchErrCode(ret);
     ASSERT_TRUE(ret == 0);
     if (ret != 0) {
         exit(0);
