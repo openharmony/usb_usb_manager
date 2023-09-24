@@ -20,7 +20,7 @@
 #include <sstream>
 #include <string>
 #include "usb_common.h"
-#include "json.h"
+#include "json/json.h"
 
 namespace OHOS {
 namespace USB {

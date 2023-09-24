@@ -15,10 +15,7 @@ import("//build/test.gni")
 import("./../../usbmgr.gni")
 
 config("usbsrv_private_config") {
-  include_dirs = [
-    "//third_party/jsoncpp/include/json",
-    "${usb_manager_path}/test/native/service_unittest/include",
-  ]
+  include_dirs = [ "${usb_manager_path}/test/native/service_unittest/include" ]
 }
 
 ohos_executable("usb_function_port_test") {

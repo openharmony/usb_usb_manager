@@ -14,10 +14,7 @@
 import("./../usbmgr.gni")
 
 config("usbsrv_private_config") {
-  include_dirs = [
-    "//third_party/jsoncpp/include/json",
-    "${usb_manager_path}/interfaces/innerkits/native/include",
-  ]
+  include_dirs = [ "${usb_manager_path}/interfaces/innerkits/native/include" ]
 }
 
 config("usbsrv_public_config") {
