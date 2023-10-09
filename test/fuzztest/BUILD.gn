@@ -15,7 +15,7 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 import("./../../usbmgr.gni")
 
-module_output_path = "${usb_manager_part_name}/usb_fuzztest_test"
+module_output_path = "usb_manager/usb_manager"
 
 config("module_private_config") {
   visibility = [ ":*" ]
