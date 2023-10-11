@@ -37,6 +37,7 @@ ohos_shared_library("usb") {
   ]
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "//third_party/bounds_checking_function:libsec_shared",
     "//third_party/jsoncpp:jsoncpp",
   ]
   external_deps = [
@@ -64,6 +65,7 @@ ohos_shared_library("usbmanager") {
   ]
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "//third_party/bounds_checking_function:libsec_shared",
     "//third_party/jsoncpp:jsoncpp",
   ]
   external_deps = [
