@@ -22,7 +22,6 @@ config("module_private_config") {
   include_dirs = [
     "include",
     "${usb_manager_path}/test/common/include/",
-    "//third_party/jsoncpp/include/json",
   ]
 }
 

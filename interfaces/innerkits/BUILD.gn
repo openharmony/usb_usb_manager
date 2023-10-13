@@ -14,10 +14,7 @@
 import("./../../usbmgr.gni")
 
 config("usbsrv_private_config") {
-  include_dirs = [
-    "${usb_manager_path}/services/zidl/include",
-    "//third_party/jsoncpp/include/json",
-  ]
+  include_dirs = [ "${usb_manager_path}/services/zidl/include" ]
 }
 
 config("usbsrv_public_config") {

@@ -32,7 +32,6 @@ config("module_private_config") {
     "include",
     "common/include",
     "${usb_manager_path}/test/common/include/",
-    "//third_party/jsoncpp/include/json",
   ]
 }
 
@@ -42,7 +41,10 @@ ohos_fuzztest("UsbMgrRequestRightFuzzTest") {
   fuzz_config_file =
       "${usb_manager_path}/test/fuzztest/usbmgrrequestright_fuzzer"
 
-  configs = [ ":module_private_config" ]
+  configs = [
+    ":module_private_config",
+    "//third_party/jsoncpp:jsoncpp_public_config",
+  ]
 
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
