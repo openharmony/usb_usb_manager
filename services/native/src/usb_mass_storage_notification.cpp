@@ -109,7 +109,7 @@ void UsbMassStorageNotification::GetHapIcon()
     }
     size_t len = 0;
     std::unique_ptr<uint8_t[]> data;
-    resourceMgr_->GetMediaDataByName(ICON_NAME.c_str(), len, data);
+    resourceManager->GetMediaDataByName(ICON_NAME.c_str(), len, data);
     Media::SourceOptions opts;
     uint32_t errorCode = 0;
     std::unique_ptr<Media::ImageSource> imageSource =
@@ -179,9 +179,9 @@ void UsbMassStorageNotification::PublishUsbNotification()
         return;
     }
     auto want = std::make_shared<OHOS::AAFwk::Want>;
-    want.SetElementName(FILEMANAGER_BUNDLE_NAME, FILEMANAGER_ABILITY_NAME);
+    want->SetElementName(FILEMANAGER_BUNDLE_NAME, FILEMANAGER_ABILITY_NAME);
     std::vector<std::shared_ptr<OHOS::AAFwk::Want>> wants;
-    wants.push(want);
+    wants.push_back(want);
     std::vector<OHOS::AbilityRuntime::WantAgent::WantAgentConstant::Flags> flags;
     flags.push_back(OHOS::AbilityRuntime::WantAgent::WantAgentConstant::Flags::UPDATE_PRESENT_FLAG);
     OHOS::AbilityRuntime::WantAgent::WantAgentInfo wantAgentInfo(
