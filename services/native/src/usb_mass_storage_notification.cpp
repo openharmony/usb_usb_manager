@@ -84,7 +84,7 @@ void UsbMassStorageNotification::GetHapString()
     OHOS::Global::I18n::LocaleInfo locale(Global::I18n::LocaleConfig::GetSystemLocale(), configs);
     resConfig->SetLocaleInfo(locale.GetLanguage().c_str(), locale.GetScript().c_str(), locale.GetRegion().c_str());
     resourceManager->UpdateResConfig(*resConfig);
-    if (!resourceManager->AddResource(SETTINGS_HAP_PATH.c_str()) {
+    if (!resourceManager->AddResource(SETTINGS_HAP_PATH.c_str())) {
         USB_HILOGE(MODULE_USB_SERVICE, "AddResource failed");
         return;
     }
@@ -103,7 +103,7 @@ void UsbMassStorageNotification::GetHapIcon()
         USB_HILOGE(MODULE_USB_SERVICE, "resourceManager is null");
         return;
     }
-    if (!resourceManager->AddResource(SETTINGS_HAP_PATH.c_str()) {
+    if (!resourceManager->AddResource(SETTINGS_HAP_PATH.c_str())) {
         USB_HILOGE(MODULE_USB_SERVICE, "AddResource failed");
         return;
     }
@@ -171,14 +171,14 @@ void UsbMassStorageNotification::PublishUsbNotification()
         return;
     }
     normalContent->SetTitle(notificationMap[MASS_STORAGE_NOTIFICATION_TITLE_KEY]);
-    normalContent->SetText(notificationMap[MASS_STORAGE_NOTIFICATION_TEXT_KEY);
+    normalContent->SetText(notificationMap[MASS_STORAGE_NOTIFICATION_TEXT_KEY]);
     std::shared_ptr<OHOS::Notification::NotificationContent> content =
         std::make_shared<OHOS::Notification::NotificationContent>(normalContent);
     if (content == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "notification content nullptr");
         return;
     }
-    auot want = std::make_shared<OHOS::AAFwk::Want>;
+    auto want = std::make_shared<OHOS::AAFwk::Want>;
     want.SetElementName(FILEMANAGER_BUNDLE_NAME, FILEMANAGER_ABILITY_NAME);
     std::vector<std::shared_ptr<OHOS::AAFwk::Want>> wants;
     wants.push(want);
@@ -190,7 +190,7 @@ void UsbMassStorageNotification::PublishUsbNotification()
         flags, wants, nullptr
     );
     auto wantAgent = OHOS::AbilityRuntime::WantAgent::WantAgentHelper::GetWantAgent(wantAgentInfo);
-    string buttonTitle = notificationMap[MASS_STORAGE_NOTIFICATION_BUTTON_KEY];
+    std::string buttonTitle = notificationMap[MASS_STORAGE_NOTIFICATION_BUTTON_KEY];
     std::shared_ptr<OHOS::Notification::NotificationActionButton> actionButton =
         OHOS::Notification::NotificationActionButton::Create(nullptr, buttonTitle, wantAgent);
     if (actionButton == nullptr) {

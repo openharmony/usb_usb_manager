@@ -53,7 +53,7 @@ private:
         {MASS_STORAGE_NOTIFICATION_TEXT_KEY, ""},
         {MASS_STORAGE_NOTIFICATION_BUTTON_KEY, ""},
         {MASS_STORAGE_NOTIFICATION_LABAL_KEY, ""}
-    }
+    };
     bool isNeedNotify = false;
 };
 } // namespace USB
