@@ -43,7 +43,7 @@ namespace {
     const std::string FILEMANAGER_BUNDLE_NAME = "com.ohos.settings";
     const std::string FILEMANAGER_ABILITY_NAME = "MainAbility";
     const std::string CREATOR_BUNDLE_NAME = "com.ohos.settings";
-    const char *SETTINGS_HAP_PATH = "/system/app/Settings/Settings.hap";
+    const std::string SETTINGS_HAP_PATH = "/system/app/Settings/Settings.hap";
     const std::string ICON_NAME = "notification_icon";
     const std::string DEVICE_TYPE = "2in1";
 } // namespace
@@ -84,7 +84,7 @@ void UsbMassStorageNotification::GetHapString()
     OHOS::Global::I18n::LocaleInfo locale(Global::I18n::LocaleConfig::GetSystemLocale(), configs);
     resConfig->SetLocaleInfo(locale.GetLanguage().c_str(), locale.GetScript().c_str(), locale.GetRegion().c_str());
     resourceManager->UpdateResConfig(*resConfig);
-    if (!resourceManager->AddResource(SETTINGS_HAP_PATH)) {
+    if (!resourceManager->AddResource(SETTINGS_HAP_PATH.c_str()) {
         USB_HILOGE(MODULE_USB_SERVICE, "AddResource failed");
         return;
     }
@@ -103,7 +103,7 @@ void UsbMassStorageNotification::GetHapIcon()
         USB_HILOGE(MODULE_USB_SERVICE, "resourceManager is null");
         return;
     }
-    if (!resourceManager->AddResource(SETTINGS_HAP_PATH)) {
+    if (!resourceManager->AddResource(SETTINGS_HAP_PATH.c_str()) {
         USB_HILOGE(MODULE_USB_SERVICE, "AddResource failed");
         return;
     }

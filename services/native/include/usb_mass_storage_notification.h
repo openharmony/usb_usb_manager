@@ -36,7 +36,8 @@ public:
     static std::shared_ptr<UsbMassStorageNotification> GetInstance();
     ~UsbMassStorageNotification();
     void SendNotification(const UsbDevice &dev);
-    void CancelNotification(const std::map<std::string, UsbDevice *> &devices, const UsbDevice &dev, const std::string &name);
+    void CancelNotification(const std::map<std::string, UsbDevice *> &devices,
+        const UsbDevice &dev, const std::string &name);
 
 private:
     UsbMassStorageNotification();
@@ -44,7 +45,6 @@ private:
     bool IsMassStorage(const UsbDevice &dev);
     void GetHapString();
     void GetHapIcon();
-
 
     static std::shared_ptr<UsbMassStorageNotification> instance_;
     OptionalPixelMap icon;
