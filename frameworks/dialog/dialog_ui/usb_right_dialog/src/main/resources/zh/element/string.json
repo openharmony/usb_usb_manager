@@ -15,6 +15,22 @@
     {
       "name": "use",
       "value": " 使用 "
+    },
+    {
+      "name": "notification_title",
+      "value": "可移动磁盘"
+    },
+    {
+      "name": "notification_text",
+      "value": "Usb存储设备已接入"
+    },
+    {
+      "name": "notification_button",
+      "value": "查看 "
+    },
+    {
+      "name": "notification_label",
+      "value": "设置"
     }
   ]
 }

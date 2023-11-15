@@ -35,6 +35,22 @@
     {
       "name": "use",
       "value": " allowed to use the "
+    },
+    {
+      "name": "notification_title",
+      "value": "Mass Stroage"
+    },
+    {
+      "name": "notification_text",
+      "value": "Usb stroage device connectd"
+    },
+    {
+      "name": "notification_button",
+      "value": "Check "
+    },
+    {
+      "name": "notification_label",
+      "value": "settings"
     }
   ]
 }

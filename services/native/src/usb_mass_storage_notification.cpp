@@ -40,12 +40,11 @@ namespace {
     constexpr int16_t USB_DEVICE_CLASS_MASS_STORAGE = 8;
     constexpr int16_t MASS_STORAGE_NOTIFICATION_ID = 100;
     constexpr int32_t REQUEST_CODE = 10;
-    const std::string FILEMANAGER_BUNDLE_NAME = "com.ohos.settings";
+    const std::string FILEMANAGER_BUNDLE_NAME = "com.huawei.hmos.filemanager";
     const std::string FILEMANAGER_ABILITY_NAME = "MainAbility";
-    const std::string CREATOR_BUNDLE_NAME = "com.ohos.settings";
-    const std::string SETTINGS_HAP_PATH = "/system/app/Settings/Settings.hap";
+    const std::string CREATOR_BUNDLE_NAME = "com.usb.right";
+    const std::string HAP_PATH = "/system/app/usb_right_dialog/usb_right_dialog.hap";
     const std::string ICON_NAME = "notification_icon";
-    const std::string DEVICE_TYPE = "2in1";
 } // namespace
 
 std::shared_ptr<UsbMassStorageNotification> UsbMassStorageNotification::instance_;
@@ -63,7 +62,6 @@ UsbMassStorageNotification::UsbMassStorageNotification()
 {
     GetHapString();
     GetHapIcon();
-    isNeedNotify = system::GetParameter("const.product.devicetype", "unknown") == DEVICE_TYPE;
 }
 
 UsbMassStorageNotification::~UsbMassStorageNotification() {}
@@ -84,7 +82,7 @@ void UsbMassStorageNotification::GetHapString()
     OHOS::Global::I18n::LocaleInfo locale(Global::I18n::LocaleConfig::GetSystemLocale(), configs);
     resConfig->SetLocaleInfo(locale.GetLanguage().c_str(), locale.GetScript().c_str(), locale.GetRegion().c_str());
     resourceManager->UpdateResConfig(*resConfig);
-    if (!resourceManager->AddResource(SETTINGS_HAP_PATH.c_str())) {
+    if (!resourceManager->AddResource(HAP_PATH.c_str())) {
         USB_HILOGE(MODULE_USB_SERVICE, "AddResource failed");
         return;
     }
@@ -103,7 +101,7 @@ void UsbMassStorageNotification::GetHapIcon()
         USB_HILOGE(MODULE_USB_SERVICE, "resourceManager is null");
         return;
     }
-    if (!resourceManager->AddResource(SETTINGS_HAP_PATH.c_str())) {
+    if (!resourceManager->AddResource(HAP_PATH.c_str())) {
         USB_HILOGE(MODULE_USB_SERVICE, "AddResource failed");
         return;
     }
@@ -147,10 +145,6 @@ void UsbMassStorageNotification::SendNotification(const UsbDevice &dev)
     USB_HILOGD(MODULE_USB_SERVICE, "enter SendNotification");
     if (!IsMassStorage(dev)) {
         USB_HILOGD(MODULE_USB_SERVICE, "Send Notification, not Mass Storage, return!");
-        return;
-    }
-    if (!isNeedNotify) {
-        USB_HILOGD(MODULE_USB_SERVICE, "no need send Notification, return!");
         return;
     }
     if (notificationMap[MASS_STORAGE_NOTIFICATION_TITLE_KEY].empty() ||
@@ -217,10 +211,6 @@ void UsbMassStorageNotification::CancelNotification(const std::map<std::string, 
 {
     if (!IsMassStorage(dev)) {
         USB_HILOGD(MODULE_USB_SERVICE, "Cancel Notification, not Mass Storage, return!");
-        return;
-    }
-    if (!isNeedNotify) {
-        USB_HILOGD(MODULE_USB_SERVICE, "no need Cancel Notification, return!");
         return;
     }
     for (auto it : devices) {
