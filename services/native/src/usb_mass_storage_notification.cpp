@@ -40,7 +40,7 @@ namespace {
     constexpr int16_t USB_DEVICE_CLASS_MASS_STORAGE = 8;
     constexpr int16_t MASS_STORAGE_NOTIFICATION_ID = 100;
     constexpr int32_t REQUEST_CODE = 10;
-    const std::string FILEMANAGER_BUNDLE_NAME = "com.huawei.hmos.filemanager";
+    const std::string FILEMANAGER_BUNDLE_NAME = "com.ohos.filemanager";
     const std::string FILEMANAGER_ABILITY_NAME = "MainAbility";
     const std::string CREATOR_BUNDLE_NAME = "com.usb.right";
     const std::string HAP_PATH = "/system/app/usb_right_dialog/usb_right_dialog.hap";
