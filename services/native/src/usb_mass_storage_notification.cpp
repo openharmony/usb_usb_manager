@@ -127,7 +127,7 @@ void UsbMassStorageNotification::GetHapIcon()
     return;
 }
 
-void UsbRightManager::GetFilemanagerBundleName()
+void UsbMassStorageNotification::GetFilemanagerBundleName()
 {
     filemanagerBundleName = FILEMANAGER_BUNDLE_NAME;
     auto sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
