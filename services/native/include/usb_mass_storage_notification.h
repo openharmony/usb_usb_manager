@@ -45,6 +45,7 @@ private:
     bool IsMassStorage(const UsbDevice &dev);
     void GetHapString();
     void GetHapIcon();
+    void GetFilemanagerBundleName();
 
     static std::shared_ptr<UsbMassStorageNotification> instance_;
     OptionalPixelMap icon;
@@ -54,6 +55,7 @@ private:
         {MASS_STORAGE_NOTIFICATION_BUTTON_KEY, ""},
         {MASS_STORAGE_NOTIFICATION_LABAL_KEY, ""}
     };
+    std::string filemanagerBundleName;
 };
 } // namespace USB
 } // namespace OHOS

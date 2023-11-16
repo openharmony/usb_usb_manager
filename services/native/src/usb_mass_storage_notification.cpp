@@ -30,7 +30,8 @@
 #include "bundle_mgr_interface.h"
 #include "system_ability_definition.h"
 #include "image_source.h"
-
+#include "os_account_manager.h"
+#include "usb_errors.h"
 
 using namespace OHOS::AAFwk;
 
@@ -41,6 +42,7 @@ namespace {
     constexpr int16_t MASS_STORAGE_NOTIFICATION_ID = 100;
     constexpr int32_t REQUEST_CODE = 10;
     const std::string FILEMANAGER_BUNDLE_NAME = "com.ohos.filemanager";
+    const std::string FILEMANAGER_BUNDLE_NAME_KEY = "hmos.filemanager";
     const std::string FILEMANAGER_ABILITY_NAME = "MainAbility";
     const std::string CREATOR_BUNDLE_NAME = "com.usb.right";
     const std::string HAP_PATH = "/system/app/usb_right_dialog/usb_right_dialog.hap";
@@ -62,6 +64,7 @@ UsbMassStorageNotification::UsbMassStorageNotification()
 {
     GetHapString();
     GetHapIcon();
+    GetFilemanagerBundleName();
 }
 
 UsbMassStorageNotification::~UsbMassStorageNotification() {}
@@ -124,6 +127,48 @@ void UsbMassStorageNotification::GetHapIcon()
     return;
 }
 
+void UsbRightManager::GetFilemanagerBundleName()
+{
+    filemanagerBundleName = FILEMANAGER_BUNDLE_NAME;
+    auto sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (sam == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "GetSystemAbilityManager return nullptr");
+        return;
+    }
+    auto bundleMgrSa = sam->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (bundleMgrSa == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "GetSystemAbility return nullptr");
+        return;
+    }
+    auto bundleMgr = iface_cast<OHOS::AppExecFwk::IBundleMgr>(bundleMgrSa);
+    if (bundleMgr == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "iface_cast return nullptr");
+    }
+
+    int osAccountId = 0;
+    std::vector<int> activatedOsAccountIds;
+    int32_t res = OHOS::AccountSA::OsAccountManager::QueryActiveOsAccountIds(activatedOsAccountIds);
+    if ((res != UEC_OK) || (activatedOsAccountIds.size() <= 0)) {
+        USB_HILOGW(MODULE_USB_SERVICE, "QueryActiveOsAccountIds fail. : %{public}d", res);
+    } else {
+        osAccountId = activatedOsAccountIds[0];
+    }
+    
+    std::vector<OHOS::AppExecFwk::ApplicationInfo> appInfos {};
+    if (!bundleMgr->GetApplicationInfos(OHOS::AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO,
+        osAccountId, appInfos)) {
+        USB_HILOGW(MODULE_USB_SERVICE, "BundleMgr GetApplicationInfos failed");
+        return;
+    }
+    for (auto const &appInfo : appInfos) {
+        if (appInfo.bundleName.find(FILEMANAGER_BUNDLE_NAME_KEY) != std::string::npos) {
+            filemanagerBundleName = appInfo.bundleName;
+            return;
+        }
+    }
+    return;
+}
+
 bool UsbMassStorageNotification::IsMassStorage(const UsbDevice &dev)
 {
     for (int32_t i = 0; i < dev.GetConfigCount(); ++i) {
@@ -173,7 +218,7 @@ void UsbMassStorageNotification::PublishUsbNotification()
         return;
     }
     auto want = std::make_shared<OHOS::AAFwk::Want>();
-    want->SetElementName(FILEMANAGER_BUNDLE_NAME, FILEMANAGER_ABILITY_NAME);
+    want->SetElementName(filemanagerBundleName, FILEMANAGER_ABILITY_NAME);
     std::vector<std::shared_ptr<OHOS::AAFwk::Want>> wants;
     wants.push_back(want);
     std::vector<OHOS::AbilityRuntime::WantAgent::WantAgentConstant::Flags> flags;
