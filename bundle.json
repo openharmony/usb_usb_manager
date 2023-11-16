@@ -32,7 +32,10 @@
                 "napi",
                 "bundle_framework",
                 "common_event_service",
+                "distributed_notification_service",
                 "drivers_interface_usb",
+                "i18n",
+                "image_framework",
                 "init",
                 "ipc",
                 "safwk",
@@ -41,6 +44,7 @@
                 "access_token",
                 "os_account",
                 "relational_store",
+                "resource_management",
                 "ability_runtime",
                 "hisysevent"
             ],
