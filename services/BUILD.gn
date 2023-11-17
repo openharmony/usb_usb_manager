@@ -40,7 +40,6 @@ ohos_shared_library("usbservice") {
     "native/src/usb_device_manager.cpp",
     "native/src/usb_function_switch_window.cpp",
     "native/src/usb_host_manager.cpp",
-    "native/src/usb_mass_storage_notification.cpp",
     "native/src/usb_port_manager.cpp",
     "native/src/usb_right_database.cpp",
     "native/src/usb_right_db_helper.cpp",
@@ -51,6 +50,10 @@ ohos_shared_library("usbservice") {
     "native/src/usb_service_subscriber.cpp",
     "native/src/usbd_bulkcallback_impl.cpp",
   ]
+  
+  if (usb_manager_feature_usb_notification) {
+    sources += [ "native/src/usb_mass_storage_notification.cpp" ]
+  }
 
   configs = [
     "${utils_path}:utils_config",
