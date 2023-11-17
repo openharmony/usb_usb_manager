@@ -50,7 +50,7 @@ ohos_shared_library("usbservice") {
     "native/src/usb_service_subscriber.cpp",
     "native/src/usbd_bulkcallback_impl.cpp",
   ]
-  
+
   if (usb_manager_feature_usb_notification) {
     sources += [ "native/src/usb_mass_storage_notification.cpp" ]
   }
