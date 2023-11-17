@@ -16,3 +16,7 @@ import("//build/ohos.gni")
 usb_manager_path = "//base/usb/usb_manager"
 usb_manager_part_name = "usb_manager"
 utils_path = "${usb_manager_path}/utils"
+
+declare_args() {
+  usb_manager_feature_usb_notification = true
+}

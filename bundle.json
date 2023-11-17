@@ -16,6 +16,9 @@
         "syscap": [
             "SystemCapability.USB.USBManager"
         ],
+        "features": [
+            "usb_manager_feature_usb_notification"
+        ],
         "hisysevent_config": [
             "//base/usb/usb_manager/hisysevent.yaml"
         ],
