@@ -130,6 +130,7 @@ void UsbMassStorageNotification::GetFilemanagerBundleName()
 {
     if (filemanagerBundleName != FILEMANAGER_BUNDLE_NAME_DEFAULT) {
         USB_HILOGD(MODULE_USB_SERVICE, "filemanagerBundleName : %{public}s", filemanagerBundleName.c_str());
+        return;
     }
     auto sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sam == nullptr) {
