@@ -51,7 +51,7 @@ ohos_shared_library("usbservice") {
     "native/src/usbd_bulkcallback_impl.cpp",
   ]
 
-  if (usb_manager_feature_usb_notification) {
+  if (distributed_notification_enable) {
     sources += [ "native/src/usb_mass_storage_notification.cpp" ]
   }
 
@@ -91,7 +91,7 @@ ohos_shared_library("usbservice") {
     "samgr:samgr_proxy",
   ]
 
-  if (usb_manager_feature_usb_notification) {
+  if (distributed_notification_enable) {
     external_deps += [
       "distributed_notification_service:ans_innerkits",
       "i18n:intl_util",
