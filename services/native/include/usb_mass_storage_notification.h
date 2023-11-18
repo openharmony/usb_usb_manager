@@ -55,7 +55,7 @@ private:
         {MASS_STORAGE_NOTIFICATION_BUTTON_KEY, ""},
         {MASS_STORAGE_NOTIFICATION_LABAL_KEY, ""}
     };
-    std::string filemanagerBundleName;
+    std::string filemanagerBundleName = "com.ohos.filemanager";
 };
 } // namespace USB
 } // namespace OHOS
