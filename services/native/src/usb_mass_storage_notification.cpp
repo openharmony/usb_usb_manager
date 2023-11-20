@@ -41,7 +41,7 @@ namespace {
     constexpr int16_t USB_DEVICE_CLASS_MASS_STORAGE = 8;
     constexpr int16_t MASS_STORAGE_NOTIFICATION_ID = 100;
     constexpr int32_t REQUEST_CODE = 10;
-    const std::string FILEMANAGER_BUNDLE_NAME = "com.ohos.filemanager";
+    const std::string FILEMANAGER_BUNDLE_NAME_DEFAULT = "com.ohos.filemanager";
     const std::string FILEMANAGER_BUNDLE_NAME_KEY = "hmos.filemanager";
     const std::string FILEMANAGER_ABILITY_NAME = "MainAbility";
     const std::string CREATOR_BUNDLE_NAME = "com.usb.right";
@@ -64,7 +64,6 @@ UsbMassStorageNotification::UsbMassStorageNotification()
 {
     GetHapString();
     GetHapIcon();
-    GetFilemanagerBundleName();
 }
 
 UsbMassStorageNotification::~UsbMassStorageNotification() {}
@@ -129,7 +128,10 @@ void UsbMassStorageNotification::GetHapIcon()
 
 void UsbMassStorageNotification::GetFilemanagerBundleName()
 {
-    filemanagerBundleName = FILEMANAGER_BUNDLE_NAME;
+    if (filemanagerBundleName != FILEMANAGER_BUNDLE_NAME_DEFAULT) {
+        USB_HILOGD(MODULE_USB_SERVICE, "filemanagerBundleName : %{public}s", filemanagerBundleName.c_str());
+        return;
+    }
     auto sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sam == nullptr) {
         USB_HILOGW(MODULE_USB_SERVICE, "GetSystemAbilityManager return nullptr");
@@ -217,6 +219,7 @@ void UsbMassStorageNotification::PublishUsbNotification()
         USB_HILOGE(MODULE_USB_SERVICE, "notification content nullptr");
         return;
     }
+    GetFilemanagerBundleName();
     auto want = std::make_shared<OHOS::AAFwk::Want>();
     want->SetElementName(filemanagerBundleName, FILEMANAGER_ABILITY_NAME);
     std::vector<std::shared_ptr<OHOS::AAFwk::Want>> wants;

@@ -20,7 +20,10 @@
 #include "hilog_wrapper.h"
 #include "hisysevent.h"
 #include "usb_serial_reader.h"
+
+#ifdef USB_NOTIFICATION_ENABLE
 #include "usb_mass_storage_notification.h"
+#endif
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::EventFwk;
@@ -61,7 +64,9 @@ bool UsbHostManager::DelDevice(uint8_t busNum, uint8_t devNum)
     if (!isSuccess) {
         USB_HILOGW(MODULE_SERVICE, "send device attached broadcast failed");
     }
+#ifdef USB_NOTIFICATION_ENABLE
     UsbMassStorageNotification::GetInstance()->CancelNotification(devices_, *devOld, name);
+#endif
 
     delete devOld;
     devices_.erase(iter);
@@ -94,7 +99,10 @@ bool UsbHostManager::AddDevice(UsbDevice *dev)
     USB_HILOGI(
         MODULE_SERVICE, "device:%{public}s bus:%{public}hhu dev:%{public}hhu insert", name.c_str(), busNum, devNum);
     devices_.insert(std::pair<std::string, UsbDevice *>(name, dev));
+
+#ifdef USB_NOTIFICATION_ENABLE
     UsbMassStorageNotification::GetInstance()->SendNotification(*dev);
+#endif
     return true;
 }
 
