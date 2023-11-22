@@ -145,6 +145,7 @@ void UsbMassStorageNotification::GetFilemanagerBundleName()
     auto bundleMgr = iface_cast<OHOS::AppExecFwk::IBundleMgr>(bundleMgrSa);
     if (bundleMgr == nullptr) {
         USB_HILOGW(MODULE_USB_SERVICE, "iface_cast return nullptr");
+        return;
     }
 
     int osAccountId = 0;
