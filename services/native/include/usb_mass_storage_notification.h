@@ -16,20 +16,16 @@
 #ifndef USB_MASS_STORAGE_NOTIFICATION_H
 #define USB_MASS_STORAGE_NOTIFICATION_H
 
-#include <optional>
 #include <string>
 #include "usb_device.h"
-#include "pixel_map.h"
 
 namespace OHOS {
 namespace USB {
-
-using OptionalPixelMap = std::optional<std::shared_ptr<Media::PixelMap>>;
-
 const std::string MASS_STORAGE_NOTIFICATION_TITLE_KEY = "notification_title";
 const std::string MASS_STORAGE_NOTIFICATION_TEXT_KEY = "notification_text";
 const std::string MASS_STORAGE_NOTIFICATION_BUTTON_KEY = "notification_button";
-const std::string MASS_STORAGE_NOTIFICATION_LABAL_KEY = "notification_label";
+const std::string MASS_STORAGE_NOTIFICATION_LABEL_KEY = "notification_label";
+constexpr int32_t SUBSCRIBE_USER_INIT = -1;
 
 class UsbMassStorageNotification {
 public:
@@ -44,17 +40,16 @@ private:
     void PublishUsbNotification();
     bool IsMassStorage(const UsbDevice &dev);
     void GetHapString();
-    void GetHapIcon();
     void GetFilemanagerBundleName();
 
     static std::shared_ptr<UsbMassStorageNotification> instance_;
-    OptionalPixelMap icon;
     std::map<std::string, std::string> notificationMap = {
         {MASS_STORAGE_NOTIFICATION_TITLE_KEY, ""},
         {MASS_STORAGE_NOTIFICATION_TEXT_KEY, ""},
         {MASS_STORAGE_NOTIFICATION_BUTTON_KEY, ""},
-        {MASS_STORAGE_NOTIFICATION_LABAL_KEY, ""}
+        {MASS_STORAGE_NOTIFICATION_LABEL_KEY, ""}
     };
+    int32_t osAccountId = SUBSCRIBE_USER_INIT;
     std::string filemanagerBundleName = "com.ohos.filemanager";
 };
 } // namespace USB

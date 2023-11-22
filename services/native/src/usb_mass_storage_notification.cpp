@@ -29,7 +29,6 @@
 #include "iservice_registry.h"
 #include "bundle_mgr_interface.h"
 #include "system_ability_definition.h"
-#include "image_source.h"
 #include "os_account_manager.h"
 #include "usb_errors.h"
 
@@ -41,15 +40,13 @@ namespace {
     constexpr int16_t USB_DEVICE_CLASS_MASS_STORAGE = 8;
     constexpr int16_t MASS_STORAGE_NOTIFICATION_ID = 100;
     constexpr int32_t REQUEST_CODE = 10;
-    const std::string FILEMANAGER_BUNDLE_NAME_DEFAULT = "com.ohos.filemanager";
     const std::string FILEMANAGER_BUNDLE_NAME_KEY = "hmos.filemanager";
     const std::string FILEMANAGER_ABILITY_NAME = "MainAbility";
-    const std::string CREATOR_BUNDLE_NAME = "com.usb.right";
     const std::string HAP_PATH = "/system/app/usb_right_dialog/usb_right_dialog.hap";
     const std::string ICON_NAME = "notification_icon";
 } // namespace
 
-std::shared_ptr<UsbMassStorageNotification> UsbMassStorageNotification::instance_;
+std::shared_ptr<UsbMassStorageNotification> UsbMassStorageNotification::instance_ = nullptr;
 
 std::shared_ptr<UsbMassStorageNotification> UsbMassStorageNotification::GetInstance()
 {
@@ -63,7 +60,6 @@ std::shared_ptr<UsbMassStorageNotification> UsbMassStorageNotification::GetInsta
 UsbMassStorageNotification::UsbMassStorageNotification()
 {
     GetHapString();
-    GetHapIcon();
 }
 
 UsbMassStorageNotification::~UsbMassStorageNotification() {}
@@ -96,36 +92,6 @@ void UsbMassStorageNotification::GetHapString()
     return;
 }
 
-void UsbMassStorageNotification::GetHapIcon()
-{
-    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
-    if (resourceManager == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "resourceManager is null");
-        return;
-    }
-    if (!resourceManager->AddResource(HAP_PATH.c_str())) {
-        USB_HILOGE(MODULE_USB_SERVICE, "AddResource failed");
-        return;
-    }
-    size_t len = 0;
-    std::unique_ptr<uint8_t[]> data;
-    resourceManager->GetMediaDataByName(ICON_NAME.c_str(), len, data);
-    Media::SourceOptions opts;
-    uint32_t errorCode = 0;
-    std::unique_ptr<Media::ImageSource> imageSource =
-        Media::ImageSource::CreateImageSource(data.get(), len, opts, errorCode);
-    Media::DecodeOptions decodeOpts;
-    decodeOpts.desiredPixelFormat = Media::PixelFormat::BGRA_8888;
-    if (imageSource) {
-        auto pixelMapPtr = imageSource->CreatePixelMap(decodeOpts, errorCode);
-        icon = std::shared_ptr<Media::PixelMap>(pixelMapPtr.release());
-    }
-    if (errorCode != 0 || !icon) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Get icon failed");
-    }
-    return;
-}
-
 void UsbMassStorageNotification::GetFilemanagerBundleName()
 {
     if (filemanagerBundleName != FILEMANAGER_BUNDLE_NAME_DEFAULT) {
@@ -148,7 +114,6 @@ void UsbMassStorageNotification::GetFilemanagerBundleName()
         return;
     }
 
-    int osAccountId = 0;
     std::vector<int> activatedOsAccountIds;
     int32_t res = OHOS::AccountSA::OsAccountManager::QueryActiveOsAccountIds(activatedOsAccountIds);
     if ((res != UEC_OK) || (activatedOsAccountIds.size() <= 0)) {
@@ -245,11 +210,9 @@ void UsbMassStorageNotification::PublishUsbNotification()
     request.SetContent(content);
     request.AddActionButton(actionButton);
     request.SetCreatorUid(USB_SYSTEM_ABILITY_ID);
-    request.SetCreatorBundleName(CREATOR_BUNDLE_NAME);
-    if (icon.has_value()) {
-        request.SetLittleIcon(icon.value());
-    }
-    request.SetLabel(notificationMap[MASS_STORAGE_NOTIFICATION_LABAL_KEY]);
+    request.SetCreatorBundleName(filemanagerBundleName);
+    request.SetCreatorUserId(osAccountId);
+    request.SetLabel(notificationMap[MASS_STORAGE_NOTIFICATION_LABEL_KEY]);
     request.SetSlotType(OHOS::Notification::NotificationConstant::SlotType::SOCIAL_COMMUNICATION);
     int32_t result = OHOS::Notification::NotificationHelper::PublishNotification(request);
     USB_HILOGI(MODULE_USB_SERVICE, "publish mass storage notification result : %{public}d", result);

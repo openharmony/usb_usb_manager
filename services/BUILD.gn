@@ -95,7 +95,6 @@ ohos_shared_library("usbservice") {
     external_deps += [
       "distributed_notification_service:ans_innerkits",
       "i18n:intl_util",
-      "image_framework:image_native",
       "resource_management:global_resmgr",
     ]
     defines += [ "USB_NOTIFICATION_ENABLE" ]
