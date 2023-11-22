@@ -32,10 +32,10 @@ using namespace OHOS::HDI::Usb::V1_0;
 namespace OHOS {
 namespace USB {
 UsbServiceSubscriber::UsbServiceSubscriber() {}
-
+extern sptr<UsbService> g_serviceInstance;
 int32_t UsbServiceSubscriber::PortChangedEvent(const PortInfo &info)
 {
-    auto pms = DelayedSpSingleton<UsbService>::GetInstance();
+    auto pms = g_serviceInstance;
     if (pms == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "failed to GetInstance");
         return UEC_SERVICE_GET_USB_SERVICE_FAILED;
@@ -68,7 +68,7 @@ int32_t UsbServiceSubscriber::PortChangedEvent(const PortInfo &info)
 int32_t UsbServiceSubscriber::DeviceEvent(const USBDeviceInfo &info)
 {
     int32_t status = info.status;
-    auto pms = DelayedSpSingleton<UsbService>::GetInstance();
+    auto pms = g_serviceInstance;
     if (pms == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "failed to GetInstance");
         return UEC_SERVICE_GET_USB_SERVICE_FAILED;
