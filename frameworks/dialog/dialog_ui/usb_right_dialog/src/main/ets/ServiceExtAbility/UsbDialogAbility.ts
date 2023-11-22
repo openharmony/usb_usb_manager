@@ -81,6 +81,15 @@ export default class UsbDialogAbility extends extension {
       await usbWin.loadContent('pages/UsbDialog');
       await usbWin.setBackgroundColor(BG_COLOR);
       await usbWin.show();
+
+      let shouldHide = true;
+      usbWin.hideNonSystemFloatingWindows(shouldHide, (err) => {
+        if (err.code) {
+          console.error('Failed to hide the non-system floating windows. Cause: ' + JSON.stringify(err));
+          return;
+        }
+        console.info('Succeeded in hiding the non-system floating windows.');
+      });
       console.log('UsbDialogAbility window create successfully');
     } catch {
       console.info('UsbDialogAbility window create failed');
