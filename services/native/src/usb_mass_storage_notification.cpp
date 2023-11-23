@@ -43,7 +43,6 @@ namespace {
     const std::string FILEMANAGER_BUNDLE_NAME_KEY = "hmos.filemanager";
     const std::string FILEMANAGER_ABILITY_NAME = "MainAbility";
     const std::string HAP_PATH = "/system/app/usb_right_dialog/usb_right_dialog.hap";
-    const std::string ICON_NAME = "notification_icon";
 } // namespace
 
 std::shared_ptr<UsbMassStorageNotification> UsbMassStorageNotification::instance_ = nullptr;
@@ -94,10 +93,6 @@ void UsbMassStorageNotification::GetHapString()
 
 void UsbMassStorageNotification::GetFilemanagerBundleName()
 {
-    if (filemanagerBundleName != FILEMANAGER_BUNDLE_NAME_DEFAULT) {
-        USB_HILOGD(MODULE_USB_SERVICE, "filemanagerBundleName : %{public}s", filemanagerBundleName.c_str());
-        return;
-    }
     auto sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sam == nullptr) {
         USB_HILOGW(MODULE_USB_SERVICE, "GetSystemAbilityManager return nullptr");
