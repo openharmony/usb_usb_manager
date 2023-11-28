@@ -15,6 +15,9 @@
 
 import usbManager from '@ohos.usbManager'
 import featureAbility from '@ohos.ability.featureAbility'
+import common from '@ohos.app.ability.common';
+import Want from '@ohos.app.ability.Want';
+import window from '@ohos.window';
 
 // allow,notAllow button style
 @Extend(Text) function ControlBtn(fontColor: string) {
@@ -40,10 +43,13 @@ import featureAbility from '@ohos.ability.featureAbility'
 @CustomDialog
 export default
 struct ConfirmDialog {
-  content: string
+  content: string = ''
   notAllowFontColor: string = '#E84026'
   allowFontColor: string = '#ff1a0af7'
   controller: CustomDialogController
+  private want: Want | undefined = undefined;
+  private mContext: common.ServiceExtensionContext | undefined = undefined;
+  private window: Window | window = undefined;
   // title style
   @Builder TipTextStyle(tip: string, fontSize: number) {
     Text(tip)
@@ -57,7 +63,7 @@ struct ConfirmDialog {
         Text($r('app.string.allowButton'))
           .ControlBtn(this.allowFontColor)
           .onClick(() => {
-            usbManager.addRight(globalThis.want.parameters["bundleName"], globalThis.want.parameters["deviceName"])
+            usbManager.addRight(want.parameters["bundleName"], want.parameters["deviceName"])
             this.destruction()
           })
         Text('|')
@@ -72,9 +78,9 @@ struct ConfirmDialog {
   }
   destruction() {
     this.controller.close()
-    globalThis.window.destroy()
-    globalThis.extensionContext.terminateSelf()
-    featureAbility.terminateSelf();
+    this.window.destroy()
+    this.extensionContext.terminateSelf()
+    this.featureAbility.terminateSelf();
   }
 }
 
@@ -90,9 +96,9 @@ struct IndexHapComponent {
   })
 
   async aboutToAppear() {
-    this.allow = await globalThis.getContext().resourceManager.getStringValue($r('app.string.allow'));
-    this.use = await globalThis.getContext().resourceManager.getStringValue($r('app.string.use'));
-    this.content = this.allow + globalThis.want.parameters["bundleName"] + this.use + globalThis.want.parameters["deviceName"];
+    this.allow = await mContext.getContext().resourceManager.getStringValue($r('app.string.allow'));
+    this.use = await mContext.getContext().resourceManager.getStringValue($r('app.string.use'));
+    this.content = this.allow + this.want.parameters["bundleName"] + this.use + this.want.parameters["deviceName"];
     this.ConfirmDialogController.open()
   }
   build() {}

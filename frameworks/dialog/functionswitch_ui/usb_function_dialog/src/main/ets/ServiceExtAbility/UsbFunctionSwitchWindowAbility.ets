@@ -14,49 +14,60 @@
  */
 
 import ServiceExtensionAbility from '@ohos.app.ability.ServiceExtensionAbility';
+import common from '@ohos.app.ability.common';
 import window from '@ohos.window';
 import display from '@ohos.display';
 import rpc from '@ohos.rpc';
 import Logger from '../util/Logger';
 import { notificationUtil } from '../util/NotificationUtil';
+import common from '@ohos.app.ability.common';
+import commonEvent from '@ohos.commonEventManager';
+import window from '@ohos.window';
+import Want from '@ohos.app.ability.Want';
+import { BusinessError } from '@ohos.base';
 
 const TAG: string = 'usbfunctionswitchwindow_ServiceExtensionAbility';
 const WINDOW_NAME: string = 'UsbFunctionSwitchWindow';
+
 class UsbFunctionSwitchStub extends rpc.RemoteObject {
-  constructor(des) {
+  constructor(des: string) {
     super(des);
   }
-  onRemoteRequest(code, data, reply, option) {
+  onRemoteRequest(code: number, data: MessageParcel, reply: MessageParcel, options: MessageOption) {
     return true;
   }
 }
 
-const BG_COLOR = '#00000000';
-let usbServiceSwitchWindowFirst = undefined;
+interface NavigationBarRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
 
 export default class UsbFunctionSwitchAbility extends ServiceExtensionAbility {
+  private extensionWin: window.Window | undefined = undefined;
+  private mContext: common.ServiceExtensionContext | undefined = undefined;
+  private windowNum: number = 0;
 
   /**
    * Lifecycle function, called back when a service extension is started for initialization.
    */
-  onCreate(want): void {
+  onCreate(want: Want): void {
     Logger.info(TAG, `onCreate want: ${JSON.stringify(want)}`);
-    globalThis.extensionContext = this.context;
-    globalThis.want = want;
-    globalThis.windowNum = 0;
-    globalThis.usbServiceSwitchWindowFirst = usbServiceSwitchWindowFirst;
+    this.mContext = getContext(this) as common.ServiceExtensionContext;
+    this.windowNum = 0;
     return;
   }
 
   /**
    * Lifecycle function, called back when a service extension is started or recall.
    */
-  onRequest(want, startId): void {
+  onRequest(want: Want, startId: number): void {
     Logger.info(TAG, `onRequest want=${JSON.stringify(want)} startId=${startId}`);
-    globalThis.abilityWant = want;
     try {
       let dis = display.getDefaultDisplaySync();
-      let navigationBarRect = {
+      let navigationBarRect: NavigationBarRect = {
         left: 0,
         top: 0,
         width: dis.width,
@@ -69,14 +80,13 @@ export default class UsbFunctionSwitchAbility extends ServiceExtensionAbility {
     return;
   }
 
-  onConnect(want): rpc.RemoteObject {
-    globalThis.abilityWant = want;
+  onConnect(want: Want): rpc.RemoteObject {
     Logger.info(TAG, `onConnect want=${JSON.stringify(want)}`);
     return new UsbFunctionSwitchStub('test');
   }
 
 
-  onDisconnect(want): void {
+  onDisconnect(want: Want): void {
     Logger.info(TAG, `onDisconnect want=${JSON.stringify(want)}`);
     return;
   }
@@ -87,40 +97,41 @@ export default class UsbFunctionSwitchAbility extends ServiceExtensionAbility {
    */
   onDestroy(): void {
     Logger.info(TAG, 'onDestroy');
-    if (globalThis.window) {
-      globalThis.usbServiceSwitchWindowFirst = undefined;
+    if (this.window) {
+      this.extensionWin = undefined;
       notificationUtil.cancelAllNotifications();
-      globalThis.window.destroy((err, data) => {
+      this.window.destroy((err: BusinessError, commonEventData: commonEvent.CommonEventData) => {
         if (err.code) {
           Logger.error(TAG, `Failed to destroy the window. Cause: ${JSON.stringify(err)}`);
           return;
         }
         Logger.info(TAG, 'Succeeded in destroy the window');
-        globalThis.window = undefined;
+        this.window = undefined;
       });
     }
     return;
   }
 
-  private async createOrShowUsbWindow(winName: string, windowType: number, rect): Promise<void> {
+  private async createOrShowUsbWindow(winName: string, windowType: number, rect: NavigationBarRect): Promise<void> {
     try {
-      if (globalThis.usbServiceSwitchWindowFirst !== undefined) {
+      if (this.extensionWin !== undefined) {
         Logger.info(TAG, 'destroy first power window');
-        globalThis.usbServiceSwitchWindowFirst.destroy();
-        globalThis.usbServiceSwitchWindowFirst = undefined;
+        this.extensionWin.destroy();
+        this.extensionWin = undefined;
       }
-      const usbWin = await window.create(globalThis.extensionContext, winName, windowType);
-      if (globalThis.usbServiceSwitchWindowFirst === undefined) {
-        Logger.info(TAG, 'usbServiceSwitchWindowFirst not init, init now');
-        usbServiceSwitchWindowFirst = usbWin;
-        globalThis.usbServiceSwitchWindowFirst = usbServiceSwitchWindowFirst;
+      const usbWin = await window.create(this.mContext, winName, windowType);
+      if (this.extensionWin === undefined) {
+        Logger.info(TAG, 'extensionWin not init, init now');
+        extensionWin = usbWin;
+        this.extensionWin = extensionWin;
       }
-      globalThis.window = usbWin;
-      await usbWin.moveTo(rect.left, rect.top);
-      await usbWin.resetSize(rect.width, rect.height);
-      await usbWin.loadContent('pages/Index');
-      await usbWin.setBackgroundColor(BG_COLOR);
-      await usbWin.show();
+      this.extensionWin = usbWin;
+      await this.extensionWin.moveWindowTo(rect.left, rect.top);
+      await this.extensionWin.resize(rect.width, rect.height);
+      await this.extensionWin.setUIContent('pages/index');
+      await this.extensionWin.showWindow();
+      this.windowNum++;
+      console.log(TAG + 'window create successfully');
       Logger.info(TAG, 'window create success');
     } catch {
       Logger.error(TAG, 'window create failed');

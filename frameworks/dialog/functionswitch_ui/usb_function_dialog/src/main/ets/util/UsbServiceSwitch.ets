@@ -15,18 +15,26 @@
 
 import Logger from '../util/Logger';
 import usbManager from '@ohos.usbManager';
+import window from '@ohos.window';
+import { BusinessError } from '@ohos.base';
 
 const TAG: string = 'usbfunctionswitchwindow_UsbServiceSwitch';
 
-const USBFUNCTION_ID = {
-  MTP: 8,
-  PTP: 16,
-  NONE: 0,
+interface UsbfunctionId {
+  mtp: number;
+  ptp: number;
+  none: number;
+}
+
+let usbfunctionId: UsbfunctionId = {
+  mtp: 8,
+  ptp: 16,
+  none: 0,
 }
 
 class UsbServiceSwitch {
-  private curFunc: number = USBFUNCTION_ID.NONE;
-  private tarFunc: number = USBFUNCTION_ID.NONE;
+  private curFunc: number = usbfunctionId.none;
+  private tarFunc: number = usbfunctionId.none;
 
   async serviceChoose(chooseId: number): Promise<void> {
     this.curFunc = usbManager.getCurrentFunctions();
@@ -35,7 +43,7 @@ class UsbServiceSwitch {
       Logger.error(TAG, 'undefined, error');
       return;
     }
-    this.tarFunc = ~(USBFUNCTION_ID.MTP | USBFUNCTION_ID.PTP);
+    this.tarFunc = ~(usbfunctionId.mtp | usbfunctionId.ptp);
     /* signed number to unsigned number */
     this.tarFunc = this.tarFunc >>> 0;
     this.tarFunc = this.tarFunc & this.curFunc;
@@ -43,19 +51,19 @@ class UsbServiceSwitch {
     if (chooseId === -1) {
       Logger.info(TAG, 'choose: charge only');
     } else if (chooseId === 8) {
-      this.tarFunc = this.tarFunc | USBFUNCTION_ID.MTP;
-      Logger.info(TAG, 'choose: xfer file(MTP)');
+      this.tarFunc = this.tarFunc | usbfunctionId.MTP;
+      Logger.info(TAG, 'choose: xfer file(mtp)');
     } else if (chooseId === 16) {
-      this.tarFunc = this.tarFunc | USBFUNCTION_ID.PTP;
-      Logger.info(TAG, 'choose: xfer pic(PTP)');
+      this.tarFunc = this.tarFunc | usbfunctionId.ptp;
+      Logger.info(TAG, 'choose: xfer pic(ptp)');
     } else {
       Logger.info(TAG, 'choose error');
     }
 
     Logger.info(TAG, `setFunctions: current ${JSON.stringify(this.curFunc)}, target ${JSON.stringify(this.tarFunc)}`);
-    usbManager.setCurrentFunctions(this.tarFunc).then((data) => {
+    usbManager.setCurrentFunctions(this.tarFunc).then((data: window.WindowEventType) => {
       Logger.info(TAG, `setCurrentFunctions success: ${JSON.stringify(data)}`);
-    }).catch((err) => {
+    }).catch((err: BusinessError) => {
       Logger.error(TAG, `setCurrentFunctions failed:${JSON.stringify(err)}`);
     })
     return;
