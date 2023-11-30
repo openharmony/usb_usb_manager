@@ -40,6 +40,7 @@ interface NavigationBarRect {
 export default class UsbDialogAbility extends extension {
   private usbWin: window.Window | undefined = undefined;
   private mContext: common.ServiceExtensionContext | undefined = undefined;
+  private windowNum: number = 0;
   /**
    * Lifecycle function, called back when a service extension is started for initialization.
    */

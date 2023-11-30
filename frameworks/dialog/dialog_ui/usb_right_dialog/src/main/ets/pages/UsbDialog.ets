@@ -16,6 +16,7 @@
 import usbManager from '@ohos.usbManager'
 import featureAbility from '@ohos.ability.featureAbility'
 import window from '@ohos.window';
+import common from '@ohos.app.ability.common';
 
 // allow,notAllow button style
 @Extend(Text) function ControlBtn(fontColor: string) {
@@ -59,7 +60,8 @@ struct ConfirmDialog {
         Text($r('app.string.allowButton'))
           .ControlBtn(this.allowFontColor)
           .onClick(() => {
-            usbManager.addRight(this.want.parameters["bundleName"], this.want.parameters["deviceName"])
+            usbManager.requestRight("bundleName");
+            usbManager.requestRight("deviceName");
             this.destruction()
           })
         Text('|')
@@ -74,9 +76,8 @@ struct ConfirmDialog {
   }
   destruction() {
     this.controller.close();
-    if (this.extensionWin && this.mContext) {
+    if (this.extensionWin && this.content) {
       this.extensionWin.destroyWindow();
-      this.mContext.terminateSelf();
       featureAbility.terminateSelf();
     }
   }
@@ -86,17 +87,14 @@ struct ConfirmDialog {
 @Component
 struct IndexHapComponent {
   private content: string = ''
-  private allow: string = ''
-  private use: string = ''
   ConfirmDialogController: CustomDialogController = new CustomDialogController( {
     builder: ConfirmDialog({content: this.content}),
     autoCancel: false
   })
 
   async aboutToAppear() {
-    this.allow = await this.getContext.resourceManager.getStringValue($r('app.string.allow'));
-    this.use = await this.getContext.resourceManager.getStringValue($r('app.string.use'));
-    this.content = this.allow + this.want.parameters["bundleName"] + this.use + this.want.parameters["deviceName"];
+    let context = getContext(this) as common.ServiceExtensionContext;
+    this.content = context;
     this.ConfirmDialogController.open()
   }
   build() {}
