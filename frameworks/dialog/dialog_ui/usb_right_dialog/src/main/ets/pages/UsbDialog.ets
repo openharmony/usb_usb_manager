@@ -78,7 +78,6 @@ struct ConfirmDialog {
     this.controller.close();
     if (this.extensionWin && this.content) {
       this.extensionWin.destroyWindow();
-      featureAbility.terminateSelf();
     }
   }
 }
@@ -93,7 +92,6 @@ struct IndexHapComponent {
   })
 
   async aboutToAppear() {
-    let context = getContext(this) as common.ServiceExtensionContext;
     this.content = context;
     this.ConfirmDialogController.open()
   }
