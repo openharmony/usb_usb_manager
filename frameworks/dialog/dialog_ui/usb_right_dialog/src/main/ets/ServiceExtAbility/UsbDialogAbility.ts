@@ -15,8 +15,9 @@
 
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
-import display from '@ohos.display';
+import common from '@ohos.app.ability.common';
 import rpc from '@ohos.rpc';
+import Want from '@ohos.app.ability.Want';
 
 class UsbDialogStub extends rpc.RemoteObject {
   constructor(des) {
@@ -29,39 +30,51 @@ class UsbDialogStub extends rpc.RemoteObject {
 
 const BG_COLOR = '#33000000';
 
+interface NavigationBarRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
 export default class UsbDialogAbility extends extension {
+  private usbWin: window.Window | undefined = undefined;
+  private mContext: common.ServiceExtensionContext | undefined = undefined;
+  private windowNum: number = 0;
   /**
    * Lifecycle function, called back when a service extension is started for initialization.
    */
-  onCreate(want): void {
+  onCreate(want: Want): void {
     console.log('onCreate want: ' + JSON.stringify(want));
-    globalThis.extensionContext = this.context;
-    globalThis.want = want;
-    globalThis.windowNum = 0;
+    this.windowNum = 0;
   }
 
-  onConnect(want): rpc.RemoteObject {
+  onConnect(want: Want): rpc.RemoteObject {
     console.log('onConnect want: ' + JSON.stringify(want));
-    display.getDefaultDisplay().then(dis => {
-      let navigationBarRect = {
+    let navigationBarRect: NavigationBarRect = {
         left: 0,
         top: 0,
-        width: dis.width,
-        height: dis.height
+        width: 300,
+        height: 300,
       };
-      this.createWindow('UsbDialogAbility', window.WindowType.TYPE_FLOAT, navigationBarRect);
-    });
+    let windowConfig: window.Configuration = {
+      name: 'Usb Dialog',
+      windowType: window.WindowType.TYPE_FLOAT,
+      ctx: this.mContext
+    };
+      this.createWindow(windowConfig, navigationBarRect);
+
     return new UsbDialogStub('UsbRightDialog');
   }
 
-  onDisconnect(want): void {
+  onDisconnect(want: Want): void {
     console.log('onDisconnect');
   }
 
   /**
    * Lifecycle function, called back when a service extension is started or recall.
    */
-  onRequest(want, startId): void {
+  onRequest(want: Want, startId: number): void {
     console.log('onRequest');
   }
   /**
@@ -71,19 +84,18 @@ export default class UsbDialogAbility extends extension {
     console.info('UsbDialogAbility onDestroy.');
   }
 
-  private async createWindow(name: string, windowType: number, rect): Promise<void> {
+  private async createWindow(config: window.Configuration, rect: NavigationBarRect): Promise<void> {
     console.log('create windows execute');
     try {
-      const usbWin = await window.create(globalThis.extensionContext, name, windowType);
-      globalThis.window = usbWin;
-      await usbWin.moveTo(rect.left, rect.top);
-      await usbWin.resetSize(rect.width, rect.height);
-      await usbWin.loadContent('pages/UsbDialog');
-      await usbWin.setBackgroundColor(BG_COLOR);
-      await usbWin.show();
+      this.usbWin = await window.createWindow(config);
+      await this.usbWin.moveWindowTo(rect.left, rect.top);
+      await this.usbWin.resize(rect.width, rect.height);
+      await this.usbWin.setUIContent('pages/UsbDialog');
+      await this.usbWin.setWindowBackgroundColor(BG_COLOR)
+      await this.usbWin.showWindow();
       console.log('UsbDialogAbility window create successfully');
-    } catch {
-      console.info('UsbDialogAbility window create failed');
+    } catch (exception) {
+      console.error('UsbDialogAbility Failed to create the window. Cause: ' + JSON.stringify(exception));
     }
   }
 };

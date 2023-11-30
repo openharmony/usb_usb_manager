@@ -49,7 +49,7 @@ struct ConfirmDialog {
   controller: CustomDialogController
   private want: Want | undefined = undefined;
   private mContext: common.ServiceExtensionContext | undefined = undefined;
-  private window: Window | window = undefined;
+  private extensionWin: window.Window | undefined = undefined;
   // title style
   @Builder TipTextStyle(tip: string, fontSize: number) {
     Text(tip)
@@ -63,7 +63,7 @@ struct ConfirmDialog {
         Text($r('app.string.allowButton'))
           .ControlBtn(this.allowFontColor)
           .onClick(() => {
-            usbManager.addRight(want.parameters["bundleName"], want.parameters["deviceName"])
+            usbManager.addRight(this.want.parameters["bundleName"], this.want.parameters["deviceName"])
             this.destruction()
           })
         Text('|')
@@ -77,10 +77,10 @@ struct ConfirmDialog {
     }
   }
   destruction() {
-    this.controller.close()
-    this.window.destroy()
-    this.extensionContext.terminateSelf()
-    this.featureAbility.terminateSelf();
+    this.controller.close();
+    this.extensionWin.destroyWindow();
+    this.mContext.terminateSelf();
+    featureAbility.terminateSelf();
   }
 }
 
@@ -96,9 +96,11 @@ struct IndexHapComponent {
   })
 
   async aboutToAppear() {
-    this.allow = await mContext.getContext().resourceManager.getStringValue($r('app.string.allow'));
-    this.use = await mContext.getContext().resourceManager.getStringValue($r('app.string.use'));
-    this.content = this.allow + this.want.parameters["bundleName"] + this.use + this.want.parameters["deviceName"];
+    let context = getContext(this) as common.ServiceExtensionContext;
+    let want: Want | undefined = undefined;
+    this.allow = await context.resourceManager.getStringValue($r('app.string.allow'));
+    this.use = await context.getContext().resourceManager.getStringValue($r('app.string.use'));
+    this.content = this.allow + want.parameters["bundleName"] + this.use + want.parameters["deviceName"];
     this.ConfirmDialogController.open()
   }
   build() {}
