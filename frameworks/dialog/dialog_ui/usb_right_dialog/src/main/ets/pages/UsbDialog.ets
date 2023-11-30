@@ -15,8 +15,6 @@
 
 import usbManager from '@ohos.usbManager'
 import featureAbility from '@ohos.ability.featureAbility'
-import common from '@ohos.app.ability.common';
-import Want from '@ohos.app.ability.Want';
 import window from '@ohos.window';
 
 // allow,notAllow button style
@@ -47,8 +45,6 @@ struct ConfirmDialog {
   notAllowFontColor: string = '#E84026'
   allowFontColor: string = '#ff1a0af7'
   controller: CustomDialogController
-  private want: Want | undefined = undefined;
-  private mContext: common.ServiceExtensionContext | undefined = undefined;
   private extensionWin: window.Window | undefined = undefined;
   // title style
   @Builder TipTextStyle(tip: string, fontSize: number) {
@@ -78,9 +74,11 @@ struct ConfirmDialog {
   }
   destruction() {
     this.controller.close();
-    this.extensionWin.destroyWindow();
-    this.mContext.terminateSelf();
-    featureAbility.terminateSelf();
+    if (this.extensionWin && this.mContext) {
+      this.extensionWin.destroyWindow();
+      this.mContext.terminateSelf();
+      featureAbility.terminateSelf();
+    }
   }
 }
 
@@ -96,11 +94,9 @@ struct IndexHapComponent {
   })
 
   async aboutToAppear() {
-    let context = getContext(this) as common.ServiceExtensionContext;
-    let want: Want | undefined = undefined;
-    this.allow = await context.resourceManager.getStringValue($r('app.string.allow'));
-    this.use = await context.getContext().resourceManager.getStringValue($r('app.string.use'));
-    this.content = this.allow + want.parameters["bundleName"] + this.use + want.parameters["deviceName"];
+    this.allow = await this.getContext.resourceManager.getStringValue($r('app.string.allow'));
+    this.use = await this.getContext.resourceManager.getStringValue($r('app.string.use'));
+    this.content = this.allow + this.want.parameters["bundleName"] + this.use + this.want.parameters["deviceName"];
     this.ConfirmDialogController.open()
   }
   build() {}

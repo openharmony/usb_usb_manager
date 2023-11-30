@@ -15,9 +15,9 @@
 
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
-import common from '@ohos.app.ability.common';
+import type common from '@ohos.app.ability.common';
 import rpc from '@ohos.rpc';
-import Want from '@ohos.app.ability.Want';
+import type Want from '@ohos.app.ability.Want';
 
 class UsbDialogStub extends rpc.RemoteObject {
   constructor(des) {
@@ -40,7 +40,6 @@ interface NavigationBarRect {
 export default class UsbDialogAbility extends extension {
   private usbWin: window.Window | undefined = undefined;
   private mContext: common.ServiceExtensionContext | undefined = undefined;
-  private windowNum: number = 0;
   /**
    * Lifecycle function, called back when a service extension is started for initialization.
    */
@@ -52,17 +51,17 @@ export default class UsbDialogAbility extends extension {
   onConnect(want: Want): rpc.RemoteObject {
     console.log('onConnect want: ' + JSON.stringify(want));
     let navigationBarRect: NavigationBarRect = {
-        left: 0,
-        top: 0,
-        width: 300,
-        height: 300,
-      };
+      left: 0,
+      top: 0,
+      width: 300,
+      height: 300,
+    };
     let windowConfig: window.Configuration = {
       name: 'Usb Dialog',
       windowType: window.WindowType.TYPE_FLOAT,
       ctx: this.mContext
     };
-      this.createWindow(windowConfig, navigationBarRect);
+    this.createWindow(windowConfig, navigationBarRect);
 
     return new UsbDialogStub('UsbRightDialog');
   }
@@ -91,7 +90,7 @@ export default class UsbDialogAbility extends extension {
       await this.usbWin.moveWindowTo(rect.left, rect.top);
       await this.usbWin.resize(rect.width, rect.height);
       await this.usbWin.setUIContent('pages/UsbDialog');
-      await this.usbWin.setWindowBackgroundColor(BG_COLOR)
+      await this.usbWin.setWindowBackgroundColor(BG_COLOR);
       await this.usbWin.showWindow();
       console.log('UsbDialogAbility window create successfully');
     } catch (exception) {
