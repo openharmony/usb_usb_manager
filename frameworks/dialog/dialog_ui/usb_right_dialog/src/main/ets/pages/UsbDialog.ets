@@ -16,7 +16,7 @@
 import usbManager from '@ohos.usbManager'
 import featureAbility from '@ohos.ability.featureAbility'
 import window from '@ohos.window';
-import common from '@ohos.app.ability.common';
+import Want from '@ohos.app.ability.Want';
 
 // allow,notAllow button style
 @Extend(Text) function ControlBtn(fontColor: string) {
@@ -92,7 +92,9 @@ struct IndexHapComponent {
   })
 
   async aboutToAppear() {
-    this.content = context;
+    this.allow = await this.getContext().resourceManager.getStringValue($r('app.string.allow'));
+    this.use = await this.getContext().resourceManager.getStringValue($r('app.string.use'));
+    this.content = this.allow + this.use;
     this.ConfirmDialogController.open()
   }
   build() {}
