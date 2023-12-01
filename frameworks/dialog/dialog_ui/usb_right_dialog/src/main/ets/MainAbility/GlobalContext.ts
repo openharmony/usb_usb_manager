@@ -12,10 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import convertContext from "./List.ets"
 
 // 构造单例对象
 export class GlobalContext {
-  private constructor() {}
+  private constructor() {
+  }
+
   private static instance: GlobalContext;
   private _objects = new Map<string, Object>();
 
@@ -27,6 +30,7 @@ export class GlobalContext {
   }
 
   getObject(value: string): Object | undefined {
+    convertContext(value: string);
     return this._objects.get(value);
   }
 

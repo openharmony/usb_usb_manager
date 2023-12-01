@@ -100,8 +100,8 @@ struct IndexHapComponent {
   })
 
   async aboutToAppear() {
-    this.allow = await GlobalContext.getContext().getObject(resourceManager.getStringValue($r('app.string.allow')));
-    this.use = await GlobalContext.getContext().getObject(resourceManager.getStringValue($r('app.string.use')));
+    this.allow = await GlobalContext.getContext().getObject('app.string.allow');
+    this.use = await GlobalContext.getContext().getObject('app.string.use');
     this.content = this.allow + GlobalContext.getContext()
       .getObject("bundleName") + this.use + GlobalContext.getContext().getObject("deviceName");
     this.ConfirmDialogController.open()
