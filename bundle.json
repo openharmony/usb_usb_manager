@@ -35,7 +35,6 @@
                 "distributed_notification_service",
                 "drivers_interface_usb",
                 "i18n",
-                "image_framework",
                 "init",
                 "ipc",
                 "safwk",

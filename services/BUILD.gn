@@ -31,7 +31,11 @@ ohos_shared_library("usbservice") {
     integer_overflow = true
     ubsan = true
     boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
   }
+  branch_protector_ret = "pac_ret"
 
   install_enable = true
   sources = [
@@ -76,7 +80,7 @@ ohos_shared_library("usbservice") {
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "c_utils:utilsbase",
+    "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
     "eventhandler:libeventhandler",
@@ -95,7 +99,6 @@ ohos_shared_library("usbservice") {
     external_deps += [
       "distributed_notification_service:ans_innerkits",
       "i18n:intl_util",
-      "image_framework:image_native",
       "resource_management:global_resmgr",
     ]
     defines += [ "USB_NOTIFICATION_ENABLE" ]
