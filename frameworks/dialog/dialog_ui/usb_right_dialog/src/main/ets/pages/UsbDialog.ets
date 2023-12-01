@@ -92,9 +92,6 @@ struct IndexHapComponent {
   })
 
   async aboutToAppear() {
-    this.allow = await this.getContext().resourceManager.getStringValue($r('app.string.allow'));
-    this.use = await this.getContext().resourceManager.getStringValue($r('app.string.use'));
-    this.content = this.allow + this.use;
     this.ConfirmDialogController.open()
   }
   build() {}
