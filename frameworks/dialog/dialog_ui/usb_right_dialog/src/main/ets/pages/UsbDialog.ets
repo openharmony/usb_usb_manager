@@ -15,11 +15,13 @@
 
 import usbManager from '@ohos.usbManager'
 import featureAbility from '@ohos.ability.featureAbility'
+import common from '@ohos.app.ability.common';
 import window from '@ohos.window';
-import Want from '@ohos.app.ability.Want';
+import GlobalContext from "../MainAbility/GlobalContext.ts"
 
 // allow,notAllow button style
-@Extend(Text) function ControlBtn(fontColor: string) {
+@Extend(Text)
+function ControlBtn(fontColor: string) {
   .fontColor(fontColor)
   .backgroundColor(0xffffff)
   .width(100)
@@ -29,30 +31,33 @@ import Want from '@ohos.app.ability.Want';
 }
 
 // content style
-@Extend(Text) function ControlFontSize(fontSize: number) {
+@Extend(Text)
+function ControlFontSize(fontSize: number) {
   .fontSize(fontSize)
   .width('180%')
   .fontColor('rgba(10, 10, 10, 1.00)')
   .textAlign(TextAlign.Center)
   .padding({ top: 30, left: 50, right: 50 })
   .alignSelf(ItemAlign.Center)
-  .margin({top: 10})
+  .margin({ top: 10 })
 }
 
 @CustomDialog
-export default
-struct ConfirmDialog {
+export default struct ConfirmDialog {
   content: string = ''
   notAllowFontColor: string = '#E84026'
   allowFontColor: string = '#ff1a0af7'
   controller: CustomDialogController
   private extensionWin: window.Window | undefined = undefined;
+
   // title style
-  @Builder TipTextStyle(tip: string, fontSize: number) {
+  @Builder
+  TipTextStyle(tip: string, fontSize: number) {
     Text(tip)
       .ControlFontSize(fontSize)
       .visibility(tip.length > 0 ? Visibility.Visible : Visibility.None)
   }
+
   build() {
     Column() {
       this.TipTextStyle(this.content, 22)
@@ -65,7 +70,7 @@ struct ConfirmDialog {
             this.destruction()
           })
         Text('|')
-            .fontSize(10)
+          .fontSize(10)
         Text($r('app.string.notAllowButton'))
           .ControlBtn(this.notAllowFontColor)
           .onClick(() => {
@@ -74,6 +79,7 @@ struct ConfirmDialog {
       }.margin({ top: 43, bottom: 15, left: 20, right: 20 })
     }
   }
+
   destruction() {
     this.controller.close();
     if (this.extensionWin && this.content) {
@@ -86,13 +92,21 @@ struct ConfirmDialog {
 @Component
 struct IndexHapComponent {
   private content: string = ''
-  ConfirmDialogController: CustomDialogController = new CustomDialogController( {
-    builder: ConfirmDialog({content: this.content}),
+  private allow: string = ''
+  private use: string = ''
+  ConfirmDialogController: CustomDialogController = new CustomDialogController({
+    builder: ConfirmDialog({ content: this.content }),
     autoCancel: false
   })
 
   async aboutToAppear() {
+    this.allow = await GlobalContext.getContext().getObject(resourceManager.getStringValue($r('app.string.allow')));
+    this.use = await GlobalContext.getContext().getObject(resourceManager.getStringValue($r('app.string.use')));
+    this.content = this.allow + GlobalContext.getContext()
+      .getObject("bundleName") + this.use + GlobalContext.getContext().getObject("deviceName");
     this.ConfirmDialogController.open()
   }
-  build() {}
+
+  build() {
+  }
 }
