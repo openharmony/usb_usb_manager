@@ -18,10 +18,15 @@
 
 #include <map>
 #include <vector>
+#include <unordered_map>
+#include <iostream>
+#include <chrono>
+#include <thread>
 
 #include "delayed_sp_singleton.h"
 #include "iremote_object.h"
 #include "iusb_srv.h"
+#include "usb_interface_type.h"
 #include "system_ability.h"
 #include "system_ability_status_change_stub.h"
 #include "timer.h"
@@ -116,7 +121,9 @@ public:
     int32_t BulkCancel(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe) override;
     int32_t AddRight(const std::string &bundleName, const std::string &deviceName) override;
     void UnLoadSelf(UnLoadSaType type);
-
+    int32_t ManageGlobalInterface(bool disable) override;
+    int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable) override;
+    int32_t ManageInterfaceType(InterfaceType interfaceType, bool disable) override;
 private:
     class SystemAbilityStatusChangeListener : public SystemAbilityStatusChangeStub {
     public:
@@ -144,10 +151,22 @@ private:
     std::string GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, uint8_t idx);
     int32_t InitUsbRight();
     void DumpHelp(int32_t fd);
+    int32_t PreManageInterface();
+    bool IsEdmEnabled();
+    int32_t ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whiteList);
+    int32_t GetEdmPolicy(bool &IsGlobalDisabled, std::unordered_map<InterfaceType, bool> &typeDisableMap,
+        std::vector<UsbDeviceId> &trustUsbDeviceId);
+    int32_t GetUsbPolicy(bool &IsGlobalDisabled, std::unordered_map<InterfaceType, bool> &typeDisableMap,
+        std::vector<UsbDeviceId> &trustUsbDeviceId);
+    void ExecuteStrategy(UsbDevice *devInfo);
+    int32_t GetEdmTypePolicy(sptr<IRemoteObject> remote, std::unordered_map<InterfaceType, bool> &typeDisableMap);
+    int32_t GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGlobalDisabled);
+    int32_t GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceId> &trustUsbDeviceId);
+    int32_t ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t interfaceId, bool disable);
     bool ready_ = false;
     int32_t commEventRetryTimes_ = 0;
     std::mutex mutex_;
-    std::shared_ptr<UsbHostManager> usbHostManger_;
+    std::shared_ptr<UsbHostManager> usbHostManager_;
     std::shared_ptr<UsbRightManager> usbRightManager_;
     std::shared_ptr<UsbPortManager> usbPortManager_;
     std::shared_ptr<UsbDeviceManager> usbDeviceManager_;

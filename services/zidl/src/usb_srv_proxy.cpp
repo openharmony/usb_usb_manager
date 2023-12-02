@@ -1098,5 +1098,75 @@ int32_t UsbServerProxy::AddRight(const std::string &bundleName, const std::strin
     }
     return ret;
 }
+
+int32_t UsbServerProxy::ManageGlobalInterface(bool disable)
+{
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_INTERFACE_INVALID_VALUE);
+
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_USB_SERVICE, "write descriptor failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    WRITE_PARCEL_WITH_RET(data, Bool, disable, UEC_SERVICE_WRITE_PARCEL_ERROR);
+
+    MessageOption option;
+    MessageParcel reply;
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_DISABLE_GLOBAL_INTERFACE),
+        data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %d", ret);
+    }
+    return ret;
+}
+
+int32_t UsbServerProxy::ManageDevice(int32_t vendorId, int32_t productId, bool disable)
+{
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_INTERFACE_INVALID_VALUE);
+
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_USB_SERVICE, "write descriptor failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    WRITE_PARCEL_WITH_RET(data, Int32, vendorId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Int32, productId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Bool, disable, UEC_SERVICE_WRITE_PARCEL_ERROR);
+
+    MessageOption option;
+    MessageParcel reply;
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_DISABLE_DEVICE),
+        data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %d", ret);
+    }
+    return ret;
+}
+
+int32_t UsbServerProxy::ManageInterfaceType(InterfaceType interfaceType, bool disable)
+{
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_INTERFACE_INVALID_VALUE);
+
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_USB_SERVICE, "write descriptor failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    int32_t ifaceType = (int32_t)interfaceType;
+    WRITE_PARCEL_WITH_RET(data, Int32, ifaceType, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Bool, disable, UEC_SERVICE_WRITE_PARCEL_ERROR);
+
+    MessageOption option;
+    MessageParcel reply;
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_DISABLE_INTERFACE_TYPE),
+        data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %d", ret);
+    }
+    return ret;
+}
 } // namespace USB
 } // namespace OHOS

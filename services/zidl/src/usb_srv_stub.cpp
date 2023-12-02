@@ -19,6 +19,7 @@
 #include "usb_common.h"
 #include "usb_errors.h"
 #include "usb_server_stub.h"
+#include "usb_interface_type.h"
 
 using namespace OHOS::HDI::Usb::V1_0;
 namespace OHOS {
@@ -181,6 +182,15 @@ bool UsbServerStub::StubHost(
             return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_DESCRIPTOR):
             result = DoGetRawDescriptor(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_DISABLE_GLOBAL_INTERFACE):
+            result = DoManageGlobalInterface(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_DISABLE_DEVICE):
+            result = DoManageDevice(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_DISABLE_INTERFACE_TYPE):
+            result = DoManageInterfaceType(data, reply, option);
             return true;
         default:;
     }
@@ -859,6 +869,45 @@ int32_t UsbServerStub::DoAddRight(MessageParcel &data, MessageParcel &reply, Mes
     READ_PARCEL_WITH_RET(data, String, bundleName, UEC_SERVICE_READ_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, String, deviceName, UEC_SERVICE_READ_PARCEL_ERROR);
     int32_t ret = AddRight(bundleName, deviceName);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+    }
+    return ret;
+}
+
+int32_t UsbServerStub::DoManageGlobalInterface(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    bool disable = false;
+    READ_PARCEL_WITH_RET(data, Bool, disable, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = ManageGlobalInterface(disable);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+    }
+    return ret;
+}
+
+int32_t UsbServerStub::DoManageDevice(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    int32_t vendorId = 0;
+    int32_t productId = 0;
+    bool disable = false;
+    READ_PARCEL_WITH_RET(data, Int32, vendorId, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, productId, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Bool, disable, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = ManageDevice(vendorId, productId, disable);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+    }
+    return ret;
+}
+
+int32_t UsbServerStub::DoManageInterfaceType(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    int32_t interfaceType = 0;
+    bool disable = false;
+    READ_PARCEL_WITH_RET(data, Int32, interfaceType, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Bool, disable, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = ManageInterfaceType((InterfaceType)interfaceType, disable);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
     }
