@@ -229,6 +229,7 @@ bool UsbService::Init()
 
 bool UsbService::InitUsbd()
 {
+    usbd_ = IUsbInterface::Get();
     usbdSubscriber_ = new (std::nothrow) UsbServiceSubscriber();
     if (usbdSubscriber_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "Init failed\n");
