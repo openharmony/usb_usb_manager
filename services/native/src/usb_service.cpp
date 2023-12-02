@@ -75,7 +75,7 @@ constexpr uint32_t EDM_SA_TIME_OUT_CODE = 9200007;
 std::unordered_map<InterfaceType, std::vector<int32_t>> typeMap = {
     {InterfaceType::TYPE_STORAGE,   {8, -1, -1}},
     {InterfaceType::TYPE_AUDIO,     {1, -1, -1}},
-    {InterfaceType::TYPE_HID  ,     {3, -1, -1}},
+    {InterfaceType::TYPE_HID,       {3, -1, -1}},
     {InterfaceType::TYPE_PHYSICAL,  {5, -1, -1}},
     {InterfaceType::TYPE_IMAGE,     {6, 1, 1}},
     {InterfaceType::TYPE_PRINTER,   {7, -1, -1}}
@@ -1059,7 +1059,6 @@ int32_t UsbService::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whiteLis
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
         }
-
     }
     if (ret != UEC_OK) {
         USB_HILOGI(MODULE_USB_SERVICE, "ManageDevice failed");
@@ -1081,7 +1080,7 @@ void UsbService::ExecuteStrategy(UsbDevice *devInfo)
         USB_HILOGE(MODULE_USB_SERVICE, "PreManageInterface failed");
         return;
     }
-    if(!IsEdmEnabled()) {
+    if (!IsEdmEnabled()) {
         USB_HILOGE(MODULE_USB_SERVICE, "edm is not activate, skip");
         return;
     }
@@ -1090,14 +1089,11 @@ void UsbService::ExecuteStrategy(UsbDevice *devInfo)
     std::vector<UsbDeviceId> trustUsbDeviceIds{};
 
     int32_t ret = GetUsbPolicy(isGlobalDisabled, typeDisableMap, trustUsbDeviceIds);
-    if (ret == UEC_SERVICE_EDM_SA_TIME_OUT_FAILED) {
-        USB_HILOGE(MODULE_USB_SERVICE, "EDM sa time out");
+    if (ret == UEC_SERVICE_EDM_SA_TIME_OUT_FAILED || ret == UEC_SERVICE_PREPARE_EDM_SA_FAILED) {
+        USB_HILOGE(MODULE_USB_SERVICE, "EDM sa time out or prepare failed, ret = %{public}d", ret);
         return;
     }
-    if (ret == UEC_SERVICE_PREPARE_EDM_SA_FAILED) {
-        USB_HILOGE(MODULE_USB_SERVICE, "prepare EDM sa failed");
-        return;
-    }
+
     if (isGlobalDisabled) {
         ret = ManageGlobalInterface(isGlobalDisabled);
         if (ret != UEC_OK) {
