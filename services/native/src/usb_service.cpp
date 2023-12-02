@@ -71,6 +71,10 @@ constexpr uint32_t ALLOWED_USB_DEVICES = 1044;
 constexpr uint32_t USB_STORAGE_DEVICE_ACCESS_POLICY = 1026;
 constexpr int32_t WHITELIST_POLICY_MAX_DEVICES = 1000;
 constexpr uint32_t EDM_SA_TIME_OUT_CODE = 9200007;
+constexpr int32_t BASECLASS_INDEX = 0;
+constexpr int32_t SUBCLASS_INDEX = 1;
+constexpr int32_t PROTOCAL_INDEX = 2;
+constexpr int32_t RANDOM_VALUE_INDICATE = -1;
 
 std::unordered_map<InterfaceType, std::vector<int32_t>> typeMap = {
     {InterfaceType::TYPE_STORAGE,   {8, -1, -1}},
@@ -1586,9 +1590,10 @@ int32_t UsbService::ManageInterfaceType(InterfaceType interfaceType, bool disabl
 
         for (uint32_t i = 0; i < interfaces.size(); i++) {
             // 0 indicate base class, 1 indicate subclass, 2 indicate protocal. -1 indicate any value.
-            if (interfaces[i].GetClass() == iterInterface->second[0] &&
-            (interfaces[i].GetClass() == iterInterface->second[1] || iterInterface->second[1] == -1) &&
-                (interfaces[i].GetProtocol() == iterInterface->second[2] || iterInterface->second[2] == -1)) {
+            if (interfaces[i].GetClass() == iterInterface->second[BASECLASS_INDEX] && (interfaces[i].GetClass() ==
+                iterInterface->second[SUBCLASS_INDEX] || iterInterface->second[SUBCLASS_INDEX] ==
+                    RANDOM_VALUE_INDICATE) && (interfaces[i].GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||
+                        iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
                 ManageInterface(dev, interfaces[i].GetId(), disable);
                 std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
             }
