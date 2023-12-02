@@ -1592,10 +1592,10 @@ int32_t UsbService::ManageInterfaceType(InterfaceType interfaceType, bool disabl
             // 0 indicate base class, 1 indicate subclass, 2 indicate protocal. -1 indicate any value.
             if (interfaces[i].GetClass() == iterInterface->second[BASECLASS_INDEX] && (interfaces[i].GetClass() ==
                 iterInterface->second[SUBCLASS_INDEX] || iterInterface->second[SUBCLASS_INDEX] ==
-                    RANDOM_VALUE_INDICATE) && (interfaces[i].GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||
-                        iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
-                ManageInterface(dev, interfaces[i].GetId(), disable);
-                std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
+                RANDOM_VALUE_INDICATE) && (interfaces[i].GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||
+                iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
+                    ManageInterface(dev, interfaces[i].GetId(), disable);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
             }
         }
     }
