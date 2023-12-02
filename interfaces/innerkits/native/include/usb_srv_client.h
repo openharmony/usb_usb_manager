@@ -28,6 +28,7 @@
 #include "usb_device_pipe.h"
 #include "usb_port.h"
 #include "usb_request.h"
+#include "usb_interface_type.h"
 
 namespace OHOS {
 namespace USB {
@@ -84,7 +85,9 @@ public:
     int32_t BulkWrite(USBDevicePipe &pip, const USBEndpoint &endpoint, sptr<Ashmem> &ashmem);
     int32_t BulkCancel(USBDevicePipe &pip, const USBEndpoint &endpoint);
     int32_t AddRight(const std::string &bundleName, const std::string &deviceName);
-
+    int32_t ManageGlobalInterface(bool disable);
+    int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable);
+    int32_t ManageInterfaceType(InterfaceType interfaceType, bool disable);
 private:
     class UsbSrvDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

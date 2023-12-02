@@ -53,6 +53,9 @@ namespace USB {
         USB_FUN_REG_BULK_CALLBACK,
         USB_FUN_UNREG_BULK_CALLBACK,
         USB_FUN_ADD_RIGHT,
+        USB_FUN_DISABLE_GLOBAL_INTERFACE,
+        USB_FUN_DISABLE_DEVICE,
+        USB_FUN_DISABLE_INTERFACE_TYPE,
     };
 } // namespace USB
 } // namespace OHOS

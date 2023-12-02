@@ -21,6 +21,7 @@
 #include "usb_device.h"
 #include "usb_port.h"
 #include "v1_0/usb_types.h"
+#include "usb_interface_type.h"
 
 namespace OHOS {
 namespace USB {
@@ -67,7 +68,9 @@ public:
         sptr<Ashmem> &ashmem) = 0;
     virtual int32_t BulkCancel(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe) = 0;
     virtual int32_t AddRight(const std::string &bundleName, const std::string &deviceName) = 0;
-
+    virtual int32_t ManageGlobalInterface(bool disable) = 0;
+    virtual int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable) = 0;
+    virtual int32_t ManageInterfaceType(InterfaceType interfaceType, bool disable) = 0;
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.usb.IUsbSrv");
 };
