@@ -119,7 +119,8 @@ declare namespace usbManager {
 
   /**
    * Sets the current USB function list in Device mode.
-   *@permission ohos.permission.MANAGE_USB_CONFIG
+   *
+   * @permission ohos.permission.MANAGE_USB_CONFIG
    * @param funcs Numeric mask combination of the supported function list.
    * @returns Returns **true** if the setting is successful; returns **false** otherwise.
    * @throws {BusinessError} 401 - The parameter types do not match or parameter is not specified.
