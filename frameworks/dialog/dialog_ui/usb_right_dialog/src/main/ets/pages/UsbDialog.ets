@@ -17,7 +17,7 @@ import usbManager from '@ohos.usbManager'
 import featureAbility from '@ohos.ability.featureAbility'
 import common from '@ohos.app.ability.common';
 import window from '@ohos.window';
-import GlobalContext from "../MainAbility/GlobalContext.ts"
+import GlobalContext from "../MainAbility/GlobalContext.ts";
 
 // allow,notAllow button style
 @Extend(Text)

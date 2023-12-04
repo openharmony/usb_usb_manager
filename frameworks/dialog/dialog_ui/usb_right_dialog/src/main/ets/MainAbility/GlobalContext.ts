@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import convertContext from "./List.ets"
+import convertContext from "./List.ts"
 
 // 构造单例对象
 export class GlobalContext {
@@ -30,7 +30,7 @@ export class GlobalContext {
   }
 
   getObject(value: string): Object | undefined {
-    convertContext(value: string);
+    convertContext(value);
     return this._objects.get(value);
   }
 
