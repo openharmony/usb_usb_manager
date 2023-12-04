@@ -17,7 +17,7 @@ import usbManager from '@ohos.usbManager'
 import featureAbility from '@ohos.ability.featureAbility'
 import common from '@ohos.app.ability.common';
 import window from '@ohos.window';
-import GlobalContext from "../MainAbility/GlobalContext.ts";
+import GlobalContext from "../MainAbility/GlobalContext.ts"
 
 // allow,notAllow button style
 @Extend(Text)
@@ -100,8 +100,8 @@ struct IndexHapComponent {
   })
 
   async aboutToAppear() {
-    this.allow = await GlobalContext.getContext().getObject('app.string.allow');
-    this.use = await GlobalContext.getContext().getObject('app.string.use');
+    this.allow = await JSON.stringify(GlobalContext.getContext().getObject('app.string.allow'));
+    this.use = await JSON.stringify(GlobalContext.getContext().getObject('app.string.use'));
     this.content = this.allow + GlobalContext.getContext()
       .getObject("bundleName") + this.use + GlobalContext.getContext().getObject("deviceName");
     this.ConfirmDialogController.open()
