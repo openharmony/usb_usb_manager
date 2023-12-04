@@ -80,6 +80,7 @@ declare namespace usbManager {
    * Add device access permission.
    *  The system application has access to the device by default, and calling this interface will not have any impact.
    *
+   * @permission ohos.permission.MANAGE_USB_CONFIG
    * @param bundleName refers to application that require access permissions.
    * @param deviceName Device name defined by {@link USBDevice.name}.
    * @returns Returns the boolean value to indicate whether the permission is granted.
@@ -93,6 +94,7 @@ declare namespace usbManager {
   /**
    * Converts the string descriptor of a given USB function list to a numeric mask combination.
    *
+   * @permission ohos.permission.MANAGE_USB_CONFIG
    * @param funcs Descriptor of the supported function list.
    * @returns Returns the numeric mask combination of the function list.
    * @throws {BusinessError} 401 - The parameter types do not match or parameter is not specified.
@@ -105,6 +107,7 @@ declare namespace usbManager {
   /**
    * Converts the numeric mask combination of a given USB function list to a string descriptor.
    *
+   * @permission ohos.permission.MANAGE_USB_CONFIG
    * @param funcs Numeric mask combination of the function list.
    * @returns Returns the string descriptor of the supported function list.
    * @throws {BusinessError} 401 - The parameter types do not match or parameter is not specified.
@@ -117,6 +120,7 @@ declare namespace usbManager {
   /**
    * Sets the current USB function list in Device mode.
    *
+   * @permission ohos.permission.MANAGE_USB_CONFIG
    * @param funcs Numeric mask combination of the supported function list.
    * @returns Returns **true** if the setting is successful; returns **false** otherwise.
    * @throws {BusinessError} 401 - The parameter types do not match or parameter is not specified.
@@ -130,6 +134,7 @@ declare namespace usbManager {
   /**
    * Obtains the numeric mask combination for the current USB function list in Device mode.
    *
+   * @permission ohos.permission.MANAGE_USB_CONFIG
    * @returns Returns the numeric mask combination for the current USB function list in {@link FunctionType}.
    * @systemapi
    * @syscap SystemCapability.USB.USBManager
@@ -141,6 +146,7 @@ declare namespace usbManager {
   /**
    * Obtains the {@link USBPort} list.
    *
+   * @permission ohos.permission.MANAGE_USB_CONFIG
    * @returns Returns the {@link USBPort} list.
    * @systemapi
    * @syscap SystemCapability.USB.USBManager
@@ -151,6 +157,7 @@ declare namespace usbManager {
   /**
    * Gets the mask combination for the supported mode list of the specified {@link USBPort}.
    *
+   * @permission ohos.permission.MANAGE_USB_CONFIG
    * @returns Returns the mask combination for the supported mode list in {@link PortModeType}.
    * @throws {BusinessError} 401 - The parameter types do not match or parameter is not specified.
    * @systemapi
@@ -162,6 +169,7 @@ declare namespace usbManager {
   /**
    * Sets the role types supported by the specified {@link USBPort}, which can be powerRole (for charging) and dataRole (for data transfer).
    *
+   * @permission ohos.permission.MANAGE_USB_CONFIG
    * @param portId Unique ID of the port.
    * @param powerRole Charging role defined by {@link PowerRoleType}.
    * @param dataRole Data role defined by {@link DataRoleType}.
