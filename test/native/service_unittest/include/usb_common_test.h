@@ -29,6 +29,8 @@ public:
     static void SetTestCaseNative(TokenInfoParams *infoInstance);
     static void GrantPermissionSysNative();
     static void GrantPermissionNormalNative();
+    static void GrantNormalPermissionNative();
+    static void GrantSysNoPermissionNative();
     static int32_t SwitchErrCode(int32_t ret);
 };
 } // Common

@@ -53,9 +53,7 @@ private:
     bool GetUserAgreementByDiag(
         const std::string &busDev, const std::string &deviceName, const std::string &bundleName);
     bool ShowUsbDialog(const std::string &busDev, const std::string &deviceName, const std::string &bundleName);
-    bool IsSystemCore();
-    bool IsSystemBasic();
-    bool IsSystemApl();
+    bool CheckPermission();
     sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
 
     static sem_t waitDialogDisappear_;
