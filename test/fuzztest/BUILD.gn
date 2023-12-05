@@ -683,6 +683,77 @@ ohos_fuzztest("UsbMgrFuzzTest") {
   sources = [ "usbmgr_fuzzer/usbmgr_fuzzer.cpp" ]
 }
 
+ohos_fuzztest("UsbMgrManageGlobalInterfaceFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrmanageglobalinterface_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources = [
+    "usbmgrmanageglobalinterface_fuzzer/usbmgrmanageglobalinterface_fuzzer.cpp",
+  ]
+}
+ohos_fuzztest("UsbMgrManageDeviceFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrmanagedevice_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources = [ "usbmgrmanagedevice_fuzzer/usbmgrmanagedevice_fuzzer.cpp" ]
+}
+ohos_fuzztest("UsbMgrManageManageInterfaceTypeFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrmanageinterfacetype_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources = [
+    "usbmgrmanageinterfacetype_fuzzer/usbmgrmanageinterfacetype_fuzzer.cpp",
+  ]
+}
+
 group("fuzztest") {
   testonly = true
   deps = []
@@ -699,6 +770,9 @@ group("fuzztest") {
     ":UsbMgrGetRawDescriptorsFuzzTest",
     ":UsbMgrGetSupportedModesFuzzTest",
     ":UsbMgrHasRightFuzzTest",
+    ":UsbMgrManageDeviceFuzzTest",
+    ":UsbMgrManageGlobalInterfaceFuzzTest",
+    ":UsbMgrManageManageInterfaceTypeFuzzTest",
     ":UsbMgrPipeRequestWaitFuzzTest",
     ":UsbMgrRegBulkCallbackFuzzTest",
     ":UsbMgrReleaseInterfaceFuzzTest",
