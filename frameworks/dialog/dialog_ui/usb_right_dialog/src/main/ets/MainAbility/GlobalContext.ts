@@ -12,10 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import convertContext from './List.ts';
+import convertContext from './List';
 
 // 构造单例对象
-export class GlobalContext {
+export default class GlobalContext {
   private constructor() {
   }
 
