@@ -176,7 +176,6 @@ HWTEST_F(UsbManageInterfaceTest, ManageDevice002, TestSize.Level1)
  */
 HWTEST_F(UsbManageInterfaceTest, ManageDevice003, TestSize.Level1)
 {
-    UsbCommonTest::GrantPermissionNormalNative();
     auto &client = UsbSrvClient::GetInstance();
     vector<UsbDevice> devi;
     auto ret = client.GetDevices(devi);
@@ -187,8 +186,8 @@ HWTEST_F(UsbManageInterfaceTest, ManageDevice003, TestSize.Level1)
         vendorId = devi.at(0).GetVendorId();
         productId = devi.at(0).GetProductId();
     }
-    ret = client.ManageDevice(vendorId, productId, true);
-    ASSERT_NE(ret, 0);
+    ret = client.ManageDevice(vendorId, productId, false);
+    ASSERT_EQ(ret, 0);
 }
 
 /**

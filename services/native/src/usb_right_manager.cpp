@@ -49,7 +49,7 @@ namespace USB {
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 constexpr int32_t USB_RIGHT_USERID_DEFAULT = 100;
 constexpr int32_t USB_RIGHT_USERID_CONSOLE = 0;
-
+const std::string USB_MANAGE_ACCESS_USB_DEVICE = "ohos.permission.MANAGE_USB_CONFIG";
 enum UsbRightTightUpChoose : uint32_t {
     TIGHT_UP_USB_RIGHT_RECORD_NONE = 0,
     TIGHT_UP_USB_RIGHT_RECORD_APP_UNINSTALLED = 1 << 0,
@@ -269,40 +269,6 @@ sptr<IBundleMgr> UsbRightManager::GetBundleMgr()
     return bundleMgr;
 }
 
-static bool IsTokenAplMatch(ATokenAplEnum apl)
-{
-    uint64_t tokenId = IPCSkeleton::GetCallingFullTokenID();
-    NativeTokenInfo info;
-    AccessTokenKit::GetNativeTokenInfo(tokenId, info);
-    if (info.apl == apl) {
-        return true;
-    }
-    return false;
-}
-
-bool UsbRightManager::IsSystemCore()
-{
-    bool isMatch = IsTokenAplMatch(ATokenAplEnum::APL_SYSTEM_CORE);
-    if (!isMatch) {
-        USB_HILOGW(MODULE_USB_SERVICE, "access token denied");
-    }
-    return isMatch;
-}
-
-bool UsbRightManager::IsSystemBasic()
-{
-    bool isMatch = IsTokenAplMatch(ATokenAplEnum::APL_SYSTEM_BASIC);
-    if (!isMatch) {
-        USB_HILOGW(MODULE_USB_SERVICE, "access token denied");
-    }
-    return isMatch;
-}
-
-bool UsbRightManager::IsSystemApl()
-{
-    return IsSystemBasic() || IsSystemCore();
-}
-
 bool UsbRightManager::IsSystemApp()
 {
     uint64_t tokenid = IPCSkeleton::GetCallingFullTokenID();
@@ -314,9 +280,20 @@ bool UsbRightManager::IsSystemApp()
     return true;
 }
 
+bool UsbRightManager::CheckPermission()
+{
+    AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
+    int32_t ret = AccessTokenKit::VerifyAccessToken(tokenId, USB_MANAGE_ACCESS_USB_DEVICE);
+    if (ret == PermissionState::PERMISSION_DENIED) {
+        USB_HILOGW(MODULE_USB_SERVICE, "not authorized, ret: %{public}d", ret);
+        return false;
+    }
+    return true;
+}
+
 bool UsbRightManager::IsSystemHap()
 {
-    if (IsSystemApl() || IsSystemApp()) {
+    if (CheckPermission() || IsSystemApp()) {
         return true;
     }
     USB_HILOGW(MODULE_USB_SERVICE, "not system apl or system app, return false");

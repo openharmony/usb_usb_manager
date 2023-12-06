@@ -105,6 +105,42 @@ HWTEST_F(UsbCoreTest, GetCurrentFunctions002, TestSize.Level1)
 }
 
 /**
+ * @tc.name: GetCurrentFunctions003
+ * @tc.desc: Test functions to GetCurrentFunctions()
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbCoreTest, GetCurrentFunctions003, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetCurrentFunctions003 : SetConfig");
+    UsbCommonTest::GrantNormalPermissionNative();
+    auto &instance = UsbSrvClient::GetInstance();
+    int32_t funcs = static_cast<int32_t>(UsbSrvSupport::FUNCTION_NONE);
+    int32_t ret = instance.GetCurrentFunctions(funcs);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::ret=%{public}d", ret);
+    ASSERT_EQ(ret, 0);
+    UsbCommonTest::GrantPermissionSysNative();
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetCurrentFunctions003 : SetConfig");
+}
+
+/**
+ * @tc.name: GetCurrentFunctions004
+ * @tc.desc: Test functions to GetCurrentFunctions()
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbCoreTest, GetCurrentFunctions004, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetCurrentFunctions004 : SetConfig");
+    UsbCommonTest::GrantSysNoPermissionNative();
+    auto &instance = UsbSrvClient::GetInstance();
+    int32_t funcs = static_cast<int32_t>(UsbSrvSupport::FUNCTION_NONE);
+    int32_t ret = instance.GetCurrentFunctions(funcs);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::ret=%{public}d", ret);
+    ASSERT_NE(ret, 0);
+    UsbCommonTest::GrantPermissionSysNative();
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetCurrentFunctions004 : SetConfig");
+}
+
+/**
  * @tc.name: SetCurrentFunctions001
  * @tc.desc: Test functions to SetCurrentFunctions(int32_t funcs)
  * @tc.type: FUNC
@@ -324,6 +360,40 @@ HWTEST_F(UsbCoreTest, SetCurrentFunctions014, TestSize.Level1)
     ASSERT_NE(ret, 0);
     UsbCommonTest::GrantPermissionSysNative();
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions014 : SetConfig");
+}
+
+/**
+ * @tc.name: SetCurrentFunctions015
+ * @tc.desc: Test functions to SetCurrentFunctions(int32_t funcs)
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbCoreTest, SetCurrentFunctions015, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetCurrentFunctions015 : SetConfig");
+    UsbCommonTest::GrantNormalPermissionNative();
+    auto &instance = UsbSrvClient::GetInstance();
+    int32_t ret = instance.SetCurrentFunctions(UsbSrvSupport::FUNCTION_HDC);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", ret);
+    ASSERT_EQ(ret, 0);
+    UsbCommonTest::GrantPermissionSysNative();
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions015 : SetConfig");
+}
+
+/**
+ * @tc.name: SetCurrentFunctions016
+ * @tc.desc: Test functions to SetCurrentFunctions(int32_t funcs)
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbCoreTest, SetCurrentFunctions016, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetCurrentFunctions016 : SetConfig");
+    UsbCommonTest::GrantSysNoPermissionNative();
+    auto &instance = UsbSrvClient::GetInstance();
+    int32_t ret = instance.SetCurrentFunctions(UsbSrvSupport::FUNCTION_HDC);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::SetCurrentFunctions=%{public}d", ret);
+    ASSERT_NE(ret, 0);
+    UsbCommonTest::GrantPermissionSysNative();
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetCurrentFunctions016 : SetConfig");
 }
 
 /**

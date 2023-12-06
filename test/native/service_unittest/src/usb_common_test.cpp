@@ -22,27 +22,6 @@ using namespace OHOS::Security::AccessToken;
 namespace OHOS {
 namespace USB {
 namespace Common {
-TokenInfoParams g_normalInfoInstance = {
-    .dcapsNum = 0,
-    .permsNum = 0,
-    .aclsNum = 0,
-    .dcaps = nullptr,
-    .perms = nullptr,
-    .acls = nullptr,
-    .processName = "usb_manager",
-    .aplStr = "normal",
-};
-
-TokenInfoParams g_sysInfoInstance = {
-    .dcapsNum = 0,
-    .permsNum = 0,
-    .aclsNum = 0,
-    .dcaps = nullptr,
-    .perms = nullptr,
-    .acls = nullptr,
-    .processName = "usb_manager",
-    .aplStr = "system_basic",
-};
 
 void UsbCommonTest::SetTestCaseNative(TokenInfoParams *infoInstance)
 {
@@ -58,12 +37,66 @@ void UsbCommonTest::SetTestCaseNative(TokenInfoParams *infoInstance)
 
 void UsbCommonTest::GrantPermissionSysNative()
 {
+    const char **permsInfo = new(std::nothrow)const char* [1];
+    permsInfo[0] = "ohos.permission.MANAGE_USB_CONFIG";
+    TokenInfoParams g_sysInfoInstance = {
+    .dcapsNum = 0,
+    .permsNum = 1,
+    .aclsNum = 0,
+    .dcaps = nullptr,
+    .perms = permsInfo,
+    .acls = nullptr,
+    .processName = "usb_manager",
+    .aplStr = "system_basic",
+    };
     SetTestCaseNative(&g_sysInfoInstance);
 }
 
 void UsbCommonTest::GrantPermissionNormalNative()
 {
+    TokenInfoParams g_normalInfoInstance = {
+    .dcapsNum = 0,
+    .permsNum = 0,
+    .aclsNum = 0,
+    .dcaps = nullptr,
+    .perms = nullptr,
+    .acls = nullptr,
+    .processName = "usb_manager",
+    .aplStr = "normal",
+    };
     SetTestCaseNative(&g_normalInfoInstance);
+}
+
+void UsbCommonTest::GrantNormalPermissionNative()
+{
+    const char **permsInfo = new(std::nothrow)const char* [1];
+    permsInfo[0] = "ohos.permission.MANAGE_USB_CONFIG";
+    TokenInfoParams g_normalInfoInstance = {
+    .dcapsNum = 0,
+    .permsNum = 1,
+    .aclsNum = 0,
+    .dcaps = nullptr,
+    .perms = permsInfo,
+    .acls = nullptr,
+    .processName = "usb_manager",
+    .aplStr = "normal",
+    };
+    SetTestCaseNative(&g_normalInfoInstance);
+}
+
+void UsbCommonTest::GrantSysNoPermissionNative()
+{
+    TokenInfoParams g_sysInfoInstance = {
+    .dcapsNum = 0,
+    .permsNum = 0,
+    .aclsNum = 0,
+    .dcaps = nullptr,
+    .perms = nullptr,
+    .acls = nullptr,
+    .processName = "usb_manager",
+    .aplStr = "system_basic",
+    };
+    SetTestCaseNative(&g_sysInfoInstance);
 }
 
 int32_t UsbCommonTest::SwitchErrCode(int32_t ret)
