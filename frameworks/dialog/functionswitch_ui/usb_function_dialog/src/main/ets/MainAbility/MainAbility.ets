@@ -14,22 +14,28 @@
  */
 
 import Ability from '@ohos.app.ability.UIAbility';
+import common from '@ohos.app.ability.common';
 import Logger from '../util/Logger';
+import commonEvent from '@ohos.commonEventManager';
+import Want from '@ohos.app.ability.Want';
+import { BusinessError } from '@ohos.base';
 
 const TAG: string = 'usbfunctionswitchwindow_MainAbility';
 
 export default class MainAbility extends Ability {
-  onCreate(want, launchParam): void {
+  private extensionWin: window.windowStage | undefined = undefined;
+  private mContext: common.ServiceExtensionContext | undefined = undefined;
+  onCreate(want: Want, launchParam: string): void {
+    console.log(TAG, 'onCreate');
     Logger.info(TAG, `onCreate want ${JSON.stringify(want)} launchParam=${JSON.stringify(launchParam)}`);
-    globalThis.context = this.context;
-    globalThis.want = want;
+    this.mContext = this.context;
     return;
   }
 
-  onWindowStageCreate(windowStage): void {
+  onWindowStageCreate(): void {
     // Main window is created, set main page for this ability
     Logger.info(TAG, 'onWindowStageCreate');
-    windowStage.loadContent('pages/Index', (err, data) => {
+    this.extensionWin.loadContent('pages/Index', (err: BusinessError, data: commonEvent.Support) => {
       if (err.code) {
         Logger.error(TAG, `Failed to load the content. Cause: ${JSON.stringify(err)}`);
         return;

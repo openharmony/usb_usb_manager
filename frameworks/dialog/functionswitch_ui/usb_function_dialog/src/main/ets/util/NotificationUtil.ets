@@ -18,32 +18,42 @@ import notificationManager from '@ohos.notificationManager';
 import wantAgent from '@ohos.app.ability.wantAgent';
 import Logger from '../util/Logger';
 import context from '@ohos.app.ability.common';
+import Want from '@ohos.app.ability.Want';
+import { BusinessError } from '@ohos.base';
 
 type Context = context.Context;
 const TAG: string = 'usbfunctionswitchwindow_NotificationUtil';
 
 const REQUEST_CODE: number = 0;
 
+interface WantAgentInfo {
+    wants: Array<Want>;
+    operationType: wantAgent.OperationType;
+    requestCode: number;
+    wantAgentFlags?: Array<wantAgent.WantAgentFlags>;
+}
+
 class NotificationUtil {
   private BUNDLE_NAME: string = 'com.ohos.usbfunctiondialog';
   private ABILITY_NAME: string = 'UsbFunctionSwitchExtAbility';
 
   async createWantAgentForStartAbility(bundleName: string, abilityName: string, currentChoose: number) {
-    let wantAgentInfo = {
+    let wantAgentInfo : WantAgentInfo = {
       wants: [
         {
-          "deviceId": "",/* An empty deviceId indicates this device */
-          "bundleName": bundleName,
-          "abilityName": abilityName,
-          "parameters": {
-            "funcSelect": { "type": "number", "value": currentChoose },
-            "action": { "type": "string", "value": "show" },
+          deviceId: "",/* An empty deviceId indicates this device */
+          bundleName: bundleName,
+          abilityName: abilityName,
+          parameters: {
+            funcSelect: { type: "number", value: currentChoose },
+            action: { type: "string", value: "show" },
           }
         }
       ],
       operationType: wantAgent.OperationType.START_ABILITY,
       requestCode: REQUEST_CODE
     };
+
     return await wantAgent.getWantAgent(wantAgentInfo);
   }
 
@@ -65,12 +75,12 @@ class NotificationUtil {
    * @param id, Support specifying notification id when publishing notifications
    */
   async publishNotification(notificationRequest: notificationManager.NotificationRequest, id?: number) {
-    if (id > 0) {
+    if (id != undefined && id > 0) {
       notificationRequest.id = id;
     }
     notificationManager.publish(notificationRequest).then((data) => {
       Logger.info(TAG, `Succeeded in publish. Data ${JSON.stringify(data)}`);
-    }).catch((err) => {
+    }).catch((err: BusinessError) => {
       Logger.error(TAG, `Failed to publish. Cause: ${JSON.stringify(err)}`);
     })
   }
