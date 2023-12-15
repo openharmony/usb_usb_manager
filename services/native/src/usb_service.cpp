@@ -1057,9 +1057,9 @@ int32_t UsbService::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whiteLis
     for (auto it = devices.begin(); it != devices.end(); ++it) {
         for (auto dev : whiteList) {
             if (it->second->GetProductId() == dev.productId && it->second->GetVendorId() == dev.vendorId) {
-                ret = ManageDevice(it->second->GetVendorId(), it->second->GetProductId(), false);
+                ret = ManageDeviceImpl(it->second->GetVendorId(), it->second->GetProductId(), false);
             } else {
-                ret = ManageDevice(it->second->GetVendorId(), it->second->GetProductId(), true);
+                ret = ManageDeviceImpl(it->second->GetVendorId(), it->second->GetProductId(), true);
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
         }
@@ -1080,10 +1080,7 @@ bool UsbService::IsEdmEnabled()
 
 void UsbService::ExecuteStrategy(UsbDevice *devInfo)
 {
-    if (PreManageInterface() != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "PreManageInterface failed");
-        return;
-    }
+    USB_HILOGI(MODULE_USB_SERVICE, "start");
     if (!IsEdmEnabled()) {
         USB_HILOGE(MODULE_USB_SERVICE, "edm is not activate, skip");
         return;
@@ -1099,7 +1096,7 @@ void UsbService::ExecuteStrategy(UsbDevice *devInfo)
     }
 
     if (isGlobalDisabled) {
-        ret = ManageGlobalInterface(isGlobalDisabled);
+        ret = ManageGlobalInterfaceImpl(isGlobalDisabled);
         if (ret != UEC_OK) {
             USB_HILOGE(MODULE_USB_SERVICE, "ManageGlobalInterface failed");
         }
@@ -1109,7 +1106,7 @@ void UsbService::ExecuteStrategy(UsbDevice *devInfo)
     for (auto result : typeDisableMap) {
         flag |= result.second;
         if (result.second) {
-            ret = ManageInterfaceType(result.first, true);
+            ret = ManageInterfaceTypeImpl(result.first, true);
         }
         if (ret != UEC_OK) {
             USB_HILOGE(MODULE_USB_SERVICE, "ManageInterfaceType failed, type is %{public}d", (int32_t)result.first);
@@ -1502,6 +1499,31 @@ int32_t UsbService::ManageGlobalInterface(bool disable)
         USB_HILOGE(MODULE_USB_SERVICE, "PreManageInterface failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
+
+    return ManageGlobalInterfaceImpl(disable);
+}
+
+int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disable)
+{
+    if (PreManageInterface() != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "PreManageInterface failed");
+        return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
+    }
+
+    return ManageDeviceImpl(vendorId, productId, disable);
+}
+
+int32_t UsbService::ManageInterfaceType(InterfaceType interfaceType, bool disable)
+{
+    if (PreManageInterface() != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "PreManageInterface failed");
+        return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
+    }
+    return ManageInterfaceTypeImpl(interfaceType, disable);
+}
+
+int32_t UsbService::ManageGlobalInterfaceImpl(bool disable)
+{
     std::map<std::string, UsbDevice *> devices;
     usbHostManager_->GetDevices(devices);
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices.size());
@@ -1526,13 +1548,8 @@ int32_t UsbService::ManageGlobalInterface(bool disable)
     }
     return UEC_OK;
 }
-
-int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disable)
+int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool disable)
 {
-    if (PreManageInterface() != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "PreManageInterface failed");
-        return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
-    }
     std::map<std::string, UsbDevice *> devices;
     usbHostManager_->GetDevices(devices);
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices.size());
@@ -1558,13 +1575,8 @@ int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disab
     }
     return UEC_OK;
 }
-
-int32_t UsbService::ManageInterfaceType(InterfaceType interfaceType, bool disable)
+int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable)
 {
-    if (PreManageInterface() != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "PreManageInterface failed");
-        return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
-    }
     auto iterInterface = typeMap.find(interfaceType);
     if (iterInterface == typeMap.end()) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::not find interface type");
