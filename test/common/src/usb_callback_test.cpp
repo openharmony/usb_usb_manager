@@ -15,12 +15,37 @@
 
 #include "usb_callback_test.h"
 
+#include <sys/time.h>
+
+#include <unistd.h>
+#include <iostream>
+#include <vector>
+
+#include "ashmem.h"
+#include "delayed_sp_singleton.h"
+#include "hilog_wrapper.h"
+#include "if_system_ability_manager.h"
+#include "iservice_registry.h"
+#include "securec.h"
+#include "system_ability_definition.h"
+#include "usb_callback_test.h"
+#include "usb_common_test.h"
+#include "usb_errors.h"
+#include "usb_srv_client.h"
+
+using namespace OHOS;
+using namespace OHOS::USB;
+using namespace std;
+using namespace OHOS::USB::Common;
+
 int32_t UsbCallbackTest::OnBulkWriteCallback(int32_t status, int32_t actLength)
 {
+    USB_HILOGE(MODULE_USB_SERVICE, "yu_test_, status %{public}d, actLength:%{public}d", status, actLength);
     return 0;
 }
 
 int32_t UsbCallbackTest::OnBulkReadCallback(int32_t status, int32_t actLength)
 {
+    USB_HILOGE(MODULE_USB_SERVICE, "yu_test_, status %{public}d, actLength:%{public}d", status, actLength);
     return 0;
 }

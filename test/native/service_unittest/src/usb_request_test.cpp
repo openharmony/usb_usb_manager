@@ -1545,6 +1545,234 @@ HWTEST_F(UsbRequestTest, PipeRequestWait006, TestSize.Level1)
     EXPECT_TRUE(close);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : PipeRequestWait006 : Initialize");
 }
+
+/**
+ * @tc.name: UsbHasRight001
+ * @tc.desc: Test functions of HasRight
+ * @tc.desc: bool HasRight(std::string deviceName)
+ * @tc.desc: Setup case as system hap: Before RequestRight, HasRight return true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbRequestTest, UsbHasRight001, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbHasRight001: SetConfig");
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    vector<UsbDevice> delist;
+    auto ret = UsbSrvClient.GetDevices(delist);
+    EXPECT_TRUE(ret == 0);
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
+    UsbDevice device = delist.front();
+    std::string deviceName = std::to_string(device.GetBusNum()) + "-" + std::to_string(device.GetDevAddr());
+    bool result = UsbSrvClient.HasRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight001 HasRight=%{public}d", result);
+    ASSERT_TRUE(result);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbHasRight001: SetConfig");
+}
+
+/**
+ * @tc.name: UsbHasRight002
+ * @tc.desc: Test functions of HasRight
+ * @tc.desc: bool HasRight(std::string deviceName)
+ * @tc.desc: Setup case as system hap: After RequestRight, HasRight return true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbRequestTest, UsbHasRight002, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbHasRight002: SetConfig");
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    vector<UsbDevice> delist;
+    auto ret = UsbSrvClient.GetDevices(delist);
+    EXPECT_TRUE(ret == 0);
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
+    UsbDevice device = delist.front();
+    std::string deviceName = std::to_string(device.GetBusNum()) + "-" + std::to_string(device.GetDevAddr());
+    bool result = UsbSrvClient.HasRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight002 HasRight=%{public}d", result);
+    ASSERT_TRUE(result);
+    ret = UsbSrvClient.RequestRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight002 RequestRight=%{public}d", result);
+    ASSERT_EQ(0, ret);
+    result = UsbSrvClient.HasRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight002 HasRight=%{public}d", result);
+    ASSERT_TRUE(result);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbHasRight002: SetConfig");
+}
+
+/**
+ * @tc.name: UsbHasRight003
+ * @tc.desc: Test functions of HasRight
+ * @tc.desc: bool HasRight(std::string deviceName)
+ * @tc.desc: Setup case as system hap: After RemoveRight, HasRight return true.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbRequestTest, UsbHasRight003, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbHasRight003: SetConfig");
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    vector<UsbDevice> delist;
+    auto ret = UsbSrvClient.GetDevices(delist);
+    EXPECT_TRUE(ret == 0);
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
+    UsbDevice device = delist.front();
+    std::string deviceName = std::to_string(device.GetBusNum()) + "-" + std::to_string(device.GetDevAddr());
+    bool result = UsbSrvClient.HasRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight003 HasRight=%{public}d", result);
+    ASSERT_TRUE(result);
+    ret = UsbSrvClient.RemoveRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight003 RemoveRight=%{public}d", result);
+    ASSERT_EQ(0, ret);
+    deviceName = "device_81";
+    result = UsbSrvClient.HasRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight003 HasRight=%{public}d", result);
+    ASSERT_FALSE(result);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbHasRight003: SetConfig");
+}
+
+/**
+ * @tc.name: UsbHasRight004
+ * @tc.desc: Test functions of HasRight
+ * @tc.desc: bool HasRight(std::string deviceName)
+ * @tc.desc: Setup case as system hap: RequestRight then RemoveRight
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbRequestTest, UsbHasRight004, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbHasRight004: SetConfig");
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    vector<UsbDevice> delist;
+    auto ret = UsbSrvClient.GetDevices(delist);
+    EXPECT_TRUE(ret == 0);
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
+    UsbDevice device = delist.front();
+    std::string deviceName = std::to_string(device.GetBusNum()) + "-" + std::to_string(device.GetDevAddr());
+    bool result = UsbSrvClient.HasRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight004 HasRight=%{public}d", result);
+    ASSERT_TRUE(result);
+    ret = UsbSrvClient.RequestRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight004 RequestRight=%{public}d", result);
+    ASSERT_EQ(0, ret);
+    result = UsbSrvClient.HasRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight004 HasRight=%{public}d", result);
+    ASSERT_TRUE(result);
+    ret = UsbSrvClient.RemoveRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestright003 RemoveRight=%{public}d", result);
+    ASSERT_EQ(0, ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbHasRight004: SetConfig");
+}
+
+/**
+ * @tc.name: UsbHasRight005
+ * @tc.desc: Test functions of HasRight
+ * @tc.desc: bool HasRight(std::string deviceName)
+ * @tc.desc: Setup case as system hap: deviceName not in delist.
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbRequestTest, UsbHasRight005, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbHasRight005: SetConfig");
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    std::string deviceName = "device_80";
+    bool result = UsbSrvClient.HasRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight005 HasRight=%{public}d", result);
+    ASSERT_FALSE(result);
+    int32_t ret = UsbSrvClient.RequestRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight005 RequestRight=%{public}d", result);
+    ASSERT_NE(0, ret);
+    result = UsbSrvClient.HasRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight005 HasRight=%{public}d", result);
+    ASSERT_FALSE(result);
+    ret = UsbSrvClient.RemoveRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight005 RemoveRight=%{public}d", result);
+    ASSERT_NE(0, ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbHasRight005: SetConfig");
+}
+
+/**
+ * @tc.name: Usbrequestright001
+ * @tc.desc: Test functions of requestright
+ * @tc.desc: int32_t requestright(std::string deviceName)
+ * @tc.desc: Setup case as system hap: RequestRight then RemoveRight
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbRequestTest, Usbrequestright001, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbrequestright001: SetConfig");
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    vector<UsbDevice> delist;
+    auto ret = UsbSrvClient.GetDevices(delist);
+    EXPECT_TRUE(ret == 0);
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
+    UsbDevice device = delist.front();
+    std::string deviceName = std::to_string(device.GetBusNum()) + "-" + std::to_string(device.GetDevAddr());
+    ret = UsbSrvClient.RequestRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestright001 RequestRight=%{public}d", ret);
+    ASSERT_EQ(0, ret);
+    bool result = UsbSrvClient.HasRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestright001 HasRight=%{public}d", result);
+    ASSERT_TRUE(result);
+    ret = UsbSrvClient.RemoveRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestright003 RemoveRight=%{public}d", result);
+    ASSERT_EQ(0, ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbrequestright001: SetConfig");
+}
+
+/**
+ * @tc.name: Usbrequestright003
+ * @tc.desc: Test functions of requestright
+ * @tc.desc: int32_t requestright(std::string deviceName)
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbRequestTest, Usbrequestright003, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbrequestright003: SetConfig");
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    vector<UsbDevice> delist;
+    auto ret = UsbSrvClient.GetDevices(delist);
+    EXPECT_TRUE(ret == 0);
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
+    UsbDevice device = delist.front();
+    std::string deviceName = std::to_string(device.GetBusNum()) + "-" + std::to_string(device.GetDevAddr());
+    ret = UsbSrvClient.RequestRight(deviceName);
+    bool result = UsbSrvClient.HasRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestright003 HasRight=%{public}d", result);
+    ASSERT_TRUE(result);
+    ret = UsbSrvClient.RequestRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestright003 RequestRight=%{public}d", result);
+    ASSERT_EQ(0, ret);
+    result = UsbSrvClient.HasRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestright003 HasRight=%{public}d", result);
+    ASSERT_TRUE(result);
+    ret = UsbSrvClient.RemoveRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestright003 RemoveRight=%{public}d", result);
+    ASSERT_EQ(0, ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbrequestright003: SetConfig");
+}
+
+/**
+ * @tc.name: Usbrequestright004
+ * @tc.desc: Test functions of requestright
+ * @tc.desc: int32_t requestright(std::string deviceName)
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbRequestTest, Usbrequestright004, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbrequestright004: SetConfig");
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    std::string deviceName = "device_81";
+    bool result = UsbSrvClient.HasRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestright004 HasRight=%{public}d", result);
+    ASSERT_FALSE(result);
+    int32_t ret = UsbSrvClient.RequestRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestright004 RequestRight=%{public}d", result);
+    ASSERT_NE(0, ret);
+    result = UsbSrvClient.HasRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestright004 HasRight=%{public}d", result);
+    ASSERT_FALSE(result);
+    ret = UsbSrvClient.RemoveRight(deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestright004 RemoveRight=%{public}d", result);
+    ASSERT_NE(0, ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbrequestright004: SetConfig");
+}
 } // namespace Request
 } // namespace USB
 } // namespace OHOS
