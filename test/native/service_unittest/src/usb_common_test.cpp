@@ -30,9 +30,14 @@ void UsbCommonTest::SetTestCaseNative(TokenInfoParams *infoInstance)
     if (ret == 0) {
         USB_HILOGI(MODULE_USB_SERVICE, "SetSelfTokenID success %{public}d", __LINE__);
     } else {
-        USB_HILOGE(MODULE_USB_SERVICE, "SetSelfTokenID fail %{public}d", __LINE__);
+        USB_HILOGE(MODULE_USB_SERVICE, "SetSelfTokenID fail %{public}d", ret);
     }
-    AccessTokenKit::ReloadNativeTokenInfo();
+    ret = AccessTokenKit::ReloadNativeTokenInfo();
+    if (ret == 0) {
+        USB_HILOGI(MODULE_USB_SERVICE, "ReloadNativeTokenInfo success %{public}d", __LINE__);
+    } else {
+        USB_HILOGE(MODULE_USB_SERVICE, "ReloadNativeTokenInfo fail %{public}d", ret);
+    }
 }
 
 void UsbCommonTest::GrantPermissionSysNative()
@@ -46,7 +51,7 @@ void UsbCommonTest::GrantPermissionSysNative()
     .dcaps = nullptr,
     .perms = permsInfo,
     .acls = nullptr,
-    .processName = "usb_manager",
+    .processName = "usb_manager_test_sys_with_perms",
     .aplStr = "system_basic",
     };
     SetTestCaseNative(&g_sysInfoInstance);
@@ -61,7 +66,7 @@ void UsbCommonTest::GrantPermissionNormalNative()
     .dcaps = nullptr,
     .perms = nullptr,
     .acls = nullptr,
-    .processName = "usb_manager",
+    .processName = "usb_manager_test_normal",
     .aplStr = "normal",
     };
     SetTestCaseNative(&g_normalInfoInstance);
@@ -78,7 +83,7 @@ void UsbCommonTest::GrantNormalPermissionNative()
     .dcaps = nullptr,
     .perms = permsInfo,
     .acls = nullptr,
-    .processName = "usb_manager",
+    .processName = "usb_manager_test_normal_with_perms",
     .aplStr = "normal",
     };
     SetTestCaseNative(&g_normalInfoInstance);
@@ -93,7 +98,7 @@ void UsbCommonTest::GrantSysNoPermissionNative()
     .dcaps = nullptr,
     .perms = nullptr,
     .acls = nullptr,
-    .processName = "usb_manager",
+    .processName = "usb_manager_test_sys",
     .aplStr = "system_basic",
     };
     SetTestCaseNative(&g_sysInfoInstance);
