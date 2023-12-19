@@ -147,6 +147,7 @@ private:
     bool IsCommonEventServiceAbilityExist();
     bool GetBundleName(std::string &bundleName);
     std::string GetDeviceVidPidSerialNumber(std::string deviceName);
+    int32_t GetDeviceVidPidSerialNumber(std::string deviceName, std::string& strDesc);
     int32_t FillDevStrings(UsbDevice &dev);
     std::string GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, uint8_t idx);
     int32_t InitUsbRight();

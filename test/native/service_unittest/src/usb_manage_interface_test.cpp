@@ -253,7 +253,6 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType002, TestSize.Level1)
  */
 HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType003, TestSize.Level1)
 {
-    UsbCommonTest::GrantPermissionNormalNative();
     auto &client = UsbSrvClient::GetInstance();
     vector<UsbDevice> devi;
     auto ret = client.GetDevices(devi);
@@ -269,7 +268,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType003, TestSize.Level1)
         }
     }
     ret = client.ManageInterfaceType(interfaceType, false);
-    ASSERT_NE(ret, 0);
+    ASSERT_EQ(ret, 0);
 }
 
 } // ManagerInterface
