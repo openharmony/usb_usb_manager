@@ -404,12 +404,15 @@ int32_t UsbRightDbHelper::DeleteNormalExpiredRightRecord(int32_t uid, uint64_t e
 {
     std::lock_guard<std::mutex> guard(databaseMutex_);
     std::string whereClause = {"uid = ? AND requestTime < ? AND validPeriod NOT IN (?, ?)"};
-    std::vector<std::string> whereArgs = {std::to_string(uid), std::to_string(expiredTime - USB_RIGHT_VALID_PERIOD_SET),
+
+    uint64_t relativeExpiredTime = (expiredTime <= USB_RIGHT_VALID_PERIOD_SET) ? 0 :
+        (expiredTime - USB_RIGHT_VALID_PERIOD_SET);
+    std::vector<std::string> whereArgs = {std::to_string(uid), std::to_string(relativeExpiredTime),
         std::to_string(USB_RIGHT_VALID_PERIOD_MIN), std::to_string(USB_RIGHT_VALID_PERIOD_MAX)};
     int32_t ret = DeleteAndNoOtherOperation(whereClause, whereArgs);
     if (ret != USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE,
-         "failed: delete(uid=%{public}d, expr<%{public}" PRIu64 "): %{public}d", uid, expiredTime, ret);
+        "failed: delete(uid=%{public}d, expr<%{public}" PRIu64 "): %{public}d", uid, expiredTime, ret);
     }
     return ret;
 }
