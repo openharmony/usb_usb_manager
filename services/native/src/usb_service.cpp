@@ -74,6 +74,7 @@ constexpr uint32_t EDM_SA_TIME_OUT_CODE = 9200007;
 constexpr int32_t BASECLASS_INDEX = 0;
 constexpr int32_t SUBCLASS_INDEX = 1;
 constexpr int32_t PROTOCAL_INDEX = 2;
+constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
 
 std::unordered_map<InterfaceType, std::vector<int32_t>> typeMap = {
@@ -966,6 +967,7 @@ int32_t UsbService::GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGloba
 int32_t UsbService::GetEdmTypePolicy(sptr<IRemoteObject> remote,
     std::unordered_map<InterfaceType, bool> &typeDisableMap)
 {
+    int32_t StorageDisableType = 0;
     bool IsStorageDisabled = false;
     MessageParcel data;
     MessageParcel reply;
@@ -984,7 +986,10 @@ int32_t UsbService::GetEdmTypePolicy(sptr<IRemoteObject> remote,
         return UEC_SERVICE_EDM_SEND_REQUEST_FAILED;
     }
 
-    reply.ReadBool(IsStorageDisabled);
+    reply.ReadInt32(StorageDisableType);
+    if (StorageDisableType == GET_EDM_STORAGE_DISABLE_TYPE) {
+        IsStorageDisabled = true;
+    }
     typeDisableMap[InterfaceType::TYPE_STORAGE] = IsStorageDisabled;
     return UEC_OK;
 }
