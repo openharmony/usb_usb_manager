@@ -13,6 +13,10 @@
 
 import("//build/ohos.gni")
 
+declare_args() {
+  usb_right_dialog_build_hap_path = ""
+}
+
 ohos_hap("dialog_hap") {
   hap_profile = "src/main/module.json"
   deps = [
@@ -25,6 +29,12 @@ ohos_hap("dialog_hap") {
   subsystem_name = "applications"
   js_build_mode = "release"
   module_install_dir = "app/com.usb.right"
+  if (defined(sign_hap_py_path) && usb_right_dialog_build_hap_path != "") {
+    certificate_profile = usb_right_dialog_build_hap_path
+    key_alias = "HwUsbRightDialog Release"
+    private_key_path = "HwUsbRightDialog Release"
+    compatible_version = "8"
+  }
 }
 
 ohos_app_scope("usb_right_dialog_app_profile") {
