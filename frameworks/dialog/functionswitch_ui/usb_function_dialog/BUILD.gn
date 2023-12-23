@@ -12,6 +12,9 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+declare_args() {
+  usb_function_dialog_build_hap_path = ""
+}
 
 ohos_hap("dialog_hap") {
   hap_profile = "src/main/module.json"
@@ -24,7 +27,13 @@ ohos_hap("dialog_hap") {
   part_name = "prebuilt_hap"
   subsystem_name = "applications"
   js_build_mode = "release"
-  module_install_dir = "app/com.ohos.usbfunctiondialog"
+  module_install_dir = "app/com.usb.function"
+  if (defined(sign_hap_py_path) && usb_function_dialog_build_hap_path != "") {
+    certificate_profile = usb_function_dialog_build_hap_path
+    key_alias = "HwUsbFunctionDialog Release"
+    private_key_path = "HwUsbFunctionDialog Release"
+    compatible_version = "8"
+  }
 }
 
 ohos_app_scope("usb_function_dialog_app_profile") {

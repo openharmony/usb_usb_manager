@@ -4,7 +4,7 @@
 	"name": "usb_function_switch_window",
 	"ohos": {
 		"org": "huawei",
-		"directoryLevel": "module",
+		"directoryLevel": "project",
 		"buildTool": "hvigor"
 	},
 	"description": "Pop up window when attach to usb host and select usb mode: Charge only/Transfer files/Transfer pictures",

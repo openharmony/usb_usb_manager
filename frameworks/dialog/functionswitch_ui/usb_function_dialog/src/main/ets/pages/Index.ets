@@ -13,38 +13,26 @@
  * limitations under the License.
  */
 
-import featureAbility from '@ohos.ability.featureAbility';
 import { notificationUtil } from '../util/NotificationUtil';
 import { usbServiceSwitch } from '../util/UsbServiceSwitch';
+import {GlobalThisProxy} from '../util/GlobalThisProxy';
 import { BusinessError } from '@ohos.base';
-import Logger from '../util/Logger';
+import window from '@ohos.window';
+import common from '@ohos.app.ability.common'
 import Want from '@ohos.app.ability.Want';
-
-const TAG: string = 'usbfunctionswitchwindow_Index';
-
-interface  UsbServiceSwitchId {
-  default: number;
-  chargeOnly: number;
-  xferFile: number;
-  xferPic: number;
-}
-
-let usbServiceSwitchId: UsbServiceSwitchId = {
-  default: -1,
-  chargeOnly: -1,
-  xferFile: 8,
-  xferPic: 16,
-};
+let TAG: string = 'usbfunctionswitchwindow_Index';
+let USBSERVICESWITCH_ID_DEFAULT : number = -1;
+let USBSERVICESWITCH_ID_CHARGE_ONLY : number = -1;
+let USBSERVICESWITCH_ID_XFER_FILE : number = 8;
+let USBSERVICESWITCH_ID_XFER_PIC : number = 16;
 
 @CustomDialog
   export default
   struct PopUpWindow {
-  @State curSelectNumber: number = usbServiceSwitchId.default;
-  private customDialogController ?: CustomDialogController;
+  @State curSelectNumber: number = USBSERVICESWITCH_ID_DEFAULT;
+  customDialogController: CustomDialogController;
   build() {
-
     Column() {
-
       Blank().height(5)
       Text($r('app.string.USB_hint'))
         .width('100%')
@@ -68,21 +56,25 @@ let usbServiceSwitchId: UsbServiceSwitchId = {
           .width('30%')
           .borderRadius(10)
           .onClick(() => {
-            let tmpChooseNumber: number = usbServiceSwitchId.chargeOnly;
+            let windowClass: window.Window = window.findWindow('UsbFunctionSwitchWindow');
+            let tmpChooseNumber: number = USBSERVICESWITCH_ID_CHARGE_ONLY;
             usbServiceSwitch.serviceChoose(tmpChooseNumber);
             notificationUtil.publishChooseNotify(tmpChooseNumber);
             this.curSelectNumber = tmpChooseNumber;
 
-            Logger.info(TAG, 'close pop up window: charge only');
-            customDialogController.close();
-            this.window.hide().then(() => {
-              Logger.info(TAG, 'Hide window success');
-            }).catch((err: BusinessError) => {
-              Logger.error(TAG, `Failed to hide the Window. Cause: ${JSON.stringify(err)}`);
-            })
+            console.log(TAG + 'close pop up window: charge only');
+            this.customDialogController.close();
+            windowClass.hide((err: BusinessError) => {
+              const errCode: number = err.code;
+              if (errCode) {
+                console.error('Failed to hide the window. Cause: ' + JSON.stringify(err));
+                return;
+              }
+              console.info('Succeeded in hiding the window.');
+            });
           })
           .borderColor(Color.Red)
-          .borderWidth(this.curSelectNumber === usbServiceSwitchId.chargeOnly ? 2 : 0)
+          .borderWidth(this.curSelectNumber === USBSERVICESWITCH_ID_CHARGE_ONLY ? 2 : 0)
 
         Button({ type: ButtonType.Normal, stateEffect: true }) {
           Column() {
@@ -96,21 +88,25 @@ let usbServiceSwitchId: UsbServiceSwitchId = {
           .width('30%')
           .borderRadius(10)
           .onClick(() => {
-            let tmpChooseNumber: number = usbServiceSwitchId.xferFile;
+            let windowClass: window.Window = window.findWindow('UsbFunctionSwitchWindow');
+            let tmpChooseNumber: number = USBSERVICESWITCH_ID_XFER_FILE;
             usbServiceSwitch.serviceChoose(tmpChooseNumber);
             notificationUtil.publishChooseNotify(tmpChooseNumber);
             this.curSelectNumber = tmpChooseNumber;
 
-            Logger.info(TAG, 'close pop up window: xfer file');
-            customDialogController.close();
-            this.window.hide().then(() => {
-              Logger.info(TAG, 'Hide window success');
-            }).catch((err: BusinessError) => {
-              Logger.error(TAG, `Failed to hide the Window. Cause: ${JSON.stringify(err)}`);
-            })
+            console.log(TAG + 'close pop up window: xfer file');
+            this.customDialogController.close();
+            windowClass.hide((err: BusinessError) => {
+              const errCode: number = err.code;
+              if (errCode) {
+                console.error('Failed to hide the window. Cause: ' + JSON.stringify(err));
+                return;
+              }
+              console.info('Succeeded in hiding the window.');
+            });
           })
           .borderColor(Color.Red)
-          .borderWidth(this.curSelectNumber === usbServiceSwitchId.xferFile ? 2 : 0)
+          .borderWidth(this.curSelectNumber === USBSERVICESWITCH_ID_XFER_FILE ? 2 : 0)
 
         Button({ type: ButtonType.Normal, stateEffect: true }) {
           Column() {
@@ -124,20 +120,24 @@ let usbServiceSwitchId: UsbServiceSwitchId = {
           .width('30%')
           .borderRadius(10)
           .onClick(() => {
-            let tmpChooseNumber: number = usbServiceSwitchId.xferPic;
+            let windowClass: window.Window = window.findWindow('UsbFunctionSwitchWindow');
+            let tmpChooseNumber: number = USBSERVICESWITCH_ID_XFER_PIC;
             usbServiceSwitch.serviceChoose(tmpChooseNumber);
             notificationUtil.publishChooseNotify(tmpChooseNumber);
             this.curSelectNumber = tmpChooseNumber;
 
-            Logger.info(TAG, 'close pop up window: xfer pic');
-            this.window.hide().then(() => {
-              Logger.info(TAG, 'Hide window success');
-            }).catch((err: BusinessError) => {
-              Logger.error(TAG, `Failed to hide the Window. Cause: ${JSON.stringify(err)}`);
-            })
+            console.log(TAG + 'close pop up window: xfer pic');
+            windowClass.hide((err: BusinessError) => {
+              const errCode: number = err.code;
+              if (errCode) {
+                console.error('Failed to hide the window. Cause: ' + JSON.stringify(err));
+                return;
+              }
+              console.info('Succeeded in hiding the window.');
+            });
           })
           .borderColor(Color.Red)
-          .borderWidth(this.curSelectNumber === usbServiceSwitchId.xferPic ? 2 : 0)
+          .borderWidth(this.curSelectNumber === USBSERVICESWITCH_ID_XFER_PIC ? 2 : 0)
       }
       .height('60%')
 
@@ -154,15 +154,19 @@ let usbServiceSwitchId: UsbServiceSwitchId = {
         .width('90%')
         .backgroundColor('#ff9d6b6b')
         .onClick(() => {
-          Logger.info(TAG, 'close pop up window: cancel');
+          console.log(TAG + 'close pop up window: cancel');
+          let windowClass: window.Window = window.findWindow('UsbFunctionSwitchWindow');
           notificationUtil.publishChooseNotify(this.curSelectNumber);
-          ustomDialogController.close();
+          this.customDialogController.close();
 
-          this.window.hide().then(() => {
-            Logger.info(TAG, 'Hide window success');
-          }).catch((err: BusinessError) => {
-            Logger.error(TAG, `Failed to hide the Window. Cause: ${JSON.stringify(err)}`);
-          })
+          windowClass.hide((err: BusinessError) => {
+            const errCode: number = err.code;
+            if (errCode) {
+              console.error('Failed to hide the window. Cause: ' + JSON.stringify(err));
+              return;
+            }
+            console.info('Succeeded in hiding the window.');
+          });
 
         })
 
@@ -172,11 +176,13 @@ let usbServiceSwitchId: UsbServiceSwitchId = {
 
   }
   destruction() {
-    Logger.info(TAG, 'destruction')
-    customDialogController.close()
-    this.window.destroy()
-    this.extensionContext.terminateSelf()
-    featureAbility.terminateSelf();
+    let windowClass: window.Window = window.findWindow('UsbFunctionSwitchWindow');
+    console.log(TAG + 'destruction')
+    this.customDialogController.close()
+    windowClass.destroyWindow()
+    let extensionContextCtr: common.ServiceExtensionContext = GlobalThisProxy.getInstance().getContext('extensionAbility')
+    // let extensionContextCtr = globalThis.extensionContext;
+    extensionContextCtr.terminateSelf()
   }
 }
 
@@ -184,67 +190,75 @@ let usbServiceSwitchId: UsbServiceSwitchId = {
 @Component
 struct IndexHapComponent {
   private curChoose: number = -1;
+  private content: string = ''
+  private thisWant: string = ''
   customDialogController: CustomDialogController = new CustomDialogController({
     builder: PopUpWindow({ curSelectNumber: this.curChoose }),
     autoCancel: true
   });
 
   async aboutToAppear() {
-    Logger.info(TAG, `aboutToAppear want=${JSON.stringify(this.want)}`);
-    Logger.info(TAG, `  want defaultChoose=${JSON.stringify(this.want.parameters["defaultChoose"])}`);
-    Logger.info(TAG, `  want funcSelect=${JSON.stringify(this.want.parameters["funcSelect"])}`);
-    Logger.info(TAG, `aboutToAppear abilityWant=${JSON.stringify(this.abilityWant)}`);
-    Logger.info(TAG, `  abilityWant defaultChoose=${JSON.stringify(this.abilityWant.parameters["defaultChoose"])}`);
-    Logger.info(TAG, `  abilityWant funcSelect=${JSON.stringify(this.abilityWant.parameters["funcSelect"])}`);
+    // let infoWant: Want = GlobalThisProxy.getInstance().getOnCreateWant();
+    // let infoWant:Want = globalThis.want;
+    // console.log(TAG, 'aboutToAppear want= ' + JSON.stringify(infoWant));
+    // console.log(TAG, 'want defaultChoose= ' + JSON.stringify(infoWant.parameters["defaultChoose"]));
+    // console.log(TAG, 'want funcSelect= ' + JSON.stringify(infoWant.parameters["funcSelect"]));
+    // let workWant: Want = GlobalThisProxy.getInstance().getOnRequestWant();
+    // let workWant = globalThis.abilityWant;
+    // console.log(TAG, 'aboutToAppear abilityWant= ' + JSON.stringify(workWant));
+    // console.log(TAG, 'abilityWant defaultChoose= ' + JSON.stringify(workWant.parameters["defaultChoose"]));
+    // console.log(TAG, 'abilityWant funcSelect= ' + JSON.stringify(workWant.parameters["funcSelect"]));
 
-    if (this.abilityWant.parameters["defaultChoose"]) {
-      this.curChoose = this.abilityWant.parameters["defaultChoose"];
-      Logger.info(TAG, `use want defaultChoose: ${this.curChoose}`);
-    } else if (this.abilityWant.parameters["funcSelect"]) {
-      this.curChoose = this.abilityWant.parameters["funcSelect"].value;
-      Logger.info(TAG, `use want funcSelect: ${this.curChoose}`);
+    let defaultChoose: number = GlobalThisProxy.getInstance().getNumInfo("workWant_defaultChoose");
+    let funcSelect: number = GlobalThisProxy.getInstance().getNumInfo("workWant_funcSelect");
+    if (defaultChoose) {
+      this.curChoose = defaultChoose;
+      console.log(TAG + 'use want defaultChoose: ' + this.curChoose);
+    } else if (funcSelect) {
+      this.curChoose = funcSelect;
+      console.log(TAG + 'use want funcSelect: ' + this.curChoose);
     }
 
-    if (this.curChoose != usbServiceSwitchId.chargeOnly && this.curChoose != usbServiceSwitchId.xferFile
-      && this.curChoose != usbServiceSwitchId.xferPic) {
-      this.curChoose = usbServiceSwitchId.chargeOnly;
-      Logger.info(TAG, `error, use default: ${this.curChoose}`);
+    if (this.curChoose != USBSERVICESWITCH_ID_CHARGE_ONLY && this.curChoose != USBSERVICESWITCH_ID_XFER_FILE 
+      && this.curChoose != USBSERVICESWITCH_ID_XFER_PIC) {
+      this.curChoose = USBSERVICESWITCH_ID_CHARGE_ONLY;
+      console.log(TAG + 'error, use default: ' + this.curChoose);
     }
 
     notificationUtil.enableNotification();
 
-    if (this.curChoose === usbServiceSwitchId.chargeOnly) {
-      Logger.info(TAG, 'aboutToAppear: publish charge only');
-      notificationUtil.publishChooseNotify(usbServiceSwitchId.chargeOnly);
-    } else if (this.curChoose === usbServiceSwitchId.xferFile) {
-      Logger.info(TAG, 'aboutToAppear: publish xfer file');
-      notificationUtil.publishChooseNotify(usbServiceSwitchId.xferFile);
-    } else if (this.curChoose === usbServiceSwitchId.xferPic) {
-      Logger.info(TAG, 'aboutToAppear: publish xfer pic');
-      notificationUtil.publishChooseNotify(usbServiceSwitchId.xferPic);
+    if (this.curChoose === USBSERVICESWITCH_ID_CHARGE_ONLY) {
+      console.log(TAG + 'aboutToAppear: publish charge only');
+      notificationUtil.publishChooseNotify(USBSERVICESWITCH_ID_CHARGE_ONLY);
+    } else if (this.curChoose === USBSERVICESWITCH_ID_XFER_FILE) {
+      console.log(TAG + 'aboutToAppear: publish xfer file');
+      notificationUtil.publishChooseNotify(USBSERVICESWITCH_ID_XFER_FILE);
+    } else if (this.curChoose === USBSERVICESWITCH_ID_XFER_PIC) {
+      console.log(TAG + 'aboutToAppear: publish xfer pic');
+      notificationUtil.publishChooseNotify(USBSERVICESWITCH_ID_XFER_PIC);
     } else {
-
+      console.log(TAG + 'this.curChoose: ' + JSON.stringify(this.curChoose));
     }
-    if (this.abilityWant.parameters["defaultChoose"]) {
-      Logger.info(TAG, 'first time show window');
-    } else if (this.abilityWant.parameters["funcSelect"]) {
-      Logger.info(TAG, 'second time show window');
+    if (defaultChoose) {
+      console.log(TAG + 'first time show window');
+    } else if (funcSelect) {
+      console.log(TAG + 'second time show window');
     }
     this.customDialogController.open();
 
   }
 
   async aboutToDisappear() {
-    Logger.info(TAG, 'aboutToDisappear');
+    console.log(TAG + 'aboutToDisappear');
   }
 
   async onPageShow() {
-    Logger.info(TAG, `onPageShow, curChoose: ${this.curChoose}`);
+    console.log(TAG + 'onPageShow, curChoose: ' + this.curChoose);
 
   }
 
   async onPageHide() {
-    Logger.info(TAG, 'onPageHide');
+    console.log(TAG + 'onPageHide');
   }
 
   build() { }
