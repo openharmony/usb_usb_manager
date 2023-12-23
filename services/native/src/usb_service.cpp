@@ -955,7 +955,7 @@ int32_t UsbService::GetEdmTypePolicy(sptr<IRemoteObject> remote,
     }
 
     reply.ReadInt32(StorageDisableType);
-    if (StorageDisableType = GET_EDM_STORAGE_DISABLE_TYPE) {
+    if (StorageDisableType == GET_EDM_STORAGE_DISABLE_TYPE) {
         IsStorageDisabled = true;
     }
     typeDisableMap[InterfaceType::TYPE_STORAGE] = IsStorageDisabled;
