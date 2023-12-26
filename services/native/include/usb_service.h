@@ -164,6 +164,9 @@ private:
     int32_t GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGlobalDisabled);
     int32_t GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceId> &trustUsbDeviceId);
     int32_t ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t interfaceId, bool disable);
+    int32_t ManageGlobalInterfaceImpl(bool disable);
+    int32_t ManageDeviceImpl(int32_t vendorId, int32_t productId, bool disable);
+    int32_t ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable);
     bool ready_ = false;
     int32_t commEventRetryTimes_ = 0;
     std::mutex mutex_;
