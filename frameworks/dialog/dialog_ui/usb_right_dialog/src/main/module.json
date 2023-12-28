@@ -34,6 +34,15 @@
         "label": "$string:UsbDialogAbility_label",
         "visible": false,
         "type": "service"
+      },
+      {
+        "name": "UsbFunctionSwitchExtAbility",
+        "srcEntrance": "./ets/ServiceExtAbility/UsbFunctionSwitchWindowAbility.ts",
+        "description": "$string:UsbFunctionSwitchWindowAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:UsbFunctionSwitchWindowAbility_label",
+        "visible": false,
+        "type": "service"
       }
     ]
   }

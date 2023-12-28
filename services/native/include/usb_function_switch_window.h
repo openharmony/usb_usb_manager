@@ -60,7 +60,7 @@ private:
     static std::shared_ptr<UsbFunctionSwitchWindow> instance_;
     int32_t windowAction_ = UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_DEFAULT;
     std::mutex opMutex_;
-    const std::string functionSwitchBundleName_ = "com.usb.function";
+    const std::string functionSwitchBundleName_ = "com.usb.right";
     const std::string functionSwitchExtAbility_ = "UsbFunctionSwitchExtAbility";
 };
 } // namespace USB

@@ -31,6 +31,46 @@
     {
       "name": "notification_label",
       "value": "文件管理"
+    },
+    {
+      "name": "permission_reason",
+      "value": "允许在前后台发送通知"
+    },
+    {
+      "name": "USB_hint",
+      "value": "USB用于"
+    },
+    {
+      "name": "USB_func_charge",
+      "value": "仅限充电"
+    },
+    {
+      "name": "USB_func_mtp",
+      "value": "传输文件"
+    },
+    {
+      "name": "USB_func_ptp",
+      "value": "传输照片"
+    },
+    {
+      "name": "USB_hint_cancel",
+      "value": "取消"
+    },
+    {
+      "name": "USB_notify_charge_title",
+      "value": "正在通过USB充电"
+    },
+    {
+      "name": "USB_notify_mtp_title",
+      "value": "已开启USB文件传输模式"
+    },
+    {
+      "name": "USB_notify_ptp_title",
+      "value": "已开启USB照片传输模式"
+    },
+    {
+      "name": "USB_notify_text",
+      "value": "点按即可查看更多选项"
     }
   ]
 }
