@@ -1,5 +1,6 @@
 {
   "src": [
-    "pages/UsbDialog"
+    "pages/UsbDialog",
+    "pages/Index"
   ]
 }

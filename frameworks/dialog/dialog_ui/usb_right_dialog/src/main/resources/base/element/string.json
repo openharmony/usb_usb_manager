@@ -51,6 +51,18 @@
     {
       "name": "notification_label",
       "value": "filemanager"
+    },
+    {
+      "name": "UsbFunctionSwitchWindowAbility_desc",
+      "value": "ext ability"
+    },
+    {
+      "name": "UsbFunctionSwitchWindowAbility_label",
+      "value": "ext ability"
+    },
+    {
+      "name": "permission_reason",
+      "value": "allow send notirycation in foreground and background"
     }
   ]
 }

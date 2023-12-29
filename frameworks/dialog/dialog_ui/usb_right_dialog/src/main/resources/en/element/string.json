@@ -31,6 +31,46 @@
     {
       "name": "notification_label",
       "value": "filemanager"
+    },
+    {
+      "name": "permission_reason",
+      "value": "allow send notirycation in foreground and background"
+    },
+    {
+      "name": "USB_hint",
+      "value": "USB Used"
+    },
+    {
+      "name": "USB_func_charge",
+      "value": "Charge Only"
+    },
+    {
+      "name": "USB_func_mtp",
+      "value": "Transfer File(MTP)"
+    },
+    {
+      "name": "USB_func_ptp",
+      "value": "Transfer Picture(PTP)"
+    },
+    {
+      "name": "USB_hint_cancel",
+      "value": "Cancel"
+    },
+    {
+      "name": "USB_notify_charge_title",
+      "value": "Charge only"
+    },
+    {
+      "name": "USB_notify_mtp_title",
+      "value": "Mtp only"
+    },
+    {
+      "name": "USB_notify_ptp_title",
+      "value": "Ptp only"
+    },
+    {
+      "name": "USB_notify_text",
+      "value": "Touch for more option"
     }
   ]
 }
