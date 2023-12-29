@@ -57,8 +57,12 @@ struct ConfirmDialog {
         Text($r('app.string.allowButton'))
           .ControlBtn(this.allowFontColor)
           .onClick(() => {
-            usbManager.addRight(globalThis.want.parameters["bundleName"], globalThis.want.parameters["deviceName"])
-            this.destruction()
+            try {
+              usbManager.addRight(globalThis.want.parameters["bundleName"], globalThis.want.parameters["deviceName"])
+              this.destruction()
+            } catch {
+              console.info('USBRight ConfirmDialog onClick error!');
+            }
           })
         Text('|')
             .fontSize(10)
@@ -72,8 +76,12 @@ struct ConfirmDialog {
   }
   destruction() {
     this.controller.close()
-    globalThis.window.destroy()
-    globalThis.extensionContext.terminateSelf()
+    try {
+      globalThis.window.destroy()
+      globalThis.extensionContext.terminateSelf()
+    } catch {
+      console.info('USBRight ConfirmDialog destruction error!');
+    }
     featureAbility.terminateSelf();
   }
 }
