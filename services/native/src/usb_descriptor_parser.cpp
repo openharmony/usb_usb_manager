@@ -103,10 +103,23 @@ int32_t UsbDescriptorParser::ParseConfigDescriptor(
         UsbInterface interface;
         ParseInterfaceDescriptor(
             buffer + cursor + interfaceCursor, length - cursor - interfaceCursor, interfaceCursor, interface);
-        if (interface.GetEndpointCount() > 0) {
+        bool isRepeat = false;
+        auto iter = interfaces.begin();
+        while (iter != interfaces.end()) {
+            if (iter->GetId() == interface.GetId()) {
+                isRepeat = true;
+                break;
+            }
+            iter++;
+        }
+        if (interface.GetEndpointCount() >= 0 && !isRepeat) {
             interfaces.push_back(interface);
         } else {
             // retry
+            if (interface.GetEndpointCount() > 0 && iter != interfaces.end()) {
+                USB_HILOGE(MODULE_USB_SERVICE, "get repeat interface id info, and has endpoints");
+                *iter = interface;
+            }
             --i;
         }
         cursor += interfaceCursor;
@@ -165,6 +178,7 @@ int32_t UsbDescriptorParser::ParseInterfaceDescriptor(
         cursor += epCursor;
     }
     interface.SetEndpoints(eps);
+    USB_HILOGE(MODULE_USB_SERVICE, "interface to string : %{public}s", interface.ToString().c_str());
     return UEC_OK;
 }
 
