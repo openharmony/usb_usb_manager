@@ -46,6 +46,7 @@ public:
     void Dump(int32_t fd, const std::vector<std::string> &args);
 
 private:
+    void GetIUsbInterface();
     void GetPortsInfo(int32_t fd);
     void DumpGetSupportPort(int32_t fd);
     void DumpSetPortRoles(int32_t fd, const std::string &args);

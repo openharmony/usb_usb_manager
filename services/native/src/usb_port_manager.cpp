@@ -14,6 +14,7 @@
  */
 
 #include "usb_port_manager.h"
+#include <unistd.h>
 #include "hisysevent.h"
 #include "usb_errors.h"
 #include "usb_srv_support.h"
@@ -31,13 +32,11 @@ constexpr int32_t DEFAULT_ROLE_DEVICE = 2;
 constexpr uint32_t CMD_INDEX = 1;
 constexpr uint32_t PARAM_INDEX = 2;
 constexpr int32_t HOST_MODE = 2;
+constexpr int32_t WAIT_DELAY_US = 20000;
 UsbPortManager::UsbPortManager()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::Init start");
-    usbd_ = IUsbInterface::Get();
-    if (usbd_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::Get inteface failed");
-    }
+    GetIUsbInterface();
 }
 
 UsbPortManager::~UsbPortManager()
@@ -51,6 +50,21 @@ void UsbPortManager::Init()
     int32_t ret = QueryPort();
     if (ret) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::QueryPort false");
+    }
+}
+
+void UsbPortManager::GetIUsbInterface()
+{
+    if (usbd_ == nullptr) {
+        for (int32_t i = 0; i < PARAM_COUNT_THR; i++) {
+            usbd_ = IUsbInterface::Get();
+            if (usbd_ == nullptr) {
+                USB_HILOGE(MODULE_USB_SERVICE, "Get iUsbInteface failed");
+                usleep(WAIT_DELAY_US);
+            } else {
+                break;
+            }
+        }
     }
 }
 
@@ -106,7 +120,7 @@ int32_t UsbPortManager::QueryPort()
     int32_t powerRole = 0;
     int32_t dataRole = 0;
     int32_t mode = 0;
-
+    GetIUsbInterface();
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
