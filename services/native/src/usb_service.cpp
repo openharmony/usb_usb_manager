@@ -166,7 +166,7 @@ void UsbService::OnStart()
     // wait for the usbd service to start and bind usb service and usbd service
     int32_t retryTimes = 0;
     while (retryTimes < SERVICE_STARTUP_MAX_TIME) {
-        if (InitUsbd() != 0) {
+        if (InitUsbd()) {
             break;
         }
         sleep(1);
@@ -235,14 +235,14 @@ bool UsbService::Init()
 bool UsbService::InitUsbd()
 {
     usbd_ = IUsbInterface::Get();
-    usbdSubscriber_ = new (std::nothrow) UsbServiceSubscriber();
-    if (usbdSubscriber_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Init failed\n");
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, " get usbd_ is nullptr");
         return false;
     }
 
-    if (usbd_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::usbd_ is nullptr");
+    usbdSubscriber_ = new (std::nothrow) UsbServiceSubscriber();
+    if (usbdSubscriber_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Init failed\n");
         return false;
     }
     recipient_ = new UsbdDeathRecipient();
