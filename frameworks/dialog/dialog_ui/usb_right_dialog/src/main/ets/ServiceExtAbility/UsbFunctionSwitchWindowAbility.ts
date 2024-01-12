@@ -53,8 +53,8 @@ export default class UsbFunctionSwitchAbility extends ServiceExtensionAbility {
    */
   onRequest(want, startId): void {
     console.log('onRequest want: ' + JSON.stringify(want));
-    GlobalThisProxy.getInstance().setNumInfo('workWant_defaultChoose', want.parameters['defaultChoose']);
-    GlobalThisProxy.getInstance().setNumInfo('workWant_funcSelect', want.parameters['funcSelect']);
+    GlobalThisProxy.getInstance().setNumInfo('workWant_defaultChoose', want.parameters.defaultChoose);
+    GlobalThisProxy.getInstance().setNumInfo('workWant_funcSelect', want.parameters.funcSelect);
     globalThis.abilityWant = want;
     let displayClass: display.Display | null = null;
     try {
