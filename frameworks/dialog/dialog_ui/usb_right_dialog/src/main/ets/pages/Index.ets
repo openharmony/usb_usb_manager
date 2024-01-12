@@ -194,7 +194,8 @@ struct IndexHapComponent {
   private thisWant: string = ''
   customDialogController: CustomDialogController = new CustomDialogController({
     builder: PopUpWindow({ curSelectNumber: this.curChoose }),
-    autoCancel: true
+    autoCancel: true,
+    cancel: this.onCancel
   });
 
   async aboutToAppear() {
@@ -260,6 +261,19 @@ struct IndexHapComponent {
   async onPageHide() {
     console.log(TAG + 'onPageHide');
   }
+  async onCancel() {
+    console.log(TAG + 'onCancel');
+    let windowClass: window.Window = window.findWindow('UsbFunctionSwitchWindow');
+    this.customDialogController.close();
 
+    windowClass.hide((err: BusinessError) => {
+      const errCode: number = err.code;
+      if (errCode) {
+        console.error('TAG + Failed to hide the window. Cause: ' + JSON.stringify(err));
+        return;
+      }
+      console.info('TAG + Succeeded in hiding the window.');
+    });
+  }
   build() { }
 }
