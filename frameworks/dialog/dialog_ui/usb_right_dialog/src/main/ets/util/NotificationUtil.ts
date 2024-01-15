@@ -19,6 +19,7 @@ import wantAgent from '@ohos.app.ability.wantAgent';
 import type context from '@ohos.app.ability.common';
 
 type Context = context.Context;
+type WantAgent = object;
 const TAG: string = 'usbfunctionswitchwindow_NotificationUtil';
 
 const REQUEST_CODE: number = 0;
@@ -29,7 +30,7 @@ class NotificationUtil {
   private usbFuncBundleName: string = 'com.usb.right';
   private usbFuncAbilityName: string = 'UsbFunctionSwitchExtAbility';
 
-  async createWantAgentForStartAbility(bundleName: string, abilityName: string, currentChoose: number) {
+  async createWantAgentForStartAbility(bundleName: string, abilityName: string, currentChoose: number) : Promise<WantAgent> {
     let wantAgentInfo = {
       wants: [
         {
