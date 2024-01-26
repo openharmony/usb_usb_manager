@@ -29,7 +29,6 @@
 #include "securec.h"
 #include "system_ability_definition.h"
 #include "usb_callback_test.h"
-#include "usb_common_test.h"
 #include "usb_errors.h"
 #include "usb_srv_client.h"
 
