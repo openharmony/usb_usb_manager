@@ -32,6 +32,7 @@ config("module_private_config") {
     "include",
     "common/include",
     "${usb_manager_path}/test/common/include/",
+    "${usb_manager_path}/test/native/service_unittest/include/",
   ]
 }
 
@@ -673,7 +674,6 @@ ohos_fuzztest("UsbMgrFuzzTest") {
   ]
 
   external_deps = [
-    "ability_runtime:ability_manager",
     "c_utils:utils",
     "drivers_interface_usb:usb_idl_headers",
     "hilog:libhilog",
