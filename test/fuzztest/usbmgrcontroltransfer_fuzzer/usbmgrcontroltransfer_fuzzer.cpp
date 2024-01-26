@@ -18,6 +18,7 @@
 #include "usb_srv_client.h"
 #include "usb_errors.h"
 
+using namespace OHOS::HDI::Usb::V1_0;
 namespace OHOS {
 namespace USB {
     bool UsbMgrControlTransferFuzzTest(const uint8_t* data, size_t /* size */)
