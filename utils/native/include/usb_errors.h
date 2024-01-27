@@ -18,6 +18,7 @@
 
 #include <errors.h>
 #include <cstdint>
+#include <string>
 
 namespace OHOS {
 namespace USB {

@@ -23,8 +23,8 @@ namespace USB {
     bool UsbMgrSetPortRoleFuzzTest(const uint8_t* data, size_t /* size */)
     {
         auto &usbSrvClient = UsbSrvClient::GetInstance();
-        if (usbSrvClient.SetPortRole(reinterpret_cast<int32_t>(data), reinterpret_cast<int32_t>(data),
-            reinterpret_cast<int32_t>(data)) == UEC_OK) {
+        if (usbSrvClient.SetPortRole(*reinterpret_cast<const int32_t *>(data), *reinterpret_cast<const int32_t *>(data),
+            *reinterpret_cast<const int32_t *>(data)) == UEC_OK) {
             return false;
         }
         return true;

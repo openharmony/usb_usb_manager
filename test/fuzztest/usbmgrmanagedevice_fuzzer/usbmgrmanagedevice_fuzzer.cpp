@@ -34,7 +34,7 @@ namespace USB {
             return false;
         }
         ret = usbSrvClient.ManageDevice(
-            reinterpret_cast<int32_t>(data), reinterpret_cast<int32_t>(data), true);
+            *reinterpret_cast<const int32_t *>(data), *reinterpret_cast<const int32_t *>(data), true);
         if (ret == UEC_OK) {
             return false;
         }

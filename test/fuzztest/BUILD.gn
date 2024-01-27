@@ -32,6 +32,8 @@ config("module_private_config") {
     "include",
     "common/include",
     "${usb_manager_path}/test/common/include/",
+    "${usb_manager_path}/test/native/service_unittest/include/",
+    "./../../../../security_access_token/interfaces/innerkits/accesstoken/include/",
   ]
 }
 
@@ -561,7 +563,10 @@ ohos_fuzztest("UsbMgrUnRegBulkCallbackFuzzTest") {
   fuzz_config_file =
       "${usb_manager_path}/test/fuzztest/usbmgrunregbulkcallback_fuzzer"
 
-  configs = [ ":module_private_config" ]
+  configs = [
+    "${utils_path}:utils_config",
+    ":module_private_config",
+  ]
 
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
@@ -569,10 +574,19 @@ ohos_fuzztest("UsbMgrUnRegBulkCallbackFuzzTest") {
   ]
 
   external_deps = [
+    "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
+    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
 
   sources = [
@@ -587,7 +601,10 @@ ohos_fuzztest("UsbMgrBulkReadFuzzTest") {
 
   fuzz_config_file = "${usb_manager_path}/test/fuzztest/usbmgrbulkread_fuzzer"
 
-  configs = [ ":module_private_config" ]
+  configs = [
+    "${utils_path}:utils_config",
+    ":module_private_config",
+  ]
 
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
@@ -595,10 +612,19 @@ ohos_fuzztest("UsbMgrBulkReadFuzzTest") {
   ]
 
   external_deps = [
+    "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
+    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
 
   sources = [
@@ -613,7 +639,10 @@ ohos_fuzztest("UsbMgrBulkWriteFuzzTest") {
 
   fuzz_config_file = "${usb_manager_path}/test/fuzztest/usbmgrbulkwrite_fuzzer"
 
-  configs = [ ":module_private_config" ]
+  configs = [
+    "${utils_path}:utils_config",
+    ":module_private_config",
+  ]
 
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
@@ -621,10 +650,19 @@ ohos_fuzztest("UsbMgrBulkWriteFuzzTest") {
   ]
 
   external_deps = [
+    "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
+    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
 
   sources = [
@@ -639,7 +677,10 @@ ohos_fuzztest("UsbMgrBulkCancelFuzzTest") {
 
   fuzz_config_file = "${usb_manager_path}/test/fuzztest/usbmgrbulkcancel_fuzzer"
 
-  configs = [ ":module_private_config" ]
+  configs = [
+    "${utils_path}:utils_config",
+    ":module_private_config",
+  ]
 
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
@@ -647,10 +688,19 @@ ohos_fuzztest("UsbMgrBulkCancelFuzzTest") {
   ]
 
   external_deps = [
+    "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
+    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
 
   sources = [

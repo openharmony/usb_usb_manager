@@ -24,7 +24,7 @@ namespace USB {
     {
         auto &usbSrvClient = UsbSrvClient::GetInstance();
         int32_t supportModes = 0;
-        int32_t ret = usbSrvClient.GetSupportedModes(reinterpret_cast<int32_t>(data), supportModes);
+        int32_t ret = usbSrvClient.GetSupportedModes(*reinterpret_cast<const int32_t *>(data), supportModes);
         if (ret == UEC_OK) {
             return false;
         }
