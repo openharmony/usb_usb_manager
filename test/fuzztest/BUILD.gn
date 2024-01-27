@@ -563,9 +563,9 @@ ohos_fuzztest("UsbMgrUnRegBulkCallbackFuzzTest") {
   fuzz_config_file =
       "${usb_manager_path}/test/fuzztest/usbmgrunregbulkcallback_fuzzer"
 
-  configs = [ 
+  configs = [
     "${utils_path}:utils_config",
-    ":module_private_config", 
+    ":module_private_config",
   ]
 
   deps = [
