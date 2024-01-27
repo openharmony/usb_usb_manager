@@ -24,7 +24,7 @@ namespace USB {
     {
         auto &usbSrvClient = UsbSrvClient::GetInstance();
         if (usbSrvClient.SetPortRole(*reinterpret_cast<const int32_t *>(data), *reinterpret_cast<const int32_t *>(data),
-            reinterpret_cast<const int32_t *>(data)) == UEC_OK) {
+            *reinterpret_cast<const int32_t *>(data)) == UEC_OK) {
             return false;
         }
         return true;
