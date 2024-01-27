@@ -27,7 +27,7 @@ namespace USB {
     bool UsbMgrSetCurrentFunctionsFuzzTest(const uint8_t* data, size_t /* size */)
     {
         auto &usbSrvClient = UsbSrvClient::GetInstance();
-        int32_t func = reinterpret_cast<int32_t>(data);
+        int32_t func = *reinterpret_cast<const int32_t *>(data);
         if (func <= MAX_FUNC_NUM) {
             func += MAX_FUNC_NUM;
         }

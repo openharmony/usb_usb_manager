@@ -21,7 +21,6 @@
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
 
-using namespace OHOS::Security::AccessToken;
 namespace OHOS {
 namespace USB {
 namespace Common {

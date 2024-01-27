@@ -48,7 +48,7 @@ namespace USB {
 
         std::vector<uint8_t> buf;
         ret = usbSrvClient.BulkTransfer(reinterpret_cast<USBDevicePipe &>(data),
-            reinterpret_cast<const USBEndpoint &>(data), buf, reinterpret_cast<int32_t>(data));
+            reinterpret_cast<const USBEndpoint &>(data), buf, *reinterpret_cast<const int32_t *>(data));
         if (ret == UEC_OK) {
             return false;
         }
