@@ -33,7 +33,7 @@ config("module_private_config") {
     "common/include",
     "${usb_manager_path}/test/common/include/",
     "${usb_manager_path}/test/native/service_unittest/include/",
-    ./../../../../security_access_token/interfaces/innerkits/accesstoken/include/
+    "./../../../../security_access_token/interfaces/innerkits/accesstoken/include/",
   ]
 }
 
