@@ -1092,14 +1092,19 @@ int32_t UsbService::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whiteLis
     int32_t ret;
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices.size());
     for (auto it = devices.begin(); it != devices.end(); ++it) {
+        bool inWhiteList = false;
         for (auto dev : whiteList) {
             if (it->second->GetProductId() == dev.productId && it->second->GetVendorId() == dev.vendorId) {
-                ret = ManageDeviceImpl(it->second->GetVendorId(), it->second->GetProductId(), false);
-            } else {
-                ret = ManageDeviceImpl(it->second->GetVendorId(), it->second->GetProductId(), true);
+                inWhiteList = true;
+                break;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
         }
+        if (inWhiteList) {
+            ret = ManageDeviceImpl(it->second->GetVendorId(), it->second->GetProductId(), false);
+        } else {
+            ret = ManageDeviceImpl(it->second->GetVendorId(), it->second->GetProductId(), true);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
     }
     if (ret != UEC_OK) {
         USB_HILOGI(MODULE_USB_SERVICE, "ManageDevice failed");
@@ -1595,7 +1600,8 @@ int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool d
 {
     std::map<std::string, UsbDevice *> devices;
     usbHostManager_->GetDevices(devices);
-    USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices.size());
+    USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, vId: %{public}d, pId: %{public}d, b: %{public}d",
+        devices.size(), vendorId, productId, disable);
     for (auto it = devices.begin(); it != devices.end(); ++it) {
         if (it->second->GetVendorId() == vendorId && it->second->GetProductId() == productId) {
             UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
@@ -1628,7 +1634,8 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
 
     std::map<std::string, UsbDevice *> devices;
     usbHostManager_->GetDevices(devices);
-    USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices.size());
+    USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
+        devices.size(), (int32_t)interfaceType, disable);
     for (auto it = devices.begin(); it != devices.end(); ++it) {
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         uint8_t configIndex = 0;

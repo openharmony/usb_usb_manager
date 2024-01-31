@@ -208,7 +208,74 @@ HWTEST_F(UsbEventTest, SUB_USB_Broadcast_0400, TestSize.Level1)
     EXPECT_NE(device.GetiProduct(), 0);
     EXPECT_NE(device.GetiManufacturer(), 0);
 }
+#ifdef SUPPORT_PORT_CHNAGE_TEST
+/**
+ * @tc.name: SUB_USB_Broadcast_0500
+ * @tc.desc: usb port change to host event
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbEventTest, SUB_USB_Broadcast_0500, TestSize.Level1)
+{
+    MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USB_PORT_CHANGED);
+    CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    std::shared_ptr<UsbSubscriberTest> subscriber = std::make_shared<UsbSubscriberTest>(subscriberInfo);
+    CommonEventManager::SubscribeCommonEvent(subscriber);
+    std::cout << "please switch port to host" << std::endl;
 
+    // block until UsbSubscriberTest post
+    sem_wait(&UsbEventTest::testSem_);
+    CommonEventManager::UnSubscribeCommonEvent(subscriber);
 
+    auto &want = UsbSubscriberTest::eventData_.GetWant();
+    EXPECT_EQ(want.GetAction(), CommonEventSupport::COMMON_EVENT_USB_PORT_CHANGED);
+
+    std::string portStr = UsbSubscriberTest::eventData_.GetData();
+    std::cout << portStr << std::endl;
+    Json::CharReaderBuilder builder;
+    JSONCPP_STRING err;
+    const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+    Json::Value portJson;
+    auto parseResult = reader->parse(portStr.c_str(), portStr.c_str() + portStr.length(), &portJson, &err);
+    EXPECT_TRUE(parseResult);
+
+    // valid event
+    EXPECT_EQ(portJson["mode"].asInt(), UsbSrvSupport::PORT_MODE_HOST);
+}
+
+/**
+ * @tc.name: SUB_USB_Broadcast_0600
+ * @tc.desc: usb port change to device event
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbEventTest, SUB_USB_Broadcast_0600, TestSize.Level1)
+{
+    MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USB_PORT_CHANGED);
+    CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    std::shared_ptr<UsbSubscriberTest> subscriber = std::make_shared<UsbSubscriberTest>(subscriberInfo);
+    CommonEventManager::SubscribeCommonEvent(subscriber);
+    std::cout << "please switch port to device" << std::endl;
+
+    // block until UsbSubscriberTest post
+    sem_wait(&UsbEventTest::testSem_);
+    CommonEventManager::UnSubscribeCommonEvent(subscriber);
+
+    auto &want = UsbSubscriberTest::eventData_.GetWant();
+    EXPECT_EQ(want.GetAction(), CommonEventSupport::COMMON_EVENT_USB_PORT_CHANGED);
+
+    std::string portStr = UsbSubscriberTest::eventData_.GetData();
+    std::cout << portStr << std::endl;
+    Json::CharReaderBuilder builder;
+    JSONCPP_STRING err;
+    const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+    Json::Value portJson;
+    auto parseResult = reader->parse(portStr.c_str(), portStr.c_str() + portStr.length(), &portJson, &err);
+    EXPECT_TRUE(parseResult);
+
+    // valid event
+    EXPECT_EQ(portJson["mode"].asInt(), UsbSrvSupport::PORT_MODE_DEVICE);
+}
+#endif //SUPPORT_PORT_CHNAGE_TEST
 } // namespace USB
 } // namespace OHOS
