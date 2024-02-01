@@ -14,6 +14,10 @@
 import("//build/test.gni")
 import("./../../../usbmgr.gni")
 
+declare_args() {
+  usb_manage_feature_support_port_change = false
+}
+
 module_output_path = "${usb_manager_part_name}/usb_unittest_test"
 
 config("module_private_config") {
@@ -194,6 +198,14 @@ ohos_unittest("test_usbevent") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+
+  if (usb_manage_feature_support_port_change) {
+    if (defined(defines)) {
+      defines += [ "SUPPORT_PORT_CHNAGE_TEST" ]
+    } else {
+      defines = [ "SUPPORT_PORT_CHNAGE_TEST" ]
+    }
+  }
 }
 
 ohos_unittest("test_usbmanageinterface") {
