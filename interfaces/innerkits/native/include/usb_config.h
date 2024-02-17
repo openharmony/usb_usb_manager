@@ -108,7 +108,7 @@ public:
     }
 
     std::vector<UsbInterface> &GetInterfaces()
-    {        
+    {
         return interfaces_;
     }
 
