@@ -62,7 +62,6 @@ public:
         protocol_ = cJSON_GetObjectItem(device, "protocol")->valueint;
         cJSON* configs = cJSON_GetObjectItem(device, "configs");
         for (int i = 0; i < cJSON_GetArraySize(configs); i++) {
-            //configs_.emplace_back(configs[idx]);
             cJSON* config =  cJSON_GetArrayItem(configs, i);
             configs_.emplace_back(config);
         }
