@@ -51,7 +51,6 @@ public:
             cJSON* jsonInterface =  cJSON_GetArrayItem(jsonInterfaces, i);
             interfaces_.emplace_back(jsonInterface);
         }
-
     }
 
     USBConfig() {}
