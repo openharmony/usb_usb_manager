@@ -19,6 +19,7 @@
 #include <singleton.h>
 #include <sstream>
 #include <vector>
+#include <map>
 #include "cJSON.h"
 #include "iremote_object.h"
 #include "usb_config.h"
