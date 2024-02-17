@@ -44,8 +44,7 @@ ohos_fuzztest("UsbMgrRequestRightFuzzTest") {
       "${usb_manager_path}/test/fuzztest/usbmgrrequestright_fuzzer"
 
   configs = [
-    ":module_private_config",
-    "//third_party/jsoncpp:jsoncpp_public_config",
+    ":module_private_config"
   ]
 
   deps = [
