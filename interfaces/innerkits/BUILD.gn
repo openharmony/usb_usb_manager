@@ -21,6 +21,7 @@ config("usbsrv_public_config") {
   include_dirs = [
     "native/include",
     "${usb_manager_path}/utils/native/include",
+    "./../../../../../third_party/cJSON",
   ]
 }
 

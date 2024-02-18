@@ -43,9 +43,7 @@ ohos_fuzztest("UsbMgrRequestRightFuzzTest") {
   fuzz_config_file =
       "${usb_manager_path}/test/fuzztest/usbmgrrequestright_fuzzer"
 
-  configs = [
-    ":module_private_config"
-  ]
+  configs = [ ":module_private_config" ]
 
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
