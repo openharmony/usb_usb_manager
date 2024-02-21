@@ -44,10 +44,9 @@ public:
         id_ = cJSON_GetObjectItem(config, "id")->valueint;
         attributes_ = cJSON_GetObjectItem(config, "attributes")->valueint;
         maxPower_ = cJSON_GetObjectItem(config, "maxPower")->valueint;
-        name_ = cJSON_GetObjectItem(config, "maxPower")->valuestring;
+        name_ = cJSON_GetObjectItem(config, "name")->valuestring;
         cJSON* jsonInterfaces = cJSON_GetObjectItem(config, "interfaces");
         for (int i = 0; i < cJSON_GetArraySize(jsonInterfaces); i++) {
-            //interfaces_.emplace_back(interfaces[idx])
             cJSON* jsonInterface =  cJSON_GetArrayItem(jsonInterfaces, i);
             interfaces_.emplace_back(jsonInterface);
         }
