@@ -338,8 +338,8 @@ public:
         }
         cJSON_AddItemToObject(device, "configs", configs);
         std::string deviceStr(cJSON_PrintUnformatted(device));
-        cJSON_Delete(device);
         cJSON_Delete(configs);
+        cJSON_Delete(device);
         return deviceStr;
     }
 

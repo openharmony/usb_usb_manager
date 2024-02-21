@@ -199,8 +199,8 @@ public:
         }
         cJSON_AddItemToObject(interface, "endpoints", endpoints);
         std::string interfaceJsonStr(cJSON_PrintUnformatted(interface));
-        cJSON_Delete(interface);
         cJSON_Delete(endpoints);
+        cJSON_Delete(interface);
         return interfaceJsonStr;
     }
 

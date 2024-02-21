@@ -180,8 +180,8 @@ public:
         }
         cJSON_AddItemToObject(config, "interfaces", interfaces);
         std::string configStr(cJSON_PrintUnformatted(config));
-        cJSON_Delete(config);
         cJSON_Delete(interfaces);
+        cJSON_Delete(config);
         return configStr;
     }
 
