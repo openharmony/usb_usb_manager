@@ -114,7 +114,7 @@ bool UsbHostManager::PublishCommonEvent(const std::string &event, const UsbDevic
     CommonEventData data(want);
     data.SetData(dev.getJsonString().c_str());
     CommonEventPublishInfo publishInfo;
-    USB_HILOGI(MODULE_SERVICE, "send %{public}s broadcast device:%{public}s", event.c_str(), 
+    USB_HILOGI(MODULE_SERVICE, "send %{public}s broadcast device:%{public}s", event.c_str(),
         dev.getJsonString().c_str());
     ReportHostPlugSysEvent(event, dev);
     return CommonEventManager::PublishCommonEvent(data, publishInfo);
