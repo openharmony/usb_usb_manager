@@ -14,7 +14,7 @@
  */
 
 #include <gtest/gtest.h>
-#include <json/json.h>
+#include "cJSON.h"
 #include <semaphore.h>
 
 #include <iostream>
@@ -142,12 +142,11 @@ HWTEST_F(UsbEventTest, SUB_USB_Broadcast_0300, TestSize.Level1)
     // parse string to Json::Value
     std::string deviceStr = UsbSubscriberTest::eventData_.GetData();
     std::cout << deviceStr << std::endl;
-    Json::CharReaderBuilder builder;
-    JSONCPP_STRING err;
-    const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
-    Json::Value deviceJson;
-    auto parseResult = reader->parse(deviceStr.c_str(), deviceStr.c_str() + deviceStr.length(), &deviceJson, &err);
-    EXPECT_TRUE(parseResult);
+    cJSON* deviceJson = cJSON_Parse(deviceStr.c_str());
+    if (!deviceJson) {
+        USB_HILOGI(MODULE_USB_SERVICE, "SUB_USB_Broadcast_0300 error, parse json string error");
+    }
+    EXPECT_TRUE(deviceJson);
 
     // valid device
     UsbDevice device(deviceJson);
@@ -196,12 +195,11 @@ HWTEST_F(UsbEventTest, SUB_USB_Broadcast_0400, TestSize.Level1)
 
     std::string deviceStr = UsbSubscriberTest::eventData_.GetData();
     std::cout << deviceStr << std::endl;
-    Json::CharReaderBuilder builder;
-    JSONCPP_STRING err;
-    const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
-    Json::Value deviceJson;
-    auto parseResult = reader->parse(deviceStr.c_str(), deviceStr.c_str() + deviceStr.length(), &deviceJson, &err);
-    EXPECT_TRUE(parseResult);
+    cJSON* deviceJson = cJSON_Parse(deviceStr.c_str());
+    if (!deviceJson) {
+        USB_HILOGI(MODULE_USB_SERVICE, "SUB_USB_Broadcast_0400 error, parse json string error");
+    }
+    EXPECT_TRUE(deviceJson);
 
     // valid device
     UsbDevice device(deviceJson);
@@ -232,15 +230,15 @@ HWTEST_F(UsbEventTest, SUB_USB_Broadcast_0500, TestSize.Level1)
 
     std::string portStr = UsbSubscriberTest::eventData_.GetData();
     std::cout << portStr << std::endl;
-    Json::CharReaderBuilder builder;
-    JSONCPP_STRING err;
-    const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
-    Json::Value portJson;
-    auto parseResult = reader->parse(portStr.c_str(), portStr.c_str() + portStr.length(), &portJson, &err);
-    EXPECT_TRUE(parseResult);
+    cJSON* portJson = cJSON_Parse(portStr.c_str());
+    if (!portJson) {
+        USB_HILOGI(MODULE_USB_SERVICE, "SUB_USB_Broadcast_0500 error, parse json string error");
+    }
+    EXPECT_TRUE(portJson);
 
     // valid event
-    EXPECT_EQ(portJson["mode"].asInt(), UsbSrvSupport::PORT_MODE_HOST);
+    cJSON* jsonMode = cJSON_GetObjectItem(portJson, "mode");
+    EXPECT_EQ(jsonMode->valueint, UsbSrvSupport::PORT_MODE_HOST);
 }
 
 /**
@@ -266,15 +264,15 @@ HWTEST_F(UsbEventTest, SUB_USB_Broadcast_0600, TestSize.Level1)
 
     std::string portStr = UsbSubscriberTest::eventData_.GetData();
     std::cout << portStr << std::endl;
-    Json::CharReaderBuilder builder;
-    JSONCPP_STRING err;
-    const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
-    Json::Value portJson;
-    auto parseResult = reader->parse(portStr.c_str(), portStr.c_str() + portStr.length(), &portJson, &err);
-    EXPECT_TRUE(parseResult);
+    cJSON* portJson = cJSON_Parse(portStr.c_str());
+    if (!portJson) {
+        USB_HILOGI(MODULE_USB_SERVICE, "SUB_USB_Broadcast_0600 error, parse json string error");
+    }
+    EXPECT_TRUE(portJson);
 
     // valid event
-    EXPECT_EQ(portJson["mode"].asInt(), UsbSrvSupport::PORT_MODE_DEVICE);
+    cJSON* jsonMode = cJSON_GetObjectItem(portJson, "mode");
+    EXPECT_EQ(jsonMode->valueint, UsbSrvSupport::PORT_MODE_DEVICE);
 }
 #endif //SUPPORT_PORT_CHNAGE_TEST
 } // namespace USB

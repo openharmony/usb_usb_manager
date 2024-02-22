@@ -18,7 +18,7 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "delayed_sp_singleton.h"
-#include "json/json.h"
+#include "cJSON.h"
 #include "string_ex.h"
 #include "usb_common.h"
 #include "usb_errors.h"
@@ -40,23 +40,22 @@ int32_t UsbServiceSubscriber::PortChangedEvent(const PortInfo &info)
         USB_HILOGE(MODULE_USB_SERVICE, "failed to GetInstance");
         return UEC_SERVICE_GET_USB_SERVICE_FAILED;
     }
-
-    Json::Value port;
-    port["portId"] = info.portId;
-    port["powerRole"] = info.powerRole;
-    port["dataRole"] = info.dataRole;
-    port["mode"] = info.mode;
-
-    Json::StreamWriterBuilder builder;
-    builder["indentation"] = "";
-    auto jsonString = Json::writeString(builder, port);
-
+    cJSON* portJson = cJSON_CreateObject();
+    if (!portJson) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Create portJson error");
+    }
+    cJSON_AddNumberToObject(portJson, "portId", static_cast<double>(info.portId));
+    cJSON_AddNumberToObject(portJson, "powerRole", static_cast<double>(info.powerRole));
+    cJSON_AddNumberToObject(portJson, "dataRole", static_cast<double>(info.dataRole));
+    cJSON_AddNumberToObject(portJson, "mode", static_cast<double>(info.mode));
+    auto jsonString = cJSON_PrintUnformatted(portJson);
     Want want;
     want.SetAction(CommonEventSupport::COMMON_EVENT_USB_PORT_CHANGED);
     pms->UpdateUsbPort(info.portId, info.powerRole, info.dataRole, info.mode);
     CommonEventData data;
     data.SetData(jsonString);
     data.SetWant(want);
+    cJSON_Delete(portJson);
     CommonEventPublishInfo publishInfo;
     bool isSuccess = CommonEventManager::PublishCommonEvent(data, publishInfo);
     if (!isSuccess) {
