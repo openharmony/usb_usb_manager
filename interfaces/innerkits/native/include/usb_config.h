@@ -47,11 +47,9 @@ public:
         name_ = cJSON_GetObjectItem(config, "name")->valuestring;
         cJSON* jsonInterfaces = cJSON_GetObjectItem(config, "interfaces");
         for (int i = 0; i < cJSON_GetArraySize(jsonInterfaces); i++) {
-            //interfaces_.emplace_back(interfaces[idx])
             cJSON* jsonInterface =  cJSON_GetArrayItem(jsonInterfaces, i);
             interfaces_.emplace_back(jsonInterface);
         }
-
     }
 
     USBConfig() {}
@@ -108,7 +106,7 @@ public:
     }
 
     std::vector<UsbInterface> &GetInterfaces()
-    {        
+    {
         return interfaces_;
     }
 
