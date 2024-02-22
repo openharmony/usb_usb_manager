@@ -69,7 +69,7 @@ ohos_shared_library("usbservice") {
 
   defines = []
 
-  deps = [ "//third_party/jsoncpp:jsoncpp" ]
+  deps = [ "//third_party/cJSON:cjson" ]
 
   external_deps = [
     "ability_base:base",

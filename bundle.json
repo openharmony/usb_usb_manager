@@ -48,7 +48,7 @@
                 "hisysevent"
             ],
             "third_party": [
-                "jsoncpp",
+                "cJSON",
                 "bounds_checking_function"
             ]
         },

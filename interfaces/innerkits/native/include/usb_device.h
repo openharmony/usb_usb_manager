@@ -19,7 +19,8 @@
 #include <singleton.h>
 #include <sstream>
 #include <vector>
-
+#include <map>
+#include "cJSON.h"
 #include "iremote_object.h"
 #include "usb_config.h"
 #include "usb_interface.h"
@@ -46,24 +47,24 @@ public:
         this->configs_ = configs;
     }
 
-    explicit UsbDevice(const Json::Value &device)
+    explicit UsbDevice(const cJSON *device)
     {
-        busNum_ = device["busNum"].asUInt();
-        devAddr_ = device["devAddress"].asUInt();
-        serial_ = device["serial"].asString();
-        name_ = device["name"].asString();
-        manufacturerName_ = device["manufacturerName"].asString();
-        productName_ = device["productName"].asString();
-        version_ = device["version"].asString();
-        vendorId_ = device["vendorId"].asInt();
-        productId_ = device["productId"].asInt();
-        klass_ = device["clazz"].asInt();
-        subClass_ = device["subClass"].asInt();
-        protocol_ = device["protocol"].asInt();
-
-        Json::Value configs = device["configs"];
-        for (uint32_t idx = 0; idx < configs.size(); ++idx) {
-            configs_.emplace_back(configs[idx]);
+        busNum_ = cJSON_GetObjectItem(device, "busNum")->valueint;
+        devAddr_ = cJSON_GetObjectItem(device, "devAddress")->valueint;
+        serial_ = cJSON_GetObjectItem(device, "serial")->valueint;
+        name_ = cJSON_GetObjectItem(device, "name")->valuestring;
+        manufacturerName_ = cJSON_GetObjectItem(device, "manufacturerName")->valuestring;
+        productName_ = cJSON_GetObjectItem(device, "productName")->valuestring;
+        version_ = cJSON_GetObjectItem(device, "version")->valuestring;
+        vendorId_ = cJSON_GetObjectItem(device, "vendorId")->valueint;
+        productId_ = cJSON_GetObjectItem(device, "productId")->valueint;
+        klass_ = cJSON_GetObjectItem(device, "clazz")->valueint;
+        subClass_ = cJSON_GetObjectItem(device, "subClass")->valueint;
+        protocol_ = cJSON_GetObjectItem(device, "protocol")->valueint;
+        cJSON* configs = cJSON_GetObjectItem(device, "configs");
+        for (int i = 0; i < cJSON_GetArraySize(configs); i++) {
+            cJSON* config =  cJSON_GetArrayItem(configs, i);
+            configs_.emplace_back(config);
         }
     }
 
@@ -310,29 +311,35 @@ public:
         return this->bcdDevice_;
     }
 
-    Json::Value ToJson() const
+    const std::string getJsonString() const
     {
-        Json::Value device;
-        device["busNum"] = busNum_;
-        device["devAddress"] = devAddr_;
-        device["serial"] = "";
-        device["name"] = name_;
-        device["manufacturerName"] = manufacturerName_;
-        device["productName"] = productName_;
-        device["version"] = version_;
-        device["vendorId"] = vendorId_;
-        device["productId"] = productId_;
-        device["clazz"] = klass_;
-        device["subClass"] = subClass_;
-        device["protocol"] = protocol_;
-
-        Json::Value configs;
-        for (auto &cfg : configs_) {
-            configs.append(cfg.ToJson());
+        cJSON* device = cJSON_CreateObject();
+        if (!device) {
+            USB_HILOGE(MODULE_USB_SERVICE, "Create device error");
         }
-        device["configs"] = configs;
-
-        return device;
+        cJSON_AddNumberToObject(device, "busNum", static_cast<double>(busNum_));
+        cJSON_AddNumberToObject(device, "devAddress", static_cast<double>(devAddr_));
+        cJSON_AddStringToObject(device, "serial", "");
+        cJSON_AddStringToObject(device, "name", name_.c_str());
+        cJSON_AddStringToObject(device, "manufacturerName", manufacturerName_.c_str());
+        cJSON_AddStringToObject(device, "productName", productName_.c_str());
+        cJSON_AddStringToObject(device, "version", version_.c_str());
+        cJSON_AddNumberToObject(device, "vendorId", static_cast<double>(vendorId_));
+        cJSON_AddNumberToObject(device, "productId", static_cast<double>(productId_));
+        cJSON_AddNumberToObject(device, "clazz", static_cast<double>(klass_));
+        cJSON_AddNumberToObject(device, "subClass", static_cast<double>(subClass_));
+        cJSON_AddNumberToObject(device, "protocol", static_cast<double>(protocol_));
+        cJSON* configs = cJSON_CreateObject();
+        if (!configs) {
+            USB_HILOGE(MODULE_USB_SERVICE, "Create configs error");
+        }
+        for (auto &cfg : configs_) {
+            cJSON_AddObjectToObject(configs, cfg.getJsonString().c_str());
+        }
+        cJSON_AddItemToObject(device, "configs", configs);
+        std::string deviceStr(cJSON_PrintUnformatted(device));
+        cJSON_Delete(device);
+        return deviceStr;
     }
 
 private:

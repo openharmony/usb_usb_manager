@@ -49,7 +49,7 @@ ohos_unittest("test_mock_bulkcallback") {
     "${usb_manager_path}/services:usbservice",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//third_party/jsoncpp:jsoncpp",
+    "//third_party/cJSON:cjson",
   ]
 
   external_deps = [
@@ -89,7 +89,7 @@ ohos_unittest("test_mock_usbcore") {
     "${usb_manager_path}/services:usbservice",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//third_party/jsoncpp:jsoncpp",
+    "//third_party/cJSON:cjson",
   ]
 
   external_deps = [
@@ -129,7 +129,7 @@ ohos_unittest("test_mock_usbdevicepipe") {
     "${usb_manager_path}/services:usbservice",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//third_party/jsoncpp:jsoncpp",
+    "//third_party/cJSON:cjson",
   ]
 
   external_deps = [
@@ -169,7 +169,7 @@ ohos_unittest("test_mock_usbevent") {
     "${usb_manager_path}/services:usbservice",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//third_party/jsoncpp:jsoncpp",
+    "//third_party/cJSON:cjson",
   ]
 
   external_deps = [
@@ -209,7 +209,7 @@ ohos_unittest("test_mock_usbrequest") {
     "${usb_manager_path}/services:usbservice",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//third_party/jsoncpp:jsoncpp",
+    "//third_party/cJSON:cjson",
   ]
 
   external_deps = [
