@@ -23,7 +23,6 @@
 #include <vector>
 #include "usb_common.h"
 #include "usb_interface.h"
-#include "cJSON.h"
 
 namespace OHOS {
 namespace USB {
@@ -39,16 +38,16 @@ public:
         this->interfaces_ = interfaces;
     }
 
-    explicit USBConfig(const cJSON *config)
+    explicit USBConfig(const Json::Value &config)
     {
-        id_ = cJSON_GetObjectItem(config, "id")->valueint;
-        attributes_ = cJSON_GetObjectItem(config, "attributes")->valueint;
-        maxPower_ = cJSON_GetObjectItem(config, "maxPower")->valueint;
-        name_ = cJSON_GetObjectItem(config, "name")->valuestring;
-        cJSON* jsonInterfaces = cJSON_GetObjectItem(config, "interfaces");
-        for (int i = 0; i < cJSON_GetArraySize(jsonInterfaces); i++) {
-            cJSON* jsonInterface =  cJSON_GetArrayItem(jsonInterfaces, i);
-            interfaces_.emplace_back(jsonInterface);
+        id_ = config["id"].asInt();
+        attributes_ = config["attributes"].asUInt();
+        maxPower_ = config["maxPower"].asInt();
+        name_ = config["name"].asString();
+
+        Json::Value interfaces = config["interfaces"];
+        for (uint32_t idx = 0; idx < interfaces.size(); ++idx) {
+            interfaces_.emplace_back(interfaces[idx]);
         }
     }
 
@@ -157,30 +156,23 @@ public:
         return this->iConfiguration_;
     }
 
-    const std::string getJsonString() const
+    Json::Value ToJson() const
     {
-        cJSON* config = cJSON_CreateObject();
-        if (!config) {
-            USB_HILOGE(MODULE_USB_SERVICE, "Create config error");
-        }
-        cJSON_AddNumberToObject(config, "id", static_cast<double>(id_));
-        cJSON_AddNumberToObject(config, "attributes", static_cast<double>(attributes_));
-        cJSON_AddNumberToObject(config, "maxPower", static_cast<double>(maxPower_));
-        cJSON_AddStringToObject(config, "name", name_.c_str());
-        cJSON_AddBoolToObject(config, "isRemoteWakeup", IsRemoteWakeup());
-        cJSON_AddBoolToObject(config, "isSelfPowered", IsSelfPowered());
+        Json::Value config;
+        config["id"] = id_;
+        config["attributes"] = attributes_;
+        config["maxPower"] = maxPower_;
+        config["name"] = name_;
+        config["isRemoteWakeup"] = IsRemoteWakeup();
+        config["isSelfPowered"] = IsSelfPowered();
 
-        cJSON* interfaces = cJSON_CreateObject();
-        if (!interfaces) {
-            USB_HILOGE(MODULE_USB_SERVICE, "Create interfaces error");
-        }
+        Json::Value interfaces;
         for (auto &intf : interfaces_) {
-            cJSON_AddObjectToObject(interfaces, intf.getJsonString().c_str());
+            interfaces.append(intf.ToJson());
         }
-        cJSON_AddItemToObject(config, "interfaces", interfaces);
-        std::string configStr(cJSON_PrintUnformatted(config));
-        cJSON_Delete(config);
-        return configStr;
+        config["interfaces"] = interfaces;
+
+        return config;
     }
 
 private:
