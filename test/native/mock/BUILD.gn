@@ -49,6 +49,7 @@ ohos_unittest("test_mock_bulkcallback") {
     "${usb_manager_path}/services:usbservice",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
+    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
@@ -59,7 +60,6 @@ ohos_unittest("test_mock_bulkcallback") {
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "cJSON:cjson",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
@@ -89,6 +89,7 @@ ohos_unittest("test_mock_usbcore") {
     "${usb_manager_path}/services:usbservice",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
+    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
@@ -99,7 +100,6 @@ ohos_unittest("test_mock_usbcore") {
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "cJSON:cjson",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
@@ -129,6 +129,7 @@ ohos_unittest("test_mock_usbdevicepipe") {
     "${usb_manager_path}/services:usbservice",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
+    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
@@ -139,7 +140,6 @@ ohos_unittest("test_mock_usbdevicepipe") {
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "cJSON:cjson",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
@@ -169,6 +169,7 @@ ohos_unittest("test_mock_usbevent") {
     "${usb_manager_path}/services:usbservice",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
+    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
@@ -179,7 +180,6 @@ ohos_unittest("test_mock_usbevent") {
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "cJSON:cjson",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
@@ -209,6 +209,7 @@ ohos_unittest("test_mock_usbrequest") {
     "${usb_manager_path}/services:usbservice",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
+    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
@@ -219,7 +220,6 @@ ohos_unittest("test_mock_usbrequest") {
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "cJSON:cjson",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",

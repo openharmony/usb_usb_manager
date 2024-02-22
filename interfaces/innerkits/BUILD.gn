@@ -47,7 +47,7 @@ ohos_shared_library("usbsrv_client") {
 
   public_configs = [ ":usbsrv_public_config" ]
 
-  public_external_deps = [ "cJSON:cjson" ]
+  deps = [ "//third_party/jsoncpp:jsoncpp" ]
 
   external_deps = [
     "c_utils:utils",

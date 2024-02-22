@@ -20,7 +20,7 @@
 #include <sstream>
 #include <string>
 #include "usb_common.h"
-#include "cJSON.h"
+#include "json/json.h"
 
 namespace OHOS {
 namespace USB {
@@ -34,13 +34,13 @@ public:
         this->maxPacketSize_ = static_cast<int32_t>(maxPacketSize);
     }
 
-    explicit USBEndpoint(const cJSON *endpoint)
+    explicit USBEndpoint(const Json::Value &endpoint)
     {
-        address_ = cJSON_GetObjectItem(endpoint, "address")->valueint;
-        attributes_ = cJSON_GetObjectItem(endpoint, "attributes")->valueint;
-        interval_ = cJSON_GetObjectItem(endpoint, "interval")->valueint;
-        maxPacketSize_ = cJSON_GetObjectItem(endpoint, "maxPacketSize")->valueint;
-        interfaceId_ = cJSON_GetObjectItem(endpoint, "interfaceId")->valueint;
+        address_ = endpoint["address"].asUInt();
+        attributes_ = endpoint["attributes"].asUInt();
+        interval_ = endpoint["interval"].asInt();
+        maxPacketSize_ = endpoint["maxPacketSize"].asInt();
+        interfaceId_ = endpoint["interfaceId"].asUInt();
     }
 
     USBEndpoint() {}
@@ -136,23 +136,19 @@ public:
         return interfaceId_;
     }
 
-    const std::string getJsonString() const
+    Json::Value ToJson() const
     {
-        cJSON* endPointJson = cJSON_CreateObject();
-        if (!endPointJson) {
-            USB_HILOGE(MODULE_USB_SERVICE, "Create endPointJson error");
-        }
-        cJSON_AddNumberToObject(endPointJson, "address", static_cast<double>(address_));
-        cJSON_AddNumberToObject(endPointJson, "attributes", static_cast<double>(attributes_));
-        cJSON_AddNumberToObject(endPointJson, "interval", static_cast<double>(interval_));
-        cJSON_AddNumberToObject(endPointJson, "maxPacketSize", static_cast<double>(maxPacketSize_));
-        cJSON_AddNumberToObject(endPointJson, "direction", static_cast<double>(GetDirection()));
-        cJSON_AddNumberToObject(endPointJson, "number", static_cast<double>(GetEndpointNumber()));
-        cJSON_AddNumberToObject(endPointJson, "type", static_cast<double>(GetType()));
-        cJSON_AddNumberToObject(endPointJson, "interfaceId", static_cast<double>(interfaceId_));
-        std::string endPointJsonStr(cJSON_PrintUnformatted(endPointJson));
-        cJSON_Delete(endPointJson);
-        return endPointJsonStr;
+        Json::Value endpoint;
+        endpoint["address"] = address_;
+        endpoint["attributes"] = attributes_;
+        endpoint["interval"] = interval_;
+        endpoint["maxPacketSize"] = maxPacketSize_;
+        endpoint["direction"] = GetDirection();
+        endpoint["number"] = GetEndpointNumber();
+        endpoint["type"] = GetType();
+        endpoint["interfaceId"] = interfaceId_;
+
+        return endpoint;
     }
 
 private:

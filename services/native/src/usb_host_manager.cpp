@@ -19,7 +19,6 @@
 #include "common_event_support.h"
 #include "hilog_wrapper.h"
 #include "hisysevent.h"
-#include "cJSON.h"
 #include "usb_serial_reader.h"
 
 #ifdef USB_NOTIFICATION_ENABLE
@@ -111,11 +110,15 @@ bool UsbHostManager::PublishCommonEvent(const std::string &event, const UsbDevic
 {
     Want want;
     want.SetAction(event);
+
     CommonEventData data(want);
-    data.SetData(dev.getJsonString());
+    Json::StreamWriterBuilder builder;
+    builder["indentation"] = "";
+    auto jsonString = Json::writeString(builder, dev.ToJson());
+    data.SetData(jsonString);
+
     CommonEventPublishInfo publishInfo;
-    USB_HILOGI(MODULE_SERVICE, "send %{public}s broadcast device:%{public}s", event.c_str(),
-        dev.getJsonString().c_str());
+    USB_HILOGI(MODULE_SERVICE, "send %{public}s broadcast device:%{public}s", event.c_str(), jsonString.c_str());
     ReportHostPlugSysEvent(event, dev);
     return CommonEventManager::PublishCommonEvent(data, publishInfo);
 }
@@ -128,8 +131,10 @@ bool UsbHostManager::Dump(int fd, const std::string &args)
     }
 
     dprintf(fd, "Usb Host all device list info:\n");
+    Json::StreamWriterBuilder builder;
+    builder["indentation"] = "  ";
     for (const auto &item : devices_) {
-        dprintf(fd, "usb host list info: %s\n", item.second->getJsonString().c_str());
+        dprintf(fd, "usb host list info: %s\n", Json::writeString(builder, item.second->ToJson()).c_str());
     }
     return true;
 }

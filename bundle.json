@@ -39,7 +39,6 @@
                 "ipc",
                 "safwk",
                 "c_utils",
-                "cJSON",
                 "samgr",
                 "access_token",
                 "os_account",
@@ -49,6 +48,7 @@
                 "hisysevent"
             ],
             "third_party": [
+                "jsoncpp",
                 "bounds_checking_function"
             ]
         },
