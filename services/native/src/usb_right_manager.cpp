@@ -280,7 +280,7 @@ bool UsbRightManager::IsSystemApp()
     return true;
 }
 
-bool UsbRightManager::CheckPermission()
+bool UsbRightManager::CheckSaPermission()
 {
     AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     int32_t ret = AccessTokenKit::VerifyAccessToken(tokenId, USB_MANAGE_ACCESS_USB_DEVICE);
@@ -291,9 +291,9 @@ bool UsbRightManager::CheckPermission()
     return true;
 }
 
-bool UsbRightManager::IsSystemHap()
+bool UsbRightManager::CheckPermission()
 {
-    if (CheckPermission() || IsSystemApp()) {
+    if (CheckSaPermission() || IsSystemApp()) {
         return true;
     }
     USB_HILOGW(MODULE_USB_SERVICE, "not system apl or system app, return false");
@@ -361,7 +361,7 @@ int32_t UsbRightManager::IsOsAccountExists(int32_t id, bool &isAccountExists)
 
 int32_t UsbRightManager::HasSetFuncRight(int32_t functions)
 {
-    if (!IsSystemHap()) {
+    if (!CheckPermission()) {
         USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
         return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
     }

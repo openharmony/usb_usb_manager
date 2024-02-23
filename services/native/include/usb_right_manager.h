@@ -41,7 +41,7 @@ public:
     bool AddDeviceRight(const std::string &deviceName, const std::string &bundleName);
     bool RemoveDeviceRight(const std::string &deviceName, const std::string &bundleName);
     bool RemoveDeviceAllRight(const std::string &deviceName);
-    bool IsSystemHap();
+    bool CheckPermission();
     bool IsSystemApp();
     int32_t CleanUpRightExpired(std::vector<std::string> &devices);
     static int32_t CleanUpRightUserDeleted(int32_t &totalUsers, int32_t &deleteUsers);
@@ -53,7 +53,7 @@ private:
     bool GetUserAgreementByDiag(
         const std::string &busDev, const std::string &deviceName, const std::string &bundleName);
     bool ShowUsbDialog(const std::string &busDev, const std::string &deviceName, const std::string &bundleName);
-    bool CheckPermission();
+    bool CheckSaPermission();
     sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
 
     static sem_t waitDialogDisappear_;
