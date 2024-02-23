@@ -29,7 +29,7 @@ ohos_executable("usb_function_port_test") {
   ]
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
-    "//third_party/jsoncpp:jsoncpp",
+    "//third_party/cJSON:cjson",
   ]
   external_deps = [
     "access_token:libaccesstoken_sdk",

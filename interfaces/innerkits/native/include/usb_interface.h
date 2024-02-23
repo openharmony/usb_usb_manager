@@ -43,18 +43,19 @@ public:
         this->endpoints_ = endpoints;
     }
 
-    explicit UsbInterface(const Json::Value &interface)
+    explicit UsbInterface(const cJSON *interface)
     {
-        id_ = interface["id"].asInt();
-        protocol_ = interface["protocol"].asInt();
-        klass_ = interface["clazz"].asInt();
-        subClass_ = interface["subClass"].asInt();
-        alternateSetting_ = interface["alternateSetting"].asInt();
-        name_ = interface["name"].asString();
+        id_ = cJSON_GetObjectItem(interface, "id")->valueint;
+        protocol_ = cJSON_GetObjectItem(interface, "protocol")->valueint;
+        klass_ = cJSON_GetObjectItem(interface, "clazz")->valueint;
+        subClass_ = cJSON_GetObjectItem(interface, "subClass")->valueint;
+        alternateSetting_ = cJSON_GetObjectItem(interface, "alternateSetting")->valueint;
+        name_ = cJSON_GetObjectItem(interface, "name")->valuestring;
 
-        Json::Value endpoints = interface["endpoints"];
-        for (uint32_t idx = 0; idx < endpoints.size(); ++idx) {
-            endpoints_.emplace_back(endpoints[idx]);
+        cJSON* endpoints = cJSON_GetObjectItem(interface, "endpoints");
+        for (int i = 0; i < cJSON_GetArraySize(endpoints); i++) {
+            cJSON* ep =  cJSON_GetArrayItem(endpoints, i);
+            endpoints_.emplace_back(ep);
         }
     }
 
@@ -176,23 +177,30 @@ public:
         return this->iInterface_;
     }
 
-    Json::Value ToJson() const
+    const std::string getJsonString() const
     {
-        Json::Value interface;
-        interface["id"] = id_;
-        interface["protocol"] = protocol_;
-        interface["clazz"] = klass_;
-        interface["subClass"] = subClass_;
-        interface["alternateSetting"] = alternateSetting_;
-        interface["name"] = name_;
-
-        Json::Value endpoints;
-        for (const auto &ep : endpoints_) {
-            endpoints.append(ep.ToJson());
+        cJSON* interface = cJSON_CreateObject();
+        if (!interface) {
+            USB_HILOGE(MODULE_USB_SERVICE, "Create interface error");
         }
-        interface["endpoints"] = endpoints;
-
-        return interface;
+        cJSON_AddNumberToObject(interface, "id", static_cast<double>(id_));
+        cJSON_AddNumberToObject(interface, "protocol", static_cast<double>(protocol_));
+        cJSON_AddNumberToObject(interface, "clazz", static_cast<double>(klass_));
+        cJSON_AddNumberToObject(interface, "subClass", static_cast<double>(subClass_));
+        cJSON_AddNumberToObject(interface, "alternateSetting", alternateSetting_);
+        cJSON_AddStringToObject(interface, "name", name_.c_str());
+        cJSON* endpoints = cJSON_CreateObject();
+        if (!endpoints) {
+            USB_HILOGE(MODULE_USB_SERVICE, "Create endpoints error");
+        }
+        for (size_t i = 0; i < endpoints_.size(); ++i) {
+            const USBEndpoint &ep = endpoints_[i];
+            cJSON_AddObjectToObject(endpoints, ep.getJsonString().c_str());
+        }
+        cJSON_AddItemToObject(interface, "endpoints", endpoints);
+        std::string interfaceJsonStr(cJSON_PrintUnformatted(interface));
+        cJSON_Delete(interface);
+        return interfaceJsonStr;
     }
 
 private:
