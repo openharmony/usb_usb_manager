@@ -68,6 +68,7 @@ Note:If the text contains special characters, please escape them according to th
                 <filteritem type="filename" name="*.lds|*.pod"/>
                 <filteritem type="filename" name="*.a|*.d|*.o|*.so|*.cmd|*.hcb|*.swp"/>
                 <filteritem type="filename" name="*.clang-format"/>
+                <filteritem type="filename" name="*.hvigorfile"/>
                 <filteritem type="filepath" name="dir name underproject/.*" desc="Describe the reason for filtering scan results"/>
             </filefilter>
             <filefilter name="defaultPolicyFilter" desc="Filters for compatibility,license header policies">
