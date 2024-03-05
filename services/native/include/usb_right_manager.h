@@ -35,24 +35,28 @@ class UsbRightManager {
 public:
     int32_t Init();
     /* deviceName is in VID-PID format */
-    bool HasRight(const std::string &deviceName, const std::string &bundleName);
+    bool HasRight(const std::string &deviceName, const std::string &bundleName,
+        const std::string &tokenId, const int32_t &userId);
     /* busDev is in busNum-devAddr format */
-    int32_t RequestRight(const std::string &busDev, const std::string &deviceName, const std::string &bundleName);
+    int32_t RequestRight(const std::string &busDev, const std::string &deviceName, const std::string &bundleName,
+        const std::string &tokenId, const int32_t &userId);
     bool AddDeviceRight(const std::string &deviceName, const std::string &bundleName);
-    bool RemoveDeviceRight(const std::string &deviceName, const std::string &bundleName);
+    bool RemoveDeviceRight(const std::string &deviceName, const std::string &bundleName,
+        const std::string &tokenId, const int32_t &userId);
     bool RemoveDeviceAllRight(const std::string &deviceName);
     bool CheckPermission();
     bool IsSystemApp();
     int32_t CleanUpRightExpired(std::vector<std::string> &devices);
     static int32_t CleanUpRightUserDeleted(int32_t &totalUsers, int32_t &deleteUsers);
-    static int32_t CleanUpRightAppUninstalled(int32_t uid, const std::string &bundleName);
     static int32_t IsOsAccountExists(int32_t id, bool &isAccountExists);
+    static int32_t CleanUpRightAppUninstalled(int32_t uid, const std::string &bundleName);
     int32_t HasSetFuncRight(int32_t functions);
 
 private:
-    bool GetUserAgreementByDiag(
-        const std::string &busDev, const std::string &deviceName, const std::string &bundleName);
-    bool ShowUsbDialog(const std::string &busDev, const std::string &deviceName, const std::string &bundleName);
+    bool GetUserAgreementByDiag(const std::string &busDev, const std::string &deviceName, const std::string &bundleName,
+        const std::string &tokenId, const int32_t &userId);
+    bool ShowUsbDialog(const std::string &busDev, const std::string &deviceName,
+        const std::string &bundleName, const std::string &tokenId);
     bool CheckSaPermission();
     sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
 

@@ -40,6 +40,8 @@
 #include "usb_port_manager.h"
 #include "usb_right_manager.h"
 #include "usbd_bulkcallback_impl.h"
+#include "tokenid_kit.h"
+#include "accesstoken_kit.h"
 
 using OHOS::sptr;
 using namespace OHOS::HDI::Usb::V1_0;
@@ -76,6 +78,7 @@ constexpr int32_t SUBCLASS_INDEX = 1;
 constexpr int32_t PROTOCAL_INDEX = 2;
 constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
+constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 
 std::unordered_map<InterfaceType, std::vector<int32_t>> typeMap = {
     {InterfaceType::TYPE_STORAGE,   {8, -1, -1}},
@@ -364,13 +367,15 @@ bool UsbService::HasRight(std::string deviceName)
     }
 
     std::string bundleName;
-    if (!GetBundleName(bundleName)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "HasRight GetBundleName false");
+    std::string tokenId;
+    int32_t userId = USB_RIGHT_USERID_INVALID;
+    if (!GetCallingInfo(bundleName, tokenId, userId)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "HasRight GetCallingInfo false");
         return false;
     }
 
     USB_HILOGI(MODULE_USB_SERVICE, "bundle=%{public}s, device=%{public}s", bundleName.c_str(), deviceName.c_str());
-    return usbRightManager_->HasRight(deviceVidPidSerialNum, bundleName);
+    return usbRightManager_->HasRight(deviceVidPidSerialNum, bundleName, tokenId, userId);
 }
 
 int32_t UsbService::RequestRight(std::string deviceName)
@@ -391,13 +396,15 @@ int32_t UsbService::RequestRight(std::string deviceName)
         return UEC_OK;
     }
     std::string bundleName;
-    if (!GetBundleName(bundleName)) {
-        USB_HILOGI(MODULE_USB_SERVICE, "RequestRight GetBundleName false");
-        return UEC_SERVICE_INNER_ERR;
+    std::string tokenId;
+    int32_t userId = USB_RIGHT_USERID_INVALID;
+    if (!GetCallingInfo(bundleName, tokenId, userId)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetCallingInfo false");
+        return false;
     }
 
     USB_HILOGI(MODULE_USB_SERVICE, "bundle=%{public}s, device=%{public}s", bundleName.c_str(), deviceName.c_str());
-    return usbRightManager_->RequestRight(deviceName, deviceVidPidSerialNum, bundleName);
+    return usbRightManager_->RequestRight(deviceName, deviceVidPidSerialNum, bundleName, tokenId, userId);
 }
 
 int32_t UsbService::RemoveRight(std::string deviceName)
@@ -417,12 +424,14 @@ int32_t UsbService::RemoveRight(std::string deviceName)
         return UEC_OK;
     }
     std::string bundleName;
-    if (!GetBundleName(bundleName)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "RequestRight GetBundleName false");
-        return UEC_SERVICE_INNER_ERR;
+    std::string tokenId;
+    int32_t userId = USB_RIGHT_USERID_INVALID;
+    if (!GetCallingInfo(bundleName, tokenId, userId)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetCallingInfo false");
+        return false;
     }
 
-    if (!usbRightManager_->RemoveDeviceRight(deviceVidPidSerialNum, bundleName)) {
+    if (!usbRightManager_->RemoveDeviceRight(deviceVidPidSerialNum, bundleName, tokenId, userId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "RemoveDeviceRight failed");
         return UEC_SERVICE_INNER_ERR;
     }
@@ -1306,6 +1315,24 @@ bool UsbService::GetBundleName(std::string &bundleName)
         USB_HILOGE(MODULE_USB_SERVICE, "failed to obtain bundleName");
         return false;
     }
+    return true;
+}
+
+bool UsbService::GetCallingInfo(std::string &bundleName, std::string &tokenId, int32_t &userId)
+{
+    OHOS::Security::AccessToken::AccessTokenID token = IPCSkeleton::GetCallingTokenID();
+    OHOS::Security::AccessToken::HapTokenInfo hapTokenInfoRes;
+    int32_t ret = OHOS::Security::AccessToken::AccessTokenKit::GetHapTokenInfo(token, hapTokenInfoRes);
+    if (ret != ERR_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "failed, ret: %{public}d, app: %{public}s, tokenId: %{public}s, id: %{public}u",
+            ret, bundleName.c_str(), tokenId.c_str(), (uint32_t)token);
+        return false;
+    }
+    bundleName = hapTokenInfoRes.bundleName;
+    tokenId = std::to_string((uint32_t)token);
+    userId = hapTokenInfoRes.userID;
+    USB_HILOGD(MODULE_USB_SERVICE, "ret: %{public}d, app: %{public}s, id: %{public}s, user: %{public}d",
+        ret, bundleName.c_str(), tokenId.c_str(), hapTokenInfoRes.userID);
     return true;
 }
 

@@ -58,7 +58,7 @@ struct ConfirmDialog {
           .ControlBtn(this.allowFontColor)
           .onClick(() => {
             try {
-              usbManager.addRight(globalThis.want.parameters["bundleName"], globalThis.want.parameters["deviceName"])
+              usbManager.addRight(globalThis.want.parameters["tokenId"], globalThis.want.parameters["deviceName"])
               this.destruction()
             } catch {
               console.info('USBRight ConfirmDialog onClick error!');

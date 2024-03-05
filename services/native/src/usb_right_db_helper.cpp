@@ -43,13 +43,15 @@ std::shared_ptr<UsbRightDbHelper> UsbRightDbHelper::GetInstance()
     return instance_;
 }
 
-bool UsbRightDbHelper::IsRecordExpired(
-    int32_t uid, const std::string &deviceName, const std::string &bundleName, uint64_t expiredTime)
+bool UsbRightDbHelper::IsRecordExpired(int32_t uid, const std::string &deviceName, const std::string &bundleName,
+    const std::string &tokenId, uint64_t expiredTime)
 {
+    USB_HILOGI(MODULE_USB_SERVICE, "info: uid=%{public}d dev=%{public}s app=%{public}s",
+        uid, deviceName.c_str(), bundleName.c_str());
     std::vector<struct UsbRightAppInfo> infos;
-    int32_t ret = QueryRightRecord(uid, deviceName, bundleName, infos);
+    int32_t ret = QueryRightRecord(uid, deviceName, bundleName, tokenId, infos);
     if (ret <= 0) {
-        USB_HILOGD(MODULE_USB_SERVICE, "query no record/error: %{public}d", ret);
+        USB_HILOGI(MODULE_USB_SERVICE, "usb query no record/error: %{public}d", ret);
         return true;
     }
     size_t len = infos.size();
@@ -149,10 +151,10 @@ int32_t UsbRightDbHelper::QueryAndGetResult(const RdbPredicates &rdbPredicates, 
 }
 
 int32_t UsbRightDbHelper::QueryRightRecord(int32_t uid, const std::string &deviceName, const std::string &bundleName,
-    std::vector<struct UsbRightAppInfo> &infos)
+    const std::string &tokenId, std::vector<struct UsbRightAppInfo> &infos)
 {
     std::lock_guard<std::mutex> guard(databaseMutex_);
-    USB_HILOGD(MODULE_USB_SERVICE, "Query detail: uid=%{public}d dev=%{public}s app=%{public}s", uid,
+    USB_HILOGI(MODULE_USB_SERVICE, "Query detail: uid=%{public}d dev=%{public}s app=%{public}s", uid,
         deviceName.c_str(), bundleName.c_str());
     std::vector<std::string> columns;
     RdbPredicates rdbPredicates(USB_RIGHT_TABLE_NAME);
@@ -162,6 +164,8 @@ int32_t UsbRightDbHelper::QueryRightRecord(int32_t uid, const std::string &devic
         ->EqualTo("deviceName", deviceName)
         ->And()
         ->EqualTo("bundleName", bundleName)
+        ->And()
+        ->EqualTo("tokenId", tokenId)
         ->EndWrap();
     return QueryAndGetResult(rdbPredicates, columns, infos);
 }
@@ -316,6 +320,11 @@ int32_t UsbRightDbHelper::DeleteAndNoOtherOperation(
         USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
     }
+    
+    if (changedRows <= 0) {
+        USB_HILOGI(MODULE_USB_SERVICE, "no row change: %{public}d", changedRows);
+        return USB_RIGHT_RDB_EMPTY;
+    }
     return ret;
 }
 
@@ -340,11 +349,12 @@ int32_t UsbRightDbHelper::DeleteAndNoOtherOperation(const OHOS::NativeRdb::RdbPr
     return ret;
 }
 
-int32_t UsbRightDbHelper::DeleteRightRecord(int32_t uid, const std::string &deviceName, const std::string &bundleName)
+int32_t UsbRightDbHelper::DeleteRightRecord(int32_t uid, const std::string &deviceName,
+    const std::string &bundleName, const std::string &tokenId)
 {
     std::lock_guard<std::mutex> guard(databaseMutex_);
-    std::string whereClause = {"uid = ? AND deviceName = ? AND bundleName = ?"};
-    std::vector<std::string> whereArgs = {std::to_string(uid), deviceName, bundleName};
+    std::string whereClause = {"uid = ? AND deviceName = ? AND bundleName = ? AND tokenId = ?"};
+    std::vector<std::string> whereArgs = {std::to_string(uid), deviceName, bundleName, tokenId};
     int32_t ret = DeleteAndNoOtherOperation(whereClause, whereArgs);
     if (ret != USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "failed: detale(uid, dev, app): %{public}d", ret);
@@ -522,8 +532,8 @@ int32_t UsbRightDbHelper::GetResultRightRecordEx(
     return infos.size();
 }
 
-int32_t UsbRightDbHelper::AddOrUpdateRightRecord(
-    int32_t uid, const std::string &deviceName, const std::string &bundleName, struct UsbRightAppInfo &info)
+int32_t UsbRightDbHelper::AddOrUpdateRightRecord(int32_t uid, const std::string &deviceName,
+    const std::string &bundleName, const std::string &tokenId, struct UsbRightAppInfo &info)
 {
     std::lock_guard<std::mutex> guard(databaseMutex_);
     int32_t ret = rightDatabase_->BeginTransaction();
@@ -532,12 +542,12 @@ int32_t UsbRightDbHelper::AddOrUpdateRightRecord(
         return ret;
     }
     bool isUpdate = false;
-    ret = CheckIfNeedUpdateEx(isUpdate, uid, deviceName, bundleName);
+    ret = CheckIfNeedUpdateEx(isUpdate, uid, deviceName, bundleName, tokenId);
     if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "check if need update error: %{public}d", ret);
         return ret;
     }
-    ret = AddOrUpdateRightRecordEx(isUpdate, uid, deviceName, bundleName, info);
+    ret = AddOrUpdateRightRecordEx(isUpdate, uid, deviceName, bundleName, tokenId, info);
     if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "add or update error: %{public}d", ret);
         return ret;
@@ -550,8 +560,8 @@ int32_t UsbRightDbHelper::AddOrUpdateRightRecord(
     return ret;
 }
 
-int32_t UsbRightDbHelper::CheckIfNeedUpdateEx(
-    bool &isUpdate, int32_t uid, const std::string &deviceName, const std::string &bundleName)
+int32_t UsbRightDbHelper::CheckIfNeedUpdateEx(bool &isUpdate, int32_t uid, const std::string &deviceName,
+    const std::string &bundleName, const std::string &tokenId)
 {
     std::vector<std::string> columns;
     RdbPredicates rdbPredicates(USB_RIGHT_TABLE_NAME);
@@ -561,6 +571,8 @@ int32_t UsbRightDbHelper::CheckIfNeedUpdateEx(
         ->EqualTo("deviceName", deviceName)
         ->And()
         ->EqualTo("bundleName", bundleName)
+        ->And()
+        ->EqualTo("tokenId", tokenId)
         ->EndWrap();
     auto resultSet = rightDatabase_->Query(rdbPredicates, columns);
     if (resultSet == nullptr) {
@@ -579,7 +591,7 @@ int32_t UsbRightDbHelper::CheckIfNeedUpdateEx(
 }
 
 int32_t UsbRightDbHelper::AddOrUpdateRightRecordEx(bool isUpdate, int32_t uid, const std::string &deviceName,
-    const std::string &bundleName, struct UsbRightAppInfo &info)
+    const std::string &bundleName, const std::string &tokenId, struct UsbRightAppInfo &info)
 {
     int32_t ret = 0;
     ValuesBucket values;
@@ -591,12 +603,13 @@ int32_t UsbRightDbHelper::AddOrUpdateRightRecordEx(bool isUpdate, int32_t uid, c
     values.PutLong("validPeriod", info.validPeriod);
     values.PutString("deviceName", deviceName);
     values.PutString("bundleName", bundleName);
-    USB_HILOGD(MODULE_USB_SERVICE, "info: %{public}" PRIu64 "/%{public}" PRIu64 "/%{public}d/%{public}s/%{public}s",
-        info.requestTime, info.validPeriod, uid, deviceName.c_str(), bundleName.c_str());
+    values.PutString("tokenId", tokenId);
+
     if (isUpdate) {
         int32_t changedRows = 0;
-        ret = rightDatabase_->Update(changedRows, values, "uid = ? AND deviceName = ? AND bundleName = ?",
-            std::vector<std::string> {std::to_string(info.uid), deviceName, bundleName});
+        ret = rightDatabase_->Update(changedRows, values,
+            "uid = ? AND deviceName = ? AND bundleName = ?, AND tokenId = ?",
+            std::vector<std::string> {std::to_string(info.uid), deviceName, bundleName, tokenId});
     } else {
         ret = rightDatabase_->Insert(values);
     }

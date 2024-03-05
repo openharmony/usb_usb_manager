@@ -114,35 +114,33 @@ int32_t UsbRightManager::Init()
     return UEC_OK;
 }
 
-bool UsbRightManager::HasRight(const std::string &deviceName, const std::string &bundleName)
+bool UsbRightManager::HasRight(const std::string &deviceName, const std::string &bundleName,
+    const std::string &tokenId, const int32_t &userId)
 {
-    int32_t uid = USB_RIGHT_USERID_INVALID;
-    GetCurrentUserId(uid);
-    if (uid == USB_RIGHT_USERID_CONSOLE) {
+    USB_HILOGI(MODULE_USB_SERVICE, "HasRight: uid=%{public}d dev=%{private}s app=%{public}s",
+        userId, deviceName.c_str(), bundleName.c_str());
+    if (userId == USB_RIGHT_USERID_CONSOLE) {
         USB_HILOGW(MODULE_USB_SERVICE, "console called, bypass");
         return true;
     }
     uint64_t nowTime = GetCurrentTimestamp();
-    USB_HILOGD(MODULE_USB_SERVICE, "info: uid=%{public}d dev=%{private}s app=%{public}s", uid, deviceName.c_str(),
-        bundleName.c_str());
-
     (void)TidyUpRight(TIGHT_UP_USB_RIGHT_RECORD_EXPIRED);
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     // no record or expired record: expired true, has right false, add right next time
     // valid record: expired false, has right true, no need add right
-    return !helper->IsRecordExpired(uid, deviceName, bundleName, nowTime);
+    return !helper->IsRecordExpired(userId, deviceName, bundleName, tokenId, nowTime);
 }
 
-int32_t UsbRightManager::RequestRight(
-    const std::string &busDev, const std::string &deviceName, const std::string &bundleName)
+int32_t UsbRightManager::RequestRight(const std::string &busDev, const std::string &deviceName,
+    const std::string &bundleName, const std::string &tokenId, const int32_t &userId)
 {
     USB_HILOGD(MODULE_USB_SERVICE, "RequestRight: busdev=%{private}s device=%{public}s app=%{public}s", busDev.c_str(),
         deviceName.c_str(), bundleName.c_str());
-    if (HasRight(deviceName, bundleName)) {
+    if (HasRight(deviceName, bundleName, tokenId, userId)) {
         USB_HILOGW(MODULE_USB_SERVICE, "device has Right ");
         return UEC_OK;
     }
-    if (!GetUserAgreementByDiag(busDev, deviceName, bundleName)) {
+    if (!GetUserAgreementByDiag(busDev, deviceName, bundleName, tokenId, userId)) {
         USB_HILOGW(MODULE_USB_SERVICE, "user don't agree");
         return UEC_SERVICE_PERMISSION_DENIED;
     }
@@ -152,18 +150,24 @@ int32_t UsbRightManager::RequestRight(
 bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::string &bundleName)
 {
     /* already checked system app/hap when call */
-    int32_t uid = USB_RIGHT_USERID_INVALID;
-    GetCurrentUserId(uid);
+    uint32_t tokenId = stoul(bundleName);
+    HapTokenInfo hapTokenInfoRes;
+    int32_t ret = AccessTokenKit::GetHapTokenInfo((AccessTokenID) tokenId, hapTokenInfoRes);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetHapTokenInfo failed: tokenId:%{public}d, ret:%{public}d",
+            tokenId, ret);
+        return false;
+    }
+    int32_t uid = hapTokenInfoRes.userID;
     if (uid == USB_RIGHT_USERID_CONSOLE) {
         USB_HILOGE(MODULE_USB_SERVICE, "console called, bypass");
         return true;
     }
-    uint64_t installTime = 0;
-    uint64_t updateTime = 0;
-    if (!GetBundleInstallAndUpdateTime(uid, bundleName, installTime, updateTime)) {
+    uint64_t installTime = GetCurrentTimestamp();
+    uint64_t updateTime = GetCurrentTimestamp();
+    if (!GetBundleInstallAndUpdateTime(uid, hapTokenInfoRes.bundleName, installTime, updateTime)) {
         USB_HILOGE(MODULE_USB_SERVICE, "get app install time and update time failed: %{public}s/%{public}d",
             bundleName.c_str(), uid);
-        return false;
     }
     struct UsbRightAppInfo info;
     info.uid = uid;
@@ -173,7 +177,7 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
     info.validPeriod = USB_RIGHT_VALID_PERIOD_SET;
 
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
-    int32_t ret = helper->AddOrUpdateRightRecord(uid, deviceName, bundleName, info);
+    ret = helper->AddOrUpdateRightRecord(uid, deviceName, hapTokenInfoRes.bundleName, bundleName, info);
     if (ret < 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "add or update failed: %{public}s/%{public}s/%{public}d, ret=%{public}d",
             deviceName.c_str(), bundleName.c_str(), uid, ret);
@@ -182,19 +186,18 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
     return true;
 }
 
-bool UsbRightManager::RemoveDeviceRight(const std::string &deviceName, const std::string &bundleName)
+bool UsbRightManager::RemoveDeviceRight(const std::string &deviceName, const std::string &bundleName,
+    const std::string &tokenId, const int32_t &userId)
 {
-    int32_t uid = USB_RIGHT_USERID_INVALID;
-    GetCurrentUserId(uid);
-    if (uid == USB_RIGHT_USERID_CONSOLE) {
+    if (userId == USB_RIGHT_USERID_CONSOLE) {
         USB_HILOGW(MODULE_USB_SERVICE, "console called, bypass");
         return true;
     }
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
-    int32_t ret = helper->DeleteRightRecord(uid, deviceName, bundleName);
+    int32_t ret = helper->DeleteRightRecord(userId, deviceName, bundleName, tokenId);
     if (ret < 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "delete failed: %{public}s/%{public}s/%{public}d", deviceName.c_str(),
-            bundleName.c_str(), uid);
+            bundleName.c_str(), userId);
         return false;
     }
     return true;
@@ -209,7 +212,7 @@ bool UsbRightManager::RemoveDeviceAllRight(const std::string &deviceName)
 }
 
 bool UsbRightManager::ShowUsbDialog(
-    const std::string &busDev, const std::string &deviceName, const std::string &bundleName)
+    const std::string &busDev, const std::string &deviceName, const std::string &bundleName, const std::string &tokenId)
 {
     auto abmc = AAFwk::AbilityManagerClient::GetInstance();
     if (abmc == nullptr) {
@@ -221,6 +224,7 @@ bool UsbRightManager::ShowUsbDialog(
     want.SetElementName("com.usb.right", "UsbServiceExtAbility");
     want.SetParam("bundleName", bundleName);
     want.SetParam("deviceName", busDev);
+    want.SetParam("tokenId", tokenId);
 
     sptr<UsbAbilityConn> usbAbilityConn_ = new (std::nothrow) UsbAbilityConn();
     sem_init(&waitDialogDisappear_, 1, 0);
@@ -234,20 +238,20 @@ bool UsbRightManager::ShowUsbDialog(
     return true;
 }
 
-bool UsbRightManager::GetUserAgreementByDiag(
-    const std::string &busDev, const std::string &deviceName, const std::string &bundleName)
+bool UsbRightManager::GetUserAgreementByDiag(const std::string &busDev, const std::string &deviceName,
+    const std::string &bundleName, const std::string &tokenId, const int32_t &userId)
 {
 #ifdef USB_RIGHT_TEST
     return true;
 #endif
     /* There can only be one dialog at a time */
     std::lock_guard<std::mutex> guard(dialogRunning_);
-    if (!ShowUsbDialog(busDev, deviceName, bundleName)) {
+    if (!ShowUsbDialog(busDev, deviceName, bundleName, tokenId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "ShowUsbDialog failed");
         return false;
     }
 
-    return HasRight(deviceName, bundleName);
+    return HasRight(deviceName, bundleName, tokenId, userId);
 }
 
 sptr<IBundleMgr> UsbRightManager::GetBundleMgr()
@@ -347,6 +351,7 @@ void UsbRightManager::GetCurrentUserId(int32_t &uid)
         USB_HILOGE(MODULE_USB_SERVICE, "GetOsAccountLocalIdFromUid failed: %{public}d, set to defult", ret);
         uid = USB_RIGHT_USERID_DEFAULT; /* default user id */
     }
+    USB_HILOGD(MODULE_USB_SERVICE, "usb get userid success: %{public}d, uid: %{public}d", ret, uid);
 }
 
 int32_t UsbRightManager::IsOsAccountExists(int32_t id, bool &isAccountExists)

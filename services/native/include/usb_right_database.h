@@ -45,7 +45,8 @@ constexpr const char *CREATE_USB_RIGHT_TABLE = "CREATE TABLE IF NOT EXISTS [usbR
                                                "[requestTime] INTEGER, "
                                                "[validPeriod] INTEGER, "
                                                "[deviceName] TEXT,"
-                                               "[bundleName] TEXT );";
+                                               "[bundleName] TEXT,"
+                                               "[tokenId] TEXT);";
 
 class UsbRightDataBase {
 public:
