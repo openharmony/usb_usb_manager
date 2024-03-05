@@ -71,6 +71,7 @@ public:
 
     int32_t SetUsbd(const sptr<HDI::Usb::V1_0::IUsbInterface> &usbd);
     int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) override;
+    bool CheckDevicePermission(uint8_t busNum, uint8_t devAddr);
     bool HasRight(std::string deviceName) override;
     int32_t RequestRight(std::string deviceName) override;
     int32_t RemoveRight(std::string deviceName) override;

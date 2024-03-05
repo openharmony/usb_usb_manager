@@ -296,9 +296,7 @@ bool UsbService::IsCommonEventServiceAbilityExist()
 
 int32_t UsbService::OpenDevice(uint8_t busNum, uint8_t devAddr)
 {
-    std::string name = std::to_string(busNum) + "-" + std::to_string(devAddr);
-    if (!UsbService::HasRight(name)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "No permission");
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
@@ -342,6 +340,16 @@ int32_t UsbService::GetDeviceVidPidSerialNumber(std::string deviceName, std::str
         }
     }
     return isMatched;
+}
+
+bool UsbService::CheckDevicePermission(uint8_t busNum, uint8_t devAddr)
+{
+    std::string name = std::to_string(busNum) + "-" + std::to_string(devAddr);
+    if (!UsbService::HasRight(name)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "No permission");
+        return false;
+    }
+    return true;
 }
 
 bool UsbService::HasRight(std::string deviceName)
@@ -582,6 +590,10 @@ int32_t UsbService::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataR
 
 int32_t UsbService::ClaimInterface(uint8_t busNum, uint8_t devAddr, uint8_t interface, uint8_t force)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     const UsbDev dev = {busNum, devAddr};
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -592,6 +604,10 @@ int32_t UsbService::ClaimInterface(uint8_t busNum, uint8_t devAddr, uint8_t inte
 
 int32_t UsbService::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t interface)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     const UsbDev dev = {busNum, devAddr};
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -653,6 +669,10 @@ int32_t UsbService::ControlTransfer(const UsbDev &dev, const UsbCtrlTransfer &ct
 
 int32_t UsbService::SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     const UsbDev dev = {busNum, devAddr};
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -673,6 +693,10 @@ int32_t UsbService::GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &co
 
 int32_t UsbService::SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t altIndex)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     const UsbDev dev = {busNum, devAddr};
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -683,6 +707,10 @@ int32_t UsbService::SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interf
 
 int32_t UsbService::GetRawDescriptor(uint8_t busNum, uint8_t devAddr, std::vector<uint8_t> &bufferData)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     const UsbDev dev = {busNum, devAddr};
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -697,6 +725,10 @@ int32_t UsbService::GetRawDescriptor(uint8_t busNum, uint8_t devAddr, std::vecto
 
 int32_t UsbService::GetFileDescriptor(uint8_t busNum, uint8_t devAddr, int32_t &fd)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     const UsbDev dev = {busNum, devAddr};
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -750,6 +782,10 @@ int32_t UsbService::RequestCancel(uint8_t busNum, uint8_t devAddr, uint8_t inter
 
 int32_t UsbService::Close(uint8_t busNum, uint8_t devAddr)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     const UsbDev dev = {busNum, devAddr};
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
