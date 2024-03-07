@@ -22,7 +22,6 @@
 namespace OHOS {
 namespace USB {
 #define USBFILENAME (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
-#define FORMATED_USB(fmt, ...) "[%{public}s] %{public}s# " fmt, USBFILENAME, __FUNCTION__, ##__VA_ARGS__
 
 #ifdef USB_HILOGF
 #undef USB_HILOGF
@@ -43,6 +42,11 @@ namespace USB {
 #ifdef USB_HILOGD
 #undef USB_HILOGD
 #endif
+
+struct UsbLable {
+    uint32_t domainId;
+    const char* tag;
+};
 
 // param of log interface, such as USB_HILOGF.
 enum UsbMgrSubModule {
@@ -73,24 +77,29 @@ enum UsbMgrDomainId {
     USB_BUTT,
 };
 
-constexpr OHOS::HiviewDFX::HiLogLabel USB_MGR_LABEL[USBMGR_MODULE_BUTT] = {
-    {LOG_CORE, USBMGR_INNERKIT_DOMAIN, "UsbMgrClient"},
-    {LOG_CORE, USBMGR_SERVICE_DOMAIN, "UsbMgrService"},
-    {LOG_CORE, USBMGR_JAVAKIT_DOMAIN, "UsbMgrJavaService"},
-    {LOG_CORE, USBMGR_INNERKIT_DOMAIN, "UsbMgrJni"},
-    {LOG_CORE, USB_INNERKIT_DOMAIN, "UsbSrvClient"},
-    {LOG_CORE, USB_SERVICE_DOMAIN, "UsbService"},
-    {LOG_CORE, USBD_DOMAIN, "Usbd"},
-    {LOG_CORE, COMMON_DOMAIN, "UsbMgrCommon"},
-    {LOG_CORE, USB_JS_NAPI, "UsbMgrJSNAPI"},
+static const UsbLable USB_MGR_LABEL[USBMGR_MODULE_BUTT] = {
+    {USBMGR_INNERKIT_DOMAIN, "UsbMgrClient"},
+    {USBMGR_SERVICE_DOMAIN, "UsbMgrService"},
+    {USBMGR_JAVAKIT_DOMAIN, "UsbMgrJavaService"},
+    {USBMGR_INNERKIT_DOMAIN, "UsbMgrJni"},
+    {USB_INNERKIT_DOMAIN, "UsbSrvClient"},
+    {USB_SERVICE_DOMAIN, "UsbService"},
+    {USBD_DOMAIN, "Usbd"},
+    {COMMON_DOMAIN, "UsbMgrCommon"},
+    {USB_JS_NAPI, "UsbMgrJSNAPI"},
 };
 
 // In order to improve performance, do not check the module range, module should less than USBMGR_MODULE_BUTT.
-#define USB_HILOGF(module, ...) (void)OHOS::HiviewDFX::HiLog::Fatal(USB_MGR_LABEL[module], FORMATED_USB(__VA_ARGS__))
-#define USB_HILOGE(module, ...) (void)OHOS::HiviewDFX::HiLog::Error(USB_MGR_LABEL[module], FORMATED_USB(__VA_ARGS__))
-#define USB_HILOGW(module, ...) (void)OHOS::HiviewDFX::HiLog::Warn(USB_MGR_LABEL[module], FORMATED_USB(__VA_ARGS__))
-#define USB_HILOGI(module, ...) (void)OHOS::HiviewDFX::HiLog::Info(USB_MGR_LABEL[module], FORMATED_USB(__VA_ARGS__))
-#define USB_HILOGD(module, ...) (void)OHOS::HiviewDFX::HiLog::Debug(USB_MGR_LABEL[module], FORMATED_USB(__VA_ARGS__))
+#define USB_HILOGF(module, ...) \
+    ((void)HILOG_IMPL(LOG_CORE, LOG_FATAL, USB_MGR_LABEL[module].domainId, USB_MGR_LABEL[module].tag, ##__VA_ARGS__))
+#define USB_HILOGE(module, ...) \
+    ((void)HILOG_IMPL(LOG_CORE, LOG_ERROR, USB_MGR_LABEL[module].domainId, USB_MGR_LABEL[module].tag, ##__VA_ARGS__))
+#define USB_HILOGW(module, ...) \
+    ((void)HILOG_IMPL(LOG_CORE, LOG_WARN, USB_MGR_LABEL[module].domainId, USB_MGR_LABEL[module].tag, ##__VA_ARGS__))
+#define USB_HILOGI(module, ...) \
+    ((void)HILOG_IMPL(LOG_CORE, LOG_INFO, USB_MGR_LABEL[module].domainId, USB_MGR_LABEL[module].tag, ##__VA_ARGS__))
+#define USB_HILOGD(module, ...) \
+    ((void)HILOG_IMPL(LOG_CORE, LOG_DEBUG, USB_MGR_LABEL[module].domainId, USB_MGR_LABEL[module].tag, ##__VA_ARGS__))
 } // namespace USB
 } // namespace OHOS
 
