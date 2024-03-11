@@ -48,7 +48,12 @@ public:
         cJSON* jsonInterfaces = cJSON_GetObjectItem(config, "interfaces");
         for (int i = 0; i < cJSON_GetArraySize(jsonInterfaces); i++) {
             cJSON* jsonInterface =  cJSON_GetArrayItem(jsonInterfaces, i);
-            interfaces_.emplace_back(jsonInterface);
+            if (jsonInterface == nullptr) {
+                USB_HILOGE(MODULE_USB_SERVICE, "get item nullptr");
+                continue;
+            }
+            UsbInterface interface(jsonInterface);
+            interfaces_.emplace_back(interface);
         }
     }
 
@@ -170,12 +175,13 @@ public:
         cJSON_AddBoolToObject(config, "isRemoteWakeup", IsRemoteWakeup());
         cJSON_AddBoolToObject(config, "isSelfPowered", IsSelfPowered());
 
-        cJSON* interfaces = cJSON_CreateObject();
+        cJSON* interfaces = cJSON_CreateArray();
         if (!interfaces) {
             USB_HILOGE(MODULE_USB_SERVICE, "Create interfaces error");
         }
         for (auto &intf : interfaces_) {
-            cJSON_AddObjectToObject(interfaces, intf.getJsonString().c_str());
+            cJSON* pInterface =  cJSON_Parse(intf.getJsonString().c_str());
+            cJSON_AddItemToArray(interfaces, pInterface);
         }
         cJSON_AddItemToObject(config, "interfaces", interfaces);
         std::string configStr(cJSON_PrintUnformatted(config));
