@@ -63,7 +63,12 @@ public:
         protocol_ = cJSON_GetObjectItem(device, "protocol")->valueint;
         cJSON* configs = cJSON_GetObjectItem(device, "configs");
         for (int i = 0; i < cJSON_GetArraySize(configs); i++) {
-            cJSON* config =  cJSON_GetArrayItem(configs, i);
+            cJSON* jsonConfig =  cJSON_GetArrayItem(configs, i);
+            if (jsonConfig == nullptr) {
+                USB_HILOGE(MODULE_USB_SERVICE, "get item nullptr");
+                continue;
+            }
+            USBConfig config (jsonConfig);
             configs_.emplace_back(config);
         }
     }
@@ -329,12 +334,13 @@ public:
         cJSON_AddNumberToObject(device, "clazz", static_cast<double>(klass_));
         cJSON_AddNumberToObject(device, "subClass", static_cast<double>(subClass_));
         cJSON_AddNumberToObject(device, "protocol", static_cast<double>(protocol_));
-        cJSON* configs = cJSON_CreateObject();
+        cJSON* configs = cJSON_CreateArray();
         if (!configs) {
             USB_HILOGE(MODULE_USB_SERVICE, "Create configs error");
         }
         for (auto &cfg : configs_) {
-            cJSON_AddObjectToObject(configs, cfg.getJsonString().c_str());
+            cJSON* pConfig =  cJSON_Parse(cfg.getJsonString().c_str());
+            cJSON_AddItemToArray(configs, pConfig);
         }
         cJSON_AddItemToObject(device, "configs", configs);
         std::string deviceStr(cJSON_PrintUnformatted(device));

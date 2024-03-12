@@ -54,7 +54,12 @@ public:
 
         cJSON* endpoints = cJSON_GetObjectItem(interface, "endpoints");
         for (int i = 0; i < cJSON_GetArraySize(endpoints); i++) {
-            cJSON* ep =  cJSON_GetArrayItem(endpoints, i);
+            cJSON* jsonEp =  cJSON_GetArrayItem(endpoints, i);
+            if (jsonEp == nullptr) {
+                USB_HILOGE(MODULE_USB_SERVICE, "get item nullptr");
+                continue;
+            }
+            USBEndpoint ep(jsonEp);
             endpoints_.emplace_back(ep);
         }
     }
@@ -189,13 +194,14 @@ public:
         cJSON_AddNumberToObject(interface, "subClass", static_cast<double>(subClass_));
         cJSON_AddNumberToObject(interface, "alternateSetting", alternateSetting_);
         cJSON_AddStringToObject(interface, "name", name_.c_str());
-        cJSON* endpoints = cJSON_CreateObject();
+        cJSON* endpoints = cJSON_CreateArray();
         if (!endpoints) {
             USB_HILOGE(MODULE_USB_SERVICE, "Create endpoints error");
         }
         for (size_t i = 0; i < endpoints_.size(); ++i) {
             const USBEndpoint &ep = endpoints_[i];
-            cJSON_AddObjectToObject(endpoints, ep.getJsonString().c_str());
+            cJSON* pEp =  cJSON_Parse(ep.getJsonString().c_str());
+            cJSON_AddItemToArray(endpoints, pEp);
         }
         cJSON_AddItemToObject(interface, "endpoints", endpoints);
         std::string interfaceJsonStr(cJSON_PrintUnformatted(interface));

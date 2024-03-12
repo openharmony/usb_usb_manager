@@ -13,14 +13,18 @@
  * limitations under the License.
  */
 
+#include "cstdio"
 #include "usb_common_test.h"
 #include "usb_srv_client.h"
+#include "cJSON.h"
+#include "common_event_manager.h"
+#include "common_event_support.h"
 
 using namespace std;
 using namespace OHOS;
 using namespace OHOS::USB;
 using namespace OHOS::USB::Common;
-
+using namespace OHOS::EventFwk;
 static constexpr int32_t DEFAULT_PORT_ID = 1;
 static constexpr int32_t DEFAULT_ROLE_HOST = 1;
 static constexpr int32_t DEFAULT_ROLE_DEVICE = 2;
@@ -51,6 +55,61 @@ static void PrintHelp()
     printf("-f 512: Switch to function:storage\n");
     printf("-f 36: Switch to function:rndis&hdc\n");
     printf("-f 516: Switch to function:storage&hdc\n");
+    printf("-c 1: Switch to recv braodcast\n");
+}
+
+class UsbSubscriberTest : public CommonEventSubscriber {
+public:
+    explicit UsbSubscriberTest(const CommonEventSubscribeInfo &sp) : CommonEventSubscriber(sp) {}
+
+    void OnReceiveEvent(const CommonEventData &data) override
+    {
+        USB_HILOGI(MODULE_USB_SERVICE, "recv event ok");
+        eventData_ = data;
+        std::string deviceStr = eventData_.GetData();
+        std::cout << "recv broadcast: "<< deviceStr << std::endl;
+        USB_HILOGI(MODULE_USB_SERVICE, "recv broadcast: %{public}s", deviceStr.c_str());
+
+        cJSON* pDevice =  cJSON_Parse(deviceStr.c_str());
+        UsbDevice device(pDevice);
+        std::string strConfig = "null";
+        if (device.GetConfigCount() > 0) {
+            USBConfig config;
+            device.GetConfig(0, config);
+            strConfig = config.ToString();
+        }
+        USB_HILOGI(MODULE_USB_SERVICE, "recv broadcast:Name: %{public}s, config size: %{public}d, config0: %{public}s",
+            device.GetName().c_str(), device.GetConfigCount(), strConfig.c_str());
+    }
+
+    static CommonEventData eventData_;
+};
+
+CommonEventData UsbSubscriberTest::eventData_ {};
+std::shared_ptr<UsbSubscriberTest> subscriber = nullptr;
+static void AddCommonEvent()
+{
+    MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USB_DEVICE_DETACHED);
+    matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USB_DEVICE_ATTACHED);
+    matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USB_STATE);
+    CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    subscriber = std::make_shared<UsbSubscriberTest>(subscriberInfo);
+    bool ret = CommonEventManager::SubscribeCommonEvent(subscriber);
+    if (!ret) {
+        USB_HILOGW(MODULE_USB_SERVICE, "subscriber event for failed: %{public}d", ret);
+    }
+    printf("%s:%d success\n", __func__, __LINE__);
+}
+
+static void StopSubscriberCommonEvent(int32_t signo)
+{
+    (void) signo;
+    if (subscriber != nullptr) {
+        CommonEventManager::UnSubscribeCommonEvent(subscriber);
+    }
+    std::cout << "stop recv broadcast."<< std::endl;
+    USB_HILOGI(MODULE_USB_SERVICE, "stop recv broadcast.");
 }
 
 static void GetCurrentFunctionInfo()
@@ -145,6 +204,19 @@ int32_t main(int32_t argc, char *argv[])
     } else if (!strcmp(argv[CMD_INDEX], "-p")) {
         mode = stoi(argv[PARAM_INDEX]);
         PortSwitch(g_usbClient, mode);
+    } else if (!strcmp(argv[CMD_INDEX], "-c")) {
+        AddCommonEvent();
+        printf("Press input c to exit.\n");
+        char ch = getchar();
+        while (ch != 'c') {
+            ch = getchar();
+            if (ch == 'c') {
+                StopSubscriberCommonEvent(0);
+                break;
+            }
+            sleep(1);
+        }
+        printf("show boac exit.\n");
     } else {
         printf("param incorrect: please input -h for help\n");
     }
