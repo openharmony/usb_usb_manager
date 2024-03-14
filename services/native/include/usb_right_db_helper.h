@@ -61,14 +61,12 @@ public:
     static std::shared_ptr<UsbRightDbHelper> GetInstance();
 
     /* query if permission record is expired by query database */
-    bool IsRecordExpired(
-        int32_t uid, const std::string &deviceName, const std::string &bundleName, uint64_t expiredTime);
+    bool IsRecordExpired(int32_t uid, const std::string &deviceName, const std::string &bundleName,
+        const std::string &tokenId, uint64_t expiredTime);
     /* query if permission record is expired by time info */
     bool IsRecordExpired(const struct UsbRightAppInfo &info, uint64_t expiredTime);
-
     /* add (user, device, app) record */
     int32_t AddRightRecord(const std::string &deviceName, const std::string &bundleName, struct UsbRightAppInfo &info);
-
     /* query (user) record */
     int32_t QueryUserRightRecord(int32_t uid, std::vector<struct UsbRightAppInfo> &infos);
     /* query (user, device) record */
@@ -76,9 +74,9 @@ public:
         int32_t uid, const std::string &deviceName, std::vector<struct UsbRightAppInfo> &infos);
     /* query (user, app) record */
     int32_t QueryAppRightRecord(int32_t uid, const std::string &bundleName, std::vector<struct UsbRightAppInfo> &infos);
-    /* query (user, device, app) record */
+    /* query (user, device, app, tokenId) record */
     int32_t QueryRightRecord(int32_t uid, const std::string &deviceName, const std::string &bundleName,
-        std::vector<struct UsbRightAppInfo> &infos);
+        const std::string &tokenId, std::vector<struct UsbRightAppInfo> &infos);
     /* query users */
     int32_t QueryRightRecordUids(std::vector<std::string> &uids);
     /* query apps */
@@ -88,12 +86,13 @@ public:
     int32_t UpdateRightRecord(
         int32_t uid, const std::string &deviceName, const std::string &bundleName, struct UsbRightAppInfo &info);
 
-    /* add or update (user, device, app) record */
-    int32_t AddOrUpdateRightRecord(
-        int32_t uid, const std::string &deviceName, const std::string &bundleName, struct UsbRightAppInfo &info);
+    /* add or update (user, device, app, tokenId) record */
+    int32_t AddOrUpdateRightRecord(int32_t uid, const std::string &deviceName, const std::string &bundleName,
+        const std::string &tokenId, struct UsbRightAppInfo &info);
 
-    /* delete (user, device, app) record */
-    int32_t DeleteRightRecord(int32_t uid, const std::string &deviceName, const std::string &bundleName);
+    /* delete (user, device, app, tokenId) record */
+    int32_t DeleteRightRecord(int32_t uid, const std::string &deviceName,
+        const std::string &bundleName, const std::string &tokenId);
     /* delete (user, device) record */
     int32_t DeleteDeviceRightRecord(int32_t uid, const std::string &deviceName);
     /* delete (user, app) record */
@@ -111,10 +110,10 @@ private:
     UsbRightDbHelper();
     DISALLOW_COPY_AND_MOVE(UsbRightDbHelper);
 
-    int32_t CheckIfNeedUpdateEx(
-        bool &isUpdate, int32_t uid, const std::string &deviceName, const std::string &bundleName);
+    int32_t CheckIfNeedUpdateEx(bool &isUpdate, int32_t uid, const std::string &deviceName,
+        const std::string &bundleName, const std::string &tokenId);
     int32_t AddOrUpdateRightRecordEx(bool isUpdate, int32_t uid, const std::string &deviceName,
-        const std::string &bundleName, struct UsbRightAppInfo &info);
+        const std::string &bundleName, const std::string &tokenId, struct UsbRightAppInfo &info);
     int32_t QueryRightRecordCount(void);
     int32_t GetResultSetTableInfo(
         const std::shared_ptr<OHOS::NativeRdb::ResultSet> &resultSet, struct UsbRightTableInfo &table);

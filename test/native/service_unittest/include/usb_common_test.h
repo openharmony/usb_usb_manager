@@ -31,6 +31,11 @@ public:
     static void GrantPermissionNormalNative();
     static void GrantNormalPermissionNative();
     static void GrantSysNoPermissionNative();
+    static Security::AccessToken::AccessTokenID AllocHapTest();
+    static Security::AccessToken::AccessTokenID AllocHapTestWithUserIdDiff();
+    static Security::AccessToken::AccessTokenID AllocHapTestWithIndexDiff();
+    static void SetSelfToken(Security::AccessToken::AccessTokenID tokenId);
+    static void DeleteAllocHapToken(Security::AccessToken::AccessTokenID tokenId);
     static int32_t SwitchErrCode(int32_t ret);
 };
 } // Common
