@@ -329,9 +329,9 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus004, TestSize.Level1)
     UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
     pipe.SetBusNum(BUFFER_SIZE);
     bool unactived = 1;
-    ret = UsbSrvClient.GetInterfaceActiveStatus(pipe, interface,unactived);
+    ret = UsbSrvClient.GetInterfaceActiveStatus(pipe, interface, unactived);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus004 %{public}d GetInterfaceStatus=%{public}d",
-    __LINE__, ret);
+        __LINE__, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus004 %{public}d unactived=%{public}d",
         __LINE__, unactived);
     EXPECT_TRUE(ret != 0);
