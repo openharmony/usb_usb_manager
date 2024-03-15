@@ -243,6 +243,41 @@ ohos_unittest("test_usbmanageinterface") {
   ]
 }
 
+ohos_unittest("test_usbdevicestatus") {
+  module_out_path = module_output_path
+  sources = [
+    "src/usb_common_test.cpp",
+    "src/usb_device_status_test.cpp",
+  ]
+
+  configs = [
+    "${utils_path}:utils_config",
+    ":module_private_config",
+  ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "drivers_interface_usb:libusb_proxy_1.1",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+}
+
 group("unittest") {
   testonly = true
   deps = [
@@ -252,5 +287,6 @@ group("unittest") {
     ":test_usbevent",
     ":test_usbmanageinterface",
     ":test_usbrequest",
+    ":test_usbdevicestatus",
   ]
 }

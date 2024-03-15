@@ -73,6 +73,8 @@ public:
     int32_t RequestFree(UsbRequest &request);
     int32_t RequestAbort(UsbRequest &request);
     int32_t RequestQueue(UsbRequest &request);
+    int32_t GetDeviceSpeed(USBDevicePipe &pipe, uint8_t &speed);
+    int32_t GetInterfaceActiveStatus(USBDevicePipe &pipe, const UsbInterface &interface, bool &unactivated);
 
     std::string GetVersion()
     {

@@ -20,8 +20,9 @@
 #include "usb_errors.h"
 #include "usb_server_stub.h"
 #include "usb_interface_type.h"
+#include "v1_1/iusb_interface.h"
 
-using namespace OHOS::HDI::Usb::V1_0;
+using namespace OHOS::HDI::Usb::V1_1;
 namespace OHOS {
 namespace USB {
 int32_t UsbServerStub::GetDeviceMessage(MessageParcel &data, uint8_t &busNum, uint8_t &devAddr)
@@ -191,6 +192,12 @@ bool UsbServerStub::StubHost(
             return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_DISABLE_INTERFACE_TYPE):
             result = DoManageInterfaceType(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_DEVICE_SPEED):
+            result = DoGetDeviceSpeed(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_DRIVER_ACTIVE_STATUS):
+            result = DoGetInterfaceActiveStatus(data, reply, option);
             return true;
         default:;
     }
@@ -913,5 +920,41 @@ int32_t UsbServerStub::DoManageInterfaceType(MessageParcel &data, MessageParcel 
     }
     return ret;
 }
+
+int32_t UsbServerStub::DoGetInterfaceActiveStatus(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    uint8_t busNum = 0;
+    uint8_t devAddr = 0;
+    uint8_t interfaceId = 0;
+    READ_PARCEL_WITH_RET(data, Uint8, busNum, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, interfaceId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    bool unactivated;
+    int32_t ret = GetInterfaceActiveStatus(busNum, devAddr, interfaceId, unactivated);
+    if (ret == UEC_OK) {
+        WRITE_PARCEL_WITH_RET(reply, Bool, unactivated, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    } else {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+    }
+    return ret;
+}
+
+int32_t UsbServerStub::DoGetDeviceSpeed(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    uint8_t busNum = 0;
+    uint8_t devAddr = 0;
+    READ_PARCEL_WITH_RET(data, Uint8, busNum, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    uint8_t speed;
+    int32_t ret = GetDeviceSpeed(busNum, devAddr, speed);
+    if (ret == UEC_OK) {
+        WRITE_PARCEL_WITH_RET(reply, Uint8, speed, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    } else {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+    }
+    USB_HILOGE(MODULE_USBD, "DoGetDeviceSpeed speed:%{public}u", speed);
+    return ret;
+}
+
 } // namespace USB
 } // namespace OHOS
