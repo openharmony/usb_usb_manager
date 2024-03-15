@@ -284,9 +284,9 @@ group("unittest") {
     ":test_bulkcallback",
     ":test_usbcore",
     ":test_usbdevicepipe",
+    ":test_usbdevicestatus",
     ":test_usbevent",
     ":test_usbmanageinterface",
     ":test_usbrequest",
-    ":test_usbdevicestatus",
   ]
 }
