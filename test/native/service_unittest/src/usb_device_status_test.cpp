@@ -253,7 +253,7 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus002, TestSize.Level1)
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
     pipe.SetDevAddr(BUFFER_SIZE);
     bool unactived = 1;
-    ret = UsbSrvClient.GetInterfaceActiveStatus(pipe, interface,unactived);
+    ret = UsbSrvClient.GetInterfaceActiveStatus(pipe, interface, unactived);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus002 %{public}d GetInterfaceStatus=%{public}d",
     __LINE__, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus002 %{public}d unactived=%{public}d",
@@ -368,7 +368,7 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus005, TestSize.Level1)
     UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
     pipe.SetDevAddr(BUFFER_SIZE);
     bool unactived = 1;
-    ret = UsbSrvClient.GetInterfaceActiveStatus(pipe, interface,unactived);
+    ret = UsbSrvClient.GetInterfaceActiveStatus(pipe, interface, unactived);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus005 %{public}d GetInterfaceStatus=%{public}d",
     __LINE__, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus005 %{public}d unactived=%{public}d",
@@ -449,7 +449,7 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus007, TestSize.Level1)
     pipe.SetDevAddr(BUFFER_SIZE);
     pipe.SetBusNum(BUFFER_SIZE);
     bool unactived = 1;
-    ret = UsbSrvClient.GetInterfaceActiveStatus(pipe, interface,unactived);
+    ret = UsbSrvClient.GetInterfaceActiveStatus(pipe, interface, unactived);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus007 %{public}d GetInterfaceStatus=%{public}d",
     __LINE__, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus007 %{public}d unactived=%{public}d",
