@@ -23,8 +23,9 @@
 #include "usb_common.h"
 #include "usb_device.h"
 #include "usb_errors.h"
+#include "v1_1/iusb_interface.h"
 
-using namespace OHOS::HDI::Usb::V1_0;
+using namespace OHOS::HDI::Usb::V1_1;
 namespace OHOS {
 namespace USB {
 UsbSrvClient::UsbSrvClient()
@@ -452,5 +453,27 @@ int32_t UsbSrvClient::ManageInterfaceType(InterfaceType interfaceType, bool disa
     }
     return ret;
 }
+
+int32_t UsbSrvClient::GetDeviceSpeed(USBDevicePipe &pipe, uint8_t &speed)
+{
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    int32_t ret = proxy_->GetDeviceSpeed(pipe.GetBusNum(), pipe.GetDevAddr(), speed);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
+    }
+    USB_HILOGE(MODULE_USB_INNERKIT, "GetDeviceSpeed speed = %{public}u!", speed);
+    return ret;
+}
+
+int32_t UsbSrvClient::GetInterfaceActiveStatus(USBDevicePipe &pipe, const UsbInterface &interface, bool &unactivated)
+{
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    int32_t ret = proxy_->GetInterfaceActiveStatus(pipe.GetBusNum(), pipe.GetDevAddr(), interface.GetId(), unactivated);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
+    }
+    return ret;
+}
+
 } // namespace USB
 } // namespace OHOS

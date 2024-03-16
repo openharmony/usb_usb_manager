@@ -38,7 +38,7 @@
 #include "usb_server_stub.h"
 #include "usb_service_subscriber.h"
 #include "usbd_type.h"
-#include "v1_0/iusb_interface.h"
+#include "v1_1/iusb_interface.h"
 #include "v1_0/iusbd_bulk_callback.h"
 #include "v1_0/iusbd_subscriber.h"
 #include "v1_0/usb_types.h"
@@ -69,7 +69,7 @@ public:
         return handler_;
     }
 
-    int32_t SetUsbd(const sptr<HDI::Usb::V1_0::IUsbInterface> &usbd);
+    int32_t SetUsbd(const sptr<HDI::Usb::V1_1::IUsbInterface> &usbd);
     int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) override;
     bool CheckDevicePermission(uint8_t busNum, uint8_t devAddr);
     bool HasRight(std::string deviceName) override;
@@ -125,6 +125,8 @@ public:
     int32_t ManageGlobalInterface(bool disable) override;
     int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable) override;
     int32_t ManageInterfaceType(InterfaceType interfaceType, bool disable) override;
+    int32_t GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated) override;
+    int32_t GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed) override;
 private:
     class SystemAbilityStatusChangeListener : public SystemAbilityStatusChangeStub {
     public:
@@ -180,7 +182,7 @@ private:
     std::shared_ptr<UsbServerEventHandler> handler_;
     sptr<UsbServiceSubscriber> usbdSubscriber_;
     sptr<HDI::Usb::V1_0::IUsbdBulkCallback> hdiCb_ = nullptr;
-    sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
+    sptr<HDI::Usb::V1_1::IUsbInterface> usbd_ = nullptr;
     std::map<std::string, std::string> deviceVidPidMap_;
     Utils::Timer unloadSelfTimer_ {"unLoadTimer"};
     uint32_t unloadSelfTimerId_ {UINT32_MAX};

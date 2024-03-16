@@ -44,7 +44,7 @@
 #include "accesstoken_kit.h"
 
 using OHOS::sptr;
-using namespace OHOS::HDI::Usb::V1_0;
+using namespace OHOS::HDI::Usb::V1_1;
 
 namespace OHOS {
 namespace USB {
@@ -100,14 +100,15 @@ UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
     usbRightManager_ = std::make_shared<UsbRightManager>();
     usbPortManager_ = std::make_shared<UsbPortManager>();
     usbDeviceManager_ = std::make_shared<UsbDeviceManager>();
-    usbd_ = IUsbInterface::Get();
+    usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "IUsbInterface::Get inteface failed");
     }
 }
+
 UsbService::~UsbService() {}
 
-int32_t UsbService::SetUsbd(const sptr<IUsbInterface> &usbd)
+int32_t UsbService::SetUsbd(const sptr<OHOS::HDI::Usb::V1_1::IUsbInterface> &usbd)
 {
     if (usbd == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService usbd is nullptr");
@@ -146,7 +147,7 @@ void UsbService::SystemAbilityStatusChangeListener::OnRemoveSystemAbility(
 {
     USB_HILOGI(MODULE_USB_SERVICE, "OnRemoveSystemAbility ID = %{public}d", systemAbilityId);
     if (systemAbilityId == USB_SYSTEM_ABILITY_ID) {
-        sptr<IUsbInterface> usbd_ = IUsbInterface::Get();
+        sptr<OHOS::HDI::Usb::V1_1::IUsbInterface> usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
         if (usbd_ != nullptr) {
             usbd_->UnbindUsbdSubscriber(usbdSubscriber_);
         }
@@ -237,7 +238,7 @@ bool UsbService::Init()
 
 bool UsbService::InitUsbd()
 {
-    usbd_ = IUsbInterface::Get();
+    usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, " get usbd_ is nullptr");
         return false;
@@ -1582,7 +1583,7 @@ void UsbService::UsbdDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &obj
 
 int32_t UsbService::PreManageInterface()
 {
-    usbd_ = IUsbInterface::Get();
+    usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
@@ -1735,5 +1736,35 @@ int32_t UsbService::ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t i
     }
     return usbd_->ManageInterface(dev, interfaceId, disable);
 }
+
+int32_t UsbService::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated)
+{
+    const UsbDev dev = {busNum, devAddr};
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    int32_t ret = usbd_->GetInterfaceActiveStatus(dev, interfaceid, unactivated);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "error ret:%{public}d", ret);
+    }
+    return ret;
+}
+
+int32_t UsbService::GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed)
+{
+    const UsbDev dev = {busNum, devAddr};
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    int32_t ret = usbd_->GetDeviceSpeed(dev, speed);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "error ret:%{public}d", ret);
+    }
+    USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceSpeedImpl:%{public}u", speed);
+    return ret;
+}
+
 } // namespace USB
 } // namespace OHOS

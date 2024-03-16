@@ -21,8 +21,9 @@
 #include "usb_errors.h"
 #include "usb_request.h"
 #include "usb_server_proxy.h"
+#include "v1_1/iusb_interface.h"
 
-using namespace OHOS::HDI::Usb::V1_0;
+using namespace OHOS::HDI::Usb::V1_1;
 namespace OHOS {
 namespace USB {
 
@@ -1168,5 +1169,49 @@ int32_t UsbServerProxy::ManageInterfaceType(InterfaceType interfaceType, bool di
     }
     return ret;
 }
+
+int32_t UsbServerProxy::GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed)
+{
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_SERVICE_INNER_ERR);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    SetDeviceMessage(data, busNum, devAddr);
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_GET_DEVICE_SPEED),
+        data, reply, option);
+    if (ret == UEC_OK) {
+        READ_PARCEL_WITH_RET(reply, Uint8, speed, UEC_INTERFACE_READ_PARCEL_ERROR);
+    }
+    USB_HILOGE(MODULE_INNERKIT, "GetDeviceSpeed speed:%{public}u", speed);
+    return ret;
+}
+
+int32_t UsbServerProxy::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr,
+    uint8_t interfaceid,  bool &unactivated)
+{
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_SERVICE_INNER_ERR);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    SetDeviceMessage(data, busNum, devAddr);
+    WRITE_PARCEL_WITH_RET(data, Uint8, interfaceid, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_GET_DRIVER_ACTIVE_STATUS),
+        data, reply, option);
+    if (ret == UEC_OK) {
+        READ_PARCEL_WITH_RET(reply, Bool, unactivated, UEC_INTERFACE_READ_PARCEL_ERROR);
+    }
+    return ret;
+}
+
 } // namespace USB
 } // namespace OHOS

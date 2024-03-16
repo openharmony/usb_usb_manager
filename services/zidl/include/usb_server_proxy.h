@@ -79,6 +79,8 @@ public:
     int32_t ManageGlobalInterface(bool disable) override;
     int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable) override;
     int32_t ManageInterfaceType(InterfaceType interfaceType, bool disable) override;
+    int32_t GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed) override;
+    int32_t GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated) override;
 private:
     static inline BrokerDelegator<UsbServerProxy> delegator_;
     int32_t ParseUsbPort(MessageParcel &reply, std::vector<UsbPort> &result);
