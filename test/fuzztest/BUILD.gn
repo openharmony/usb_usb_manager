@@ -722,7 +722,7 @@ ohos_fuzztest("UsbMgrFuzzTest") {
   external_deps = [
     "ability_runtime:ability_manager",
     "c_utils:utils",
-    "drivers_interface_usb:usb_idl_headers",
+    "drivers_interface_usb:usb_idl_headers_1.1",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
