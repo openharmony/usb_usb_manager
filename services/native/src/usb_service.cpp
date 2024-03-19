@@ -1135,7 +1135,7 @@ int32_t UsbService::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whiteLis
 {
     std::map<std::string, UsbDevice *> devices;
     usbHostManager_->GetDevices(devices);
-    int32_t ret;
+    int32_t ret = UEC_INTERFACE_NO_MEMORY;
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices.size());
     for (auto it = devices.begin(); it != devices.end(); ++it) {
         bool inWhiteList = false;
