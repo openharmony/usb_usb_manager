@@ -181,7 +181,6 @@ let USBSERVICESWITCH_ID_XFER_PIC : number = 16;
     this.customDialogController.close()
     windowClass.destroyWindow()
     let extensionContextCtr: common.ServiceExtensionContext = GlobalThisProxy.getInstance().getContext('extensionAbility')
-    // let extensionContextCtr = globalThis.extensionContext;
     extensionContextCtr.terminateSelf()
   }
 }
@@ -199,17 +198,6 @@ struct IndexHapComponent {
   });
 
   async aboutToAppear() {
-    // let infoWant: Want = GlobalThisProxy.getInstance().getOnCreateWant();
-    // let infoWant:Want = globalThis.want;
-    // console.log(TAG, 'aboutToAppear want= ' + JSON.stringify(infoWant));
-    // console.log(TAG, 'want defaultChoose= ' + JSON.stringify(infoWant.parameters["defaultChoose"]));
-    // console.log(TAG, 'want funcSelect= ' + JSON.stringify(infoWant.parameters["funcSelect"]));
-    // let workWant: Want = GlobalThisProxy.getInstance().getOnRequestWant();
-    // let workWant = globalThis.abilityWant;
-    // console.log(TAG, 'aboutToAppear abilityWant= ' + JSON.stringify(workWant));
-    // console.log(TAG, 'abilityWant defaultChoose= ' + JSON.stringify(workWant.parameters["defaultChoose"]));
-    // console.log(TAG, 'abilityWant funcSelect= ' + JSON.stringify(workWant.parameters["funcSelect"]));
-
     let defaultChoose: number = GlobalThisProxy.getInstance().getNumInfo("workWant_defaultChoose");
     let funcSelect: number = GlobalThisProxy.getInstance().getNumInfo("workWant_funcSelect");
     if (defaultChoose) {
