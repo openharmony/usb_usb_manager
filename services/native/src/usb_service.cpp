@@ -1605,6 +1605,30 @@ int32_t UsbService::PreManageInterface()
     return UEC_OK;
 }
 
+int32_t UsbService::PreGetDevicestatus()
+{
+    usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!(usbRightManager_->CheckPermission())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    }
+
+    if (usbHostManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbHostManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbd_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    return UEC_OK;
+}
+
 int32_t UsbService::ManageGlobalInterface(bool disable)
 {
     if (PreManageInterface() != UEC_OK) {
@@ -1739,6 +1763,11 @@ int32_t UsbService::ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t i
 
 int32_t UsbService::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated)
 {
+    if (PreGetDevicestatus() != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "PreGetDevicestatus failed");
+        return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
+    }
+
     const UsbDev dev = {busNum, devAddr};
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -1753,6 +1782,11 @@ int32_t UsbService::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, ui
 
 int32_t UsbService::GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed)
 {
+    if (PreGetDevicestatus() != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "PreGetDevicestatus failed");
+        return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
+    }
+
     const UsbDev dev = {busNum, devAddr};
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
