@@ -42,7 +42,7 @@ public:
     explicit USBConfig(const cJSON *config)
     {
         id_ = cJSON_GetObjectItem(config, "id")->valueint;
-        attributes_ = cJSON_GetObjectItem(config, "attributes")->valueint;
+        attributes_ = static_cast<int32_t>(cJSON_GetObjectItem(config, "attributes")->valueint);
         maxPower_ = cJSON_GetObjectItem(config, "maxPower")->valueint;
         name_ = cJSON_GetObjectItem(config, "name")->valuestring;
         cJSON* jsonInterfaces = cJSON_GetObjectItem(config, "interfaces");
@@ -164,7 +164,7 @@ public:
 
     const std::string getJsonString() const
     {
-        cJSON* config = cJSON_CreateObject();
+        cJSON* config = cJSON_Parse("");
         if (!config) {
             USB_HILOGE(MODULE_USB_SERVICE, "Create config error");
         }
