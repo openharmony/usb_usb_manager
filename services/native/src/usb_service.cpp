@@ -1581,7 +1581,7 @@ void UsbService::UsbdDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &obj
     pms->UnLoadSelf(UNLOAD_SA_IMMEDIATELY);
 }
 
-int32_t UsbService::PreCallInterface()
+int32_t UsbService::PreCallFunction()
 {
     usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
     if (usbRightManager_ == nullptr) {
@@ -1607,8 +1607,8 @@ int32_t UsbService::PreCallInterface()
 
 int32_t UsbService::ManageGlobalInterface(bool disable)
 {
-    if (PreCallInterface() != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "PreCallInterface failed");
+    if (PreCallFunction() != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
 
@@ -1617,8 +1617,8 @@ int32_t UsbService::ManageGlobalInterface(bool disable)
 
 int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disable)
 {
-    if (PreCallInterface() != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "PreCallInterface failed");
+    if (PreCallFunction() != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
 
@@ -1627,8 +1627,8 @@ int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disab
 
 int32_t UsbService::ManageInterfaceType(InterfaceType interfaceType, bool disable)
 {
-    if (PreCallInterface() != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "PreCallInterface failed");
+    if (PreCallFunction() != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
     return ManageInterfaceTypeImpl(interfaceType, disable);
@@ -1739,8 +1739,8 @@ int32_t UsbService::ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t i
 
 int32_t UsbService::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated)
 {
-    if (PreCallInterface() != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "PreCallInterface failed");
+    if (PreCallFunction() != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
 
@@ -1758,8 +1758,8 @@ int32_t UsbService::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, ui
 
 int32_t UsbService::GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed)
 {
-    if (PreCallInterface() != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "PreCallInterface failed");
+    if (PreCallFunction() != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
 
