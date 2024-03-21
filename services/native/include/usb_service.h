@@ -156,7 +156,7 @@ private:
     std::string GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, uint8_t idx);
     int32_t InitUsbRight();
     void DumpHelp(int32_t fd);
-    int32_t PreCallInterface();
+    int32_t PreCallFunction();
     bool IsEdmEnabled();
     int32_t ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whiteList);
     int32_t GetEdmPolicy(bool &IsGlobalDisabled, std::unordered_map<InterfaceType, bool> &typeDisableMap,
