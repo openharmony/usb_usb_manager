@@ -40,7 +40,7 @@ int32_t UsbServiceSubscriber::PortChangedEvent(const PortInfo &info)
         USB_HILOGE(MODULE_USB_SERVICE, "failed to GetInstance");
         return UEC_SERVICE_GET_USB_SERVICE_FAILED;
     }
-    cJSON* portJson = cJSON_CreateObject();
+    cJSON* portJson = cJSON_Parse("");
     if (!portJson) {
         USB_HILOGE(MODULE_USB_SERVICE, "Create portJson error");
     }

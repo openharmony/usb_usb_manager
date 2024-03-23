@@ -37,7 +37,7 @@ public:
     explicit USBEndpoint(const cJSON *endpoint)
     {
         address_ = cJSON_GetObjectItem(endpoint, "address")->valueint;
-        attributes_ = cJSON_GetObjectItem(endpoint, "attributes")->valueint;
+        attributes_ = static_cast<uint32_t>(cJSON_GetObjectItem(endpoint, "attributes")->valueint);
         interval_ = cJSON_GetObjectItem(endpoint, "interval")->valueint;
         maxPacketSize_ = cJSON_GetObjectItem(endpoint, "maxPacketSize")->valueint;
         interfaceId_ = cJSON_GetObjectItem(endpoint, "interfaceId")->valueint;
@@ -138,7 +138,7 @@ public:
 
     const std::string getJsonString() const
     {
-        cJSON* endPointJson = cJSON_CreateObject();
+        cJSON* endPointJson = cJSON_Parse("");
         if (!endPointJson) {
             USB_HILOGE(MODULE_USB_SERVICE, "Create endPointJson error");
         }
