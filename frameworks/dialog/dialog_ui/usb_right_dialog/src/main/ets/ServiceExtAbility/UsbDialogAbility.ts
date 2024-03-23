@@ -42,6 +42,11 @@ export default class UsbDialogAbility extends extension {
 
   onConnect(want): rpc.RemoteObject {
     console.log('onConnect want: ' + JSON.stringify(want));
+    let callerBundName = want.parameters["ohos.aafwk.param.callerBundName"];
+    if (callerBundName != 'com.usb.right') {
+      console.log('no right sa');
+      return;
+    }
     display.getDefaultDisplay().then(dis => {
       let navigationBarRect = {
         left: 0,
