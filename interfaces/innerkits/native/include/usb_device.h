@@ -55,9 +55,7 @@ public:
         name_ = cJSON_GetObjectItem(device, "name")->valuestring;
         manufacturerName_ = cJSON_GetObjectItem(device, "manufacturerName")->valuestring;
         productName_ = cJSON_GetObjectItem(device, "productName")->valuestring;
-        if (cJSON_GetObjectItem(device, "version")->valuestring != NULL) {
-            version_ = cJSON_GetObjectItem(device, "version")->valuestring;
-        }
+        version_ = cJSON_GetObjectItem(device, "version")->valuestring;
         vendorId_ = cJSON_GetObjectItem(device, "vendorId")->valueint;
         productId_ = cJSON_GetObjectItem(device, "productId")->valueint;
         klass_ = cJSON_GetObjectItem(device, "clazz")->valueint;
@@ -320,7 +318,7 @@ public:
 
     const std::string getJsonString() const
     {
-        cJSON* device = cJSON_Parse("");
+        cJSON* device = cJSON_CreateObject();
         if (!device) {
             USB_HILOGE(MODULE_USB_SERVICE, "Create device error");
         }

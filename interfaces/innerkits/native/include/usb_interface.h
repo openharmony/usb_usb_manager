@@ -184,7 +184,7 @@ public:
 
     const std::string getJsonString() const
     {
-        cJSON* interface = cJSON_Parse("");
+        cJSON* interface = cJSON_CreateObject();
         if (!interface) {
             USB_HILOGE(MODULE_USB_SERVICE, "Create interface error");
         }
