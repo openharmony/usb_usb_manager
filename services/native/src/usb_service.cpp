@@ -1192,7 +1192,7 @@ void UsbService::ExecuteStrategy(UsbDevice *devInfo)
     }
     bool flag = false;
     for (auto result : typeDisableMap) {
-        flag |= static_cast<u_int32_t>(result.second);
+        flag |= result.second;
         if (result.second) {
             ret = ManageInterfaceTypeImpl(result.first, true);
         }
