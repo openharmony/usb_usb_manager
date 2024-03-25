@@ -473,6 +473,36 @@ static napi_value DeviceAddRight(napi_env env, napi_callback_info info)
     return result;
 }
 
+static napi_value DeviceAddAccessRight(napi_env env, napi_callback_info info)
+{
+    size_t argc = PARAM_COUNT_2;
+    napi_value argv[PARAM_COUNT_2] = {nullptr};
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_2), SYSPARAM_INVALID_INPUT, "The function takes two argument.");
+
+    napi_valuetype type;
+    NAPI_CHECK(env, napi_typeof(env, argv[INDEX_0], &type), "Get args 1 type failed");
+    USB_ASSERT(env, type == napi_string, SYSPARAM_INVALID_INPUT, "The type of tokenId must be string.");
+    std::string tokenId;
+    NapiUtil::JsValueToString(env, argv[INDEX_0], STR_DEFAULT_SIZE, tokenId);
+
+    NAPI_CHECK(env, napi_typeof(env, argv[INDEX_1], &type), "Get args 2 type failed");
+    USB_ASSERT(env, type == napi_string, SYSPARAM_INVALID_INPUT, "The type of deviceName must be string.");
+    std::string deviceName;
+    NapiUtil::JsValueToString(env, argv[INDEX_1], STR_DEFAULT_SIZE, deviceName);
+
+    napi_value result;
+    int32_t ret = g_usbClient.AddAccessRight(tokenId, deviceName);
+    USB_HILOGD(MODULE_JS_NAPI, "Device call AddRight ret: %{public}d", ret);
+    if (ret == UEC_OK) {
+        napi_get_boolean(env, true, &result);
+    } else {
+        USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI), USB_SYSAPI_PERMISSION_DENIED, "");
+        napi_get_boolean(env, false, &result);
+    }
+    return result;
+}
+
 static napi_value DeviceRemoveRight(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
@@ -1432,14 +1462,21 @@ napi_value UsbInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("hasRight", CoreHasRight),
         DECLARE_NAPI_FUNCTION("requestRight", CoreRequestRight),
         DECLARE_NAPI_FUNCTION("usbFunctionsFromString", CoreUsbFunctionsFromString),
+        DECLARE_NAPI_FUNCTION("getFunctionsFromString", CoreUsbFunctionsFromString),
         DECLARE_NAPI_FUNCTION("usbFunctionsToString", CoreUsbFunctionsToString),
+        DECLARE_NAPI_FUNCTION("getStringFromFunctions", CoreUsbFunctionsToString),
         DECLARE_NAPI_FUNCTION("setCurrentFunctions", CoreSetCurrentFunctions),
+        DECLARE_NAPI_FUNCTION("setDeviceFunctions", CoreSetCurrentFunctions),
         DECLARE_NAPI_FUNCTION("getCurrentFunctions", CoreGetCurrentFunctions),
+        DECLARE_NAPI_FUNCTION("getDeviceFunctions", CoreGetCurrentFunctions),
         DECLARE_NAPI_FUNCTION("getPorts", CoreGetPorts),
+        DECLARE_NAPI_FUNCTION("getPortList", CoreGetPorts),
 
         /* usb port */
         DECLARE_NAPI_FUNCTION("getSupportedModes", PortGetSupportedModes),
+        DECLARE_NAPI_FUNCTION("getSupportedModes", PortGetSupportedModes),
         DECLARE_NAPI_FUNCTION("setPortRoles", PortSetPortRole),
+        DECLARE_NAPI_FUNCTION("setPortRoleTypes", PortSetPortRole),
 
         /* usb device pipe */
         DECLARE_NAPI_FUNCTION("claimInterface", PipeClaimInterface),
@@ -1455,6 +1492,7 @@ napi_value UsbInit(napi_env env, napi_value exports)
         /* fort test get usb service version */
         DECLARE_NAPI_FUNCTION("getVersion", GetVersion),
         DECLARE_NAPI_FUNCTION("addRight", DeviceAddRight),
+        DECLARE_NAPI_FUNCTION("addDeviceAccessRight", DeviceAddAccessRight),
         DECLARE_NAPI_FUNCTION("removeRight", DeviceRemoveRight),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));

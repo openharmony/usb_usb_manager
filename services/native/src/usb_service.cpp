@@ -1485,6 +1485,33 @@ int32_t UsbService::AddRight(const std::string &bundleName, const std::string &d
     return UEC_OK;
 }
 
+int32_t UsbService::AddAccessRight(const std::string &tokenId, const std::string &deviceName)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "calling AddAccessRight");
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    std::string deviceVidPidSerialNum = "";
+    int32_t ret = GetDeviceVidPidSerialNumber(deviceName, deviceVidPidSerialNum);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "can not find deviceName.");
+        return ret;
+    }
+    if (!(usbRightManager_->CheckPermission())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "AddRight tokenId = %{public}s, deviceName = %{public}s", tokenId.c_str(),
+        deviceName.c_str());
+    if (!usbRightManager_->AddDeviceRight(deviceVidPidSerialNum, tokenId)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "AddDeviceRight failed");
+        return UEC_SERVICE_INNER_ERR;
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "AddRight done");
+    return UEC_OK;
+}
+
 int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
 {
     if (fd < 0) {

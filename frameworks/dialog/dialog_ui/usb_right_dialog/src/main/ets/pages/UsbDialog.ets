@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import usbManager from '@ohos.usbManager'
+import usbMgr from '@ohos.usbManager'
 import featureAbility from '@ohos.ability.featureAbility'
 
 // allow,notAllow button style
@@ -58,7 +58,7 @@ struct ConfirmDialog {
           .ControlBtn(this.allowFontColor)
           .onClick(() => {
             try {
-              usbManager.addRight(globalThis.want.parameters["tokenId"], globalThis.want.parameters["deviceName"])
+              usbMgr.addDeviceAccessRight(globalThis.want.parameters['tokenId'], globalThis.want.parameters['deviceName'])
               this.destruction()
             } catch {
               console.info('USBRight ConfirmDialog onClick error!');

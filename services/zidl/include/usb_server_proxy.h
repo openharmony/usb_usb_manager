@@ -76,6 +76,7 @@ public:
         sptr<Ashmem> &ashmem) override;
     int32_t BulkCancel(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe) override;
     int32_t AddRight(const std::string &bundleName, const std::string &deviceName) override;
+    int32_t AddAccessRight(const std::string &tokenId, const std::string &deviceName) override;
     int32_t ManageGlobalInterface(bool disable) override;
     int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable) override;
     int32_t ManageInterfaceType(InterfaceType interfaceType, bool disable) override;
