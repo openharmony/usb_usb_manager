@@ -56,6 +56,7 @@ static void PrintHelp()
     printf("-f 36: Switch to function:rndis&hdc\n");
     printf("-f 516: Switch to function:storage&hdc\n");
     printf("-c 1: Switch to recv braodcast\n");
+    printf("-s 0: Query Device Status\n");
 }
 
 class UsbSubscriberTest : public CommonEventSubscriber {
@@ -178,6 +179,52 @@ static void PortSwitch(UsbSrvClient &g_usbClient, int32_t mode)
     }
 }
 
+static void DeviceSpeed(UsbSrvClient &g_usbClient, int32_t &sp)
+{
+    vector<UsbDevice> devi;
+    g_usbClient.GetDevices(devi);
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    g_usbClient.OpenDevice(device, pipe);
+    uint8_t speed = -1;
+    g_usbClient.GetDeviceSpeed(pipe, speed);
+    sp = speed;
+    return;
+}
+
+static void InterfaceStatus(UsbSrvClient &g_usbClient, int32_t &ds)
+{
+    vector<UsbDevice> devi;
+    g_usbClient.GetDevices(devi);
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    g_usbClient.OpenDevice(device, pipe);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
+    bool unactivated = false;
+    g_usbClient.GetInterfaceActiveStatus(pipe, interface, unactivated);
+    unactivated ? ds = 1 : ds = 0;
+    return;
+}
+
+static void DeviceStatus(UsbSrvClient &g_usbClient, int32_t mode)
+{
+    switch (mode) {
+        case 0:
+            int32_t sp;
+            DeviceSpeed(g_usbClient, sp);
+            printf("%s:%d device speed=%d\n", __func__, __LINE__, sp);
+            break;
+        case 1:
+            int32_t ds;
+            InterfaceStatus(g_usbClient, ds);
+            printf("%s:%d interface status=%d\n", __func__, __LINE__, ds);
+            break;
+        default:
+            printf("%s:%d port param error\n", __func__, __LINE__);
+            break;
+    }
+}
+
 static inline bool isNumber(string_view strv)
 {
     return (strv.find_first_not_of("0123456789") == strv.npos);
@@ -204,6 +251,9 @@ int32_t main(int32_t argc, char *argv[])
     } else if (!strcmp(argv[CMD_INDEX], "-p")) {
         mode = stoi(argv[PARAM_INDEX]);
         PortSwitch(g_usbClient, mode);
+    } else if (!strcmp(argv[CMD_INDEX], "-s")) {
+        mode = stoi(argv[PARAM_INDEX]);
+        DeviceStatus(g_usbClient, mode);
     } else if (!strcmp(argv[CMD_INDEX], "-c")) {
         AddCommonEvent();
         printf("Press input c to exit.\n");

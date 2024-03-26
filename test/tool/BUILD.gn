@@ -18,10 +18,10 @@ config("usbsrv_private_config") {
   include_dirs = [ "${usb_manager_path}/test/native/service_unittest/include" ]
 }
 
-ohos_executable("usb_function_port_test") {
+ohos_executable("usb_function_test") {
   sources = [
     "${usb_manager_path}/test/native/service_unittest/src/usb_common_test.cpp",
-    "usb_function_port_test.cpp",
+    "usb_function_test.cpp",
   ]
   configs = [
     "${utils_path}:utils_config",
