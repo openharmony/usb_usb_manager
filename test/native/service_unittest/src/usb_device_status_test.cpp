@@ -143,6 +143,7 @@ HWTEST_F(UsbDeviceStatusTest, GetDeviceSpeed002, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "GetDeviceSpeed002 %{public}d speed=%{public}u",
         __LINE__, speed);
     EXPECT_TRUE(ret != 0);
+    pipe.SetBusNum(device.GetBusNum());
     ret = UsbSrvClient.Close(pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceStatusTest::Close=%{public}d", ret);
     EXPECT_TRUE(ret);
@@ -181,12 +182,53 @@ HWTEST_F(UsbDeviceStatusTest, GetDeviceSpeed003, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "GetDeviceSpeed003 %{public}d speed=%{public}u",
         __LINE__, speed);
     EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
     ret = UsbSrvClient.Close(pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceStatusTest::Close=%{public}d", ret);
     EXPECT_TRUE(ret);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetDeviceSpeed003");
 }
 
+/**
+ * @tc.name: GetDeviceSpeed004
+ * @tc.desc: Test functions to GetDeviceSpeed
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, GetDeviceSpeed004, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetDeviceSpeed004");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "GetDeviceSpeed004 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "GetDeviceSpeed004 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "GetDeviceSpeed004 %{public}d OpenDevice=%{public}d",
+        __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    USBDevicePipe pipeTmp = pipe;
+    pipeTmp.SetBusNum(BUFFER_SIZE);
+    pipeTmp.SetDevAddr(BUFFER_SIZE);
+    uint8_t speed = 0;
+    ret = UsbSrvClient.GetDeviceSpeed(pipeTmp, speed);
+    USB_HILOGI(MODULE_USB_SERVICE, "GetDeviceSpeed004 %{public}d GetFileDescriptor=%{public}d",
+        __LINE__, ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "GetDeviceSpeed004 %{public}d speed=%{public}u",
+        __LINE__, speed);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetBusNum(device.GetBusNum());
+    pipe.SetDevAddr(device.GetDevAddr());
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceStatusTest::Close=%{public}d", ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetDeviceSpeed004");
+}
 
 /**
  * @tc.name: GetInterfaceStatus001
@@ -212,15 +254,17 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus001, TestSize.Level1)
         ret);
     EXPECT_TRUE(ret == 0);
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
-    pipe.SetBusNum(BUFFER_SIZE);
+    ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface006 %{public}d ClaimInterface=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(ret == 0);
     bool unactived = 1;
     ret = UsbSrvClient.GetInterfaceActiveStatus(pipe, interface, unactived);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus001 %{public}d GetInterfaceStatus=%{public}d",
     __LINE__, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus001 %{public}d unactived=%{public}d",
         __LINE__, unactived);
-    EXPECT_TRUE(ret != 0);
-    pipe.SetBusNum(device.GetBusNum());
+    EXPECT_TRUE(ret == 0);
     bool close = UsbSrvClient.Close(pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus001 %{public}d close=%{public}d", __LINE__, close);
     EXPECT_TRUE(close);
@@ -251,7 +295,7 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus002, TestSize.Level1)
         ret);
     EXPECT_TRUE(ret == 0);
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
-    pipe.SetDevAddr(BUFFER_SIZE);
+    pipe.SetBusNum(BUFFER_SIZE);
     bool unactived = 1;
     ret = UsbSrvClient.GetInterfaceActiveStatus(pipe, interface, unactived);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus002 %{public}d GetInterfaceStatus=%{public}d",
@@ -259,7 +303,7 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus002, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus002 %{public}d unactived=%{public}d",
         __LINE__, unactived);
     EXPECT_TRUE(ret != 0);
-    pipe.SetDevAddr(device.GetDevAddr());
+    pipe.SetBusNum(device.GetBusNum());
     bool close = UsbSrvClient.Close(pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus002 %{public}d close=%{public}d", __LINE__, close);
     EXPECT_TRUE(close);
@@ -268,7 +312,7 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus002, TestSize.Level1)
 
 /**
  * @tc.name: GetInterfaceStatus003
- * @tc.desc: Test functions to  GetInterfaceStatus
+ * @tc.desc: Test functions to GetInterfaceStatus
  * @tc.type: FUNC
  */
 HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus003, TestSize.Level1)
@@ -289,14 +333,16 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus003, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus003 %{public}d OpenDevice=%{public}d", __LINE__,
         ret);
     EXPECT_TRUE(ret == 0);
-    UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
+    pipe.SetDevAddr(BUFFER_SIZE);
     bool unactived = 1;
     ret = UsbSrvClient.GetInterfaceActiveStatus(pipe, interface, unactived);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus003 %{public}d GetInterfaceStatus=%{public}d",
     __LINE__, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus003 %{public}d unactived=%{public}d",
         __LINE__, unactived);
-    EXPECT_TRUE(ret == 0);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
     bool close = UsbSrvClient.Close(pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus003 %{public}d close=%{public}d", __LINE__, close);
     EXPECT_TRUE(close);
@@ -327,15 +373,13 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus004, TestSize.Level1)
         ret);
     EXPECT_TRUE(ret == 0);
     UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
-    pipe.SetBusNum(BUFFER_SIZE);
     bool unactived = 1;
     ret = UsbSrvClient.GetInterfaceActiveStatus(pipe, interface, unactived);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus004 %{public}d GetInterfaceStatus=%{public}d",
-        __LINE__, ret);
+    __LINE__, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus004 %{public}d unactived=%{public}d",
         __LINE__, unactived);
-    EXPECT_TRUE(ret != 0);
-    pipe.SetBusNum(device.GetBusNum());
+    EXPECT_TRUE(ret == 0);
     bool close = UsbSrvClient.Close(pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus004 %{public}d close=%{public}d", __LINE__, close);
     EXPECT_TRUE(close);
@@ -349,7 +393,7 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus004, TestSize.Level1)
  */
 HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus005, TestSize.Level1)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetInterfaceStatus006");
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetInterfaceStatus005");
     vector<UsbDevice> devi;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.GetDevices(devi);
@@ -366,15 +410,15 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus005, TestSize.Level1)
         ret);
     EXPECT_TRUE(ret == 0);
     UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
-    pipe.SetDevAddr(BUFFER_SIZE);
+    pipe.SetBusNum(BUFFER_SIZE);
     bool unactived = 1;
     ret = UsbSrvClient.GetInterfaceActiveStatus(pipe, interface, unactived);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus005 %{public}d GetInterfaceStatus=%{public}d",
-    __LINE__, ret);
+        __LINE__, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus005 %{public}d unactived=%{public}d",
         __LINE__, unactived);
     EXPECT_TRUE(ret != 0);
-    pipe.SetDevAddr(device.GetDevAddr());
+    pipe.SetBusNum(device.GetBusNum());
     bool close = UsbSrvClient.Close(pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus005 %{public}d close=%{public}d", __LINE__, close);
     EXPECT_TRUE(close);
@@ -388,7 +432,7 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus005, TestSize.Level1)
  */
 HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus006, TestSize.Level1)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetInterfaceStatus006");
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetInterfaceStatus007");
     vector<UsbDevice> devi;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.GetDevices(devi);
@@ -404,9 +448,8 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus006, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus006 %{public}d OpenDevice=%{public}d", __LINE__,
         ret);
     EXPECT_TRUE(ret == 0);
-    UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(0);
+    UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
     pipe.SetDevAddr(BUFFER_SIZE);
-    pipe.SetBusNum(BUFFER_SIZE);
     bool unactived = 1;
     ret = UsbSrvClient.GetInterfaceActiveStatus(pipe, interface, unactived);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus006 %{public}d GetInterfaceStatus=%{public}d",
@@ -415,7 +458,6 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus006, TestSize.Level1)
         __LINE__, unactived);
     EXPECT_TRUE(ret != 0);
     pipe.SetDevAddr(device.GetDevAddr());
-    pipe.SetBusNum(device.GetBusNum());
     bool close = UsbSrvClient.Close(pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus006 %{public}d close=%{public}d", __LINE__, close);
     EXPECT_TRUE(close);
@@ -445,7 +487,7 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus007, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus007 %{public}d OpenDevice=%{public}d", __LINE__,
         ret);
     EXPECT_TRUE(ret == 0);
-    UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
+    UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(0);
     pipe.SetDevAddr(BUFFER_SIZE);
     pipe.SetBusNum(BUFFER_SIZE);
     bool unactived = 1;
@@ -465,7 +507,7 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus007, TestSize.Level1)
 
 /**
  * @tc.name: GetInterfaceStatus008
- * @tc.desc: Test functions to GetInterfaceStatus
+ * @tc.desc: Test functions to  GetInterfaceStatus
  * @tc.type: FUNC
  */
 HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus008, TestSize.Level1)
@@ -486,22 +528,22 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus008, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus008 %{public}d OpenDevice=%{public}d", __LINE__,
         ret);
     EXPECT_TRUE(ret == 0);
-    UsbInterface interface = devi.front().GetConfigs().front().GetInterfaces().front();
-    ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
-    USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus008 %{public}d ClaimInterface=%{public}d", __LINE__,
-        ret);
-    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
+    pipe.SetDevAddr(BUFFER_SIZE);
+    pipe.SetBusNum(BUFFER_SIZE);
     bool unactived = 1;
     ret = UsbSrvClient.GetInterfaceActiveStatus(pipe, interface, unactived);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus008 %{public}d GetInterfaceStatus=%{public}d",
     __LINE__, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus008 %{public}d unactived=%{public}d",
         __LINE__, unactived);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
+    pipe.SetBusNum(device.GetBusNum());
     bool close = UsbSrvClient.Close(pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus008 %{public}d close=%{public}d", __LINE__, close);
     EXPECT_TRUE(close);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetInterfaceStatus008");
 }
-
 } // USB
 } // OHOS
