@@ -31,8 +31,6 @@ class UsbDialogStub extends rpc.RemoteObject {
 
 const BG_COLOR = '#33000000';
 
-const COMMAND_START_DIALOG = 1;
-const COMMAND__SEND_REMOTE_OBJECT = 2;
 const ENTERPRISE_MANAGE_USB = 'ohos.permission.ENTERPRISE_MANAGE_USB';
 const ACCESS_TYPE_MASK = 0b11;
 const SHIFT_DIGIT = 27;
@@ -53,11 +51,11 @@ export default class UsbDialogAbility extends extension {
     console.log('onConnect want: ' + JSON.stringify(want));
     let callingTokenId: number = rpc.IPCSkeleton.getCallingTokenId();
     if (!this.isSystemAbility(callingTokenId) && !this.checkPermission(callingTokenId, ENTERPRISE_MANAGE_USB)) {
-      console.log('chek Permission fail');
+      console.error('chek Permission fail');
       return;
     }
     if (!want.parameters['bundleName'] || !want.parameters['deviceName'] || !want.parameters['tokenId']) {
-      console.log('onConnect code:1 failed. bundleName|deviceName|tokenId');
+      console.error('onConnect code:1 failed. bundleName|deviceName|tokenId');
       return;
     }
     display.getDefaultDisplay().then(dis => {
@@ -132,10 +130,10 @@ export default class UsbDialogAbility extends extension {
     try {
       let grantStatus = aac.verifyAccessTokenSync(tokenID, permissionName);
       if (grantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_DENIED) {
-        console.info(`verify ${permissionName} fail`);
+        console.error(`verify ${permissionName} fail`);
       }
     } catch (error) {
-      console.info(`verify ${permissionName}, ${error}`);
+      console.error(`verify ${permissionName}, ${error}`);
     }
     console.info(`verify ${permissionName}, success`);
     return true;
