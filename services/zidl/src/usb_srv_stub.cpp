@@ -130,6 +130,9 @@ bool UsbServerStub::StubDevice(
         case static_cast<int>(UsbInterfaceCode::USB_FUN_ADD_RIGHT):
             result = DoAddRight(data, reply, option);
             return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_ADD_ACCESS_RIGHT):
+            result = DoAddAccessRight(data, reply, option);
+            return true;
         default:;
     }
     return false;
@@ -876,6 +879,19 @@ int32_t UsbServerStub::DoAddRight(MessageParcel &data, MessageParcel &reply, Mes
     READ_PARCEL_WITH_RET(data, String, bundleName, UEC_SERVICE_READ_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, String, deviceName, UEC_SERVICE_READ_PARCEL_ERROR);
     int32_t ret = AddRight(bundleName, deviceName);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+    }
+    return ret;
+}
+
+int32_t UsbServerStub::DoAddAccessRight(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    std::string tokenId;
+    std::string deviceName;
+    READ_PARCEL_WITH_RET(data, String, tokenId, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, String, deviceName, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = AddAccessRight(tokenId, deviceName);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
     }

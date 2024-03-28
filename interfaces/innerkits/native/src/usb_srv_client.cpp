@@ -424,6 +424,17 @@ int32_t UsbSrvClient::AddRight(const std::string &bundleName, const std::string 
     return ret;
 }
 
+int32_t UsbSrvClient::AddAccessRight(const std::string &tokenId, const std::string &deviceName)
+{
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    USB_HILOGI(MODULE_USB_INNERKIT, "Calling AddAccessRight");
+    int32_t ret = proxy_->AddAccessRight(tokenId, deviceName);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
+    }
+    return ret;
+}
+
 int32_t UsbSrvClient::ManageGlobalInterface(bool disable)
 {
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);

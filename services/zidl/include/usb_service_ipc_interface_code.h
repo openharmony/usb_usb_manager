@@ -58,6 +58,7 @@ namespace USB {
         USB_FUN_DISABLE_INTERFACE_TYPE,
         USB_FUN_GET_DEVICE_SPEED,
         USB_FUN_GET_DRIVER_ACTIVE_STATUS,
+		USB_FUN_ADD_ACCESS_RIGHT,
     };
 } // namespace USB
 } // namespace OHOS

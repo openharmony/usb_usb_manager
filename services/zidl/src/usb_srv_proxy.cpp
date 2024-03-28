@@ -1100,6 +1100,28 @@ int32_t UsbServerProxy::AddRight(const std::string &bundleName, const std::strin
     return ret;
 }
 
+int32_t UsbServerProxy::AddAccessRight(const std::string &tokenId, const std::string &deviceName)
+{
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_INTERFACE_INVALID_VALUE);
+
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_USB_SERVICE, "write descriptor failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    WRITE_PARCEL_WITH_RET(data, String, tokenId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String, deviceName, UEC_SERVICE_WRITE_PARCEL_ERROR);
+
+    MessageOption option;
+    MessageParcel reply;
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_ADD_RIGHT), data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %d", ret);
+    }
+    return ret;
+}
+
 int32_t UsbServerProxy::ManageGlobalInterface(bool disable)
 {
     sptr<IRemoteObject> remote = Remote();

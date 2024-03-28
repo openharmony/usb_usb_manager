@@ -1707,8 +1707,8 @@ HWTEST_F(UsbRequestTest, UsbHasRight006, TestSize.Level1)
     std::string strTokenId0 = std::to_string(tokenId0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight006 tokenId=%{public}s", strTokenId0.c_str());
     std::string deviceName = std::to_string(device.GetBusNum()) + "-" + std::to_string(device.GetDevAddr());
-    ret = UsbSrvClient.AddRight(strTokenId0, deviceName);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight006 AddRight=%{public}d", ret);
+    ret = UsbSrvClient.AddAccessRight(strTokenId0, deviceName);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight006 AddAccessRight=%{public}d", ret);
     UsbCommonTest::SetSelfToken(tokenId0);
     bool result = UsbSrvClient.HasRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight006 HasRight=%{public}d", result);

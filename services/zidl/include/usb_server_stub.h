@@ -84,6 +84,7 @@ private:
     int32_t DoBulkWrite(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoBulkCancel(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoAddRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoAddAccessRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
     int32_t DoManageGlobalInterface(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoManageDevice(MessageParcel &data, MessageParcel &reply, MessageOption &option);
