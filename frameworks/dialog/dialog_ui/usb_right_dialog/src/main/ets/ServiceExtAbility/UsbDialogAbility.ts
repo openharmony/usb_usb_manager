@@ -51,12 +51,12 @@ export default class UsbDialogAbility extends extension {
     console.log('onConnect want: ' + JSON.stringify(want));
     let callingTokenId: number = rpc.IPCSkeleton.getCallingTokenId();
     if (!this.isSystemAbility(callingTokenId) && !this.checkPermission(callingTokenId, ENTERPRISE_MANAGE_USB)) {
-      console.error('chek Permission fail');
-      return;
+      console.error('check permission fail');
+      return null;
     }
-    if (!want.parameters['bundleName'] || !want.parameters['deviceName'] || !want.parameters['tokenId']) {
+    if (!want.parameters.bundleName || !want.parameters.deviceName || !want.parameters.tokenId) {
       console.error('onConnect code:1 failed. bundleName|deviceName|tokenId');
-      return;
+      return null;
     }
     display.getDefaultDisplay().then(dis => {
       let navigationBarRect = {
