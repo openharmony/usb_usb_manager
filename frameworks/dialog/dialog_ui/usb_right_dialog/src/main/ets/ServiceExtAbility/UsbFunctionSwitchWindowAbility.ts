@@ -24,21 +24,47 @@ import type { Permissions } from '@ohos.abilityAccessCtrl';
 
 let TAG: string = 'usbfunctionswitchwindow_ServiceExtensionAbility';
 let WINDOW_NAME: string = 'UsbFunctionSwitchWindow';
+const ENTERPRISE_MANAGE_USB = 'ohos.permission.ENTERPRISE_MANAGE_USB';
+const ACCESS_TYPE_MASK = 0b11;
+const SHIFT_DIGIT = 27;
+const TOKEN_NATIVE = 1;
+
 class UsbFunctionSwitchStub extends rpc.RemoteObject {
   constructor(des) {
     super(des);
   }
   onRemoteRequest(code, data, reply, option): boolean {
+    let callingTokenId: number = rpc.IPCSkeleton.getCallingTokenId();
+    if (!this.isSystemAbility(callingTokenId) && !this.checkPermission(callingTokenId, ENTERPRISE_MANAGE_USB)) {
+      console.error('check permission fail');
+      return false;
+    }
+    return true;
+  }
+
+  private isSystemAbility(callingTokenId: number): boolean {
+    let type: number = ACCESS_TYPE_MASK & (callingTokenId >> SHIFT_DIGIT);
+    console.info('isSystemAbility, type:' + type);
+    return type === TOKEN_NATIVE;
+  }
+
+  private checkPermission(tokenID: number, permissionName: Permissions): boolean {
+    let aac = abilityAccessCtrl.createAtManager();
+    try {
+      let grantStatus = aac.verifyAccessTokenSync(tokenID, permissionName);
+      if (grantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_DENIED) {
+        console.error(`verify ${permissionName} fail`);
+      }
+    } catch (error) {
+      console.error(`verify ${permissionName}, ${error}`);
+    }
+    console.info(`verify ${permissionName}, success`);
     return true;
   }
 }
 
 const BG_COLOR = '#00000000';
 let usbServiceSwitchWindowFirst = undefined;
-const ENTERPRISE_MANAGE_USB = 'ohos.permission.ENTERPRISE_MANAGE_USB';
-const ACCESS_TYPE_MASK = 0b11;
-const SHIFT_DIGIT = 27;
-const TOKEN_NATIVE = 1;
 
 export default class UsbFunctionSwitchAbility extends ServiceExtensionAbility {
 
@@ -82,15 +108,6 @@ export default class UsbFunctionSwitchAbility extends ServiceExtensionAbility {
   onConnect(want): rpc.RemoteObject {
     globalThis.abilityWant = want;
     console.log('onConnect want: ' + JSON.stringify(want));
-    let callingTokenId: number = rpc.IPCSkeleton.getCallingTokenId();
-    if (!this.isSystemAbility(callingTokenId) && !this.checkPermission(callingTokenId, ENTERPRISE_MANAGE_USB)) {
-      console.error('check permission fail');
-      return null;
-    }
-    if (!want.parameters.bundleName || !want.parameters.deviceName || !want.parameters.tokenId) {
-      console.error('onConnect code:1 failed. bundleName|deviceName|tokenId');
-      return null;
-    }
     return new UsbFunctionSwitchStub('test');
   }
 
@@ -145,26 +162,6 @@ export default class UsbFunctionSwitchAbility extends ServiceExtensionAbility {
     } catch {
       console.info('UsbFunctionSwitchAbility window create failed');
     }
-  }
-
-  private isSystemAbility(callingTokenId: number): boolean {
-    let type: number = ACCESS_TYPE_MASK & (callingTokenId >> SHIFT_DIGIT);
-    console.info('isSystemAbility, type:' + type);
-    return type === TOKEN_NATIVE;
-  }
-
-  private checkPermission(tokenID: number, permissionName: Permissions): boolean {
-    let aac = abilityAccessCtrl.createAtManager();
-    try {
-      let grantStatus = aac.verifyAccessTokenSync(tokenID, permissionName);
-      if (grantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_DENIED) {
-        console.error(`verify ${permissionName} fail`);
-      }
-    } catch (error) {
-      console.error(`verify ${permissionName}, ${error}`);
-    }
-    console.info(`verify ${permissionName}, success`);
-    return true;
   }
 };
 
