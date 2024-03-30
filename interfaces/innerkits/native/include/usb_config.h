@@ -41,12 +41,10 @@ public:
 
     explicit USBConfig(const cJSON *config)
     {
-        if (isJsonType(config)) {
-            id_ = cJSON_GetObjectItem(config, "id")->valueint;
-            attributes_ = cJSON_GetObjectItem(config, "attributes")->valueint;
-            maxPower_ = cJSON_GetObjectItem(config, "maxPower")->valueint;
-            name_ = cJSON_GetObjectItem(config, "name")->valuestring;
-        }
+        id_ = cJSON_GetObjectItem(config, "id")->valueint;
+        attributes_ = cJSON_GetObjectItem(config, "attributes")->valueint;
+        maxPower_ = cJSON_GetObjectItem(config, "maxPower")->valueint;
+        name_ = cJSON_GetObjectItem(config, "name")->valuestring;
         cJSON* jsonInterfaces = cJSON_GetObjectItem(config, "interfaces");
         for (int i = 0; i < cJSON_GetArraySize(jsonInterfaces); i++) {
             cJSON* jsonInterface =  cJSON_GetArrayItem(jsonInterfaces, i);
@@ -61,27 +59,6 @@ public:
 
     USBConfig() {}
     ~USBConfig() {}
-
-    cJson *getJsonValue(cJSON *jsonObject, const char *propertyName)
-    {
-        // 获取属性
-        cJSON *property = cJSON_GetObjectItem(jsonObject, propertyName);
-        if (property == NULL) {
-            USB_HILOGE(MODULE_USB_SERVICE, "Property %s not found", propertyName);
-        }
-        return property;
-    }
-
-    bool isJsonType(const cJSON *config)
-    {
-        if (!cJSON_IsNumber(getJsonValue(config, "id")->valueint) ||
-            !cJSON_IsNumber(getJsonValue(config, "attributes")->valueint) ||
-            !cJSON_IsNumber(getJsonValue(config, "maxPower")->valueint) ||
-            !cJSON_IsString(getJsonValue(config, "name")->valuestring)) {
-            return false;
-        }
-        return true;
-    }
 
     const int32_t &GetId() const
     {
@@ -208,7 +185,6 @@ public:
         }
         cJSON_AddItemToObject(config, "interfaces", interfaces);
         std::string configStr(cJSON_PrintUnformatted(config));
-        cJSON_Delete(interfaces);
         cJSON_Delete(config);
         return configStr;
     }
