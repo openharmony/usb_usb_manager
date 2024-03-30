@@ -49,10 +49,12 @@ public:
 
     explicit UsbDevice(const cJSON *device)
     {
-        busNum_ = cJSON_GetObjectItem(device, "busNum")->valueint;
-        devAddr_ = cJSON_GetObjectItem(device, "devAddress")->valueint;
-        serial_ = cJSON_GetObjectItem(device, "serial")->valueint;
-        name_ = cJSON_GetObjectItem(device, "name")->valuestring;
+        if (isJsonType(device)) {
+            busNum_ = cJSON_GetObjectItem(device, "busNum")->valueint;
+            devAddr_ = cJSON_GetObjectItem(device, "devAddress")->valueint;
+            serial_ = cJSON_GetObjectItem(device, "serial")->valueint;
+            name_ = cJSON_GetObjectItem(device, "name")->valuestring;
+        }
         manufacturerName_ = cJSON_GetObjectItem(device, "manufacturerName")->valuestring;
         productName_ = cJSON_GetObjectItem(device, "productName")->valuestring;
         version_ = cJSON_GetObjectItem(device, "version")->valuestring;
@@ -75,6 +77,17 @@ public:
 
     UsbDevice() {}
     ~UsbDevice() {}
+
+    bool isJsonType(const cJSON *config)
+    {
+        if (!cJSON_IsNumber(getJsonValue(config, "busNum")->valueint) ||
+            !cJSON_IsNumber(getJsonValue(config, "devAddress")->valueint) ||
+            !cJSON_IsNumber(getJsonValue(config, "serial")->valueint) ||
+            !cJSON_IsString(getJsonValue(config, "name")->valuestring)) {
+            return false;
+        }
+        return true;
+    }
 
     const std::string &GetName() const
     {
