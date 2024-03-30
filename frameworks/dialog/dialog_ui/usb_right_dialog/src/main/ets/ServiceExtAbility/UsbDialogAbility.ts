@@ -19,20 +19,43 @@ import display from '@ohos.display';
 import rpc from '@ohos.rpc';
 import abilityAccessCtrl from '@ohos.abilityAccessCtrl';
 import type { Permissions } from '@ohos.abilityAccessCtrl';
-const ENTERPRISE_MANAGE_USB = 'ohos.permission.ENTERPRISE_MANAGE_USB';
-const ACCESS_TYPE_MASK = 0b11;
-const SHIFT_DIGIT = 27;
-const TOKEN_NATIVE = 1;
 
 class UsbDialogStub extends rpc.RemoteObject {
   constructor(des) {
     super(des);
   }
-  onRemoteRequest(code, data, reply, option): boolean {
+  onRemoteRequest(code, data, reply, option): boolean {  
+    return true;
+  }
+}
+
+const BG_COLOR = '#33000000';
+const ENTERPRISE_MANAGE_USB = 'ohos.permission.ENTERPRISE_MANAGE_USB';
+const ACCESS_TYPE_MASK = 0b11;
+const SHIFT_DIGIT = 27;
+const TOKEN_NATIVE = 1;
+
+export default class UsbDialogAbility extends extension {
+  /**
+   * Lifecycle function, called back when a service extension is started for initialization.
+   */
+  onCreate(want): void {
+    console.log('onCreate want: ' + JSON.stringify(want));
+    globalThis.extensionContext = this.context;
+    globalThis.want = want;
+    globalThis.windowNum = 0;
+  }
+
+  onConnect(want): rpc.RemoteObject {
+    console.log('onConnect want: ' + JSON.stringify(want));
     let callingTokenId: number = rpc.IPCSkeleton.getCallingTokenId();
     if (!this.isSystemAbility(callingTokenId) && !this.checkPermission(callingTokenId, ENTERPRISE_MANAGE_USB)) {
-      console.error('check permission fail');
-      return false;
+      console.error('check Permission fail');
+      return new UsbDialogStub('UsbRightDialog');
+    }
+    if (!want.parameters.bundleName || !want.parameters.deviceName || !want.parameters.tokenId) {
+      console.error('onConnect code:1 failed. bundleName|deviceName|tokenId');
+      return new UsbDialogStub('UsbRightDialog');
     }
     display.getDefaultDisplay().then(dis => {
       let navigationBarRect = {
@@ -43,7 +66,24 @@ class UsbDialogStub extends rpc.RemoteObject {
       };
       this.createWindow('UsbDialogAbility', window.WindowType.TYPE_FLOAT, navigationBarRect);
     });
-    return true;
+    return new UsbDialogStub('UsbRightDialog');
+  }
+
+  onDisconnect(want): void {
+    console.log('onDisconnect');
+  }
+
+  /**
+   * Lifecycle function, called back when a service extension is started or recall.
+   */
+  onRequest(want, startId): void {
+    console.log('onRequest');
+  }
+  /**
+   * Lifecycle function, called back before a service extension is destroyed.
+   */
+  onDestroy(): void {
+    console.info('UsbDialogAbility onDestroy.');
   }
 
   private async createWindow(name: string, windowType: number, rect): Promise<void> {
@@ -96,42 +136,6 @@ class UsbDialogStub extends rpc.RemoteObject {
     }
     console.info(`verify ${permissionName}, success`);
     return true;
-  }
-}
-
-const BG_COLOR = '#33000000';
-
-export default class UsbDialogAbility extends extension {
-  /**
-   * Lifecycle function, called back when a service extension is started for initialization.
-   */
-  onCreate(want): void {
-    console.log('onCreate want: ' + JSON.stringify(want));
-    globalThis.extensionContext = this.context;
-    globalThis.want = want;
-    globalThis.windowNum = 0;
-  }
-
-  onConnect(want): rpc.RemoteObject {
-    console.log('onConnect want: ' + JSON.stringify(want));
-    return new UsbDialogStub('UsbRightDialog');
-  }
-
-  onDisconnect(want): void {
-    console.log('onDisconnect');
-  }
-
-  /**
-   * Lifecycle function, called back when a service extension is started or recall.
-   */
-  onRequest(want, startId): void {
-    console.log('onRequest');
-  }
-  /**
-   * Lifecycle function, called back before a service extension is destroyed.
-   */
-  onDestroy(): void {
-    console.info('UsbDialogAbility onDestroy.');
   }
 };
 
