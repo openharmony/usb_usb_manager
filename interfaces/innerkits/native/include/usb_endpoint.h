@@ -36,41 +36,15 @@ public:
 
     explicit USBEndpoint(const cJSON *endpoint)
     {
-        if (endpoint == nullptr) {
-            USB_HILOGE(MODULE_USB_SERVICE, "config pointer is nullptr");
-        }
-
-        address_ = static_cast<uint32_t>(GetIntValue(endpoint, "address"));
-        attributes_ = static_cast<uint32_t>(GetIntValue(endpoint, "attributes"));
-        interval_ =  GetIntValue(endpoint, "interval");
-        maxPacketSize_ =  GetIntValue(endpoint, "maxPacketSize");
-        interfaceId_ = static_cast<uint8_t>(GetIntValue(endpoint, "interfaceId"));
+        address_ = cJSON_GetObjectItem(endpoint, "address")->valueint;
+        attributes_ = cJSON_GetObjectItem(endpoint, "attributes")->valueint;
+        interval_ = cJSON_GetObjectItem(endpoint, "interval")->valueint;
+        maxPacketSize_ = cJSON_GetObjectItem(endpoint, "maxPacketSize")->valueint;
+        interfaceId_ = cJSON_GetObjectItem(endpoint, "interfaceId")->valueint;
     }
 
     USBEndpoint() {}
     ~USBEndpoint() {}
-
-    static int GetIntValue(const cJSON *jsonObject, const char *key)
-    {
-        cJSON *item = cJSON_GetObjectItem(jsonObject, key);
-        if (item != nullptr && cJSON_IsNumber(item)) {
-            return item->valueint;
-        } else {
-            USB_HILOGE(MODULE_USB_SERVICE, "Invalid or missing %s field", key);
-            return 0;
-        }
-    }
-
-    static std::string GetStringValue(const cJSON *jsonObject, const char *key)
-    {
-        cJSON *item = cJSON_GetObjectItem(jsonObject, key);
-        if (item != nullptr && cJSON_IsString(item)) {
-            return item->valuestring;
-        } else {
-            USB_HILOGE(MODULE_USB_SERVICE, "Invalid or missing %s field", key);
-            return "";
-        }
-    }
 
     uint8_t GetNumber() const
     {

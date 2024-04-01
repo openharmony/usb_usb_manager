@@ -49,23 +49,18 @@ public:
 
     explicit UsbDevice(const cJSON *device)
     {
-        if (device == nullptr) {
-            USB_HILOGE(MODULE_USB_SERVICE, "device pointer is nullptr");
-            return;
-        }
-
-        busNum_ = GetIntValue(device, "busNum");
-        devAddr_ = GetIntValue(device, "devAddress");
-        serial_ = GetIntValue(device, "serial");
-        name_ = GetStringValue(device, "name");
-        manufacturerName_ = GetStringValue(device, "manufacturerName");
-        productName_ = GetStringValue(device, "productName");
-        version_ = GetStringValue(device, "version");
-        vendorId_ = GetIntValue(device, "vendorId");
-        productId_ = GetIntValue(device, "productId");
-        klass_ = GetIntValue(device, "clazz");
-        subClass_ = GetIntValue(device, "subClass");
-        protocol_ = GetIntValue(device, "protocol");
+        busNum_ = cJSON_GetObjectItem(device, "busNum")->valueint;
+        devAddr_ = cJSON_GetObjectItem(device, "devAddress")->valueint;
+        serial_ = cJSON_GetObjectItem(device, "serial")->valueint;
+        name_ = cJSON_GetObjectItem(device, "name")->valuestring;
+        manufacturerName_ = cJSON_GetObjectItem(device, "manufacturerName")->valuestring;
+        productName_ = cJSON_GetObjectItem(device, "productName")->valuestring;
+        version_ = cJSON_GetObjectItem(device, "version")->valuestring;
+        vendorId_ = cJSON_GetObjectItem(device, "vendorId")->valueint;
+        productId_ = cJSON_GetObjectItem(device, "productId")->valueint;
+        klass_ = cJSON_GetObjectItem(device, "clazz")->valueint;
+        subClass_ = cJSON_GetObjectItem(device, "subClass")->valueint;
+        protocol_ = cJSON_GetObjectItem(device, "protocol")->valueint;
         cJSON* configs = cJSON_GetObjectItem(device, "configs");
         for (int i = 0; i < cJSON_GetArraySize(configs); i++) {
             cJSON* jsonConfig =  cJSON_GetArrayItem(configs, i);
@@ -80,28 +75,6 @@ public:
 
     UsbDevice() {}
     ~UsbDevice() {}
-
-    static int GetIntValue(const cJSON *jsonObject, const char *key)
-    {
-        cJSON *item = cJSON_GetObjectItem(jsonObject, key);
-        if (item != nullptr && cJSON_IsNumber(item)) {
-            return item->valueint;
-        } else {
-            USB_HILOGE(MODULE_USB_SERVICE, "Invalid or missing %s field", key);
-            return 0;
-        }
-    }
-
-    static std::string GetStringValue(const cJSON *jsonObject, const char *key)
-    {
-        cJSON *item = cJSON_GetObjectItem(jsonObject, key);
-        if (item != nullptr && cJSON_IsString(item)) {
-            return item->valuestring;
-        } else {
-            USB_HILOGE(MODULE_USB_SERVICE, "Invalid or missing %s field", key);
-            return "";
-        }
-    }
 
     const std::string &GetName() const
     {
@@ -371,7 +344,6 @@ public:
         }
         cJSON_AddItemToObject(device, "configs", configs);
         std::string deviceStr(cJSON_PrintUnformatted(device));
-        cJSON_Delete(configs);
         cJSON_Delete(device);
         return deviceStr;
     }

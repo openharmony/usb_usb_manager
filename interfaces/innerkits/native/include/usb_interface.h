@@ -45,16 +45,12 @@ public:
 
     explicit UsbInterface(const cJSON *interface)
     {
-        if (interface == nullptr) {
-            USB_HILOGE(MODULE_USB_SERVICE, "interface pointer is nullptr");
-        }
-
-        id_ = GetIntValue(interface, "id");
-        protocol_ = GetIntValue(interface, "protocol");
-        klass_ = GetIntValue(interface, "clazz");
-        subClass_ = GetIntValue(interface, "subClass");
-        alternateSetting_ = GetIntValue(interface, "alternateSetting");
-        name_ = GetStringValue(interface, "name");
+        id_ = cJSON_GetObjectItem(interface, "id")->valueint;
+        protocol_ = cJSON_GetObjectItem(interface, "protocol")->valueint;
+        klass_ = cJSON_GetObjectItem(interface, "clazz")->valueint;
+        subClass_ = cJSON_GetObjectItem(interface, "subClass")->valueint;
+        alternateSetting_ = cJSON_GetObjectItem(interface, "alternateSetting")->valueint;
+        name_ = cJSON_GetObjectItem(interface, "name")->valuestring;
 
         cJSON* endpoints = cJSON_GetObjectItem(interface, "endpoints");
         for (int i = 0; i < cJSON_GetArraySize(endpoints); i++) {
@@ -69,28 +65,6 @@ public:
     }
 
     UsbInterface() {}
-
-    static int GetIntValue(const cJSON *jsonObject, const char *key)
-    {
-        cJSON *item = cJSON_GetObjectItem(jsonObject, key);
-        if (item != nullptr && cJSON_IsNumber(item)) {
-            return item->valueint;
-        } else {
-            USB_HILOGE(MODULE_USB_SERVICE, "Invalid or missing %s field", key);
-            return 0;
-        }
-    }
-
-    static std::string GetStringValue(const cJSON *jsonObject, const char *key)
-    {
-        cJSON *item = cJSON_GetObjectItem(jsonObject, key);
-        if (item != nullptr && cJSON_IsString(item)) {
-            return item->valuestring;
-        } else {
-            USB_HILOGE(MODULE_USB_SERVICE, "Invalid or missing %s field", key);
-            return "";
-        }
-    }
 
     const std::string &GetName() const
     {
@@ -231,7 +205,6 @@ public:
         }
         cJSON_AddItemToObject(interface, "endpoints", endpoints);
         std::string interfaceJsonStr(cJSON_PrintUnformatted(interface));
-        cJSON_Delete(endpoints);
         cJSON_Delete(interface);
         return interfaceJsonStr;
     }
