@@ -144,7 +144,7 @@ let USBSERVICESWITCH_ID_XFER_PIC : number = 16;
       Divider().height('5%')
 
       Button({ type: ButtonType.Capsule, stateEffect: true }) {
-        Text($r("app.string.USB_hint_cancel"))
+        Text($r('app.string.USB_hint_cancel'))
           .fontSize(20)
           .height('100%')
           .width('100%')
@@ -198,8 +198,8 @@ struct IndexHapComponent {
   });
 
   async aboutToAppear() {
-    let defaultChoose: number = GlobalThisProxy.getInstance().getNumInfo("workWant_defaultChoose");
-    let funcSelect: number = GlobalThisProxy.getInstance().getNumInfo("workWant_funcSelect");
+    let defaultChoose: number = GlobalThisProxy.getInstance().getNumInfo('workWant_defaultChoose');
+    let funcSelect: number = GlobalThisProxy.getInstance().getNumInfo('workWant_funcSelect');
     if (defaultChoose) {
       this.curChoose = defaultChoose;
       console.log(TAG + 'use want defaultChoose: ' + this.curChoose);
@@ -208,8 +208,8 @@ struct IndexHapComponent {
       console.log(TAG + 'use want funcSelect: ' + this.curChoose);
     }
 
-    if (this.curChoose != USBSERVICESWITCH_ID_CHARGE_ONLY && this.curChoose != USBSERVICESWITCH_ID_XFER_FILE 
-      && this.curChoose != USBSERVICESWITCH_ID_XFER_PIC) {
+    if (this.curChoose !== USBSERVICESWITCH_ID_CHARGE_ONLY && this.curChoose !== USBSERVICESWITCH_ID_XFER_FILE &&
+      this.curChoose !== USBSERVICESWITCH_ID_XFER_PIC) {
       this.curChoose = USBSERVICESWITCH_ID_CHARGE_ONLY;
       console.log(TAG + 'error, use default: ' + this.curChoose);
     }

@@ -17,7 +17,7 @@ import usbMgr from '@ohos.usbManager'
 import featureAbility from '@ohos.ability.featureAbility'
 
 // allow,notAllow button style
-@Extend(Text) function ControlBtn(fontColor: string) {
+@Extend(Text) function controlBtn(fontColor: string) {
   .fontColor(fontColor)
   .backgroundColor(0xffffff)
   .width(100)
@@ -27,7 +27,7 @@ import featureAbility from '@ohos.ability.featureAbility'
 }
 
 // content style
-@Extend(Text) function ControlFontSize(fontSize: number) {
+@Extend(Text) function controlFontSize(fontSize: number) {
   .fontSize(fontSize)
   .width('180%')
   .fontColor('rgba(10, 10, 10, 1.00)')
@@ -47,7 +47,7 @@ struct ConfirmDialog {
   // title style
   @Builder TipTextStyle(tip: string, fontSize: number) {
     Text(tip)
-      .ControlFontSize(fontSize)
+      .controlFontSize(fontSize)
       .visibility(tip.length > 0 ? Visibility.Visible : Visibility.None)
   }
   build() {
@@ -55,7 +55,7 @@ struct ConfirmDialog {
       this.TipTextStyle(this.content, 22)
       Flex({ justifyContent: FlexAlign.SpaceAround }) {
         Text($r('app.string.allowButton'))
-          .ControlBtn(this.allowFontColor)
+          .controlBtn(this.allowFontColor)
           .onClick(() => {
             try {
               usbMgr.addDeviceAccessRight(globalThis.want.parameters['tokenId'], globalThis.want.parameters['deviceName'])
@@ -67,7 +67,7 @@ struct ConfirmDialog {
         Text('|')
             .fontSize(10)
         Text($r('app.string.notAllowButton'))
-          .ControlBtn(this.notAllowFontColor)
+          .controlBtn(this.notAllowFontColor)
           .onClick(() => {
             this.destruction()
           })
@@ -92,7 +92,7 @@ struct IndexHapComponent {
   private content: string = ''
   private allow: string = ''
   private use: string = ''
-  ConfirmDialogController: CustomDialogController = new CustomDialogController( {
+  confirmDialogController: CustomDialogController = new CustomDialogController( {
     builder: ConfirmDialog({content: this.content}),
     autoCancel: false
   })
@@ -100,8 +100,9 @@ struct IndexHapComponent {
   async aboutToAppear() {
     this.allow = await globalThis.getContext().resourceManager.getStringValue($r('app.string.allow'));
     this.use = await globalThis.getContext().resourceManager.getStringValue($r('app.string.use'));
-    this.content = this.allow + globalThis.want.parameters["bundleName"] + this.use + globalThis.want.parameters["deviceName"];
-    this.ConfirmDialogController.open()
+    this.content = this.allow + globalThis.want.parameters.bundleName + this.use +
+    globalThis.want.parameters.deviceName;
+    this.confirmDialogController.open()
   }
   build() {}
 }
