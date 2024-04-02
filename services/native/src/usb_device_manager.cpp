@@ -200,6 +200,15 @@ void UsbDeviceManager::ProcessFunctionSwitchWindow(int32_t status)
 {
     std::shared_ptr<UsbFunctionSwitchWindow> window_ = UsbFunctionSwitchWindow::GetInstance();
     if (status == ACT_UPDEVICE) {
+        uint32_t targetFunction = static_cast<uint32_t>(currentFunctions_);
+        targetFunction &= ~(UsbSrvSupport::FUNCTION_MTP | UsbSrvSupport::FUNCTION_PTP);
+        if (targetFunction != currentFunctions_) {
+            int32_t ret = usbd_->SetCurrentFunctions(targetFunction);
+            if (ret != UEC_OK) {
+                USB_HILOGE(MODULE_USB_SERVICE, "restore function from %{public}d to %{public}d failed: %{public}d",
+                    currentFunctions_, targetFunction, ret);
+            }
+        }
         USB_HILOGD(MODULE_USB_SERVICE, "start pop up usb service switch window");
         if (!window_->PopUpFunctionSwitchWindow()) {
             USB_HILOGE(MODULE_USB_SERVICE, "start pop up usb service switch window failed");
@@ -208,13 +217,6 @@ void UsbDeviceManager::ProcessFunctionSwitchWindow(int32_t status)
         USB_HILOGD(MODULE_USB_SERVICE, "start dismiss usb service switch window");
         if (!window_->DismissFunctionSwitchWindow()) {
             USB_HILOGE(MODULE_USB_SERVICE, "start dismiss usb service switch window failed");
-        }
-        uint32_t targetFunction = static_cast<uint32_t>(currentFunctions_);
-        targetFunction &= ~(UsbSrvSupport::FUNCTION_MTP | UsbSrvSupport::FUNCTION_PTP);
-        int32_t ret = usbd_->SetCurrentFunctions(targetFunction);
-        if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "restore function from %{public}d to %{public}d failed: %{public}d",
-                currentFunctions_, targetFunction, ret);
         }
     }
 }
