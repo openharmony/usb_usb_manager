@@ -68,7 +68,6 @@ public:
         USB_HILOGI(MODULE_USB_SERVICE, "recv event ok");
         eventData_ = data;
         std::string deviceStr = eventData_.GetData();
-        std::cout << "recv broadcast: "<< deviceStr << std::endl;
         USB_HILOGI(MODULE_USB_SERVICE, "recv broadcast: %{public}s", deviceStr.c_str());
 
         cJSON* pDevice =  cJSON_Parse(deviceStr.c_str());
@@ -100,7 +99,6 @@ static void AddCommonEvent()
     if (!ret) {
         USB_HILOGW(MODULE_USB_SERVICE, "subscriber event for failed: %{public}d", ret);
     }
-    printf("%s:%d success\n", __func__, __LINE__);
 }
 
 static void StopSubscriberCommonEvent(int32_t signo)
