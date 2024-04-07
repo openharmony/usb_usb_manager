@@ -200,9 +200,10 @@ void UsbDeviceManager::ProcessFunctionSwitchWindow(int32_t status)
 {
     std::shared_ptr<UsbFunctionSwitchWindow> window_ = UsbFunctionSwitchWindow::GetInstance();
     if (status == ACT_UPDEVICE) {
-        uint32_t targetFunction = static_cast<uint32_t>(currentFunctions_);
+        uint32_t currentFunctionsUint32 = static_cast<uint32_t>(currentFunctions_);
+        uint32_t targetFunction = currentFunctionsUint32;
         targetFunction &= ~(UsbSrvSupport::FUNCTION_MTP | UsbSrvSupport::FUNCTION_PTP);
-        if (targetFunction != currentFunctions_) {
+        if (targetFunction != currentFunctionsUint32) {
             int32_t ret = usbd_->SetCurrentFunctions(targetFunction);
             if (ret != UEC_OK) {
                 USB_HILOGE(MODULE_USB_SERVICE, "restore function from %{public}d to %{public}d failed: %{public}d",
