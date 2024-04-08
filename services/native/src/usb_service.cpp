@@ -825,7 +825,7 @@ std::string UsbService::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, 
     }
     uint32_t length = strV.size();
     if ((length < DESCRIPTOR_VALUE_START_OFFSET) || (strV[1] != DESCRIPTOR_TYPE_STRING)) {
-        USB_HILOGI(MODULE_USB_SERVICE, "type or length error, len:%{public}u", length);
+        USB_HILOGI(MODULE_USB_SERVICE, "type or length error, len:%{public}zu", length);
         return strDesc;
     }
 
