@@ -39,3 +39,12 @@ PORT_ROLE_CHANGED:
   UPDATE_POWERROLE: {type: INT32, desc: update powerrole}
   CURRENT_DATAROLE: {type: INT32, desc: current datarole}
   UPDATE_DATAROLE: {type: INT32, desc: update datarole}
+
+USB_MANAGE_TRANSFOR_FAULT:
+  __BASE: {type: FAULT, level: CRITICAL, tag: UsbManager, desc: Usb Transfor interface happen fault}
+  INTFACE_NAME: {type: STRING, desc: interface name}
+  BUS_NUM: {type: INT32, desc: bus num}
+  DEV_ADDR: {type: INT32, desc: dev addr}
+  INFT_ID: {type: INT32, desc: interface id}
+  ENDPOINTT_ID: {type: INT32, desc: endpoint id}
+  FAIL_REASON: {type: INT32, desc: fail reason}

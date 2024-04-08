@@ -21,7 +21,8 @@
 #include "usb_server_stub.h"
 #include "usb_interface_type.h"
 #include "v1_1/iusb_interface.h"
-
+#include "usb_report_sys_event.h"
+#include "hitrace_meter.h"
 using namespace OHOS::HDI::Usb::V1_1;
 namespace OHOS {
 namespace USB {
@@ -235,6 +236,7 @@ int32_t UsbServerStub::DoGetCurrentFunctions(MessageParcel &data, MessageParcel 
     int32_t functions;
     int32_t ret = GetCurrentFunctions(functions);
     if (ret != UEC_OK) {
+        UsbReportSysEvent::ReportTransforFaultSysEvent("GetCurrentFunctions", {0, 0}, {0, 0}, ret);
         return ret;
     }
     WRITE_PARCEL_WITH_RET(reply, Int32, functions, UEC_SERVICE_WRITE_PARCEL_ERROR);
@@ -243,9 +245,14 @@ int32_t UsbServerStub::DoGetCurrentFunctions(MessageParcel &data, MessageParcel 
 
 int32_t UsbServerStub::DoSetCurrentFunctions(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "SetCurrentFunctions");
     int32_t funcs;
     READ_PARCEL_WITH_RET(data, Int32, funcs, UEC_SERVICE_READ_PARCEL_ERROR);
-    return SetCurrentFunctions(funcs);
+    int32_t ret = SetCurrentFunctions(funcs);
+    if (ret != UEC_OK) {
+        UsbReportSysEvent::ReportTransforFaultSysEvent("SetCurrentFunctions", {0, 0}, {0, 0}, ret);
+    }
+    return ret;
 }
 
 int32_t UsbServerStub::DoUsbFunctionsFromString(MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -272,6 +279,7 @@ int32_t UsbServerStub::DoOpenDevice(MessageParcel &data, MessageParcel &reply, M
     READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_READ_PARCEL_ERROR);
     int32_t ret = OpenDevice(busNum, devAddr);
     if (ret != UEC_OK) {
+        UsbReportSysEvent::ReportTransforFaultSysEvent("OpenDevice", {busNum, devAddr}, {0, 0}, ret);
         return ret;
     }
 
@@ -309,6 +317,7 @@ int32_t UsbServerStub::DoGetPorts(MessageParcel &data, MessageParcel &reply, Mes
     int32_t ret = GetPorts(ports);
     USB_HILOGI(MODULE_SERVICE, "UsbServerStub::GetPorts ret %{public}d ", ret);
     if (ret != UEC_OK) {
+        UsbReportSysEvent::ReportTransforFaultSysEvent("GetPorts", {0, 0}, {0, 0}, ret);
         return ret;
     }
     uint32_t size = ports.size();
@@ -349,17 +358,24 @@ int32_t UsbServerStub::DoGetSupportedModes(MessageParcel &data, MessageParcel &r
 
 int32_t UsbServerStub::DoSetPortRole(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "SetPortRole");
     int32_t portId = 0;
     int32_t powerRole = 0;
     int32_t dataRole = 0;
     READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Int32, powerRole, UEC_SERVICE_READ_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Int32, dataRole, UEC_SERVICE_READ_PARCEL_ERROR);
-    return SetPortRole(portId, powerRole, dataRole);
+    int32_t ret = SetPortRole(portId, powerRole, dataRole);
+    if (ret != UEC_OK) {
+        UsbReportSysEvent::ReportTransforFaultSysEvent("SetPortRole", {0, 0}, {0, 0}, ret);
+        return ret;
+    }
+    return ret;
 }
 
 int32_t UsbServerStub::DoClaimInterface(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "ClaimInterface");
     uint8_t busNum = 0;
     uint8_t devAddr = 0;
     uint8_t interface = 0;
@@ -375,6 +391,7 @@ int32_t UsbServerStub::DoClaimInterface(MessageParcel &data, MessageParcel &repl
 
 int32_t UsbServerStub::DoReleaseInterface(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "ReleaseInterface");
     uint8_t busNum = 0;
     uint8_t devAddr = 0;
     uint8_t interface = 0;
@@ -387,6 +404,7 @@ int32_t UsbServerStub::DoReleaseInterface(MessageParcel &data, MessageParcel &re
 
 int32_t UsbServerStub::DoBulkTransferRead(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "BulkTransferRead");
     uint8_t busNum = 0;
     uint8_t devAddr = 0;
     uint8_t interface = 0;
@@ -403,6 +421,7 @@ int32_t UsbServerStub::DoBulkTransferRead(MessageParcel &data, MessageParcel &re
     int32_t ret = BulkTransferRead(tmpDev, tmpPipe, bufferData, timeOut);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "read failed ret:%{public}d", ret);
+        UsbReportSysEvent::ReportTransforFaultSysEvent("BulkTransferRead", tmpDev, tmpPipe, ret);
         return ret;
     }
     ret = SetBufferMessage(reply, bufferData);
@@ -415,6 +434,7 @@ int32_t UsbServerStub::DoBulkTransferRead(MessageParcel &data, MessageParcel &re
 
 int32_t UsbServerStub::DoBulkTransferWrite(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "BulkTransferWrite");
     uint8_t busNum = 0;
     uint8_t devAddr = 0;
     uint8_t interface = 0;
@@ -436,6 +456,7 @@ int32_t UsbServerStub::DoBulkTransferWrite(MessageParcel &data, MessageParcel &r
     ret = BulkTransferWrite(tmpDev, tmpPipe, bufferData, timeOut);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "BulkTransferWrite error ret:%{public}d", ret);
+        UsbReportSysEvent::ReportTransforFaultSysEvent("BulkTransferWrite", tmpDev, tmpPipe, ret);
     }
     WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
     return ret;
@@ -443,6 +464,7 @@ int32_t UsbServerStub::DoBulkTransferWrite(MessageParcel &data, MessageParcel &r
 
 int32_t UsbServerStub::DoControlTransfer(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "ControlTransfer");
     uint8_t busNum = 0;
     uint8_t devAddr = 0;
     int32_t requestType;
@@ -470,6 +492,7 @@ int32_t UsbServerStub::DoControlTransfer(MessageParcel &data, MessageParcel &rep
     const UsbCtrlTransfer tctrl = {requestType, request, value, index, timeOut};
     ret = ControlTransfer(tmpDev, tctrl, bufferData);
     if (ret != UEC_OK) {
+        UsbReportSysEvent::ReportTransforFaultSysEvent("ControlTransfer", tmpDev, {0, 0}, ret);
         USB_HILOGE(MODULE_USBD, "ControlTransfer error ret:%{public}d", ret);
         return ret;
     }
@@ -486,6 +509,7 @@ int32_t UsbServerStub::DoControlTransfer(MessageParcel &data, MessageParcel &rep
 
 int32_t UsbServerStub::DoSetActiveConfig(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "SetActiveConfig");
     uint8_t busNum = 0;
     uint8_t devAddr = 0;
     uint8_t config = 0;
@@ -512,6 +536,7 @@ int32_t UsbServerStub::DoGetActiveConfig(MessageParcel &data, MessageParcel &rep
 
 int32_t UsbServerStub::DoSetInterface(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "SetInterface");
     uint8_t busNum = 0;
     uint8_t devAddr = 0;
     uint8_t interfaceId = 0;
@@ -540,6 +565,7 @@ int32_t UsbServerStub::DoGetRawDescriptor(MessageParcel &data, MessageParcel &re
         }
     } else {
         USB_HILOGW(MODULE_USBD, "GetRawDescriptor failed ret:%{public}d", ret);
+        UsbReportSysEvent::ReportTransforFaultSysEvent("GetRawDescriptor", {busNum, devAddr}, {0, 0}, ret);
     }
     return ret;
 }
@@ -650,6 +676,7 @@ int32_t UsbServerStub::DoClose(MessageParcel &data, MessageParcel &reply, Messag
     int32_t ret = Close(busNum, devAddr);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "failed ret:%{public}d", ret);
+        UsbReportSysEvent::ReportTransforFaultSysEvent("CloseDevice", {busNum, devAddr}, {0, 0}, ret);
     }
     WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
     return ret;
@@ -661,6 +688,7 @@ int32_t UsbServerStub::DoGetDevices(MessageParcel &data, MessageParcel &reply, M
     int32_t ret = GetDevices(deviceList);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_SERVICE, "GetDevices failed ret = %{public}d", ret);
+        UsbReportSysEvent::ReportTransforFaultSysEvent("GetDevices", {0, 0}, {0, 0}, ret);
         return ret;
     }
     USB_HILOGI(MODULE_SERVICE, "list size = %{public}zu", deviceList.size());
@@ -812,6 +840,7 @@ int32_t UsbServerStub::DoUnRegBulkCallback(MessageParcel &data, MessageParcel &r
 
 int32_t UsbServerStub::DoBulkRead(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "BulkRead");
     uint8_t busNum = 0;
     uint8_t devAddr = 0;
     uint8_t interface = 0;
@@ -826,6 +855,7 @@ int32_t UsbServerStub::DoBulkRead(MessageParcel &data, MessageParcel &reply, Mes
     int32_t ret = BulkRead(tmpDev, tmpPipe, ashmem);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "BulkRead failed ret:%{public}d", ret);
+        UsbReportSysEvent::ReportTransforFaultSysEvent("BulkRead", tmpDev, tmpPipe, ret);
         return ret;
     }
     return ret;
@@ -833,6 +863,7 @@ int32_t UsbServerStub::DoBulkRead(MessageParcel &data, MessageParcel &reply, Mes
 
 int32_t UsbServerStub::DoBulkWrite(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "BulkWrite");
     uint8_t busNum = 0;
     uint8_t devAddr = 0;
     uint8_t interface = 0;
@@ -847,6 +878,7 @@ int32_t UsbServerStub::DoBulkWrite(MessageParcel &data, MessageParcel &reply, Me
     int32_t ret = BulkWrite(tmpDev, tmpPipe, ashmem);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        UsbReportSysEvent::ReportTransforFaultSysEvent("BulkWrite", tmpDev, tmpPipe, ret);
         return ret;
     }
     return ret;

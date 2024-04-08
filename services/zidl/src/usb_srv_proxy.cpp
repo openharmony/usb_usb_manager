@@ -1115,7 +1115,8 @@ int32_t UsbServerProxy::AddAccessRight(const std::string &tokenId, const std::st
 
     MessageOption option;
     MessageParcel reply;
-    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_ADD_RIGHT), data, reply, option);
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_ADD_ACCESS_RIGHT),
+        data, reply, option);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %d", ret);
     }
