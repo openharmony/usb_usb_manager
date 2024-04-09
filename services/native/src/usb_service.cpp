@@ -80,7 +80,7 @@ constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 
-std::unordered_map<InterfaceType, std::vector<int32_t>> typeMap = {
+std::unordered_map<InterfaceType, std::vector<int32_t>> g_typeMap  = {
     {InterfaceType::TYPE_STORAGE,   {8, -1, -1}},
     {InterfaceType::TYPE_AUDIO,     {1, -1, -1}},
     {InterfaceType::TYPE_HID,       {3, -1, -1}},
@@ -1720,8 +1720,8 @@ int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool d
 }
 int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable)
 {
-    auto iterInterface = typeMap.find(interfaceType);
-    if (iterInterface == typeMap.end()) {
+    auto iterInterface = g_typeMap .find(interfaceType);
+    if (iterInterface == g_typeMap .end()) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::not find interface type");
         return UEC_SERVICE_INVALID_VALUE;
     }
