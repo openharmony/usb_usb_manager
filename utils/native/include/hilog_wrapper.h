@@ -52,41 +52,41 @@ struct UsbLable {
 enum UsbMgrSubModule {
     MODULE_INNERKIT = 0,
     MODULE_SERVICE,
-    MODULE_JAVAKIT, // java kit used, define to avoid repeat used domain
-    MODULE_JNI,
     MODULE_USB_INNERKIT, // below used by usb service
     MODULE_USB_SERVICE,
     MODULE_USBD,
     MODULE_COMMON,
     MODULE_JS_NAPI,
+    MODULE_JAVAKIT, // java kit used, define to avoid repeat used domain
+    MODULE_JNI,
     USBMGR_MODULE_BUTT,
 };
 
 // 0xD002900: subsystem:Usb module:Usb, reserved 8 bit.
-constexpr unsigned int BASE_USB_DOMAIN_ID = 0xD002900;
+constexpr unsigned int BASE_USB_DOMAIN_ID = 0xD002A00;
 
 enum UsbMgrDomainId {
-    USBMGR_INNERKIT_DOMAIN = BASE_USB_DOMAIN_ID + MODULE_INNERKIT,
-    USBMGR_SERVICE_DOMAIN,
-    USBMGR_JAVAKIT_DOMAIN, // 0xD002902
-    USB_INNERKIT_DOMAIN,
-    USB_SERVICE_DOMAIN,
-    USBD_DOMAIN,
-    COMMON_DOMAIN,
-    USB_JS_NAPI,
+    USBMGR_INNERKIT_DOMAIN = BASE_USB_DOMAIN_ID + MODULE_INNERKIT + 1,
+    USBMGR_SERVICE_DOMAIN, //0xD002A02
+    USB_INNERKIT_DOMAIN,   //0xD002A03
+    USB_SERVICE_DOMAIN,    //0xD002A04
+    USBD_DOMAIN,           //0xD002A05
+    COMMON_DOMAIN,         //0xD002A06
+    USB_JS_NAPI,           //0xD002A07
+    USBMGR_JAVAKIT_DOMAIN,
     USB_BUTT,
 };
 
 static const UsbLable USB_MGR_LABEL[USBMGR_MODULE_BUTT] = {
     {USBMGR_INNERKIT_DOMAIN, "UsbMgrClient"},
     {USBMGR_SERVICE_DOMAIN, "UsbMgrService"},
-    {USBMGR_JAVAKIT_DOMAIN, "UsbMgrJavaService"},
-    {USBMGR_INNERKIT_DOMAIN, "UsbMgrJni"},
     {USB_INNERKIT_DOMAIN, "UsbSrvClient"},
     {USB_SERVICE_DOMAIN, "UsbService"},
     {USBD_DOMAIN, "Usbd"},
     {COMMON_DOMAIN, "UsbMgrCommon"},
     {USB_JS_NAPI, "UsbMgrJSNAPI"},
+    {USBMGR_JAVAKIT_DOMAIN, "UsbMgrJavaService"},
+    {USBMGR_INNERKIT_DOMAIN, "UsbMgrJni"},
 };
 
 // In order to improve performance, do not check the module range, module should less than USBMGR_MODULE_BUTT.
