@@ -1573,12 +1573,16 @@ void UsbService::UnLoadSelf(UnLoadSaType type)
 
 void UsbService::UsbdDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
 {
-    auto pms = DelayedSpSingleton<UsbService>::GetInstance();
-    if (pms == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "failed to GetInstance");
+    auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrProxy == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "get samgr failed");
         return;
     }
-    pms->UnLoadSelf(UNLOAD_SA_IMMEDIATELY);
+
+    auto ret = samgrProxy->UnloadSystemAbility(USB_SYSTEM_ABILITY_ID);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "unload failed");
+    }
 }
 
 int32_t UsbService::PreManageInterface()
