@@ -1463,7 +1463,6 @@ int32_t UsbService::BulkCancel(const UsbDev &devInfo, const UsbPipe &pipe)
 
 int32_t UsbService::AddRight(const std::string &bundleName, const std::string &deviceName)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "calling AddRight");
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
@@ -1490,7 +1489,6 @@ int32_t UsbService::AddRight(const std::string &bundleName, const std::string &d
 
 int32_t UsbService::AddAccessRight(const std::string &tokenId, const std::string &deviceName)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "calling AddAccessRight");
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;

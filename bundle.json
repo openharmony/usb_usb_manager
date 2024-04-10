@@ -45,7 +45,8 @@
                 "relational_store",
                 "resource_management",
                 "ability_runtime",
-                "hisysevent"
+                "hisysevent",
+                "hitrace"
             ],
             "third_party": [
                 "cJSON",
