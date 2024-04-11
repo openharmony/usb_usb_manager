@@ -71,8 +71,8 @@ void UsbSrvClient::ResetProxy(const wptr<IRemoteObject> &remote)
     if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
         serviceRemote->RemoveDeathRecipient(deathRecipient_);
 
-        uint32_t MANAGE_INTERFACE_INTERVAL = 500;
-        std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
+        uint32_t WAIT_SERVICE_LOAD = 500;
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_SERVICE_LOAD));
 
         sptr<ISystemAbilityManager> sm = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
             if (sm == nullptr) {
