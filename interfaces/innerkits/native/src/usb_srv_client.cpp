@@ -23,6 +23,7 @@
 #include "usb_common.h"
 #include "usb_device.h"
 #include "usb_errors.h"
+#include "timer.h"
 #include "v1_1/iusb_interface.h"
 
 using namespace OHOS::HDI::Usb::V1_1;
@@ -69,7 +70,21 @@ void UsbSrvClient::ResetProxy(const wptr<IRemoteObject> &remote)
     auto serviceRemote = proxy_->AsObject();
     if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
         serviceRemote->RemoveDeathRecipient(deathRecipient_);
-        proxy_ = nullptr;
+
+        uint32_t WAIT_SERVICE_LOAD = 500;
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_SERVICE_LOAD));
+
+        sptr<ISystemAbilityManager> sm = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+            if (sm == nullptr) {
+                USB_HILOGE(MODULE_USB_INNERKIT, "fail to get SystemAbilityManager");
+            return;
+            }
+        sptr<IRemoteObject> remoteObject = sm->CheckSystemAbility(USB_SYSTEM_ABILITY_ID);
+            if (remoteObject == nullptr) {
+                USB_HILOGE(MODULE_USB_INNERKIT, "GetSystemAbility failed.");
+                proxy_ = nullptr;
+            }
+        proxy_ = iface_cast<IUsbSrv>(remoteObject);
     }
 }
 
