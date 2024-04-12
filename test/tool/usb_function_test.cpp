@@ -218,7 +218,7 @@ static void ResetProxy(UsbSrvClient &g_usbClient, int32_t &sp)
     while (c != EOF) {
         if ((c = getchar()) == '\n') {
             break;
-        }   
+        }
     }
     uint8_t speed = -1;
     g_usbClient.GetDeviceSpeed(pipe, speed);
