@@ -56,7 +56,9 @@ static void PrintHelp()
     printf("-f 36: Switch to function:rndis&hdc\n");
     printf("-f 516: Switch to function:storage&hdc\n");
     printf("-c 1: Switch to recv braodcast\n");
-    printf("-s 0: Query Device Status\n");
+    printf("-s 0: Get devicespeed\n");
+    printf("-s 1: Get interface actived\n");
+    printf("-r 0: Reset proxy\n");
 }
 
 class UsbSubscriberTest : public CommonEventSubscriber {
@@ -204,6 +206,26 @@ static void InterfaceStatus(UsbSrvClient &g_usbClient, int32_t &ds)
     return;
 }
 
+static void ResetProxy(UsbSrvClient &g_usbClient, int32_t &sp)
+{
+    vector<UsbDevice> devi;
+    g_usbClient.GetDevices(devi);
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    g_usbClient.OpenDevice(device, pipe);
+    std::cout << "please kill service, press enter to continue" << std::endl;
+    int32_t c;
+    while (c != EOF) {
+        if ((c = getchar()) == '\n') {
+            break;
+        }
+    }
+    uint8_t speed = -1;
+    g_usbClient.GetDeviceSpeed(pipe, speed);
+    sp = speed;
+    return;
+}
+
 static void DeviceStatus(UsbSrvClient &g_usbClient, int32_t mode)
 {
     switch (mode) {
@@ -216,6 +238,24 @@ static void DeviceStatus(UsbSrvClient &g_usbClient, int32_t mode)
             int32_t ds;
             InterfaceStatus(g_usbClient, ds);
             printf("%s:%d interface status=%d\n", __func__, __LINE__, ds);
+            break;
+        default:
+            printf("%s:%d port param error\n", __func__, __LINE__);
+            break;
+    }
+}
+
+static void SetProxy(UsbSrvClient &g_usbClient, int32_t mode)
+{
+    switch (mode) {
+        case 0:
+            int32_t sp;
+            ResetProxy(g_usbClient, sp);
+            if (sp > 0) {
+                printf("%s:%d ResetProxy Okay\n", __func__, __LINE__);
+            } else {
+                printf("%s:%d ResetProxy failed\n", __func__, __LINE__);
+            }
             break;
         default:
             printf("%s:%d port param error\n", __func__, __LINE__);
@@ -252,6 +292,9 @@ int32_t main(int32_t argc, char *argv[])
     } else if (!strcmp(argv[CMD_INDEX], "-s")) {
         mode = stoi(argv[PARAM_INDEX]);
         DeviceStatus(g_usbClient, mode);
+    } else if (!strcmp(argv[CMD_INDEX], "-r")) {
+        mode = stoi(argv[PARAM_INDEX]);
+        SetProxy(g_usbClient, mode);
     } else if (!strcmp(argv[CMD_INDEX], "-c")) {
         AddCommonEvent();
         printf("Press input c to exit.\n");
