@@ -249,7 +249,7 @@ static void SetProxy(UsbSrvClient &g_usbClient, int32_t mode)
         case 0:
             int32_t sp;
             ResetProxy(g_usbClient, sp);
-            if(sp != 0) {
+            if (sp > 0) {
                 printf("%s:%d ResetProxy Okay\n", __func__, __LINE__);
             } else {
                 printf("%s:%d ResetProxy failed\n", __func__, __LINE__);
