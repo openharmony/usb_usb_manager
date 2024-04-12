@@ -215,8 +215,10 @@ static void ResetProxy(UsbSrvClient &g_usbClient, int32_t &sp)
     g_usbClient.OpenDevice(device, pipe);
     std::cout << "please kill service, press enter to continue" << std::endl;
     int32_t c;
-    while ((c = getchar()) != '\n' && c != EOF) {
-        ;
+    while (c != EOF) {
+        if ((c = getchar()) == '\n') {
+            break;
+        }   
     }
     uint8_t speed = -1;
     g_usbClient.GetDeviceSpeed(pipe, speed);
