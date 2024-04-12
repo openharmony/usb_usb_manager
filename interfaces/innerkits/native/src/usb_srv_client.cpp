@@ -29,6 +29,7 @@
 using namespace OHOS::HDI::Usb::V1_1;
 namespace OHOS {
 namespace USB {
+constexpr uint32_t WAIT_SERVICE_LOAD = 500;
 UsbSrvClient::UsbSrvClient()
 {
     Connect();
@@ -71,18 +72,17 @@ void UsbSrvClient::ResetProxy(const wptr<IRemoteObject> &remote)
     if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
         serviceRemote->RemoveDeathRecipient(deathRecipient_);
 
-        uint32_t WAIT_SERVICE_LOAD = 500;
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_SERVICE_LOAD));
 
         sptr<ISystemAbilityManager> sm = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-            if (sm == nullptr) {
-                USB_HILOGE(MODULE_USB_INNERKIT, "fail to get SystemAbilityManager");
+        if (sm == nullptr) {
+            USB_HILOGE(MODULE_USB_INNERKIT, "fail to get SystemAbilityManager");
             return;
             }
         sptr<IRemoteObject> remoteObject = sm->CheckSystemAbility(USB_SYSTEM_ABILITY_ID);
-            if (remoteObject == nullptr) {
-                USB_HILOGE(MODULE_USB_INNERKIT, "GetSystemAbility failed.");
-                proxy_ = nullptr;
+        if (remoteObject == nullptr) {
+            USB_HILOGE(MODULE_USB_INNERKIT, "GetSystemAbility failed.");
+            proxy_ = nullptr;
             }
         proxy_ = iface_cast<IUsbSrv>(remoteObject);
     }
