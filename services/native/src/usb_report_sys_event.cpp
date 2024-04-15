@@ -23,18 +23,16 @@ using namespace OHOS::HiviewDFX;
 
 namespace OHOS {
 namespace USB {
-
 void UsbReportSysEvent::ReportTransforFaultSysEvent(const std::string interfaceName,
     const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe, int32_t ret)
 {
     USB_HILOGI(MODULE_USBD, "report transfor fault sys event");
-    int32_t hiRet = HiSysEventWrite(HiSysEvent::Domain::USB, "USB_MANAGE_TRANSFOR_FAULT", HiSysEvent::EventType::FAULT,
-        "INTFACE_NAME", interfaceName, "BUS_NUM", dev.busNum, "DEV_ADDR", dev.devAddr,
+    int32_t hiSysEventWriteRet = HiSysEventWrite(HiSysEvent::Domain::USB, "USB_MANAGE_TRANSFOR_FAULT",
+        HiSysEvent::EventType::FAULT, "INTFACE_NAME", interfaceName, "BUS_NUM", dev.busNum, "DEV_ADDR", dev.devAddr,
         "INFT_ID", pipe.intfId, "ENDPOINT_ID", pipe.endpointId, "FAIL_REASON", ret);
-    if (hiRet != UEC_OK) {
-        USB_HILOGI(MODULE_USBD, "HiSysEventWrite ret: %{public}d", hiRet);
+    if (hiSysEventWriteRet != UEC_OK) {
+        USB_HILOGI(MODULE_USBD, "HiSysEventWrite ret: %{public}d", hiSysEventWriteRet);
     }
 }
-
 } // OHOS
 } // USB
