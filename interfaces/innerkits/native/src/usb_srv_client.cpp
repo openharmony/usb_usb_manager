@@ -83,7 +83,7 @@ void UsbSrvClient::ResetProxy(const wptr<IRemoteObject> &remote)
         if (remoteObject == nullptr) {
             USB_HILOGE(MODULE_USB_INNERKIT, "GetSystemAbility failed.");
             proxy_ = nullptr;
-	    return;
+	        return;
         }
         proxy_ = iface_cast<IUsbSrv>(remoteObject);
     }
