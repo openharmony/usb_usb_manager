@@ -866,8 +866,8 @@ int32_t UsbService::FillDevStrings(UsbDevice &dev)
 
     busNum = dev.GetBusNum();
     devAddr = dev.GetDevAddr();
-    uint16_t bcdDevice = dev.GetbcdDevice();
-    const std::vector<uint8_t> bcdData {(bcdDevice & 0xff), ((bcdDevice >> offsetValue) & 0xff)};
+    uint16_t bcdUsb = dev.GetbcdUSB();
+    const std::vector<uint8_t> bcdData {(bcdUsb & 0xff), ((bcdUsb >> offsetValue) & 0xff)};
     dev.SetVersion(BcdToString(bcdData));
     dev.SetManufacturerName(GetDevStringValFromIdx(busNum, devAddr, dev.GetiManufacturer()));
     dev.SetProductName(GetDevStringValFromIdx(busNum, devAddr, dev.GetiProduct()));
