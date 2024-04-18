@@ -41,24 +41,51 @@ public:
 
     explicit USBConfig(const cJSON *config)
     {
-        id_ = cJSON_GetObjectItem(config, "id")->valueint;
-        attributes_ = cJSON_GetObjectItem(config, "attributes")->valueint;
-        maxPower_ = cJSON_GetObjectItem(config, "maxPower")->valueint;
-        name_ = cJSON_GetObjectItem(config, "name")->valuestring;
-        cJSON* jsonInterfaces = cJSON_GetObjectItem(config, "interfaces");
-        for (int i = 0; i < cJSON_GetArraySize(jsonInterfaces); i++) {
-            cJSON* jsonInterface =  cJSON_GetArrayItem(jsonInterfaces, i);
-            if (jsonInterface == nullptr) {
-                USB_HILOGE(MODULE_USB_SERVICE, "get item nullptr");
-                continue;
+        if (config == nullptr) {
+            USB_HILOGE(MODULE_USB_SERVICE, "config pointer is nullptr");
+        }
+        id_ = GetIntValue(config, "id");
+        attributes_ = static_cast<uint32_t>(GetIntValue(config, "attributes"));
+        maxPower_ = GetIntValue(config, "maxPower");
+        name_ = GetStringValue(config, "name");
+        cJSON *jsonInterfaces = cJSON_GetObjectItem(config, "interfaces");
+        if (jsonInterfaces != nullptr) {
+            for (int i = 0; i < cJSON_GetArraySize(jsonInterfaces); i++) {
+                cJSON *jsonInterface = cJSON_GetArrayItem(jsonInterfaces, i);
+                if (jsonInterface == nullptr) {
+                    USB_HILOGE(MODULE_USB_SERVICE, "get item nullptr");
+                    continue;
+                }
+                UsbInterface interface(jsonInterface);
+                interfaces_.emplace_back(interface);
             }
-            UsbInterface interface(jsonInterface);
-            interfaces_.emplace_back(interface);
         }
     }
 
     USBConfig() {}
     ~USBConfig() {}
+
+    static int GetIntValue(const cJSON *jsonObject, const char *key)
+    {
+        cJSON *item = cJSON_GetObjectItem(jsonObject, key);
+        if (item != nullptr && cJSON_IsNumber(item)) {
+            return item->valueint;
+        } else {
+            USB_HILOGE(MODULE_USB_SERVICE, "Invalid or missing %s field", key);
+            return 0;
+        }
+    }
+
+    static std::string GetStringValue(const cJSON *jsonObject, const char *key)
+    {
+        cJSON *item = cJSON_GetObjectItem(jsonObject, key);
+        if (item != nullptr && cJSON_IsString(item)) {
+            return item->valuestring;
+        } else {
+            USB_HILOGE(MODULE_USB_SERVICE, "Invalid or missing %s field", key);
+            return "";
+        }
+    }
 
     const int32_t &GetId() const
     {

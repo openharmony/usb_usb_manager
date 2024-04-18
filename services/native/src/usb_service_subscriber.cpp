@@ -56,6 +56,7 @@ int32_t UsbServiceSubscriber::PortChangedEvent(const PortInfo &info)
     data.SetData(jsonString);
     data.SetWant(want);
     cJSON_Delete(portJson);
+    cJSON_free(jsonString);
     CommonEventPublishInfo publishInfo;
     bool isSuccess = CommonEventManager::PublishCommonEvent(data, publishInfo);
     if (!isSuccess) {
