@@ -149,6 +149,10 @@ int32_t UsbRightManager::RequestRight(const std::string &busDev, const std::stri
 
 bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::string &bundleName)
 {
+    if (!IsAllDigits(bundleName)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "bundleName invalid");
+        return false;
+    }
     /* already checked system app/hap when call */
     uint32_t tokenId = stoul(bundleName);
     HapTokenInfo hapTokenInfoRes;
@@ -624,5 +628,15 @@ int32_t UsbRightManager::TidyUpRight(uint32_t choose)
     return ret;
 }
 
+bool UsbRightManager::IsAllDigits(const std::string &bundleName)
+{
+    int len = bundleName.length();
+    for (int i = 0; i < len; i++) {
+        if (!isdigit(bundleName[i])) {
+            return false;
+        }
+    }
+    return true;
+}
 } // namespace USB
 } // namespace OHOS

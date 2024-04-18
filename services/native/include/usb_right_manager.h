@@ -58,6 +58,7 @@ private:
     bool ShowUsbDialog(const std::string &busDev, const std::string &deviceName,
         const std::string &bundleName, const std::string &tokenId);
     bool CheckSaPermission();
+    bool IsAllDigits(const std::string &bundleName);
     sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
 
     static sem_t waitDialogDisappear_;
