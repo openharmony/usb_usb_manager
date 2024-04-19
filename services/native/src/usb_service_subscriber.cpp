@@ -43,7 +43,7 @@ int32_t UsbServiceSubscriber::PortChangedEvent(const PortInfo &info)
     cJSON* portJson = cJSON_CreateObject();
     if (!portJson) {
         USB_HILOGE(MODULE_USB_SERVICE, "Create portJson error");
-        return UEC_SERVICE_GET_USB_SERVICE_FAILED;
+        return UEC_SERVICE_OBJECT_CREATE_FAILED;
     }
     cJSON_AddNumberToObject(portJson, "portId", static_cast<double>(info.portId));
     cJSON_AddNumberToObject(portJson, "powerRole", static_cast<double>(info.powerRole));
