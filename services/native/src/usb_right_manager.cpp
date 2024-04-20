@@ -147,19 +147,18 @@ int32_t UsbRightManager::RequestRight(const std::string &busDev, const std::stri
     return UEC_OK;
 }
 
-bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::string &bundleName)
+bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::string &tokenIdStr)
 {
-    if (!IsAllDigits(bundleName)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "bundleName invalid");
+    if (!IsAllDigits(tokenIdStr)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr invalid");
         return false;
     }
     /* already checked system app/hap when call */
-    uint32_t tokenId = stoul(bundleName);
+    uint32_t tokenId = stoul(tokenIdStr);
     HapTokenInfo hapTokenInfoRes;
     int32_t ret = AccessTokenKit::GetHapTokenInfo((AccessTokenID) tokenId, hapTokenInfoRes);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetHapTokenInfo failed: tokenId:%{public}d, ret:%{public}d",
-            tokenId, ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "GetHapTokenInfo failed:ret:%{public}d", ret);
         return false;
     }
     int32_t uid = hapTokenInfoRes.userID;
@@ -170,8 +169,7 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
     uint64_t installTime = GetCurrentTimestamp();
     uint64_t updateTime = GetCurrentTimestamp();
     if (!GetBundleInstallAndUpdateTime(uid, hapTokenInfoRes.bundleName, installTime, updateTime)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "get app install time and update time failed: %{public}s/%{public}d",
-            bundleName.c_str(), uid);
+        USB_HILOGE(MODULE_USB_SERVICE, "get app install time and update time failed: %{public}d", uid);
     }
     struct UsbRightAppInfo info;
     info.uid = uid;
@@ -181,10 +179,41 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
     info.validPeriod = USB_RIGHT_VALID_PERIOD_SET;
 
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
-    ret = helper->AddOrUpdateRightRecord(uid, deviceName, hapTokenInfoRes.bundleName, bundleName, info);
+    ret = helper->AddOrUpdateRightRecord(uid, deviceName, hapTokenInfoRes.bundleName, tokenIdStr, info);
+    if (ret < 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "add or update failed: %{public}s/%{public}d, ret=%{public}d",
+            deviceName.c_str(), uid, ret);
+        return false;
+    }
+    return true;
+}
+
+bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::string &bundleName,
+    const std::string &tokenId, const int32_t &userId)
+{
+    /* already checked system app/hap when call */
+    if (userId == USB_RIGHT_USERID_CONSOLE) {
+        USB_HILOGE(MODULE_USB_SERVICE, "console called, bypass");
+        return true;
+    }
+    uint64_t installTime = GetCurrentTimestamp();
+    uint64_t updateTime = GetCurrentTimestamp();
+    if (!GetBundleInstallAndUpdateTime(userId, bundleName, installTime, updateTime)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "get app install time and update time failed: %{public}s/%{public}d",
+            bundleName.c_str(), userId);
+    }
+    struct UsbRightAppInfo info;
+    info.uid = userId;
+    info.installTime = installTime;
+    info.updateTime = updateTime;
+    info.requestTime = GetCurrentTimestamp();
+    info.validPeriod = USB_RIGHT_VALID_PERIOD_SET;
+
+    std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
+    auto ret = helper->AddOrUpdateRightRecord(userId, deviceName, bundleName, tokenId, info);
     if (ret < 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "add or update failed: %{public}s/%{public}s/%{public}d, ret=%{public}d",
-            deviceName.c_str(), bundleName.c_str(), uid, ret);
+            deviceName.c_str(), bundleName.c_str(), userId, ret);
         return false;
     }
     return true;

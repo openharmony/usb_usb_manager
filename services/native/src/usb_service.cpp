@@ -79,7 +79,7 @@ constexpr int32_t PROTOCAL_INDEX = 2;
 constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
-
+constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
 std::unordered_map<InterfaceType, std::vector<int32_t>> g_typeMap  = {
     {InterfaceType::TYPE_STORAGE,   {8, -1, -1}},
     {InterfaceType::TYPE_AUDIO,     {1, -1, -1}},
@@ -384,7 +384,11 @@ bool UsbService::HasRight(std::string deviceName)
     }
 
     USB_HILOGI(MODULE_USB_SERVICE, "bundle=%{public}s, device=%{public}s", bundleName.c_str(), deviceName.c_str());
-    return usbRightManager_->HasRight(deviceVidPidSerialNum, bundleName, tokenId, userId);
+    if (usbRightManager_->HasRight(deviceVidPidSerialNum, bundleName, tokenId, userId)) {
+        return true;
+    }
+
+    return usbRightManager_->HasRight(deviceVidPidSerialNum, bundleName, USB_DEFAULT_TOKEN, userId);
 }
 
 int32_t UsbService::RequestRight(std::string deviceName)
@@ -440,7 +444,12 @@ int32_t UsbService::RemoveRight(std::string deviceName)
         return false;
     }
 
-    if (!usbRightManager_->RemoveDeviceRight(deviceVidPidSerialNum, bundleName, tokenId, userId)) {
+    if (usbRightManager_->RemoveDeviceRight(deviceVidPidSerialNum, bundleName, tokenId, userId)) {
+        USB_HILOGI(MODULE_USB_SERVICE, "RemoveDeviceRight done");
+        return UEC_OK;
+    }
+
+    if (!usbRightManager_->RemoveDeviceRight(deviceVidPidSerialNum, bundleName, USB_DEFAULT_TOKEN, userId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "RemoveDeviceRight failed");
         return UEC_SERVICE_INNER_ERR;
     }
@@ -1376,6 +1385,21 @@ bool UsbService::GetCallingInfo(std::string &bundleName, std::string &tokenId, i
     return true;
 }
 
+bool UsbService::GetBundleInfo(std::string &tokenId, int32_t &userId)
+{
+    OHOS::Security::AccessToken::AccessTokenID token = IPCSkeleton::GetCallingTokenID();
+    OHOS::Security::AccessToken::HapTokenInfo hapTokenInfoRes;
+    int32_t ret = OHOS::Security::AccessToken::AccessTokenKit::GetHapTokenInfo(token, hapTokenInfoRes);
+    if (ret != ERR_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "failed, ret: %{public}d, id: %{public}u",
+            ret, (uint32_t)token);
+        return false;
+    }
+    tokenId = USB_DEFAULT_TOKEN;
+    userId = hapTokenInfoRes.userID;
+    return true;
+}
+
 int32_t UsbService::RegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe, const sptr<IRemoteObject> &cb)
 {
     if (cb == nullptr) {
@@ -1477,9 +1501,15 @@ int32_t UsbService::AddRight(const std::string &bundleName, const std::string &d
         USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
         return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
     }
+    std::string tokenId;
+    int32_t userId = USB_RIGHT_USERID_INVALID;
+    if (!GetBundleInfo(tokenId, userId)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetCallingInfo false");
+        return false;
+    }
     USB_HILOGI(MODULE_USB_SERVICE, "AddRight bundleName = %{public}s, deviceName = %{public}s", bundleName.c_str(),
         deviceName.c_str());
-    if (!usbRightManager_->AddDeviceRight(deviceVidPidSerialNum, bundleName)) {
+    if (!usbRightManager_->AddDeviceRight(deviceVidPidSerialNum, bundleName, tokenId, userId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "AddDeviceRight failed");
         return UEC_SERVICE_INNER_ERR;
     }
