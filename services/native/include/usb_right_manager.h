@@ -40,7 +40,9 @@ public:
     /* busDev is in busNum-devAddr format */
     int32_t RequestRight(const std::string &busDev, const std::string &deviceName, const std::string &bundleName,
         const std::string &tokenId, const int32_t &userId);
-    bool AddDeviceRight(const std::string &deviceName, const std::string &bundleName);
+    bool AddDeviceRight(const std::string &deviceName, const std::string &tokenIdStr);
+    bool AddDeviceRight(const std::string &deviceName, const std::string &bundleName,
+        const std::string &tokenId, const int32_t &userId);
     bool RemoveDeviceRight(const std::string &deviceName, const std::string &bundleName,
         const std::string &tokenId, const int32_t &userId);
     bool RemoveDeviceAllRight(const std::string &deviceName);

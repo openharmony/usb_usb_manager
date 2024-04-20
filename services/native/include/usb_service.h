@@ -151,6 +151,7 @@ private:
     bool IsCommonEventServiceAbilityExist();
     bool GetBundleName(std::string &bundleName);
     bool GetCallingInfo(std::string &bundleName, std::string &tokenId, int32_t &userId);
+    bool GetBundleInfo(std::string &tokenId, int32_t &userId);
     std::string GetDeviceVidPidSerialNumber(std::string deviceName);
     int32_t GetDeviceVidPidSerialNumber(std::string deviceName, std::string& strDesc);
     int32_t FillDevStrings(UsbDevice &dev);
