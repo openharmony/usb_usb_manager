@@ -194,6 +194,7 @@ public:
         cJSON* config = cJSON_CreateObject();
         if (!config) {
             USB_HILOGE(MODULE_USB_SERVICE, "Create config error");
+            return "";
         }
         cJSON_AddNumberToObject(config, "id", static_cast<double>(id_));
         cJSON_AddNumberToObject(config, "attributes", static_cast<double>(attributes_));
@@ -205,14 +206,22 @@ public:
         cJSON* interfaces = cJSON_CreateArray();
         if (!interfaces) {
             USB_HILOGE(MODULE_USB_SERVICE, "Create interfaces error");
+            cJSON_Delete(config);
+            return "";
         }
         for (auto &intf : interfaces_) {
             cJSON* pInterface =  cJSON_Parse(intf.getJsonString().c_str());
             cJSON_AddItemToArray(interfaces, pInterface);
         }
         cJSON_AddItemToObject(config, "interfaces", interfaces);
-        std::string configStr(cJSON_PrintUnformatted(config));
+        char *pConfigStr = cJSON_PrintUnformatted(config);
         cJSON_Delete(config);
+        if (!pConfigStr) {
+            USB_HILOGE(MODULE_USB_SERVICE, "Print config error");
+            return "";
+        }
+        std::string configStr(pConfigStr);
+        free(pConfigStr);
         return configStr;
     }
 

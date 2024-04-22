@@ -212,6 +212,7 @@ public:
         cJSON* interface = cJSON_CreateObject();
         if (!interface) {
             USB_HILOGE(MODULE_USB_SERVICE, "Create interface error");
+            return "";
         }
         cJSON_AddNumberToObject(interface, "id", static_cast<double>(id_));
         cJSON_AddNumberToObject(interface, "protocol", static_cast<double>(protocol_));
@@ -227,10 +228,17 @@ public:
             const USBEndpoint &ep = endpoints_[i];
             cJSON* pEp =  cJSON_Parse(ep.getJsonString().c_str());
             cJSON_AddItemToArray(endpoints, pEp);
+            cJSON_Delete(pEp);
         }
         cJSON_AddItemToObject(interface, "endpoints", endpoints);
-        std::string interfaceJsonStr(cJSON_PrintUnformatted(interface));
+        char *pInterface = cJSON_PrintUnformatted(interface);
         cJSON_Delete(interface);
+        if (!pInterface) {
+            USB_HILOGE(MODULE_USB_SERVICE, "Print interface error");
+            return "";
+        }
+        std::string interfaceJsonStr(pInterface);
+        free(pInterface);
         return interfaceJsonStr;
     }
 
