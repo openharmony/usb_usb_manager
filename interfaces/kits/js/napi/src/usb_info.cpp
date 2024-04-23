@@ -1474,7 +1474,7 @@ napi_value UsbInit(napi_env env, napi_value exports)
 
         /* usb port */
         DECLARE_NAPI_FUNCTION("getSupportedModes", PortGetSupportedModes),
-        DECLARE_NAPI_FUNCTION("getSupportedModes", PortGetSupportedModes),
+        DECLARE_NAPI_FUNCTION("getPortSupportModes", PortGetSupportedModes),
         DECLARE_NAPI_FUNCTION("setPortRoles", PortSetPortRole),
         DECLARE_NAPI_FUNCTION("setPortRoleTypes", PortSetPortRole),
 

@@ -14,6 +14,8 @@
  */
 
 #include <csignal>
+#include <cstdint>
+#include <cstdio>
 #include <iostream>
 #include <strings.h>
 #include <vector>
@@ -171,6 +173,11 @@ HWTEST_F(UsbDfxTest, ReportSysEvent001, TestSize.Level1)
  */
 HWTEST_F(UsbDfxTest, GetCurrentFunctions002, TestSize.Level1)
 {
+    std::cout << "please connect device, press enter to continue" << std::endl;
+    int32_t c;
+    while ((c = getchar()) != '\n' && c != EOF) {
+        ;
+    }
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ReportSysEvent002");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     int32_t funcs = static_cast<int32_t>(UsbSrvSupport::FUNCTION_NONE);
