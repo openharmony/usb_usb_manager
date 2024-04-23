@@ -659,8 +659,8 @@ int32_t UsbRightManager::TidyUpRight(uint32_t choose)
 
 bool UsbRightManager::IsAllDigits(const std::string &bundleName)
 {
-    int len = bundleName.length();
-    for (int i = 0; i < len; i++) {
+    size_t len = bundleName.length();
+    for (size_t i = 0; i < len; i++) {
         if (!isdigit(bundleName[i])) {
             return false;
         }

@@ -346,6 +346,7 @@ public:
         cJSON* device = cJSON_CreateObject();
         if (!device) {
             USB_HILOGE(MODULE_USB_SERVICE, "Create device error");
+            return "";
         }
         cJSON_AddNumberToObject(device, "busNum", static_cast<double>(busNum_));
         cJSON_AddNumberToObject(device, "devAddress", static_cast<double>(devAddr_));
@@ -362,14 +363,22 @@ public:
         cJSON* configs = cJSON_CreateArray();
         if (!configs) {
             USB_HILOGE(MODULE_USB_SERVICE, "Create configs error");
+            cJSON_Delete(device);
+            return "";
         }
         for (auto &cfg : configs_) {
             cJSON* pConfig =  cJSON_Parse(cfg.getJsonString().c_str());
             cJSON_AddItemToArray(configs, pConfig);
         }
         cJSON_AddItemToObject(device, "configs", configs);
-        std::string deviceStr(cJSON_PrintUnformatted(device));
+        char *pDevice = cJSON_PrintUnformatted(device);
         cJSON_Delete(device);
+        if (!pDevice) {
+            USB_HILOGE(MODULE_USB_SERVICE, "Print device error");
+            return "";
+        }
+        std::string deviceStr(pDevice);
+        free(pDevice);
         return deviceStr;
     }
 
