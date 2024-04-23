@@ -304,7 +304,7 @@ bool UsbRightManager::CheckPermission()
     if (CheckSaPermission() || IsSystemApp()) {
         return true;
     }
-    USB_HILOGW(MODULE_USB_SERVICE, "not system apl or system app, return false");
+    USB_HILOGW(MODULE_USB_SERVICE, "not authorized or not system app, return false");
     return false;
 }
 
