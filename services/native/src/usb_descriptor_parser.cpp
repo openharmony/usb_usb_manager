@@ -23,6 +23,8 @@
 #include "usb_interface.h"
 #include "usbd_type.h"
 
+static constexpr uint8_t NORMAL_ENDPOINT_DESCRIPTOR = 7;
+static constexpr uint8_t AUDIO_ENDPOINT_DESCRIPTOR = 9;
 namespace OHOS {
 namespace USB {
 enum class DescriptorType {
@@ -210,7 +212,8 @@ int32_t UsbDescriptorParser::ParseEndpointDescriptor(
     }
 
     UsbdEndpointDescriptor endpointDescriptor = *(reinterpret_cast<const UsbdEndpointDescriptor *>(buffer + cursor));
-    if (endpointDescriptor.bLength != sizeof(UsbdEndpointDescriptor)) {
+    if (endpointDescriptor.bLength != NORMAL_ENDPOINT_DESCRIPTOR &&
+        endpointDescriptor.bLength != AUDIO_ENDPOINT_DESCRIPTOR) {
         USB_HILOGE(MODULE_USB_SERVICE, "Endpoint descriptor size error, length=%{public}d", endpointDescriptor.bLength);
         return UEC_SERVICE_INVALID_VALUE;
     }
