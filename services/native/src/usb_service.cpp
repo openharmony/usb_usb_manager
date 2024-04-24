@@ -1373,15 +1373,15 @@ bool UsbService::GetCallingInfo(std::string &bundleName, std::string &tokenId, i
     OHOS::Security::AccessToken::HapTokenInfo hapTokenInfoRes;
     int32_t ret = OHOS::Security::AccessToken::AccessTokenKit::GetHapTokenInfo(token, hapTokenInfoRes);
     if (ret != ERR_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "failed, ret: %{public}d, app: %{public}s, tokenId: %{public}s, id: %{public}u",
-            ret, bundleName.c_str(), tokenId.c_str(), (uint32_t)token);
+        USB_HILOGE(MODULE_USB_SERVICE, "failed, ret: %{public}d, app: %{public}s",
+            ret, bundleName.c_str());
         return false;
     }
     bundleName = hapTokenInfoRes.bundleName;
     tokenId = std::to_string((uint32_t)token);
     userId = hapTokenInfoRes.userID;
-    USB_HILOGD(MODULE_USB_SERVICE, "ret: %{public}d, app: %{public}s, id: %{public}s, user: %{public}d",
-        ret, bundleName.c_str(), tokenId.c_str(), hapTokenInfoRes.userID);
+    USB_HILOGD(MODULE_USB_SERVICE, "ret: %{public}d, app: %{public}s, user: %{public}d",
+        ret, bundleName.c_str(), hapTokenInfoRes.userID);
     return true;
 }
 
@@ -1533,8 +1533,7 @@ int32_t UsbService::AddAccessRight(const std::string &tokenId, const std::string
         USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
         return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
     }
-    USB_HILOGI(MODULE_USB_SERVICE, "AddRight tokenId = %{public}s, deviceName = %{public}s", tokenId.c_str(),
-        deviceName.c_str());
+    USB_HILOGI(MODULE_USB_SERVICE, "AddRight deviceName = %{public}s", deviceName.c_str());
     if (!usbRightManager_->AddDeviceRight(deviceVidPidSerialNum, tokenId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "AddDeviceRight failed");
         return UEC_SERVICE_INNER_ERR;

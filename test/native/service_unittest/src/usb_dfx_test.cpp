@@ -176,7 +176,7 @@ HWTEST_F(UsbDfxTest, GetCurrentFunctions002, TestSize.Level1)
     std::cout << "please connect device, press enter to continue" << std::endl;
     int32_t c;
     while ((c = getchar()) != '\n' && c != EOF) {
-        ;
+        std::cout << "please connect device, press enter to continue" << std::endl;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ReportSysEvent002");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
