@@ -228,7 +228,6 @@ public:
             const USBEndpoint &ep = endpoints_[i];
             cJSON* pEp =  cJSON_Parse(ep.getJsonString().c_str());
             cJSON_AddItemToArray(endpoints, pEp);
-            cJSON_Delete(pEp);
         }
         cJSON_AddItemToObject(interface, "endpoints", endpoints);
         char *pInterface = cJSON_PrintUnformatted(interface);
