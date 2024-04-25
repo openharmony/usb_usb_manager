@@ -20,6 +20,8 @@
 #include <thread>
 #include <unistd.h>
 
+#include "cJSON.h"
+
 #include "ability_manager_client.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
@@ -30,7 +32,12 @@ using namespace OHOS::EventFwk;
 
 namespace OHOS {
 namespace USB {
-
+constexpr int32_t INVALID_USERID = -1;
+constexpr int32_t MESSAGE_PARCEL_KEY_SIZE = 3;
+#ifdef USB_FUNC_SWITCH_MODE
+constexpr int32_t FUNC_LABEL_NOT_NONE = 2;
+constexpr int32_t FUNC_LABEL_NONE = 1;
+#endif
 std::shared_ptr<UsbFunctionSwitchWindow> UsbFunctionSwitchWindow::instance_;
 
 std::shared_ptr<UsbFunctionSwitchWindow> UsbFunctionSwitchWindow::GetInstance()
@@ -100,30 +107,116 @@ bool UsbFunctionSwitchWindow::GetDefaultChooseFunction(int32_t &defaultChoose)
     defaultChoose = UsbFunctionChoose::FUNCTION_CHOOSE_CHARGE_ONLY;
     return true;
 }
+void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
+    const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "OnAbilityConnectDone");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    data.WriteInt32(MESSAGE_PARCEL_KEY_SIZE);
+    data.WriteString16(u"bundleName");
+    data.WriteString16(u"com.usb.right");
+    data.WriteString16(u"abilityName");
+    data.WriteString16(u"UsbFunctionSwitchExtAbility");
+    data.WriteString16(u"parameters");
+    cJSON* paramJson = cJSON_CreateObject();
+    std::string uiExtensionTypeStr = "sysDialog/common";
+    cJSON_AddStringToObject(paramJson, "ability.want.params.uiExtensionType", uiExtensionTypeStr.c_str());
+    std::string paramStr(cJSON_PrintUnformatted(paramJson));
+    data.WriteString16(Str8ToStr16(paramStr));
+    cJSON_Delete(paramJson);
+    paramJson = nullptr;
+    
+    const uint32_t cmdCode = 1;
+    int32_t ret = remoteObject->SendRequest(cmdCode, data, reply, option);
+    if (ret != ERR_OK) {
+        USB_HILOGI(MODULE_USB_SERVICE, "show dialog is failed: %{public}d", ret);
+        return;
+    }
+
+    return;
+}
+
+void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityDisconnectDone(
+    const AppExecFwk::ElementName& element, int resultCode)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "OnAbilityDisconnectDone");
+    return;
+}
 
 bool UsbFunctionSwitchWindow::ShowFunctionSwitchWindow(int32_t defaultChoose)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "show function switch window right now");
-    auto abmc = AAFwk::AbilityManagerClient::GetInstance();
-    if (abmc == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetInstance failed");
+    if (usbFuncAbilityConn == nullptr) {
+        usbFuncAbilityConn = sptr<UsbFuncAbilityConn>(new (std::nothrow) UsbFuncAbilityConn());
+    }
+    if (setCurrentFuncLabel > 0) {
+        auto labelSize = RemoveCurrentFunctionLabel();
+        USB_HILOGI(MODULE_USB_SERVICE, "set current function trigger attach event, labelSize:%{public}d", labelSize);
+        return true;
+    }
+    auto abilityManager = AAFwk::AbilityManagerClient::GetInstance();
+    if (abilityManager == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "AbilityManagerClient is nullptr");
         return false;
     }
-    AAFwk::Want want;
-    want.SetElementName(functionSwitchBundleName_, functionSwitchExtAbility_);
-    want.SetParam("defaultChoose", defaultChoose);
 
-    auto ret = abmc->StartAbility(want);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_SERVICE, "StartAbility failed %{public}d", ret);
-        return false;
+    AAFwk::Want want;
+    want.SetElementName("com.ohos.sceneboard", "com.ohos.sceneboard.systemdialog");
+    auto ret = abilityManager->ConnectAbility(want, usbFuncAbilityConn, INVALID_USERID);
+    if (ret != ERR_OK) {
+        want.SetElementName("com.ohos.systemui", "com.ohos.systemui.dialog");
+        ret = abilityManager->ConnectAbility(want, usbFuncAbilityConn, INVALID_USERID);
+        if (ret != ERR_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "ConnectServiceExtensionAbility systemui failed, ret: %{public}d", ret);
+            usbFuncAbilityConn = nullptr;
+            return false;
+        }
     }
-    USB_HILOGD(MODULE_SERVICE, "StartAbility success");
+    USB_HILOGI(MODULE_SERVICE, "StartAbility success, ret: %{public}d", ret);
     return true;
 }
+int32_t UsbFunctionSwitchWindow::SetCurrentFunctionLabel(int32_t func)
+{
+    if (usbFuncAbilityConn == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "set label connn is nullptr");
+        return 0;
+    }
+#ifdef USB_FUNC_SWITCH_MODE
+    if (func > 0) {
+        setCurrentFuncLabel = setCurrentFuncLabel + FUNC_LABEL_NOT_NONE;
+    } else if (func == 0) {
+        setCurrentFuncLabel = setCurrentFuncLabel + FUNC_LABEL_NONE;
+    }
+#endif
+    return setCurrentFuncLabel;
+}
 
+int32_t UsbFunctionSwitchWindow::RemoveCurrentFunctionLabel()
+{
+    if (usbFuncAbilityConn == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "remove label connn is nullptr");
+        return 0;
+    }
+#ifdef USB_FUNC_SWITCH_MODE
+    if (setCurrentFuncLabel == 0) {
+        return 0;
+    }
+    setCurrentFuncLabel--;
+#endif
+    return  setCurrentFuncLabel;
+}
 bool UsbFunctionSwitchWindow::UnShowFunctionSwitchWindow()
 {
+    if (usbFuncAbilityConn == nullptr) {
+        return true;
+    }
+    if (setCurrentFuncLabel > 0) {
+        auto labelSize = RemoveCurrentFunctionLabel();
+        USB_HILOGI(MODULE_USB_SERVICE, "set current function trigger dettach event, %{public}d", labelSize);
+        return true;
+    }
     auto abmc = AAFwk::AbilityManagerClient::GetInstance();
     if (abmc == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetInstance failed");
