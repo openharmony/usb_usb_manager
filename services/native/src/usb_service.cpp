@@ -42,7 +42,7 @@
 #include "usbd_bulkcallback_impl.h"
 #include "tokenid_kit.h"
 #include "accesstoken_kit.h"
-
+#include "usb_function_switch_window.h"
 using OHOS::sptr;
 using namespace OHOS::HDI::Usb::V1_1;
 
@@ -517,7 +517,13 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    return usbd_->SetCurrentFunctions(functions);
+
+    ret = usbd_->SetCurrentFunctions(functions);
+    if (ret == UEC_OK) {
+        auto labelNum = UsbFunctionSwitchWindow::GetInstance()->SetCurrentFunctionLabel(functions);
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::SetCurrentFunctionLabel size: %{public}d", labelNum);
+    }
+    return ret;
 }
 
 int32_t UsbService::UsbFunctionsFromString(std::string_view funcs)
@@ -1391,8 +1397,7 @@ bool UsbService::GetBundleInfo(std::string &tokenId, int32_t &userId)
     OHOS::Security::AccessToken::HapTokenInfo hapTokenInfoRes;
     int32_t ret = OHOS::Security::AccessToken::AccessTokenKit::GetHapTokenInfo(token, hapTokenInfoRes);
     if (ret != ERR_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "failed, ret: %{public}d, id: %{public}u",
-            ret, (uint32_t)token);
+        USB_HILOGE(MODULE_USB_SERVICE, "failed, ret: %{public}d", ret);
         return false;
     }
     tokenId = USB_DEFAULT_TOKEN;
