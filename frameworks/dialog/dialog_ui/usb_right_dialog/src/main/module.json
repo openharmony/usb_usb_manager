@@ -41,8 +41,8 @@
         "description": "$string:UsbFunctionSwitchWindowAbility_desc",
         "icon": "$media:icon",
         "label": "$string:UsbFunctionSwitchWindowAbility_label",
-        "exported": true,
-        "type": "sysDialog/common"
+        "visible": true,
+        "type": "service"
       }
     ]
   }

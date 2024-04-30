@@ -38,11 +38,11 @@
     },
     {
       "name": "USB_hint",
-      "value": "USB连接方式"
+      "value": "USB用于"
     },
     {
       "name": "USB_func_charge",
-      "value": "仅充电"
+      "value": "仅限充电"
     },
     {
       "name": "USB_func_mtp",

@@ -23,7 +23,3 @@ if (defined(global_parts_info) &&
 } else {
   distributed_notification_enable = false
 }
-
-declare_args() {
-  usb_manager_feature_pop_up_func_switch_model = true
-}

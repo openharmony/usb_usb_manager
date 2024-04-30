@@ -38,7 +38,7 @@
     },
     {
       "name": "USB_hint",
-      "value": "USB Connected"
+      "value": "USB Used"
     },
     {
       "name": "USB_func_charge",

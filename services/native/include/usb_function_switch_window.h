@@ -48,27 +48,20 @@ public:
     int32_t Init();
     bool PopUpFunctionSwitchWindow();
     bool DismissFunctionSwitchWindow();
-    int32_t SetCurrentFunctionLabel(int32_t func);
-    int32_t RemoveCurrentFunctionLabel();
+
 private:
     UsbFunctionSwitchWindow();
     DISALLOW_COPY_AND_MOVE(UsbFunctionSwitchWindow);
-    class UsbFuncAbilityConn : public OHOS::AAFwk::AbilityConnectionStub {
-        void OnAbilityConnectDone(const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject,
-            int32_t resultCode) override;
-        void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode) override;
-        public:
-    };
+
     bool GetDefaultChooseFunction(int32_t &defaultChoose);
     bool ShowFunctionSwitchWindow(int32_t defaultChoose);
     bool UnShowFunctionSwitchWindow();
+
     static std::shared_ptr<UsbFunctionSwitchWindow> instance_;
-    sptr<UsbFuncAbilityConn> usbFuncAbilityConn = nullptr;
     int32_t windowAction_ = UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_DEFAULT;
     std::mutex opMutex_;
     const std::string functionSwitchBundleName_ = "com.usb.right";
     const std::string functionSwitchExtAbility_ = "UsbFunctionSwitchExtAbility";
-    int32_t setCurrentFuncLabel = 0;
 };
 } // namespace USB
 } // namespace OHOS

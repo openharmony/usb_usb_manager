@@ -13,144 +13,226 @@
  * limitations under the License.
  */
 
-import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession'
+import { notificationUtil } from '../util/NotificationUtil';
 import { usbServiceSwitch } from '../util/UsbServiceSwitch';
 import {GlobalThisProxy} from '../util/GlobalThisProxy';
 import { BusinessError } from '@ohos.base';
 import window from '@ohos.window';
 import common from '@ohos.app.ability.common'
 import Want from '@ohos.app.ability.Want';
-let TAG: string = 'UsbService';
+let TAG: string = 'usbfunctionswitchwindow_Index';
 let USBSERVICESWITCH_ID_DEFAULT : number = -1;
 let USBSERVICESWITCH_ID_CHARGE_ONLY : number = -1;
 let USBSERVICESWITCH_ID_XFER_FILE : number = 8;
 let USBSERVICESWITCH_ID_XFER_PIC : number = 16;
-const FIRST_ITEM_INDEX: number = 0;
-const LIST_MIN_HEIGHT: number = 48;
+
 @CustomDialog
   export default
   struct PopUpWindow {
   @State curSelectNumber: number = USBSERVICESWITCH_ID_DEFAULT;
   customDialogController: CustomDialogController;
-  radioContent: Array<SheetInfo> = [];
-
   build() {
     Column() {
-      Row() {
-        Text($r('app.string.USB_hint'))
-          .fontSize(20)
-          .fontWeight('Bold')
-          .textAlign(TextAlign.Start)
-          .textOverflow({overflow: TextOverflow.Ellipsis})
-      }
-        .height(56)
+      Blank().height(5)
+      Text($r('app.string.USB_hint'))
         .width('100%')
-      List({ space: 1 }) {
-        ForEach(this.radioContent, (item: SheetInfo, index?: number) => {
-          ListItem() {
-            Column() {
-              Button() {
-                Row() {
-                  Text(item.title)
-                    .fontSize(16)
-                    .fontWeight('Medium')
-                    .fontColor($r('sys.color.font_primary'))
-                    .layoutWeight(1)
-                  Radio({ value: 'item.title', group: 'radioGroup' })
-                    .size({ width: 16, height: 16 })
-                    .checked(this.curSelectNumber === index)
-                    .hitTestBehavior(HitTestMode.None)
-                    .id(String(index))
-                    .onFocus(() => {
-                      // this.curSelectNumber === index
-                      if (index == FIRST_ITEM_INDEX) {
-                      } else if (index == this.radioContent.length - 1) {
-                      }
-                    })
-                }.constraintSize({ minHeight: LIST_MIN_HEIGHT }).clip(false)
-                .padding({ top: 13, bottom: 13 })
-              }
-                .type(ButtonType.Normal)
-                .borderRadius($r('sys.float.corner_radius_level8'))
-                .buttonStyle(ButtonStyleMode.TEXTUAL)
-                .padding({left: 12, right: 12})
-                .onClick(() => {
-                  item.action && item.action();
-                })
-              if (index < this.radioContent.length - 1) {
-                Divider()
-                  .color($r('sys.color.comp_divider'))
-                  .padding({left: 12, right: 12})
-              }
-            }
-          }
-        })
-      }
-        .width('100%')
-        .clip(false)
-      .onFocus(() => {
-      })
-      .defaultFocus(true)
+        .height('15%')
+        .textAlign(TextAlign.Center)
+        .fontSize(20)
 
-      Button({ type: ButtonType.Normal, stateEffect: true }) {
+      Blank()
+
+      Row({ space: 5 }){
+        Button({ type: ButtonType.Normal, stateEffect: true }) {
+          Column() {
+            Text($r('app.string.USB_func_charge'))
+              .fontSize(20)
+              .fontColor(0xffffff)
+              .textAlign(TextAlign.Center)
+              .width('100%')
+          }
+        }
+        .height('100%')
+          .width('30%')
+          .borderRadius(10)
+          .onClick(() => {
+            let windowClass: window.Window = window.findWindow('UsbFunctionSwitchWindow');
+            let tmpChooseNumber: number = USBSERVICESWITCH_ID_CHARGE_ONLY;
+            usbServiceSwitch.serviceChoose(tmpChooseNumber);
+            notificationUtil.publishChooseNotify(tmpChooseNumber);
+            this.curSelectNumber = tmpChooseNumber;
+
+            console.log(TAG + 'close pop up window: charge only');
+            this.customDialogController.close();
+            windowClass.hide((err: BusinessError) => {
+              const errCode: number = err.code;
+              if (errCode) {
+                console.error('Failed to hide the window. Cause: ' + JSON.stringify(err));
+                return;
+              }
+              console.info('Succeeded in hiding the window.');
+            });
+          })
+          .borderColor(Color.Red)
+          .borderWidth(this.curSelectNumber === USBSERVICESWITCH_ID_CHARGE_ONLY ? 2 : 0)
+
+        Button({ type: ButtonType.Normal, stateEffect: true }) {
+          Column() {
+            Text($r('app.string.USB_func_mtp'))
+              .fontSize(20)
+              .fontColor(0xffffff)
+              .textAlign(TextAlign.Center)
+          }
+        }
+        .height('100%')
+          .width('30%')
+          .borderRadius(10)
+          .onClick(() => {
+            let windowClass: window.Window = window.findWindow('UsbFunctionSwitchWindow');
+            let tmpChooseNumber: number = USBSERVICESWITCH_ID_XFER_FILE;
+            usbServiceSwitch.serviceChoose(tmpChooseNumber);
+            notificationUtil.publishChooseNotify(tmpChooseNumber);
+            this.curSelectNumber = tmpChooseNumber;
+
+            console.log(TAG + 'close pop up window: xfer file');
+            this.customDialogController.close();
+            windowClass.hide((err: BusinessError) => {
+              const errCode: number = err.code;
+              if (errCode) {
+                console.error('Failed to hide the window. Cause: ' + JSON.stringify(err));
+                return;
+              }
+              console.info('Succeeded in hiding the window.');
+            });
+          })
+          .borderColor(Color.Red)
+          .borderWidth(this.curSelectNumber === USBSERVICESWITCH_ID_XFER_FILE ? 2 : 0)
+
+        Button({ type: ButtonType.Normal, stateEffect: true }) {
+          Column() {
+            Text($r('app.string.USB_func_ptp'))
+              .fontSize(20)
+              .fontColor(0xffffff)
+              .textAlign(TextAlign.Center)
+          }
+        }
+        .height('100%')
+          .width('30%')
+          .borderRadius(10)
+          .onClick(() => {
+            let windowClass: window.Window = window.findWindow('UsbFunctionSwitchWindow');
+            let tmpChooseNumber: number = USBSERVICESWITCH_ID_XFER_PIC;
+            usbServiceSwitch.serviceChoose(tmpChooseNumber);
+            notificationUtil.publishChooseNotify(tmpChooseNumber);
+            this.curSelectNumber = tmpChooseNumber;
+
+            console.log(TAG + 'close pop up window: xfer pic');
+            windowClass.hide((err: BusinessError) => {
+              const errCode: number = err.code;
+              if (errCode) {
+                console.error('Failed to hide the window. Cause: ' + JSON.stringify(err));
+                return;
+              }
+              console.info('Succeeded in hiding the window.');
+            });
+          })
+          .borderColor(Color.Red)
+          .borderWidth(this.curSelectNumber === USBSERVICESWITCH_ID_XFER_PIC ? 2 : 0)
+      }
+      .height('60%')
+
+      Divider().height('5%')
+
+      Button({ type: ButtonType.Capsule, stateEffect: true }) {
         Text($r('app.string.USB_hint_cancel'))
-          .fontSize(16)
-          .fontColor(0x0000FF)
-          .fontWeight('Medium')
+          .fontSize(20)
           .height('100%')
           .width('100%')
           .textAlign(TextAlign.Center)
       }
-        .height(40)
-        .width(296)
-        .backgroundColor(0xFFFFFF)
-        .padding({right: 16, left: 16, bottom: 0})
+      .height('15%')
+        .width('90%')
+        .backgroundColor('#ff9d6b6b')
         .onClick(() => {
           console.log(TAG + 'close pop up window: cancel');
-          this.destruction();
+          let windowClass: window.Window = window.findWindow('UsbFunctionSwitchWindow');
+          notificationUtil.publishChooseNotify(this.curSelectNumber);
+          this.customDialogController.close();
+
+          windowClass.hide((err: BusinessError) => {
+            const errCode: number = err.code;
+            if (errCode) {
+              console.error('Failed to hide the window. Cause: ' + JSON.stringify(err));
+              return;
+            }
+            console.info('Succeeded in hiding the window.');
+          });
+
         })
+
+      Blank().height(5)
     }
-      .width(328)
-      .height(167)
+    .height('40%')
 
   }
   destruction() {
+    let windowClass: window.Window = window.findWindow('UsbFunctionSwitchWindow');
     console.log(TAG + 'destruction')
-    let session = AppStorage.get<UIExtensionContentSession>('session');
-    if (session) {
-      session.terminateSelf();
-    }
+    this.customDialogController.close()
+    windowClass.destroyWindow()
+    let extensionContextCtr: common.ServiceExtensionContext = GlobalThisProxy.getInstance().getContext('extensionAbility')
+    extensionContextCtr.terminateSelf()
   }
 }
 
 @Entry
 @Component
 struct IndexHapComponent {
-  private curChoose: number = 0;
+  private curChoose: number = -1;
   private content: string = ''
   private thisWant: string = ''
   customDialogController: CustomDialogController = new CustomDialogController({
-    builder: PopUpWindow({ 
-      curSelectNumber: this.curChoose,
-      radioContent: [
-        {
-          title: $r('app.string.USB_func_charge'),
-          action: () => {
-            let tmpChooseNumber:number = USBSERVICESWITCH_ID_CHARGE_ONLY;
-            usbServiceSwitch.serviceChoose(tmpChooseNumber);
-            let session = AppStorage.get<UIExtensionContentSession>('session');
-            if (session) {
-              session.terminateSelf();
-            }
-          }
-        }
-      ]
-    }),
+    builder: PopUpWindow({ curSelectNumber: this.curChoose }),
     autoCancel: true,
     cancel: this.onCancel
   });
 
   async aboutToAppear() {
+    let defaultChoose: number = GlobalThisProxy.getInstance().getNumInfo('workWant_defaultChoose');
+    let funcSelect: number = GlobalThisProxy.getInstance().getNumInfo('workWant_funcSelect');
+    if (defaultChoose) {
+      this.curChoose = defaultChoose;
+      console.log(TAG + 'use want defaultChoose: ' + this.curChoose);
+    } else if (funcSelect) {
+      this.curChoose = funcSelect;
+      console.log(TAG + 'use want funcSelect: ' + this.curChoose);
+    }
+
+    if (this.curChoose !== USBSERVICESWITCH_ID_CHARGE_ONLY && this.curChoose !== USBSERVICESWITCH_ID_XFER_FILE &&
+      this.curChoose !== USBSERVICESWITCH_ID_XFER_PIC) {
+      this.curChoose = USBSERVICESWITCH_ID_CHARGE_ONLY;
+      console.log(TAG + 'error, use default: ' + this.curChoose);
+    }
+
+    notificationUtil.enableNotification();
+
+    if (this.curChoose === USBSERVICESWITCH_ID_CHARGE_ONLY) {
+      console.log(TAG + 'aboutToAppear: publish charge only');
+      notificationUtil.publishChooseNotify(USBSERVICESWITCH_ID_CHARGE_ONLY);
+    } else if (this.curChoose === USBSERVICESWITCH_ID_XFER_FILE) {
+      console.log(TAG + 'aboutToAppear: publish xfer file');
+      notificationUtil.publishChooseNotify(USBSERVICESWITCH_ID_XFER_FILE);
+    } else if (this.curChoose === USBSERVICESWITCH_ID_XFER_PIC) {
+      console.log(TAG + 'aboutToAppear: publish xfer pic');
+      notificationUtil.publishChooseNotify(USBSERVICESWITCH_ID_XFER_PIC);
+    } else {
+      console.log(TAG + 'this.curChoose: ' + JSON.stringify(this.curChoose));
+    }
+    if (defaultChoose) {
+      console.log(TAG + 'first time show window');
+    } else if (funcSelect) {
+      console.log(TAG + 'second time show window');
+    }
     this.customDialogController.open();
 
   }
@@ -161,6 +243,7 @@ struct IndexHapComponent {
 
   async onPageShow() {
     console.log(TAG + 'onPageShow, curChoose: ' + this.curChoose);
+
   }
 
   async onPageHide() {
@@ -168,10 +251,17 @@ struct IndexHapComponent {
   }
   async onCancel() {
     console.log(TAG + 'onCancel');
-    let session = AppStorage.get<UIExtensionContentSession>('session');
-    if (session) {
-      session.terminateSelf();
-    }
+    let windowClass: window.Window = window.findWindow('UsbFunctionSwitchWindow');
+    this.customDialogController.close();
+
+    windowClass.hide((err: BusinessError) => {
+      const errCode: number = err.code;
+      if (errCode) {
+        console.error('TAG + Failed to hide the window. Cause: ' + JSON.stringify(err));
+        return;
+      }
+      console.info('TAG + Succeeded in hiding the window.');
+    });
   }
   build() { }
 }

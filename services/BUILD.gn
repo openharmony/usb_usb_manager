@@ -107,9 +107,6 @@ ohos_shared_library("usbservice") {
     defines += [ "USB_NOTIFICATION_ENABLE" ]
   }
 
-  if (usb_manager_feature_pop_up_func_switch_model) {
-    defines += [ "USB_FUNC_SWITCH_MODE" ]
-  }
   subsystem_name = "usb"
   part_name = "usb_manager"
 }
