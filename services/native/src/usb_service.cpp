@@ -88,6 +88,15 @@ std::unordered_map<InterfaceType, std::vector<int32_t>> g_typeMap  = {
     {InterfaceType::TYPE_IMAGE,     {6, 1, 1}},
     {InterfaceType::TYPE_PRINTER,   {7, -1, -1}}
 };
+
+struct TupleCompare {
+    bool operator()(const std::tuple<uint8_t, uint8_t, uint8_t>&lhs,
+        const std::tuple<uint8_t, uint8_t, uint8_t>&rhs) const
+    {
+        return lhs < rhs;
+    }
+};
+std::map<std::tuple<uint8_t, uint8_t, uint8_t>, bool, TupleCompare> claimed_interfaces;
 } // namespace
 
 auto g_serviceInstance = DelayedSpSingleton<UsbService>::GetInstance();
@@ -300,6 +309,7 @@ bool UsbService::IsCommonEventServiceAbilityExist()
 
 int32_t UsbService::OpenDevice(uint8_t busNum, uint8_t devAddr)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
@@ -460,7 +470,7 @@ int32_t UsbService::RemoveRight(std::string deviceName)
 int32_t UsbService::GetDevices(std::vector<UsbDevice> &deviceList)
 {
     std::map<std::string, UsbDevice *> devices;
-
+    std::lock_guard<std::mutex> guard(mutex_);
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbHostManager_");
         return UEC_SERVICE_INVALID_VALUE;
@@ -479,6 +489,7 @@ int32_t UsbService::GetDevices(std::vector<UsbDevice> &deviceList)
 
 int32_t UsbService::GetCurrentFunctions(int32_t &functions)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
@@ -496,6 +507,7 @@ int32_t UsbService::GetCurrentFunctions(int32_t &functions)
 
 int32_t UsbService::SetCurrentFunctions(int32_t functions)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     USB_HILOGI(MODULE_USB_SERVICE, "func = %{public}d", functions);
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
@@ -528,6 +540,7 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
 
 int32_t UsbService::UsbFunctionsFromString(std::string_view funcs)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
@@ -542,6 +555,7 @@ int32_t UsbService::UsbFunctionsFromString(std::string_view funcs)
 
 std::string UsbService::UsbFunctionsToString(int32_t funcs)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return "";
@@ -592,6 +606,7 @@ int32_t UsbService::GetSupportedModes(int32_t portId, int32_t &supportedModes)
 
 int32_t UsbService::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbd getPorts");
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
@@ -615,6 +630,7 @@ int32_t UsbService::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataR
 
 int32_t UsbService::ClaimInterface(uint8_t busNum, uint8_t devAddr, uint8_t interface, uint8_t force)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
@@ -624,11 +640,24 @@ int32_t UsbService::ClaimInterface(uint8_t busNum, uint8_t devAddr, uint8_t inte
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    return usbd_->ClaimInterface(dev, interface, force);
+
+    std::tuple<uint8_t, uint8_t, uint8_t>interface_tuple =
+        std::make_tuple(busNum, devAddr, interface);
+    if (claimed_interfaces.count(interface_tuple) > 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::interface already claimed");
+        return UEC_INTERFACE_ALREADY_EXISTS;
+    }
+
+    int32_t ret = usbd_->ClaimInterface(dev, interface, force);
+    if (ret == 0) {
+        claimed_interfaces[interface_tuple] = true;
+    }
+    return ret;
 }
 
 int32_t UsbService::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t interface)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
@@ -644,6 +673,7 @@ int32_t UsbService::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t in
 int32_t UsbService::BulkTransferRead(
     const UsbDev &devInfo, const UsbPipe &pipe, std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -658,6 +688,7 @@ int32_t UsbService::BulkTransferRead(
 int32_t UsbService::BulkTransferWrite(
     const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -671,6 +702,7 @@ int32_t UsbService::BulkTransferWrite(
 
 int32_t UsbService::ControlTransfer(const UsbDev &dev, const UsbCtrlTransfer &ctrl, std::vector<uint8_t> &bufferData)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -694,6 +726,7 @@ int32_t UsbService::ControlTransfer(const UsbDev &dev, const UsbCtrlTransfer &ct
 
 int32_t UsbService::SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
@@ -708,16 +741,23 @@ int32_t UsbService::SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t con
 
 int32_t UsbService::GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &configIndex)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     const UsbDev dev = {busNum, devAddr};
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    return usbd_->GetConfig(dev, configIndex);
+
+    int32_t ret = usbd_->GetConfig(dev, configIndex);
+    if (ret == 0) {
+        claimed_interfaces.clear();
+    }
+    return ret;
 }
 
 int32_t UsbService::SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t altIndex)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
@@ -732,6 +772,7 @@ int32_t UsbService::SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interf
 
 int32_t UsbService::GetRawDescriptor(uint8_t busNum, uint8_t devAddr, std::vector<uint8_t> &bufferData)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
@@ -750,6 +791,7 @@ int32_t UsbService::GetRawDescriptor(uint8_t busNum, uint8_t devAddr, std::vecto
 
 int32_t UsbService::GetFileDescriptor(uint8_t busNum, uint8_t devAddr, int32_t &fd)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
@@ -769,6 +811,7 @@ int32_t UsbService::GetFileDescriptor(uint8_t busNum, uint8_t devAddr, int32_t &
 int32_t UsbService::RequestQueue(const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &clientData,
     const std::vector<uint8_t> &bufferData)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -783,6 +826,7 @@ int32_t UsbService::RequestQueue(const UsbDev &dev, const UsbPipe &pipe, const s
 int32_t UsbService::RequestWait(
     const UsbDev &dev, int32_t timeOut, std::vector<uint8_t> &clientData, std::vector<uint8_t> &bufferData)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -796,6 +840,7 @@ int32_t UsbService::RequestWait(
 
 int32_t UsbService::RequestCancel(uint8_t busNum, uint8_t devAddr, uint8_t interfaceId, uint8_t endpointId)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     const UsbDev dev = {busNum, devAddr};
     const UsbPipe pipe = {interfaceId, endpointId};
     if (usbd_ == nullptr) {
@@ -807,6 +852,7 @@ int32_t UsbService::RequestCancel(uint8_t busNum, uint8_t devAddr, uint8_t inter
 
 int32_t UsbService::Close(uint8_t busNum, uint8_t devAddr)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
@@ -1375,6 +1421,7 @@ bool UsbService::GetBundleName(std::string &bundleName)
 
 bool UsbService::GetCallingInfo(std::string &bundleName, std::string &tokenId, int32_t &userId)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     OHOS::Security::AccessToken::AccessTokenID token = IPCSkeleton::GetCallingTokenID();
     OHOS::Security::AccessToken::HapTokenInfo hapTokenInfoRes;
     int32_t ret = OHOS::Security::AccessToken::AccessTokenKit::GetHapTokenInfo(token, hapTokenInfoRes);
@@ -1407,6 +1454,7 @@ bool UsbService::GetBundleInfo(std::string &tokenId, int32_t &userId)
 
 int32_t UsbService::RegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe, const sptr<IRemoteObject> &cb)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (cb == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "cb is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -1428,6 +1476,7 @@ int32_t UsbService::RegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe, 
 
 int32_t UsbService::UnRegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -1443,6 +1492,7 @@ int32_t UsbService::UnRegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe
 
 int32_t UsbService::BulkRead(const UsbDev &devInfo, const UsbPipe &pipe, sptr<Ashmem> &ashmem)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (ashmem == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkRead error ashmem");
         return UEC_SERVICE_INVALID_VALUE;
@@ -1461,6 +1511,7 @@ int32_t UsbService::BulkRead(const UsbDev &devInfo, const UsbPipe &pipe, sptr<As
 
 int32_t UsbService::BulkWrite(const UsbDev &devInfo, const UsbPipe &pipe, sptr<Ashmem> &ashmem)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (ashmem == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkWrite error ashmem");
         return UEC_SERVICE_INVALID_VALUE;
@@ -1479,6 +1530,7 @@ int32_t UsbService::BulkWrite(const UsbDev &devInfo, const UsbPipe &pipe, sptr<A
 
 int32_t UsbService::BulkCancel(const UsbDev &devInfo, const UsbPipe &pipe)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -1705,6 +1757,7 @@ int32_t UsbService::ManageGlobalInterfaceImpl(bool disable)
     std::map<std::string, UsbDevice *> devices;
     usbHostManager_->GetDevices(devices);
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices.size());
+    std::lock_guard<std::mutex> guard(mutex_);
     for (auto it = devices.begin(); it != devices.end(); ++it) {
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         uint8_t configIndex = 0;
@@ -1766,6 +1819,7 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
     usbHostManager_->GetDevices(devices);
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
         devices.size(), (int32_t)interfaceType, disable);
+    std::lock_guard<std::mutex> guard(mutex_);
     for (auto it = devices.begin(); it != devices.end(); ++it) {
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         uint8_t configIndex = 0;
@@ -1815,6 +1869,7 @@ int32_t UsbService::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, ui
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    std::lock_guard<std::mutex> guard(mutex_);
     int32_t ret = usbd_->GetInterfaceActiveStatus(dev, interfaceid, unactivated);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "error ret:%{public}d", ret);
@@ -1834,6 +1889,7 @@ int32_t UsbService::GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &spe
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    std::lock_guard<std::mutex> guard(mutex_);
     int32_t ret = usbd_->GetDeviceSpeed(dev, speed);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "error ret:%{public}d", ret);
