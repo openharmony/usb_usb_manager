@@ -39,12 +39,13 @@ const LIST_MIN_HEIGHT: number = 48;
       Row() {
         Text($r('app.string.USB_hint'))
           .fontSize(20)
-          .fontWeight('Bold')
+          .fontWeight(FontWeight.Bold)
           .textAlign(TextAlign.Start)
           .textOverflow({overflow: TextOverflow.Ellipsis})
+          .fontFamily('HarmonyHeiTi')
       }
         .height(56)
-        .width('100%')
+        .width(280)
       List({ space: 1 }) {
         ForEach(this.radioContent, (item: SheetInfo, index?: number) => {
           ListItem() {
@@ -53,9 +54,11 @@ const LIST_MIN_HEIGHT: number = 48;
                 Row() {
                   Text(item.title)
                     .fontSize(16)
-                    .fontWeight('Medium')
+                    .fontFamily('HarmonyHeiTi')
+                    .fontWeight(FontWeight.Medium)
                     .fontColor($r('sys.color.font_primary'))
                     .layoutWeight(1)
+                    .width(178)
                   Radio({ value: 'item.title', group: 'radioGroup' })
                     .size({ width: 16, height: 16 })
                     .checked(this.curSelectNumber === index)
@@ -73,6 +76,7 @@ const LIST_MIN_HEIGHT: number = 48;
                 .type(ButtonType.Normal)
                 .borderRadius($r('sys.float.corner_radius_level8'))
                 .buttonStyle(ButtonStyleMode.TEXTUAL)
+                .height(48)
                 .padding({left: 12, right: 12})
                 .onClick(() => {
                   item.action && item.action();
@@ -86,33 +90,33 @@ const LIST_MIN_HEIGHT: number = 48;
           }
         })
       }
-        .width('100%')
+        .width(304)
         .clip(false)
-      .onFocus(() => {
-      })
-      .defaultFocus(true)
+        .onFocus(() => {
+        })
+        .defaultFocus(true)
 
       Button({ type: ButtonType.Normal, stateEffect: true }) {
         Text($r('app.string.USB_hint_cancel'))
           .fontSize(16)
           .fontColor(0x0000FF)
-          .fontWeight('Medium')
-          .height('100%')
-          .width('100%')
+          .fontFamily('HarmonyHeiTi')
+          .fontWeight(FontWeight.Medium)
           .textAlign(TextAlign.Center)
       }
         .height(40)
-        .width(296)
+        .width(328)
         .backgroundColor(0xFFFFFF)
-        .padding({right: 16, left: 16, bottom: 0})
+        .padding({right: 16, left: 16, bottom: 16})
+        .margin({top: 8})
         .onClick(() => {
           console.log(TAG + 'close pop up window: cancel');
           this.destruction();
         })
     }
       .width(328)
-      .height(167)
-
+      .border({radius: 32})
+      .align(Alignment.Center)
   }
   destruction() {
     console.log(TAG + 'destruction')

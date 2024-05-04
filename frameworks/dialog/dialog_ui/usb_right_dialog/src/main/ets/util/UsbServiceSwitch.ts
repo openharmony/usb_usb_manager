@@ -49,11 +49,13 @@ class UsbServiceSwitch {
     }
 
     console.log(TAG + 'setFunctions: current ' + JSON.stringify(this.curFunc) + 'target: ' + JSON.stringify(this.tarFunc));
-    usbManagerService.setCurrentFunctions(this.tarFunc).then((data) => {
-      console.log(TAG + 'setCurrentFunctions success: ' + JSON.stringify(data));
-    }).catch((err) => {
-      console.error(TAG + 'setCurrentFunctions failed: ' + JSON.stringify(err));
-    });
+    if (this.tarFunc != this.curFunc) {
+      usbManagerService.setCurrentFunctions(this.tarFunc).then((data) => {
+        console.log(TAG + 'setCurrentFunctions success: ' + JSON.stringify(data));
+      }).catch((err) => {
+        console.error(TAG + 'setCurrentFunctions failed: ' + JSON.stringify(err));
+      });
+    }
     return;
   }
 }
