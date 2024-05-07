@@ -639,11 +639,11 @@ int32_t UsbService::ClaimInterface(uint8_t busNum, uint8_t devAddr, uint8_t inte
         std::make_tuple(busNum, devAddr, interface);
     if (claimed_interfaces.count(interface_tuple) > 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::interface already claimed");
-        return UEC_INTERFACE_ALREADY_EXISTS;
+        return UEC_OK;
     }
 
     int32_t ret = usbd_->ClaimInterface(dev, interface, force);
-    if (ret == 0) {
+    if (ret == UEC_OK) {
         claimed_interfaces[interface_tuple] = true;
     }
     return ret;
@@ -738,7 +738,7 @@ int32_t UsbService::GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &co
     }
 
     int32_t ret = usbd_->GetConfig(dev, configIndex);
-    if (ret == 0) {
+    if (ret == UEC_OK) {
         claimed_interfaces.clear();
     }
     return ret;
