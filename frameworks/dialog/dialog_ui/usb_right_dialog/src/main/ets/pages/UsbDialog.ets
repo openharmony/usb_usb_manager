@@ -14,7 +14,6 @@
  */
 
 import usbMgr from '@ohos.usbManager'
-import featureAbility from '@ohos.ability.featureAbility'
 
 // allow,notAllow button style
 @Extend(Text) function controlBtn(fontColor: string) {
@@ -82,7 +81,6 @@ struct ConfirmDialog {
     } catch {
       console.info('USBRight ConfirmDialog destruction error!');
     }
-    featureAbility.terminateSelf();
   }
 }
 
