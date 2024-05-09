@@ -608,7 +608,7 @@ int32_t UsbRightDbHelper::AddOrUpdateRightRecordEx(bool isUpdate, int32_t uid, c
     if (isUpdate) {
         int32_t changedRows = 0;
         ret = rightDatabase_->Update(changedRows, values,
-            "uid = ? AND deviceName = ? AND bundleName = ?, AND tokenId = ?",
+            "uid = ? AND deviceName = ? AND bundleName = ? AND tokenId = ?",
             std::vector<std::string> {std::to_string(info.uid), deviceName, bundleName, tokenId});
     } else {
         ret = rightDatabase_->Insert(values);
