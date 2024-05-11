@@ -19,6 +19,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "timer.h"
 
 #include "usb_common.h"
 #include "usb_function_switch_window.h"
@@ -45,11 +46,12 @@ public:
     bool IsGadgetConnected(void);
 
 private:
-    void ProcessFunctionSwitchWindow(int32_t status);
+    void ProcessFunctionSwitchWindow(bool connected);
     void DumpGetSupportFunc(int32_t fd);
     void DumpSetFunc(int32_t fd, const std::string &args);
     void ReportFuncChangeSysEvent(int32_t currentFunctions, int32_t updateFunctions);
     void ReportDevicePlugSysEvent(int32_t currentFunctions, bool connected);
+    void ProcessFuncChange(bool connected, int32_t currentFunc);
     static constexpr uint32_t functionSettable_ = UsbSrvSupport::FUNCTION_HDC | UsbSrvSupport::FUNCTION_ACM |
         UsbSrvSupport::FUNCTION_ECM | UsbSrvSupport::FUNCTION_MTP | UsbSrvSupport::FUNCTION_PTP |
         UsbSrvSupport::FUNCTION_RNDIS | UsbSrvSupport::FUNCTION_STORAGE;
@@ -57,6 +59,8 @@ private:
     int32_t currentFunctions_ {UsbSrvSupport::FUNCTION_HDC};
     bool connected_ {false};
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
+    Utils::Timer delayDisconn_ {"delayDisconnTimer"};
+    uint32_t delayDisconnTimerId_ {UINT32_MAX};
 };
 } // namespace USB
 } // namespace OHOS
