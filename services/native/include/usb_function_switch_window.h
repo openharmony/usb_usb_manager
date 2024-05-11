@@ -68,7 +68,6 @@ private:
     std::mutex opMutex_;
     const std::string functionSwitchBundleName_ = "com.usb.right";
     const std::string functionSwitchExtAbility_ = "UsbFunctionSwitchExtAbility";
-    int32_t setCurrentFuncLabel = 0;
 };
 } // namespace USB
 } // namespace OHOS

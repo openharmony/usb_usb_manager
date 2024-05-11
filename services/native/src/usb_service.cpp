@@ -528,12 +528,7 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
         return UEC_SERVICE_INVALID_VALUE;
     }
 
-    ret = usbd_->SetCurrentFunctions(functions);
-    if (ret == UEC_OK) {
-        auto labelNum = UsbFunctionSwitchWindow::GetInstance()->SetCurrentFunctionLabel(functions);
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::SetCurrentFunctionLabel size: %{public}d", labelNum);
-    }
-    return ret;
+    return usbd_->SetCurrentFunctions(functions);
 }
 
 int32_t UsbService::UsbFunctionsFromString(std::string_view funcs)

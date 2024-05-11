@@ -34,6 +34,7 @@ constexpr int32_t PARAM_COUNT_TWO = 2;
 constexpr int32_t PARAM_COUNT_THR = 3;
 constexpr uint32_t CMD_INDEX = 1;
 constexpr uint32_t PARAM_INDEX = 2;
+constexpr uint32_t DELAY_DISCONN_INTERVAL = 1 * 1000;
 const std::map<std::string_view, uint32_t> UsbDeviceManager::FUNCTION_MAPPING_N2C = {
     {UsbSrvSupport::FUNCTION_NAME_NONE, UsbSrvSupport::FUNCTION_NONE},
     {UsbSrvSupport::FUNCTION_NAME_ACM, UsbSrvSupport::FUNCTION_ACM},
@@ -155,26 +156,49 @@ void UsbDeviceManager::HandleEvent(int32_t status)
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::usbd_ is nullptr");
         return;
     }
+    bool curConnect = false;
     switch (status) {
         case ACT_UPDEVICE: {
-            connected_ = true;
-            usbd_->GetCurrentFunctions(currentFunctions_);
+            curConnect = true;
             break;
         }
         case ACT_DOWNDEVICE: {
-            connected_ = false;
+            curConnect = false;
             break;
         }
         default:
-            USB_HILOGE(MODULE_USB_SERVICE, "invalid status %{public}d", status);
-            return;
+            curConnect = true;
     }
+    delayDisconn_.Unregister(delayDisconnTimerId_);
+    delayDisconn_.Shutdown();
+    if (curConnect && connected_ != curConnect) {
+        connected_ = curConnect;
+        usbd_->GetCurrentFunctions(currentFunctions_);
+        ProcessFuncChange(connected_, currentFunctions_);
+    } else if (!curConnect && connected_ != curConnect) {
+        auto task = [&]() {
+            connected_ = false;
+            ProcessFuncChange(connected_, currentFunctions_);
+            return;
+        };
+        if (auto ret = delayDisconn_.Setup(); ret != UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "set up timer failed %{public}u", ret);
+            return;
+        }
+        delayDisconnTimerId_ = delayDisconn_.Register(task, DELAY_DISCONN_INTERVAL, true);
+    } else {
+        USB_HILOGI(MODULE_USB_SERVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
+    }
+}
 
+void UsbDeviceManager::ProcessFuncChange(bool connected, int32_t currentFunc)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "yu_test, cur Connect %{public}d,bconnected: %{public}d", connected, currentFunc);
     Want want;
     want.SetAction(CommonEventSupport::COMMON_EVENT_USB_STATE);
-
-    want.SetParam(std::string {UsbSrvSupport::CONNECTED}, connected_);
-    uint32_t remainderFunc = static_cast<uint32_t>(currentFunctions_);
+ 
+    want.SetParam(std::string {UsbSrvSupport::CONNECTED}, connected);
+    uint32_t remainderFunc = static_cast<uint32_t>(currentFunc);
     // start from bit 1
     uint32_t bit = 1;
     while (remainderFunc != 0) {
@@ -186,25 +210,24 @@ void UsbDeviceManager::HandleEvent(int32_t status)
         // 1 means to next bit
         bit = bit << 1;
     }
-
     CommonEventData data(want);
     CommonEventPublishInfo publishInfo;
     USB_HILOGI(MODULE_SERVICE, "send COMMON_EVENT_USB_STATE broadcast connected:%{public}d, "
-        "currentFunctions:%{public}d", connected_, currentFunctions_);
+        "currentFunctions:%{public}d", connected, currentFunc);
     CommonEventManager::PublishCommonEvent(data, publishInfo);
-    ReportDevicePlugSysEvent(currentFunctions_, connected_);
-    ProcessFunctionSwitchWindow(status);
+    ReportDevicePlugSysEvent(currentFunc, connected);
+    ProcessFunctionSwitchWindow(connected);
 }
 
-void UsbDeviceManager::ProcessFunctionSwitchWindow(int32_t status)
+void UsbDeviceManager::ProcessFunctionSwitchWindow(bool connected)
 {
     std::shared_ptr<UsbFunctionSwitchWindow> window_ = UsbFunctionSwitchWindow::GetInstance();
-    if (status == ACT_UPDEVICE) {
+    if (connected) {
         USB_HILOGD(MODULE_USB_SERVICE, "start pop up usb service switch window");
         if (!window_->PopUpFunctionSwitchWindow()) {
             USB_HILOGE(MODULE_USB_SERVICE, "start pop up usb service switch window failed");
         }
-    } else if (status == ACT_DOWNDEVICE) {
+    } else {
         USB_HILOGD(MODULE_USB_SERVICE, "start dismiss usb service switch window");
         if (!window_->DismissFunctionSwitchWindow()) {
             USB_HILOGE(MODULE_USB_SERVICE, "start dismiss usb service switch window failed");
