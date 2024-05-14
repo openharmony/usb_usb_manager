@@ -41,6 +41,7 @@
                 "c_utils",
                 "samgr",
                 "access_token",
+                "memmgr_override",
                 "os_account",
                 "relational_store",
                 "resource_management",
