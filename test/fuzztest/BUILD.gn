@@ -730,39 +730,6 @@ ohos_fuzztest("UsbMgrFuzzTest") {
   sources = [ "usbmgr_fuzzer/usbmgr_fuzzer.cpp" ]
 }
 
-ohos_fuzztest("UsbMgrExFuzzTest") {
-  module_out_path = module_output_path
-
-  fuzz_config_file = "${usb_manager_path}/test/fuzztest/usbmgrex_fuzzer"
-
-  configs = [ ":module_private_config" ]
-
-  deps = [
-    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
-    "${usb_manager_path}/services:usbservice",
-  ]
-
-  external_deps = [
-    "ability_base:want",
-    "ability_runtime:ability_manager",
-    "access_token:libaccesstoken_sdk",
-    "access_token:libnativetoken",
-    "access_token:libtoken_setproc",
-    "bundle_framework:appexecfwk_base",
-    "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
-    "drivers_interface_usb:libusb_proxy_1.1",
-    "drivers_interface_usb:usb_idl_headers_1.1",
-    "eventhandler:libeventhandler",
-    "hilog:libhilog",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
-  ]
-
-  sources = [ "usbmgrex_fuzzer/usbmgrex_fuzzer.cpp" ]
-}
-
 ohos_fuzztest("UsbMgrManageGlobalInterfaceFuzzTest") {
   module_out_path = module_output_path
 
@@ -890,7 +857,6 @@ group("fuzztest") {
     ":UsbMgrClaimInterfaceFuzzTest",
     ":UsbMgrCloseFuzzTest",
     ":UsbMgrControlTransferFuzzTest",
-    ":UsbMgrExFuzzTest",
     ":UsbMgrFuzzTest",
     ":UsbMgrGetDeviceSpeedFuzzTest",
     ":UsbMgrGetFileDescriptorFuzzTest",
