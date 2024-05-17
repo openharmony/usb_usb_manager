@@ -48,7 +48,7 @@ struct IndexHapComponent {
       },
       radioContent: [
         {
-          title: $r('app.string.USB_hint_cancel'),
+          title: $r('app.string.USB_func_charge'),
           action: () => {
             let tmpChooseNumber:number = USBSERVICESWITCH_ID_CHARGE_ONLY;
             usbServiceSwitch.serviceChoose(tmpChooseNumber);
@@ -60,7 +60,6 @@ struct IndexHapComponent {
         },
       ]
     }),
-    customStyle: true,
     alignment: DialogAlignment.Center,
     autoCancel: true,
     cancel: this.onCancel

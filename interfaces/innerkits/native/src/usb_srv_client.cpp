@@ -147,6 +147,7 @@ int32_t UsbSrvClient::GetDevices(std::vector<UsbDevice> &deviceList)
     int32_t ret = proxy_->GetDevices(deviceList);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "GetDevices failed ret = %{public}d!", ret);
+        return ret;
     }
     USB_HILOGI(MODULE_USB_INNERKIT, "list size = %{public}zu!", deviceList.size());
     return ret;
@@ -158,6 +159,7 @@ int32_t UsbSrvClient::GetCurrentFunctions(int32_t &funcs)
     int32_t ret = proxy_->GetCurrentFunctions(funcs);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
+        return ret;
     }
     USB_HILOGI(MODULE_USB_INNERKIT, " Calling GetCurrentFunctions Success!");
     return ret;
