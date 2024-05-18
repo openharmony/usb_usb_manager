@@ -136,7 +136,7 @@ int32_t UsbSrvClient::RemoveRight(std::string deviceName)
     RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
     int32_t ret = proxy_->RemoveRight(deviceName);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "Calling RequestRight failed with ret = %{public}d !", ret);
+        USB_HILOGE(MODULE_USB_INNERKIT, "Calling RemoveRight failed with ret = %{public}d !", ret);
     }
     return ret;
 }
