@@ -120,11 +120,18 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     cJSON* paramJson = cJSON_CreateObject();
     std::string uiExtensionTypeStr = "sysDialog/common";
     cJSON_AddStringToObject(paramJson, "ability.want.params.uiExtensionType", uiExtensionTypeStr.c_str());
-    std::string paramStr(cJSON_PrintUnformatted(paramJson));
-    data.WriteString16(Str8ToStr16(paramStr));
+    char *pParamJson = cJSON_PrintUnformatted(paramJson);
     cJSON_Delete(paramJson);
     paramJson = nullptr;
-    
+    if (!pParamJson) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Print paramJson error");
+        return;
+    }
+    std::string paramStr(pParamJson);
+    data.WriteString16(Str8ToStr16(paramStr));
+    free(pParamJson);
+    pParamJson = NULL;
+
     const uint32_t cmdCode = 1;
     int32_t ret = remoteObject->SendRequest(cmdCode, data, reply, option);
     if (ret != ERR_OK) {

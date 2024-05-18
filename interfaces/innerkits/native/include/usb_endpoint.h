@@ -163,7 +163,7 @@ public:
 
     const std::string getJsonString() const
     {
-        cJSON* endPointJson = cJSON_CreateObject();
+        cJSON *endPointJson = cJSON_CreateObject();
         if (!endPointJson) {
             USB_HILOGE(MODULE_USB_SERVICE, "Create endPointJson error");
         }
@@ -175,8 +175,15 @@ public:
         cJSON_AddNumberToObject(endPointJson, "number", static_cast<double>(GetEndpointNumber()));
         cJSON_AddNumberToObject(endPointJson, "type", static_cast<double>(GetType()));
         cJSON_AddNumberToObject(endPointJson, "interfaceId", static_cast<double>(interfaceId_));
-        std::string endPointJsonStr(cJSON_PrintUnformatted(endPointJson));
+        char *pEndPointJson = cJSON_PrintUnformatted(endPointJson);
         cJSON_Delete(endPointJson);
+        if (!pEndPointJson) {
+            USB_HILOGE(MODULE_USB_SERVICE, "Print endPointJson error");
+            return "";
+        }
+        std::string endPointJsonStr(pEndPointJson);
+        free(pEndPointJson);
+        pEndPointJson = NULL;
         return endPointJsonStr;
     }
 
