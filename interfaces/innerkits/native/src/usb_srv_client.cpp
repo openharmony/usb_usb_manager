@@ -167,6 +167,7 @@ int32_t UsbSrvClient::GetCurrentFunctions(int32_t &funcs)
 
 int32_t UsbSrvClient::SetCurrentFunctions(int32_t funcs)
 {
+    USB_HILOGI(MODULE_USB_INNERKIT, "SetCurrentFunctions funcs = %{public}d!", funcs);
     RETURN_IF_WITH_RET(Connect() != UEC_OK, false);
     int32_t ret = proxy_->SetCurrentFunctions(funcs);
     if (ret != UEC_OK) {
