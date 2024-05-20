@@ -166,6 +166,7 @@ public:
         cJSON *endPointJson = cJSON_CreateObject();
         if (!endPointJson) {
             USB_HILOGE(MODULE_USB_SERVICE, "Create endPointJson error");
+            return "";
         }
         cJSON_AddNumberToObject(endPointJson, "address", static_cast<double>(address_));
         cJSON_AddNumberToObject(endPointJson, "attributes", static_cast<double>(attributes_));
