@@ -162,6 +162,7 @@ int32_t UsbSrvClient::GetCurrentFunctions(int32_t &funcs)
         return ret;
     }
     USB_HILOGI(MODULE_USB_INNERKIT, " Calling GetCurrentFunctions Success!");
+    USB_HILOGI(MODULE_USB_INNERKIT, "GetCurrentFunctions funcs = %{public}d!", funcs);
     return ret;
 }
 
