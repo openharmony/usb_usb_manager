@@ -173,6 +173,8 @@ private:
     int32_t ManageGlobalInterfaceImpl(bool disable);
     int32_t ManageDeviceImpl(int32_t vendorId, int32_t productId, bool disable);
     int32_t ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable);
+    static void NotifyProcessStatusFuncStart();
+    static void NotifyProcessStatusFuncDied();
     bool ready_ = false;
     int32_t commEventRetryTimes_ = 0;
     std::mutex mutex_;
