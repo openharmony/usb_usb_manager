@@ -191,6 +191,7 @@ void UsbService::NotifyProcessStatusFuncStart()
 
 void UsbService::NotifyProcessStatusFuncDied()
 {
+    int result = -1;
     int pid = getpid();
     auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgrProxy == nullptr) {
