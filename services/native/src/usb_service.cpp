@@ -164,7 +164,7 @@ void UsbService::SystemAbilityStatusChangeListener::OnRemoveSystemAbility(
     }
 }
 
-static void NotifyProcessStatusFuncStart()
+void UsbService::NotifyProcessStatusFuncStart()
 {
     int result = -1;
     int pid = getpid();
@@ -190,7 +190,7 @@ static void NotifyProcessStatusFuncStart()
     }
 }
 
-static void NotifyProcessStatusFuncDied()
+void UsbService::NotifyProcessStatusFuncDied()
 {
     int pid = getpid();
     auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
