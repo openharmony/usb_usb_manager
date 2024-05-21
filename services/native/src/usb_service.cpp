@@ -164,7 +164,7 @@ void UsbService::SystemAbilityStatusChangeListener::OnRemoveSystemAbility(
     }
 }
 
-void UsbService:: NotifyProcessStatusFuncStart()
+void UsbService::NotifyProcessStatusFuncStart()
 {
     int result = -1;
     int pid = getpid();
