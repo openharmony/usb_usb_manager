@@ -183,7 +183,7 @@ static void NotifyProcessStatusFuncStart()
             USB_HILOGE(MODULE_USB_SERVICE, "NotifyProcessStatus failed");
         }
         result = system_memmgr_ability->SetCritical(pid, true, USB_SYSTEM_ABILITY_ID);
-        if (result !=0) {
+        if (result != 0) {
             USB_HILOGE(MODULE_USB_SERVICE, "SetCritical failed");
         }
         }
@@ -209,7 +209,7 @@ static void NotifyProcessStatusFuncDied()
         }
 
         result = system_memmgr_ability->SetCritical(pid, false, USB_SYSTEM_ABILITY_ID);
-        if (result !=0) {
+        if (result != 0) {
             USB_HILOGE(MODULE_USB_SERVICE, "SetCritical failed");
         }
     }
