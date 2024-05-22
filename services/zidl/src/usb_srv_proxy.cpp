@@ -405,7 +405,7 @@ int32_t UsbServerProxy::GetCurrentFunctions(int32_t &funcs)
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_GET_CURRENT_FUNCTIONS),
         data, reply, option);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     READ_PARCEL_WITH_RET(reply, Int32, funcs, UEC_INTERFACE_READ_PARCEL_ERROR);
@@ -429,7 +429,7 @@ int32_t UsbServerProxy::SetCurrentFunctions(int32_t funcs)
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_SET_CURRENT_FUNCTIONS),
         data, reply, option);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %{public}d", ret);
     }
     return ret;
 }
@@ -450,7 +450,7 @@ int32_t UsbServerProxy::UsbFunctionsFromString(std::string_view funcs)
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_USB_FUNCTIONS_FROM_STRING),
         data, reply, option);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %{public}d", ret);
         return UEC_INTERFACE_INVALID_VALUE;
     }
     int32_t result = 0;
@@ -476,7 +476,7 @@ std::string UsbServerProxy::UsbFunctionsToString(int32_t funcs)
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_USB_FUNCTIONS_TO_STRING),
         data, reply, option);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %{public}d", ret);
         return INVALID_STRING_VALUE;
     }
     std::string result;
@@ -498,7 +498,7 @@ int32_t UsbServerProxy::GetPorts(std::vector<UsbPort> &ports)
     }
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_GET_PORTS), data, reply, option);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %d", ret);
+        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     int32_t size;
@@ -550,7 +550,7 @@ int32_t UsbServerProxy::GetSupportedModes(int32_t portId, int32_t &supportedMode
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_GET_SUPPORTED_MODES),
         data, reply, option);
     if (ret) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %d", ret);
+        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     READ_PARCEL_WITH_RET(reply, Int32, supportedModes, UEC_INTERFACE_READ_PARCEL_ERROR);
@@ -574,7 +574,7 @@ int32_t UsbServerProxy::SetPortRole(int32_t portId, int32_t powerRole, int32_t d
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_SET_PORT_ROLE),
         data, reply, option);
     if (ret) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %d", ret);
+        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     return ret;
@@ -620,7 +620,7 @@ int32_t UsbServerProxy::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_RELEASE_INTERFACE),
         data, reply, option);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %d", ret);
+        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: {public}d", ret);
         return ret;
     }
     READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
@@ -645,12 +645,12 @@ int32_t UsbServerProxy::BulkTransferRead(
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_BULK_TRANSFER_READ),
         data, reply, option);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %d", ret);
+        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     ret = GetBufferMessage(reply, bufferData);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "get buffer is failed, error code: %d", ret);
+        USB_HILOGE(MODULE_USB_INNERKIT, "get buffer is failed, error code: %{public}d", ret);
         return ret;
     }
     USB_HILOGI(MODULE_USBD, "Set buffer message. length = %{public}zu", bufferData.size());
@@ -1095,7 +1095,7 @@ int32_t UsbServerProxy::AddRight(const std::string &bundleName, const std::strin
     MessageParcel reply;
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_ADD_RIGHT), data, reply, option);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: {public}d", ret);
     }
     return ret;
 }
@@ -1118,7 +1118,7 @@ int32_t UsbServerProxy::AddAccessRight(const std::string &tokenId, const std::st
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_ADD_ACCESS_RIGHT),
         data, reply, option);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %{public}d", ret);
     }
     return ret;
 }
@@ -1140,7 +1140,7 @@ int32_t UsbServerProxy::ManageGlobalInterface(bool disable)
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_DISABLE_GLOBAL_INTERFACE),
         data, reply, option);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %{public}d", ret);
     }
     return ret;
 }
@@ -1164,7 +1164,7 @@ int32_t UsbServerProxy::ManageDevice(int32_t vendorId, int32_t productId, bool d
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_DISABLE_DEVICE),
         data, reply, option);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %{public}d", ret);
     }
     return ret;
 }
@@ -1188,7 +1188,7 @@ int32_t UsbServerProxy::ManageInterfaceType(InterfaceType interfaceType, bool di
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_DISABLE_INTERFACE_TYPE),
         data, reply, option);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %{public}d", ret);
     }
     return ret;
 }
