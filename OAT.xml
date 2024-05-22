@@ -103,6 +103,7 @@ Note:If the text contains special characters, please escape them according to th
                 <filteritem type="filepath" name="frameworks/dialog/functionswitch_ui/signature/com.ohos.functionswitchdialog.p7b" desc="signature file"/>
                 <filteritem type="filepath" name="frameworks/dialog/functionswitch_ui/usb_function_dialog/src/main/resources/base/media/app_icon.png" desc="app icon"/>
                 <filteritem type="filepath" name="frameworks/dialog/functionswitch_ui/usb_function_dialog/src/main/resources/base/media/icon.png" desc="icon"/>
+                <filteritem type="filepath" name="frameworks/dialog/dialog_ui/usb_right_dialog/src/main/resources/base/media/notification_icon.png" desc="icon"/>
             </filefilter>
         </filefilterlist>
     </oatconfig>
