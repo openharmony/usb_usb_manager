@@ -89,17 +89,7 @@ std::unordered_map<InterfaceType, std::vector<int32_t>> g_typeMap  = {
     {InterfaceType::TYPE_IMAGE,     {6, 1, 1}},
     {InterfaceType::TYPE_PRINTER,   {7, -1, -1}}
 };
-
-struct TupleCompare {
-    bool operator()(const std::tuple<uint8_t, uint8_t, uint8_t>&lhs,
-        const std::tuple<uint8_t, uint8_t, uint8_t>&rhs) const
-    {
-        return lhs < rhs;
-    }
-};
-std::map<std::tuple<uint8_t, uint8_t, uint8_t>, bool, TupleCompare> claimed_interfaces;
 } // namespace
-
 auto g_serviceInstance = DelayedSpSingleton<UsbService>::GetInstance();
 const bool G_REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSpSingleton<UsbService>::GetInstance().GetRefPtr());
@@ -684,16 +674,9 @@ int32_t UsbService::ClaimInterface(uint8_t busNum, uint8_t devAddr, uint8_t inte
         return UEC_SERVICE_INVALID_VALUE;
     }
 
-    std::tuple<uint8_t, uint8_t, uint8_t>interface_tuple =
-        std::make_tuple(busNum, devAddr, interface);
-    if (claimed_interfaces.count(interface_tuple) > 0) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::interface already claimed");
-        return UEC_OK;
-    }
-
     int32_t ret = usbd_->ClaimInterface(dev, interface, force);
     if (ret == UEC_OK) {
-        claimed_interfaces[interface_tuple] = true;
+        USB_HILOGE(MODULE_USB_SERVICE, "claim interface false.");
     }
     return ret;
 }
@@ -786,11 +769,7 @@ int32_t UsbService::GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &co
         return UEC_SERVICE_INVALID_VALUE;
     }
 
-    int32_t ret = usbd_->GetConfig(dev, configIndex);
-    if (ret == UEC_OK) {
-        claimed_interfaces.clear();
-    }
-    return ret;
+    return usbd_->GetConfig(dev, configIndex);
 }
 
 int32_t UsbService::SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t altIndex)
