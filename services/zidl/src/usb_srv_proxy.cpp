@@ -620,7 +620,7 @@ int32_t UsbServerProxy::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_RELEASE_INTERFACE),
         data, reply, option);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: {public}d", ret);
+        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
@@ -1095,7 +1095,7 @@ int32_t UsbServerProxy::AddRight(const std::string &bundleName, const std::strin
     MessageParcel reply;
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_ADD_RIGHT), data, reply, option);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: {public}d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest is failed, error code: %{public}d", ret);
     }
     return ret;
 }
