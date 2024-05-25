@@ -34,7 +34,7 @@ const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
     {SYSPARAM_INVALID_INPUT,       "BusinessError 401:Parameter error."                                         },
     {USB_DEVICE_PERMISSION_DENIED, "BusinessError 14400001:Permission denied."                                  },
     {USB_SYSAPI_PERMISSION_DENIED, "BusinessError 202:Permission denied. Normal application uses system api."   },
-    {USB_HDC_PERMISSION_DENIED,    "BusinessError 14400002:Permission denied.The HDC is disabled by the system."},
+    {USB_HDC_PERMISSION_DENIED,    "BusinessError 14400002:Permission denied. The HDC is disabled by the system."},
     {USB_NOT_SUPPORT_SWITCH_PORT,
      "BusinessError 14400003:Unsupported operation.The current device does not support port role switching."    },
 };
