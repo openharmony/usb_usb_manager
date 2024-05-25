@@ -43,6 +43,7 @@
 #include "tokenid_kit.h"
 #include "accesstoken_kit.h"
 #include "mem_mgr_proxy.h"
+#include "mem_mgr_client.h"
 #include "usb_function_switch_window.h"
 using OHOS::sptr;
 using namespace OHOS::HDI::Usb::V1_1;
@@ -154,54 +155,12 @@ void UsbService::SystemAbilityStatusChangeListener::OnRemoveSystemAbility(
     }
 }
 
-void UsbService::NotifyProcessStatusFuncStart()
+void UsbService::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
 {
-    int result = -1;
-    int pid = getpid();
-    auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgrProxy == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "samgrProxy is null");
-    }
-    sptr<IRemoteObject> remoteObject = samgrProxy->GetSystemAbility(MEMORY_MANAGER_SA_ID);
-    if (remoteObject == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "remoteObject is null");
-    }
-    sptr<Memory::MemMgrProxy>system_memmgr_ability = iface_cast<Memory::MemMgrProxy>(remoteObject);
-    if (system_memmgr_ability != nullptr) {
-        result = system_memmgr_ability->NotifyProcessStatus(pid, 1, 1, USB_SYSTEM_ABILITY_ID);
-        if (result != 0) {
-            USB_HILOGE(MODULE_USB_SERVICE, "NotifyProcessStatus failed");
-        }
-        result = system_memmgr_ability->SetCritical(pid, true, USB_SYSTEM_ABILITY_ID);
-        if (result != 0) {
-            USB_HILOGE(MODULE_USB_SERVICE, "SetCritical failed");
-        }
-    }
-}
-
-void UsbService::NotifyProcessStatusFuncDied()
-{
-    int result = -1;
-    int pid = getpid();
-    auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgrProxy == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "samgrProxy is null");
-    }
-    sptr<IRemoteObject> remoteObject = samgrProxy->GetSystemAbility(MEMORY_MANAGER_SA_ID);
-    if (remoteObject == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "remoteObject is null");
-    }
-    sptr<Memory::MemMgrProxy>system_memmgr_ability = iface_cast<Memory::MemMgrProxy>(remoteObject);
-    if (system_memmgr_ability != nullptr) {
-        result = system_memmgr_ability->NotifyProcessStatus(pid, 1, 1, USB_SYSTEM_ABILITY_ID);
-        if (result != 0) {
-            USB_HILOGE(MODULE_USB_SERVICE, "NotifyProcessStatus failed");
-        }
-        
-        result = system_memmgr_ability->SetCritical(pid, false, USB_SYSTEM_ABILITY_ID);
-        if (result != 0) {
-            USB_HILOGE(MODULE_USB_SERVICE, "SetCritical failed");
-        }
+    USB_HILOGI(MODULE_USB_SERVICE, "OnAddSystemAbility systemAbilityId:%{public}d", systemAbilityId);
+    if (systemAbilityId == MEMORY_MANAGER_SA_ID) {
+        Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 1, USB_SYSTEM_ABILITY_ID);
+        Memory::MemMgrClient::GetInstance().SetCritical(getpid(), true, USB_SYSTEM_ABILITY_ID);
     }
 }
 
@@ -253,7 +212,7 @@ void UsbService::OnStart()
         USB_HILOGE(MODULE_USB_SERVICE, "SubscribeSystemAbility failed. ret = %{public}d", ret);
         return;
     }
-    NotifyProcessStatusFuncStart();
+    AddSystemAbilityListener(MEMORY_MANAGER_SA_ID);
     USB_HILOGE(MODULE_USB_SERVICE, "OnStart and add system ability success");
 }
 
@@ -331,7 +290,8 @@ void UsbService::OnStop()
     remote->RemoveDeathRecipient(recipient_);
     recipient_.clear();
     usbd_->UnbindUsbdSubscriber(usbdSubscriber_);
-    NotifyProcessStatusFuncDied();
+    Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 0, USB_SYSTEM_ABILITY_ID);
+    Memory::MemMgrClient::GetInstance().SetCritical(getpid(), false, USB_SYSTEM_ABILITY_ID);
 }
 
 bool UsbService::IsCommonEventServiceAbilityExist()
