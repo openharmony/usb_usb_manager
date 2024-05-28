@@ -834,7 +834,11 @@ int32_t UsbServerProxy::GetFileDescriptor(uint8_t busNum, uint8_t devAddr, int32
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_GET_FILEDESCRIPTOR),
         data, reply, option);
     if (ret == UEC_OK) {
-        READ_PARCEL_WITH_RET(reply, Int32, fd, UEC_INTERFACE_READ_PARCEL_ERROR);
+        fd = -1;
+        if (!ReadFileDescriptor(reply, fd)) {
+            USB_HILOGW(MODULE_USB_SERVICE, "%{public}s: read fd failed!", __func__);
+            return UEC_INTERFACE_READ_PARCEL_ERROR;
+        }
     }
     return ret;
 }
@@ -1235,6 +1239,23 @@ int32_t UsbServerProxy::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr
     }
     return ret;
 }
+bool UsbServerProxy::ReadFileDescriptor(MessageParcel &data, int &fd)
+{
+    fd = -1;
+    bool fdValid = false;
+    if (!data.ReadBool(fdValid)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: failed to read fdValid", __func__);
+        return false;
+    }
 
+    if (fdValid) {
+        fd = data.ReadFileDescriptor();
+        if (fd < 0) {
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: failed to read fd", __func__);
+            return false;
+        }
+    }
+    return true;
+}
 } // namespace USB
 } // namespace OHOS

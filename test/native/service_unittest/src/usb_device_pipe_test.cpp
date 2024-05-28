@@ -16,7 +16,7 @@
 #include "usb_device_pipe_test.h"
 
 #include <sys/time.h>
-
+#include <sys/ioctl.h>
 #include <iostream>
 #include <vector>
 
@@ -40,7 +40,7 @@ namespace USB {
 namespace DevicePipe {
 constexpr int32_t SLEEP_TIME = 3;
 constexpr int32_t BUFFER_SIZE = 255;
-
+#define USBDEVFS_GET_SPEED          _IO('U', 31)
 void UsbDevicePipeTest::SetUpTestCase(void)
 {
     UsbCommonTest::GrantPermissionSysNative();
@@ -2516,6 +2516,10 @@ HWTEST_F(UsbDevicePipeTest, GetFileDescriptors001, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetFileDescriptors001 %{public}d fd=%{public}d",
                __LINE__, fd);
     EXPECT_TRUE(ret == 0);
+    ret = ioctl(fd, USBDEVFS_GET_SPEED, NULL);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetFileDescriptor001 %{public}d fd=%{public}d ret=%{public}d",
+               __LINE__, fd, ret);
+    EXPECT_GE(ret, 0);
     ret = UsbSrvClient.Close(pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close=%{public}d", ret);
     EXPECT_TRUE(ret);

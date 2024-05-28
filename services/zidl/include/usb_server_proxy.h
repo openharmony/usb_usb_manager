@@ -93,6 +93,8 @@ private:
     int32_t GetDeviceConfigsMessageParcel(MessageParcel &data, std::vector<USBConfig> &configs);
     int32_t GetDeviceInterfacesMessageParcel(MessageParcel &data, std::vector<UsbInterface> &interfaces);
     int32_t GetDeviceEndpointsMessageParcel(MessageParcel &data, std::vector<USBEndpoint> &eps);
+
+    bool ReadFileDescriptor(MessageParcel &data, int &fd);
 };
 } // namespace USB
 } // namespace OHOS
