@@ -24,14 +24,49 @@ using namespace OHOS::USB;
 namespace OHOS {
 constexpr size_t THRESHOLD = 10;
 constexpr int32_t OFFSET = 4;
-constexpr int32_t ZERO_BIT = 0;
-constexpr int32_t FIRST_BIT = 1;
-constexpr int32_t SECOND_BIT = 2;
-constexpr int32_t THIRD_BIT = 3;
-constexpr int32_t ZERO_MOVE_LEN = 24;
-constexpr int32_t FIRST_MOVE_LEN = 16;
-constexpr int32_t SECOND_MOVE_LEN = 8;
+enum class UsbInterfaceCode {
+    USB_FUN_HAS_RIGHT = 0,
+    USB_FUN_REQUEST_RIGHT,
+    USB_FUN_REMOVE_RIGHT,
+    USB_FUN_OPEN_DEVICE,
+    USB_FUN_GET_DEVICE,
+    USB_FUN_GET_DEVICES,
+    USB_FUN_GET_CURRENT_FUNCTIONS,
+    USB_FUN_SET_CURRENT_FUNCTIONS,
+    USB_FUN_USB_FUNCTIONS_FROM_STRING,
+    USB_FUN_USB_FUNCTIONS_TO_STRING,
+    USB_FUN_CLAIM_INTERFACE,
+    USB_FUN_RELEASE_INTERFACE,
+    USB_FUN_BULK_TRANSFER_READ,
+    USB_FUN_BULK_TRANSFER_WRITE,
+    USB_FUN_CONTROL_TRANSFER,
+    USB_FUN_SET_ACTIVE_CONFIG,
+    USB_FUN_GET_ACTIVE_CONFIG,
+    USB_FUN_SET_INTERFACE,
+    USB_FUN_GET_PORTS,
+    USB_FUN_GET_SUPPORTED_MODES,
+    USB_FUN_SET_PORT_ROLE,
+    USB_FUN_REQUEST_QUEUE,
+    USB_FUN_REQUEST_WAIT,
+    USB_FUN_REQUEST_CANCEL,
+    USB_FUN_GET_DESCRIPTOR,
+    USB_FUN_GET_FILEDESCRIPTOR,
+    USB_FUN_CLOSE_DEVICE,
+    USB_FUN_BULK_AYSNC_READ,
+    USB_FUN_BULK_AYSNC_WRITE,
+    USB_FUN_BULK_AYSNC_CANCEL,
+    USB_FUN_REG_BULK_CALLBACK,
+    USB_FUN_UNREG_BULK_CALLBACK,
+    USB_FUN_ADD_RIGHT,
+    USB_FUN_DISABLE_GLOBAL_INTERFACE,
+    USB_FUN_DISABLE_DEVICE,
+    USB_FUN_DISABLE_INTERFACE_TYPE,
+    USB_FUN_GET_DEVICE_SPEED,
+    USB_FUN_GET_DRIVER_ACTIVE_STATUS,
+    USB_FUN_ADD_ACCESS_RIGHT,
+};
 const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbSrv";
+static int32_t CODE = 0;
 
 void SetTestCaseNative(TokenInfoParams *infoInstance)
 {
@@ -82,25 +117,18 @@ void GrantPermissionNormalNative()
     SetTestCaseNative(&g_normalInfoInstance);
 }
 
-uint32_t Convert2Uint32(const uint8_t *ptr)
-{
-    if (ptr == nullptr) {
-        return 0;
-    }
-    /*
-     * Move the 0th digit 24 to the left, the first digit 16 to the left, the second digit 8 to the left,
-     * and the third digit no left
-     */
-    return (ptr[ZERO_BIT] << ZERO_MOVE_LEN) | (ptr[FIRST_BIT] << FIRST_MOVE_LEN) | (ptr[SECOND_BIT] <<
-        SECOND_MOVE_LEN) | (ptr[THIRD_BIT]);
-}
-
 bool DoSomethingInterestingWithMyAPI(const uint8_t *rawData, size_t size)
 {
     if (rawData == nullptr) {
         return false;
     }
-    uint32_t code = Convert2Uint32(rawData);
+    if (CODE > static_cast<int32_t>(UsbInterfaceCode::USB_FUN_ADD_ACCESS_RIGHT)) {
+        return true;
+    }
+    uint32_t code = CODE;
+    if (code <= static_cast<int32_t>(UsbInterfaceCode::USB_FUN_ADD_ACCESS_RIGHT)) {
+        CODE += 1;
+    }
     rawData = rawData + OFFSET;
     size = size - OFFSET;
 
