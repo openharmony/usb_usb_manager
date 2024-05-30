@@ -195,10 +195,11 @@ bool UsbFunctionSwitchWindow::UnShowFunctionSwitchWindow()
     auto ret = abmc->StopServiceAbility(want);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_SERVICE, "StopServiceAbility failed %{public}d", ret);
-        if (abmc->KillProcess(functionSwitchBundleName_) != UEC_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "KillProcess failed");
+        ret = abmc->DisconnectAbility(usbFuncAbilityConn);
+        if (ret != UEC_OK) {
+            USB_HILOGE(MODULE_SERVICE, "DisconnectAbility failed %{public}d", ret);
+            return false;
         }
-        return false;
     }
     USB_HILOGD(MODULE_USB_SERVICE, "unshow function switch window success");
     return true;
