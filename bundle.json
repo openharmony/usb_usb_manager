@@ -47,11 +47,9 @@
                 "resource_management",
                 "ability_runtime",
                 "hisysevent",
-                "hitrace"
-            ],
-            "third_party": [
                 "cJSON",
-                "bounds_checking_function"
+                "bounds_checking_function",
+                "hitrace"
             ]
         },
         "build": {
