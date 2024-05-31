@@ -79,6 +79,22 @@ int32_t UsbServerStub::GetBufferMessage(MessageParcel &data, std::vector<uint8_t
     return UEC_OK;
 }
 
+bool UsbServerStub::WriteFileDescriptor(MessageParcel &data, int fd)
+{
+    if (!data.WriteBool(fd >= 0 ? true : false)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: failed to write fd vailed", __func__);
+        return false;
+    }
+    if (fd < 0) {
+        return true;
+    }
+    if (!data.WriteFileDescriptor(fd)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: failed to write fd", __func__);
+        return false;
+    }
+    return true;
+}
+
 bool UsbServerStub::StubDevice(
     uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -579,7 +595,10 @@ int32_t UsbServerStub::DoGetFileDescriptor(MessageParcel &data, MessageParcel &r
     int32_t fd = -1;
     int32_t ret = GetFileDescriptor(busNum, devAddr, fd);
     if (ret == UEC_OK) {
-        WRITE_PARCEL_WITH_RET(reply, Int32, fd, UEC_SERVICE_WRITE_PARCEL_ERROR);
+        if (!WriteFileDescriptor(reply, fd)) {
+            USB_HILOGW(MODULE_USB_SERVICE, "%{public}s: write fd failed!", __func__);
+            return UEC_INTERFACE_WRITE_PARCEL_ERROR;
+        }
     } else {
         USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
     }

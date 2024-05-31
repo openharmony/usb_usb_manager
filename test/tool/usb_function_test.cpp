@@ -214,9 +214,9 @@ static void ResetProxy(UsbSrvClient &g_usbClient, int32_t &sp)
     UsbDevice device = devi.front();
     g_usbClient.OpenDevice(device, pipe);
     std::cout << "please kill service, press enter to continue" << std::endl;
-    int32_t c;
-    while (c != EOF) {
-        if ((c = getchar()) == '\n') {
+    int32_t ch = 0;
+    while (ch != EOF) {
+        if ((ch = getchar()) == '\n') {
             break;
         }
     }

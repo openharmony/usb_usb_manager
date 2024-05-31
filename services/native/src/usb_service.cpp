@@ -774,7 +774,7 @@ int32_t UsbService::GetFileDescriptor(uint8_t busNum, uint8_t devAddr, int32_t &
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    int32_t ret = usbd_->GetFileDescriptor(dev, fd);
+    int32_t ret = usbd_->GetDeviceFileDescriptor(dev, fd);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "error ret:%{public}d", ret);
     }
