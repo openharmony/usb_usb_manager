@@ -46,9 +46,7 @@ ohos_shared_library("usbsrv_client") {
   ]
 
   public_configs = [ ":usbsrv_public_config" ]
-
-  public_deps = [ "//third_party/cJSON:cjson" ]
-
+  public_external_deps = [ "cJSON:cjson" ]
   external_deps = [
     "c_utils:utils",
     "drivers_interface_usb:usb_idl_headers_1.1",

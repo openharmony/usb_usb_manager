@@ -40,12 +40,10 @@ ohos_shared_library("usb") {
     "${utils_path}:utils_config",
     ":usbnapi_private_config",
   ]
-  deps = [
-    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
-    "//third_party/bounds_checking_function:libsec_shared",
-    "//third_party/cJSON:cjson",
-  ]
+  deps = [ "${usb_manager_path}/interfaces/innerkits:usbsrv_client" ]
   external_deps = [
+    "bounds_checking_function:libsec_shared",
+    "cJSON:cjson",
     "drivers_interface_usb:usb_idl_headers_1.1",
     "hilog:libhilog",
     "napi:ace_napi",
@@ -74,12 +72,10 @@ ohos_shared_library("usbmanager") {
     "${utils_path}:utils_config",
     ":usbnapi_private_config",
   ]
-  deps = [
-    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
-    "//third_party/bounds_checking_function:libsec_shared",
-    "//third_party/cJSON:cjson",
-  ]
+  deps = [ "${usb_manager_path}/interfaces/innerkits:usbsrv_client" ]
+  public_external_deps = [ "cJSON:cjson" ]
   external_deps = [
+    "bounds_checking_function:libsec_shared",
     "drivers_interface_usb:usb_idl_headers_1.1",
     "hilog:libhilog",
     "napi:ace_napi",
