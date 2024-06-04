@@ -15,8 +15,6 @@ import("./../../../../usbmgr.gni")
 
 config("usbnapi_private_config") {
   include_dirs = [
-    "./../../../../../../../foundation/arkui/napi/native_engine",
-    "./../../../../../../../foundation/arkui/napi/interfaces/kits",
     "//third_party/node/src",
     "${usb_manager_path}/interfaces/kits/js/napi/include",
     "${usb_manager_path}/interfaces/innerkits/native/include",

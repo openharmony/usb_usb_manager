@@ -22,8 +22,6 @@ config("usbsrv_public_config") {
     "native/include",
     "${usb_manager_path}/services/zidl/include",
     "${usb_manager_path}/utils/native/include",
-    "./../../../../drivers/peripheral/usb/hdi_service/include",
-    "./../../../../drivers/peripheral/usb/utils/include",
   ]
 }
 
@@ -84,6 +82,7 @@ ohos_shared_library("usbservice") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.1",
+    "drivers_peripheral_usb:libusb_interface_service_1.1",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
