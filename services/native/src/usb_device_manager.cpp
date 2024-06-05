@@ -195,7 +195,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
 
 void UsbDeviceManager::ProcessFuncChange(bool connected, int32_t currentFunc)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "yu_test, cur Connect %{public}d,bconnected: %{public}d", connected, currentFunc);
+    USB_HILOGI(MODULE_USB_SERVICE, "Current Connect %{public}d,bconnected: %{public}d", connected, currentFunc);
     Want want;
     want.SetAction(CommonEventSupport::COMMON_EVENT_USB_STATE);
  

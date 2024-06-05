@@ -180,7 +180,7 @@ int32_t UsbDescriptorParser::ParseInterfaceDescriptor(
         cursor += epCursor;
     }
     interface.SetEndpoints(eps);
-    USB_HILOGE(MODULE_USB_SERVICE, "interface to string : %{public}s", interface.ToString().c_str());
+    USB_HILOGI(MODULE_USB_SERVICE, "interface to string : %{public}s", interface.ToString().c_str());
     return UEC_OK;
 }
 

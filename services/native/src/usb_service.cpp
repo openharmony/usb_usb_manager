@@ -1748,7 +1748,7 @@ int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool d
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, vId: %{public}d, pId: %{public}d, b: %{public}d",
         devices.size(), vendorId, productId, disable);
     for (auto it = devices.begin(); it != devices.end(); ++it) {
-        if (it->second->GetVendorId() == vendorId && it->second->GetProductId() == productId) {
+        if ((it->second->GetVendorId() == vendorId) && (it->second->GetProductId() == productId)) {
             UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
             uint8_t configIndex = 0;
             if (usbd_->GetConfig(dev, configIndex)) {
@@ -1797,7 +1797,7 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
 
         for (uint32_t i = 0; i < interfaces.size(); i++) {
             // 0 indicate base class, 1 indicate subclass, 2 indicate protocal. -1 indicate any value.
-            if (interfaces[i].GetClass() == iterInterface->second[BASECLASS_INDEX] && (interfaces[i].GetClass() ==
+            if ((interfaces[i].GetClass() == iterInterface->second[BASECLASS_INDEX]) && (interfaces[i].GetClass() ==
                 iterInterface->second[SUBCLASS_INDEX] || iterInterface->second[SUBCLASS_INDEX] ==
                 RANDOM_VALUE_INDICATE) && (interfaces[i].GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||
                 iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
