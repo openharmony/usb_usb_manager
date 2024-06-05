@@ -15,7 +15,6 @@ import("./../../../../usbmgr.gni")
 
 config("usbnapi_private_config") {
   include_dirs = [
-    "//third_party/node/src",
     "${usb_manager_path}/interfaces/kits/js/napi/include",
     "${usb_manager_path}/interfaces/innerkits/native/include",
   ]
@@ -45,6 +44,7 @@ ohos_shared_library("usb") {
     "drivers_interface_usb:usb_idl_headers_1.1",
     "hilog:libhilog",
     "napi:ace_napi",
+    "node:node_header_notice",
   ]
 
   relative_install_dir = "module"
@@ -77,6 +77,7 @@ ohos_shared_library("usbmanager") {
     "drivers_interface_usb:usb_idl_headers_1.1",
     "hilog:libhilog",
     "napi:ace_napi",
+    "node:node_header_notice",
   ]
 
   relative_install_dir = "module"
