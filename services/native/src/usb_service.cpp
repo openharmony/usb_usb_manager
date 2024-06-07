@@ -1027,6 +1027,7 @@ int32_t UsbService::GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGloba
     MessageOption option;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
 
     uint32_t funcCode = (1 << EMD_MASK_CODE) | DISABLE_USB;
@@ -1053,6 +1054,7 @@ int32_t UsbService::GetEdmTypePolicy(sptr<IRemoteObject> remote,
     MessageOption option;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
 
     uint32_t funcCode = (1 << EMD_MASK_CODE) | USB_STORAGE_DEVICE_ACCESS_POLICY;
@@ -1080,6 +1082,7 @@ int32_t UsbService::GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::vecto
     MessageOption option;
     data.WriteInterfaceToken(DESCRIPTOR);
     data.WriteInt32(WITHOUT_USERID);
+    data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
 
     uint32_t funcCode = (1 << EMD_MASK_CODE) | ALLOWED_USB_DEVICES;
