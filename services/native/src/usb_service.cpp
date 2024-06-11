@@ -1744,6 +1744,7 @@ int32_t UsbService::ManageGlobalInterfaceImpl(bool disable)
     }
     return UEC_OK;
 }
+
 int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool disable)
 {
     std::map<std::string, UsbDevice *> devices;
@@ -1772,6 +1773,7 @@ int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool d
     }
     return UEC_OK;
 }
+
 int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable)
 {
     auto iterInterface = g_typeMap .find(interfaceType);
@@ -1859,6 +1861,5 @@ int32_t UsbService::GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &spe
     USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceSpeedImpl:%{public}u", speed);
     return ret;
 }
-
 } // namespace USB
 } // namespace OHOS
