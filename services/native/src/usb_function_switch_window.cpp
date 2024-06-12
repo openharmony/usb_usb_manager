@@ -23,6 +23,7 @@
 #include "cJSON.h"
 
 #include "ability_manager_client.h"
+#include "bundle_mgr_client.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "usb_errors.h"
@@ -34,6 +35,9 @@ namespace OHOS {
 namespace USB {
 constexpr int32_t INVALID_USERID = -1;
 constexpr int32_t MESSAGE_PARCEL_KEY_SIZE = 3;
+constexpr int32_t MAX_RETRY_TIMES = 30;
+constexpr int32_t RETRY_INTERVAL_SECONDS = 1;
+constexpr uint32_t DELAY_CHECK_DIALOG = 1;
 
 std::shared_ptr<UsbFunctionSwitchWindow> UsbFunctionSwitchWindow::instance_;
 
@@ -57,7 +61,27 @@ UsbFunctionSwitchWindow::~UsbFunctionSwitchWindow()
 
 int32_t UsbFunctionSwitchWindow::Init()
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "init: windown action=%{public}d", windowAction_);
+    USB_HILOGI(MODULE_USB_SERVICE, "init: window action=%{public}d,%{public}d", windowAction_, isDialogInstalled_);
+    if (isDialogInstalled_) {
+        return UEC_OK;
+    }
+
+    checkDialogTimer_.Unregister(checkDialogTimerId_);
+    checkDialogTimer_.Shutdown();
+    // async check dialog install status
+    auto task = [this]() {
+        CheckDialogInstallStatus();
+        checkDialogTimer_.Unregister(checkDialogTimerId_);
+        checkDialogTimer_.Shutdown();
+    };
+    auto ret = checkDialogTimer_.Setup();
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "set up timer failed %{public}u", ret);
+        // fall back to sync
+        CheckDialogInstallStatus();
+        return isDialogInstalled_ ? UEC_OK : ret;
+    }
+    checkDialogTimerId_ = checkDialogTimer_.Register(task, DELAY_CHECK_DIALOG, true);
     return UEC_OK;
 }
 
@@ -82,9 +106,7 @@ bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
         return false;
     }
     windowAction_ = UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_SHOW;
-    int32_t defaultChoose = 0;
-    (void)GetDefaultChooseFunction(defaultChoose);
-    return ShowFunctionSwitchWindow(defaultChoose);
+    return ShowFunctionSwitchWindow();
 }
 
 bool UsbFunctionSwitchWindow::DismissFunctionSwitchWindow()
@@ -99,11 +121,6 @@ bool UsbFunctionSwitchWindow::DismissFunctionSwitchWindow()
     return UnShowFunctionSwitchWindow();
 }
 
-bool UsbFunctionSwitchWindow::GetDefaultChooseFunction(int32_t &defaultChoose)
-{
-    defaultChoose = UsbFunctionChoose::FUNCTION_CHOOSE_CHARGE_ONLY;
-    return true;
-}
 void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
 {
@@ -149,9 +166,13 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityDisconnectDone(
     return;
 }
 
-bool UsbFunctionSwitchWindow::ShowFunctionSwitchWindow(int32_t defaultChoose)
+bool UsbFunctionSwitchWindow::ShowFunctionSwitchWindow()
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "show function switch window right now");
+    USB_HILOGI(MODULE_USB_SERVICE, "show function switch window right now, installed: %{public}d", isDialogInstalled_);
+    if (!isDialogInstalled_) {
+        return false;
+    }
+
     if (usbFuncAbilityConn == nullptr) {
         usbFuncAbilityConn = sptr<UsbFuncAbilityConn>(new (std::nothrow) UsbFuncAbilityConn());
     }
@@ -205,5 +226,28 @@ bool UsbFunctionSwitchWindow::UnShowFunctionSwitchWindow()
     return true;
 }
 
+bool UsbFunctionSwitchWindow::CheckDialogInstallStatus()
+{
+    AppExecFwk::BundleInfo info;
+    AppExecFwk::BundleMgrClient bmc;
+    int32_t retryTimes = 0;
+    while (retryTimes < MAX_RETRY_TIMES) {
+        isDialogInstalled_ = bmc.GetBundleInfo(functionSwitchBundleName_,
+            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, info, AppExecFwk::Constants::ALL_USERID);
+        USB_HILOGI(MODULE_USB_SERVICE, "check dialog, times=%{public}d,res=%{public}d", retryTimes, isDialogInstalled_);
+        if (!isDialogInstalled_) {
+            retryTimes++;
+            sleep(RETRY_INTERVAL_SECONDS);
+            continue;
+        }
+
+        if (windowAction_ == UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_SHOW) {
+            ShowFunctionSwitchWindow();
+        }
+        return true;
+    }
+    USB_HILOGE(MODULE_USB_SERVICE, "dialog is not installed");
+    return false;
+}
 } // namespace USB
 } // namespace OHOS

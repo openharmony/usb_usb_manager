@@ -23,6 +23,7 @@
 #include "parameter.h"
 #include "usb_common.h"
 #include "usb_srv_support.h"
+#include "timer.h"
 
 #define PARAM_BUF_LEN 128
 namespace OHOS {
@@ -59,15 +60,18 @@ private:
         void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode) override;
         public:
     };
-    bool GetDefaultChooseFunction(int32_t &defaultChoose);
-    bool ShowFunctionSwitchWindow(int32_t defaultChoose);
+    bool ShowFunctionSwitchWindow();
     bool UnShowFunctionSwitchWindow();
+    bool CheckDialogInstallStatus();
     static std::shared_ptr<UsbFunctionSwitchWindow> instance_;
     sptr<UsbFuncAbilityConn> usbFuncAbilityConn = nullptr;
     int32_t windowAction_ = UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_DEFAULT;
     std::mutex opMutex_;
     const std::string functionSwitchBundleName_ = "com.usb.right";
     const std::string functionSwitchExtAbility_ = "UsbFunctionSwitchExtAbility";
+    bool isDialogInstalled_ = false;
+    Utils::Timer checkDialogTimer_ {"checkDialogTimer"};
+    uint32_t checkDialogTimerId_ {UINT32_MAX};
 };
 } // namespace USB
 } // namespace OHOS
