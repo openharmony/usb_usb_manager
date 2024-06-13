@@ -55,7 +55,7 @@ int32_t UsbBulkcallbackMockTest::InitAshmemOne(sptr<Ashmem> &asmptr, int32_t asm
 {
     asmptr = Ashmem::CreateAshmem("ttashmem000", asmSize);
     if (asmptr == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "InitAshmemOne CreateAshmem failed\n");
+        USB_HILOGE(MODULE_USB_SERVICE, "InitAshmemOne CreateAshmem failed");
         return UEC_SERVICE_NO_MEMORY;
     }
 
@@ -68,7 +68,7 @@ int32_t UsbBulkcallbackMockTest::InitAshmemOne(sptr<Ashmem> &asmptr, int32_t asm
 
         int32_t retSafe = memset_s(tData, sizeof(tData), 'Y', ASHMEM_MAX_SIZE);
         if (retSafe != EOK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "InitAshmemOne memset_s failed\n");
+            USB_HILOGE(MODULE_USB_SERVICE, "InitAshmemOne memset_s failed");
             return UEC_SERVICE_NO_MEMORY;
         }
         while (offset < asmSize) {
