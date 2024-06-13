@@ -243,7 +243,7 @@ bool UsbService::Init()
             break;
         }
     }
-    USB_HILOGE(MODULE_USB_SERVICE, "Init success");
+    USB_HILOGI(MODULE_USB_SERVICE, "Init success");
     return true;
 }
 
