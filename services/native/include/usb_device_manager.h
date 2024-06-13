@@ -58,6 +58,7 @@ private:
     static const std::map<std::string_view, uint32_t> FUNCTION_MAPPING_N2C;
     int32_t currentFunctions_ {UsbSrvSupport::FUNCTION_HDC};
     bool connected_ {false};
+    bool gadgetConnected_ {false};
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
     Utils::Timer delayDisconn_ {"delayDisconnTimer"};
     uint32_t delayDisconnTimerId_ {UINT32_MAX};

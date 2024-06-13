@@ -160,10 +160,12 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     switch (status) {
         case ACT_UPDEVICE: {
             curConnect = true;
+            gadgetConnected_ = true;
             break;
         }
         case ACT_DOWNDEVICE: {
             curConnect = false;
+            gadgetConnected_ = false;
             break;
         }
         default:
@@ -326,7 +328,7 @@ void UsbDeviceManager::ReportDevicePlugSysEvent(int32_t currentFunctions, bool c
 }
 bool UsbDeviceManager::IsGadgetConnected(void)
 {
-    return connected_;
+    return gadgetConnected_;
 }
 } // namespace USB
 } // namespace OHOS
