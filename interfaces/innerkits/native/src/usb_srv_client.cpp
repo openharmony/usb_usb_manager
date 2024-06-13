@@ -272,6 +272,9 @@ int32_t UsbSrvClient::ControlTransfer(
 {
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
     const UsbDev dev = {pipe.GetBusNum(), pipe.GetDevAddr()};
+    if (bufferData.size() > 0) {
+        ctrl.length = bufferData.size();
+    }
     int32_t ret = proxy_->ControlTransfer(dev, ctrl, bufferData);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "failed width ret = %{public}d !", ret);
