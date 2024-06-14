@@ -257,7 +257,7 @@ bool UsbService::InitUsbd()
 
     usbdSubscriber_ = new (std::nothrow) UsbServiceSubscriber();
     if (usbdSubscriber_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Init failed\n");
+        USB_HILOGE(MODULE_USB_SERVICE, "Init failed");
         return false;
     }
     recipient_ = new UsbdDeathRecipient();
@@ -861,7 +861,7 @@ std::string UsbService::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, 
 
     uint16_t *tbuf = new (std::nothrow) uint16_t[length + 1]();
     if (tbuf == nullptr) {
-        USB_HILOGI(MODULE_USB_SERVICE, "new failed\n");
+        USB_HILOGI(MODULE_USB_SERVICE, "new failed");
         return strDesc;
     }
 

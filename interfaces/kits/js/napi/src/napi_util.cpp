@@ -177,7 +177,7 @@ void NapiUtil::Uint8ArrayToJsValue(
 
     errno_t ret = memcpy_s(nativeArraybuffer, bufferSize, uint8Buffer.data(), bufferSize);
     if (ret != EOK) {
-        USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed\n");
+        USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed");
         return;
     }
 
@@ -204,13 +204,13 @@ void NapiUtil::SetValueUint32(
     napi_value value = nullptr;
     napi_status status = napi_create_uint32(env, uintValue, &value);
     if (status != napi_ok) {
-        USB_HILOGE(MODULE_JS_NAPI, "create uint32 failed:%{public}s\n", fieldStr.c_str());
+        USB_HILOGE(MODULE_JS_NAPI, "create uint32 failed:%{public}s", fieldStr.c_str());
         return;
     }
 
     status = napi_set_named_property(env, result, fieldStr.c_str(), value);
     if (status != napi_ok) {
-        USB_HILOGE(MODULE_JS_NAPI, "set property failed:%{public}s\n", fieldStr.c_str());
+        USB_HILOGE(MODULE_JS_NAPI, "set property failed:%{public}s", fieldStr.c_str());
     }
 }
 
