@@ -41,8 +41,6 @@ namespace USB {
 namespace ManageInterface {
 constexpr int32_t SLEEP_TIME = 3;
 
-
-
 void UsbManageInterfaceTest::SetUpTestCase(void)
 {
     UsbCommonTest::GrantPermissionSysNative();
@@ -294,9 +292,9 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType001, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageInterfaceType001 : ManageInterfaceType");
 }
 
-HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType001, TestSize.Level1)
+HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType002, TestSize.Level1)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ManageInterfaceType001 : ManageInterfaceType");
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ManageInterfaceType002 : ManageInterfaceType");
     auto &client = UsbSrvClient::GetInstance();
     vector<UsbDevice> devi;
     auto ret = client.GetDevices(devi);
@@ -318,7 +316,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType001, TestSize.Level1)
     }
     ret = client.ManageInterfaceType(disableType, false);
     ASSERT_EQ(ret, 0);
-    USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageInterfaceType001 : ManageInterfaceType");
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageInterfaceType002 : ManageInterfaceType");
 }
 } // ManagerInterface
 } // USB

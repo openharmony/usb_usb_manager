@@ -32,7 +32,7 @@ enum InterfaceType {
     TYPE_CDC_DATA,
     TYPE_SMART_CARD,
     TYPE_CONTENT_SECURTIY,
-    TYPE_VIDEO, 
+    TYPE_VIDEO,
     TYPE_PERSONAL_HEALTHCARE,
     TYPE_AVCONTROL,
     TYPE_AVV_STREAMING,
@@ -92,8 +92,7 @@ enum InterfaceType {
     TYPE_VENDOR_SPECIFIC,
 };
 
-struct UsbDeviceType
-{
+struct UsbDeviceType {
     int32_t baseClass;
     int32_t subClass;
     int32_t protocal;

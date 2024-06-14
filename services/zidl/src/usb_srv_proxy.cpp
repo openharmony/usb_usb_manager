@@ -1197,7 +1197,7 @@ int32_t UsbServerProxy::ManageInterfaceStorage(InterfaceType interfaceType, bool
     return ret;
 }
 
-int32_t UsbServerProxy::ManageInterfaceType(const std::vector<UsbDeviceType> disableType,, bool disable)
+int32_t UsbServerProxy::ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
     sptr<IRemoteObject> remote = Remote();
     RETURN_IF_WITH_RET(remote == nullptr, UEC_INTERFACE_INVALID_VALUE);
@@ -1214,7 +1214,7 @@ int32_t UsbServerProxy::ManageInterfaceType(const std::vector<UsbDeviceType> dis
         WRITE_PARCEL_WITH_RET(data, Int32, type.baseClass, UEC_SERVICE_WRITE_PARCEL_ERROR);
         WRITE_PARCEL_WITH_RET(data, Int32, type.subClass, UEC_SERVICE_WRITE_PARCEL_ERROR);
         WRITE_PARCEL_WITH_RET(data, Int32, type.protocal, UEC_SERVICE_WRITE_PARCEL_ERROR);
-        WRITE_PARCEL_WITH_RET(data, Bool, type.isDevicetype, UEC_SERVICE_WRITE_PARCEL_ERROR);
+        WRITE_PARCEL_WITH_RET(data, Bool, type.isDeviceType, UEC_SERVICE_WRITE_PARCEL_ERROR);
     }
     WRITE_PARCEL_WITH_RET(data, Bool, disable, UEC_SERVICE_WRITE_PARCEL_ERROR);
 

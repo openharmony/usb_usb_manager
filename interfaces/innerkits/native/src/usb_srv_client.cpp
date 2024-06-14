@@ -485,7 +485,7 @@ int32_t UsbSrvClient::ManageInterfaceStorage(InterfaceType interfaceType, bool d
     return ret;
 }
 
-int32_t UsbSrvClient::ManageInterfaceType(const std::vector<UsbDeviceType> disableType, bool disable)
+int32_t UsbSrvClient::ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
     int32_t ret = proxy_->ManageInterfaceType(disableType, disable);
