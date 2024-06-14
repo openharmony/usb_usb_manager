@@ -82,14 +82,6 @@ constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
-std::unordered_map<InterfaceType, std::vector<int32_t>> g_typeMap  = {
-    {InterfaceType::TYPE_STORAGE,   {8, -1, -1}},
-    {InterfaceType::TYPE_AUDIO,     {1, -1, -1}},
-    {InterfaceType::TYPE_HID,       {3, -1, -1}},
-    {InterfaceType::TYPE_PHYSICAL,  {5, -1, -1}},
-    {InterfaceType::TYPE_IMAGE,     {6, 1, 1}},
-    {InterfaceType::TYPE_PRINTER,   {7, -1, -1}}
-};
 } // namespace
 auto g_serviceInstance = DelayedSpSingleton<UsbService>::GetInstance();
 const bool G_REGISTER_RESULT =
@@ -1167,6 +1159,37 @@ int32_t UsbService::GetUsbPolicy(bool &IsGlobalDisabled, std::unordered_map<Inte
     return UEC_OK;
 }
 
+int32_t UsbService::ExecuteManageInterfaceType(std::vector<UsbDeviceType> disableType, bool disable)
+{
+    int32_t ret = UEC_INTERFACE_NO_MEMORY;
+    std::map<std::string, UsbDevice *>devices;
+    usbHostManager_->GetDevices(devices);
+    USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices.size());
+    int32_t ret = UEC_INTERFACE_NO_MEMORY;
+    for (auto dev : disableType) {
+        if (!dev.isDevicetype) {
+            for (auto& [InterfaceTypeValues, typeValues] : g_typeMap) {
+                if ((typeValues[0] == dev.baseClass) &&
+                    (typeValues[1] == -1 || typeValues[1] == dev.subClass)&&
+                    (typeValues[2] == -1 || typeValues[2] == dev.protocal)) {
+                    ret = ManageInterfaceTypeImpl(interfaceTypeValues ,disable);
+                } else {
+                    USB_HILOGE(MODULE_USB_SERVICE,"ExecuteManageInterfaceType Invalid data");
+                }
+            }
+        } else {
+            for(auto it = devices.begin(); it != devices.end(); ++it) {
+                ret = ManageDeviceImpl(it->second->GetVendorId(), it->second->GetProductId(), disable);
+            } 
+        }
+    }
+    if (ret != UEC_OK) {
+        USB_HILOGI(MODULE_USB_SERVICE, "ExecuteManageInterfaceType failed");
+        return UEC_SERVICE_EXECUTE_POLICY_FAILED;
+    }
+    return UEC_OK;
+}
+
 int32_t UsbService::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whiteList)
 {
     std::map<std::string, UsbDevice *> devices;
@@ -1210,7 +1233,8 @@ void UsbService::ExecuteStrategy(UsbDevice *devInfo)
         return;
     }
     bool isGlobalDisabled = false;
-    std::unordered_map<InterfaceType, bool> typeDisableMap{};
+    std::usb<InterfaceType, bool> typeDisableMap{};
+    std::vector<UsbDeviceType> disableType{};
     std::vector<UsbDeviceId> trustUsbDeviceIds{};
 
     int32_t ret = GetUsbPolicy(isGlobalDisabled, typeDisableMap, trustUsbDeviceIds);
@@ -1240,6 +1264,7 @@ void UsbService::ExecuteStrategy(UsbDevice *devInfo)
         USB_HILOGI(MODULE_USB_SERVICE, "Execute ManageInterfaceType finish");
         return;
     }
+
     if (trustUsbDeviceIds.empty()) {
         USB_HILOGI(MODULE_USB_SERVICE, "trustUsbDeviceIds is empty, no devices disable");
         return;
@@ -1709,13 +1734,22 @@ int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disab
     return ManageDeviceImpl(vendorId, productId, disable);
 }
 
-int32_t UsbService::ManageInterfaceType(InterfaceType interfaceType, bool disable)
+int32_t UsbService::ManageInterfaceStorage(InterfaceType interfaceType, bool disable)
 {
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
     return ManageInterfaceTypeImpl(interfaceType, disable);
+}
+
+int32_t UsbService::ManageInterfaceType(std::vector<UsbDeviceType> disableType, bool disable)
+{
+    if (PreCallFunction() != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
+        return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
+    }
+    return ExecuteManageInterfaceType(disableType, disable);
 }
 
 int32_t UsbService::ManageGlobalInterfaceImpl(bool disable)
