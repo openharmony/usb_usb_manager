@@ -226,7 +226,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceStorage002, TestSize.Level1)
     EXPECT_TRUE(ret == 0);
     InterfaceType interfaceType = InterfaceType::TYPE_HID;
     if (devi.size() > 0) {
-        for (auto iter = typeMapInfo.begin(); iter != typeMapInfo.end(); iter ++) {
+        for (auto iter = g_typeMap.begin(); iter != g_typeMap.end(); iter ++) {
             if (devi.at(0).GetClass() == iter->second[0] &&
             (devi.at(0).GetSubclass() == iter->second[1] || iter->second[1] == -1) &&
             (devi.at(0).GetProtocol() == iter->second[2] || iter->second[2] == -1)) {
@@ -273,20 +273,12 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType001, TestSize.Level1)
     auto ret = client.GetDevices(devi);
     EXPECT_TRUE(ret == 0);
     vector<UsbDeviceType> disableType;
-    if (devi.size() > 0) {
-        for (auto iter = g_typeMap.begin(); iter != g_typeMap.end(); iter ++) {
-            if (devi.at(0).GetClass() == iter->second[0] &&
-            (devi.at(0).GetSubclass() == iter->second[1] || iter->second[1] == -1) &&
-            (devi.at(0).GetProtocol() == iter->second[2] || iter->second[2] == -1)) {
-                UsbDeviceType usbDeviceType;
-                usbDeviceType.baseClass = devi.at(0).GetClass();
-                usbDeviceType.subClass = devi.at(0).GetSubclass();
-                usbDeviceType.protocal = devi.at(0).GetProtocol();
-                usbDeviceType.isDevicetype = 0;
-                disableType.emplace_back(usbDeviceType);
-            }
-        }
-    }
+    UsbDeviceType usbDeviceType;
+    usbDeviceType.baseClass = 3;
+    usbDeviceType.subClass = 1;
+    usbDeviceType.protocal = 2;
+    usbDeviceType.isDeviceType = 0;
+    disableType.emplace_back(usbDeviceType);
     ret = client.ManageInterfaceType(disableType, true);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageInterfaceType001 : ManageInterfaceType");
@@ -300,20 +292,12 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType002, TestSize.Level1)
     auto ret = client.GetDevices(devi);
     EXPECT_TRUE(ret == 0);
     vector<UsbDeviceType> disableType;
-    if (devi.size() > 0) {
-        for (auto iter = g_typeMap.begin(); iter != g_typeMap.end(); iter ++) {
-            if (devi.at(0).GetClass() == iter->second[0] &&
-            (devi.at(0).GetSubclass() == iter->second[1] || iter->second[1] == -1) &&
-            (devi.at(0).GetProtocol() == iter->second[2] || iter->second[2] == -1)) {
-                UsbDeviceType usbDeviceType;
-                usbDeviceType.baseClass = devi.at(0).GetClass();
-                usbDeviceType.subClass = devi.at(0).GetSubclass();
-                usbDeviceType.protocal = devi.at(0).GetProtocol();
-                usbDeviceType.isDevicetype = 0;
-                disableType.emplace_back(usbDeviceType);
-            }
-        }
-    }
+    UsbDeviceType usbDeviceType;
+    usbDeviceType.baseClass = 3;
+    usbDeviceType.subClass = 1;
+    usbDeviceType.protocal = 2;
+    usbDeviceType.isDeviceType = 0;
+    disableType.emplace_back(usbDeviceType);
     ret = client.ManageInterfaceType(disableType, false);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageInterfaceType002 : ManageInterfaceType");
