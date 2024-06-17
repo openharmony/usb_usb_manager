@@ -50,7 +50,7 @@ static int32_t InitAshmemOne(sptr<Ashmem> &asmptr, int32_t asmSize, uint8_t rflg
 {
     asmptr = Ashmem::CreateAshmem("ttashmem000", asmSize);
     if (asmptr == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "InitAshmemOne CreateAshmem failed\n");
+        USB_HILOGE(MODULE_USB_SERVICE, "InitAshmemOne CreateAshmem failed");
         return UEC_SERVICE_NO_MEMORY;
     }
 
@@ -63,7 +63,7 @@ static int32_t InitAshmemOne(sptr<Ashmem> &asmptr, int32_t asmSize, uint8_t rflg
 
         int32_t retSafe = memset_s(tdata, sizeof(tdata), 'Y', ASHMEM_MAX_SIZE);
         if (retSafe != EOK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "InitAshmemOne memset_s failed\n");
+            USB_HILOGE(MODULE_USB_SERVICE, "InitAshmemOne memset_s failed");
             return UEC_SERVICE_NO_MEMORY;
         }
         while (offset < asmSize) {

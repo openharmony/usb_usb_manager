@@ -1111,12 +1111,12 @@ static std::tuple<bool, USBDevicePipe, PipeControlParam, int32_t> GetControlTran
     napi_value argv[PARAM_COUNT_3] = {nullptr};
     napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (status != napi_ok) {
-        USB_HILOGE(MODULE_JS_NAPI, "ControlTransfer failed to get cb info\n");
+        USB_HILOGE(MODULE_JS_NAPI, "ControlTransfer failed to get cb info");
         return {false, {}, {}, {}};
     }
 
     if (argc < PARAM_COUNT_2) {
-        USB_HILOGE(MODULE_JS_NAPI, "The function at least takes two arguments.\n");
+        USB_HILOGE(MODULE_JS_NAPI, "The function at least takes two arguments.");
         ThrowBusinessError(env, SYSPARAM_INVALID_INPUT, "The function at least takes two arguments.");
         return {false, {}, {}, {}};
     }
@@ -1125,7 +1125,7 @@ static std::tuple<bool, USBDevicePipe, PipeControlParam, int32_t> GetControlTran
     napi_valuetype type;
     napi_typeof(env, argv[INDEX_0], &type);
     if (type != napi_object) {
-        USB_HILOGE(MODULE_JS_NAPI, "index 0 wrong argument type, object expected.\n");
+        USB_HILOGE(MODULE_JS_NAPI, "index 0 wrong argument type, object expected.");
         ThrowBusinessError(env, SYSPARAM_INVALID_INPUT, "The type of pipe must be USBDevicePipe.");
         return {false, {}, {}, {}};
     }
@@ -1183,7 +1183,7 @@ static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
 
         errno_t ret = memcpy_s(nativeArrayBuffer, controlParam.dataLength, controlParam.data, controlParam.dataLength);
         if (ret != EOK) {
-            USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed\n");
+            USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed");
             delete asyncContext;
             delete[] nativeArrayBuffer;
             return nullptr;
@@ -1273,7 +1273,7 @@ static bool GetDescriptorOnBulkTransferParam(napi_env env, napi_value data,
 
         errno_t ret = memcpy_s(nativeArrayBuffer, bufferSize, buffer, bufferSize);
         if (ret != EOK) {
-            USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed\n");
+            USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed");
             delete[] nativeArrayBuffer;
             return false;
         }

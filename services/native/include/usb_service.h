@@ -125,7 +125,8 @@ public:
     void UnLoadSelf(UnLoadSaType type);
     int32_t ManageGlobalInterface(bool disable) override;
     int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable) override;
-    int32_t ManageInterfaceType(InterfaceType interfaceType, bool disable) override;
+    int32_t ManageInterfaceStorage(InterfaceType interfaceType, bool disable) override;
+    int32_t ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable) override;
     int32_t GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated) override;
     int32_t GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed) override;
 private:
@@ -161,6 +162,7 @@ private:
     int32_t PreCallFunction();
     bool IsEdmEnabled();
     int32_t ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whiteList);
+    int32_t ExecuteManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable);
     int32_t GetEdmPolicy(bool &IsGlobalDisabled, std::unordered_map<InterfaceType, bool> &typeDisableMap,
         std::vector<UsbDeviceId> &trustUsbDeviceId);
     int32_t GetUsbPolicy(bool &IsGlobalDisabled, std::unordered_map<InterfaceType, bool> &typeDisableMap,
