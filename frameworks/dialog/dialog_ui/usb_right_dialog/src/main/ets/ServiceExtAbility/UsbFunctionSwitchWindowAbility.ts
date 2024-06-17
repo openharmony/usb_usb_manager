@@ -22,6 +22,7 @@ const SHIFT_DIGIT = 27;
 const TOKEN_NATIVE = 1;
 const TOKEN_HAP = 0;
 const BG_COLOR = '#00000000';
+const COLOR_MODE_NOT_SET = -1;
 
 export default class UsbFunctionSwitchAbility extends UIExtensionAbility {
   onSessionCreate(want, session): void {
@@ -35,6 +36,7 @@ export default class UsbFunctionSwitchAbility extends UIExtensionAbility {
     (session as UIExtensionContentSession)?.loadContent('pages/Index');
     try {
       (session as UIExtensionContentSession)?.setWindowBackgroundColor(BG_COLOR);
+      this.context?.getApplicationContext().setColorMode(COLOR_MODE_NOT_SET);
     } catch (error) {
       console.error(TAG + 'UsbFunctionSwitchAbility onSessionCreate error: ' + error?.code);
       (session as UIExtensionContentSession)?.terminateSelf();
