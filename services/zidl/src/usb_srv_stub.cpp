@@ -126,15 +126,6 @@ bool UsbServerStub::StubDevice(
         case static_cast<int>(UsbInterfaceCode::USB_FUN_RELEASE_INTERFACE):
             result = DoReleaseInterface(data, reply, option);
             return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_TRANSFER_READ):
-            result = DoBulkTransferRead(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_TRANSFER_WRITE):
-            result = DoBulkTransferWrite(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_CONTROL_TRANSFER):
-            result = DoControlTransfer(data, reply, option);
-            return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_REG_BULK_CALLBACK):
             result = DoRegBulkCallback(data, reply, option);
             return true;
@@ -227,6 +218,27 @@ bool UsbServerStub::StubHost(
     return false;
 }
 
+bool UsbServerStub::StubHostTransfer(uint32_t code, int32_t &result,
+    MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    switch (code) {
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_TRANSFER_READ):
+            result = DoBulkTransferRead(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_TRANSFER_READ_WITH_LENGTH):
+            result = DoBulkTransferReadwithLength(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_TRANSFER_WRITE):
+            result = DoBulkTransferWrite(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_CONTROL_TRANSFER):
+            result = DoControlTransfer(data, reply, option);
+            return true;
+        default:;
+    }
+    return false;
+}
+
 int32_t UsbServerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     USB_HILOGD(MODULE_USB_SERVICE, "UsbServerStub::OnRemoteRequest, cmd = %{public}u, flags = %{public}d", code,
@@ -242,6 +254,8 @@ int32_t UsbServerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messa
     if (StubHost(code, ret, data, reply, option)) {
         return ret;
     } else if (StubDevice(code, ret, data, reply, option)) {
+        return ret;
+    } else if (StubHostTransfer(code, ret, data, reply, option)) {
         return ret;
     } else {
         return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
@@ -433,6 +447,38 @@ int32_t UsbServerStub::DoBulkTransferRead(MessageParcel &data, MessageParcel &re
     READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_WRITE_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Uint8, interface, UEC_SERVICE_WRITE_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Uint8, endpoint, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, timeOut, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    std::vector<uint8_t> bufferData;
+    const UsbDev tmpDev = {busNum, devAddr};
+    const UsbPipe tmpPipe = {interface, endpoint};
+    int32_t ret = BulkTransferRead(tmpDev, tmpPipe, bufferData, timeOut);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "read failed ret:%{public}d", ret);
+        UsbReportSysEvent::ReportTransforFaultSysEvent("BulkTransferRead", tmpDev, tmpPipe, ret);
+        return ret;
+    }
+    ret = SetBufferMessage(reply, bufferData);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "set buffer failed ret:%{public}d", ret);
+    }
+    WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return ret;
+}
+
+int32_t UsbServerStub::DoBulkTransferReadwithLength(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "BulkTransferRead");
+    uint8_t busNum = 0;
+    uint8_t devAddr = 0;
+    uint8_t interface = 0;
+    uint8_t endpoint = 0;
+    int32_t length = 0;
+    int32_t timeOut = 0;
+    READ_PARCEL_WITH_RET(data, Uint8, busNum, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, interface, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, endpoint, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, length, UEC_SERVICE_WRITE_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Int32, timeOut, UEC_SERVICE_WRITE_PARCEL_ERROR);
     std::vector<uint8_t> bufferData;
     const UsbDev tmpDev = {busNum, devAddr};

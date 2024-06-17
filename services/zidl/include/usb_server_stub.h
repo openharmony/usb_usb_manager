@@ -37,6 +37,8 @@ public:
 private:
     bool StubHost(uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option);
     bool StubDevice(uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    bool StubHostTransfer(uint32_t code, int32_t &result,
+        MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
     int32_t DoGetCurrentFunctions(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoSetCurrentFunctions(MessageParcel &data, MessageParcel &reply, MessageOption &option);
@@ -53,6 +55,7 @@ private:
     int32_t DoClaimInterface(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoReleaseInterface(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoBulkTransferRead(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoBulkTransferReadwithLength(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoBulkTransferWrite(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoControlTransfer(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoSetActiveConfig(MessageParcel &data, MessageParcel &reply, MessageOption &option);

@@ -45,6 +45,8 @@ public:
         std::vector<uint8_t> &bufferData, int32_t timeOut) = 0;
     virtual int32_t BulkTransferWrite(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe,
         const std::vector<uint8_t> &bufferData, int32_t timeOut) = 0;
+    virtual int32_t BulkTransferReadwithLength(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe,
+        int32_t length, std::vector<uint8_t> &bufferData, int32_t timeOut) = 0;
     virtual int32_t ControlTransfer(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbCtrlTransfer &ctrl,
         std::vector<uint8_t> &bufferData) = 0;
     virtual int32_t SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configId) = 0;
