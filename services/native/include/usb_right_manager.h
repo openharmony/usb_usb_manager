@@ -25,6 +25,7 @@
 
 #include "ability_connect_callback_stub.h"
 #include "bundle_mgr_interface.h"
+#include "bundle_resource_interface.h"
 #include "usb_common.h"
 #include "parameter.h"
 
@@ -62,6 +63,9 @@ private:
     bool CheckSaPermission();
     bool IsAllDigits(const std::string &bundleName);
     sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
+    sptr<AppExecFwk::IBundleResource> GetBundleResMgr();
+    bool GetAppName(const std::string &bundleName, std::string &appName);
+    bool GetProductName(const std::string &devName, std::string &productName);
 
     static sem_t waitDialogDisappear_;
     class UsbAbilityConn : public AAFwk::AbilityConnectionStub {

@@ -35,6 +35,7 @@
 #include "usb_right_db_helper.h"
 #include "usb_napi_errors.h"
 #include "usb_srv_support.h"
+#include "usb_service.h"
 
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::EventFwk;
@@ -253,11 +254,23 @@ bool UsbRightManager::ShowUsbDialog(
         return false;
     }
 
+    std::string appName;
+    if (!GetAppName(bundleName, appName)) {
+        appName = bundleName;
+    }
+
+    std::string productName;
+    if (!GetProductName(busDev, productName)) {
+        productName = busDev;
+    }
+
     AAFwk::Want want;
     want.SetElementName("com.usb.right", "UsbServiceExtAbility");
     want.SetParam("bundleName", bundleName);
     want.SetParam("deviceName", busDev);
     want.SetParam("tokenId", tokenId);
+    want.SetParam("appName", appName);
+    want.SetParam("productName", productName);
 
     sptr<UsbAbilityConn> usbAbilityConn_ = new (std::nothrow) UsbAbilityConn();
     sem_init(&waitDialogDisappear_, 1, 0);
@@ -304,6 +317,42 @@ sptr<IBundleMgr> UsbRightManager::GetBundleMgr()
         USB_HILOGW(MODULE_USB_SERVICE, "iface_cast return nullptr");
     }
     return bundleMgr;
+}
+
+sptr<IBundleResource> UsbRightManager::GetBundleResMgr()
+{
+    auto bundleMgr = GetBundleMgr();
+    if (bundleMgr == nullptr) {
+        return nullptr;
+    }
+    return bundleMgr->GetBundleResourceProxy();
+}
+
+bool UsbRightManager::GetAppName(const std::string &bundleName, std::string &appName)
+{
+    auto resMgr = GetBundleResMgr();
+    if (resMgr == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetAppName: get res mgr failed");
+        return false;
+    }
+
+    BundleResourceInfo info;
+    auto ret = resMgr->GetBundleResourceInfo(bundleName, (uint32_t)ResourceFlag::GET_RESOURCE_INFO_WITH_LABEL, info);
+    if (ret != ERR_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetAppName: get res info failed: %{public}d", ret);
+        return false;
+    }
+    appName = info.label;
+    return true;
+}
+
+bool UsbRightManager::GetProductName(const std::string &devName, std::string &productName)
+{
+    auto usbService = UsbService::GetGlobalInstance();
+    if (usbService == nullptr) {
+        return false;
+    }
+    return usbService->GetDeviceProductName(devName, productName);
 }
 
 bool UsbRightManager::IsSystemApp()

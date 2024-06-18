@@ -36,7 +36,7 @@ export default class UsbFunctionSwitchAbility extends UIExtensionAbility {
     (session as UIExtensionContentSession)?.loadContent('pages/Index');
     try {
       (session as UIExtensionContentSession)?.setWindowBackgroundColor(BG_COLOR);
-      this.context?.getApplicationContext().setColorMode(COLOR_MODE_NOT_SET);
+      this.context?.getApplicationContext()?.setColorMode(COLOR_MODE_NOT_SET);
     } catch (error) {
       console.error(TAG + 'UsbFunctionSwitchAbility onSessionCreate error: ' + error?.code);
       (session as UIExtensionContentSession)?.terminateSelf();
