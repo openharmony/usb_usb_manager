@@ -44,6 +44,22 @@ void UsbHostManager::GetDevices(MAP_STR_DEVICE &devices)
     devices = devices_;
 }
 
+bool UsbHostManager::GetProductName(const std::string &deviceName, std::string &productName)
+{
+    auto iter = devices_.find(deviceName);
+    if (iter == devices_.end()) {
+        return false;
+    }
+
+    UsbDevice *dev = iter->second;
+    if (dev == nullptr) {
+        return false;
+    }
+
+    productName = dev->GetProductName();
+    return true;
+}
+
 bool UsbHostManager::DelDevice(uint8_t busNum, uint8_t devNum)
 {
     std::string name = std::to_string(busNum) + "-" + std::to_string(devNum);

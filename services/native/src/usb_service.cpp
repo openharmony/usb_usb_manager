@@ -1688,6 +1688,11 @@ void UsbService::UsbdDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &obj
     }
 }
 
+sptr<UsbService> UsbService::GetGlobalInstance()
+{
+    return g_serviceInstance;
+}
+
 int32_t UsbService::PreCallFunction()
 {
     usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
@@ -1892,6 +1897,11 @@ int32_t UsbService::GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &spe
     }
     USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceSpeedImpl:%{public}u", speed);
     return ret;
+}
+
+bool UsbService::GetDeviceProductName(const std::string &deviceName, std::string &productName)
+{
+    return usbHostManager_->GetProductName(deviceName, productName);
 }
 } // namespace USB
 } // namespace OHOS

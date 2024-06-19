@@ -33,6 +33,7 @@ public:
     explicit UsbHostManager(SystemAbility *systemAbility);
     ~UsbHostManager();
     void GetDevices(MAP_STR_DEVICE &devices);
+    bool GetProductName(const std::string &deviceName, std::string &productName);
     bool DelDevice(uint8_t busNum, uint8_t devNum);
     bool AddDevice(UsbDevice *dev);
     bool Dump(int fd, const std::string &args);

@@ -99,6 +99,14 @@
     {
       "name": "USB_notify_text",
       "value": "Touch for more option"
+    },
+    {
+      "name": "usb_right_content",
+      "value": "Whether %s allowed to use the %s ?"
+    },
+    {
+      "name": "usb_right_title",
+      "value": "USB Access Right"
     }
   ]
 }

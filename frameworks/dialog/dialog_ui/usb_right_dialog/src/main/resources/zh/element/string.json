@@ -71,6 +71,14 @@
     {
       "name": "USB_notify_text",
       "value": "点按即可查看更多选项"
+    },
+    {
+      "name": "usb_right_content",
+      "value": "是否允许 %s 使用 %s ?"
+    },
+    {
+      "name": "usb_right_title",
+      "value": "USB访问授权"
     }
   ]
 }

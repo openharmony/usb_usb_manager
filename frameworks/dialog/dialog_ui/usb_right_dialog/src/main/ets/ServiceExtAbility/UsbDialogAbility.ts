@@ -29,11 +29,12 @@ class UsbDialogStub extends rpc.RemoteObject {
   }
 }
 
-const BG_COLOR = '#33000000';
+const BG_COLOR = '#00000000';
 const ENTERPRISE_MANAGE_USB = 'ohos.permission.ENTERPRISE_MANAGE_USB';
 const ACCESS_TYPE_MASK = 0b11;
 const SHIFT_DIGIT = 27;
 const TOKEN_NATIVE = 1;
+const COLOR_MODE_NOT_SET = -1;
 
 export default class UsbDialogAbility extends extension {
   /**
@@ -44,6 +45,11 @@ export default class UsbDialogAbility extends extension {
     globalThis.extensionContext = this.context;
     globalThis.want = want;
     globalThis.windowNum = 0;
+    try {
+      this.context?.getApplicationContext()?.setColorMode(COLOR_MODE_NOT_SET);
+    } catch (err) {
+      console.error('onCreate setColorMode failed: ' + JSON.stringify(err));
+    } 
   }
 
   onConnect(want): rpc.RemoteObject {

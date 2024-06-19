@@ -13,94 +13,63 @@
  * limitations under the License.
  */
 
+import { AlertDialog } from '@ohos.arkui.advanced.Dialog'
 import usbMgr from '@ohos.usbManager'
-
-// allow,notAllow button style
-@Extend(Text) function controlBtn(fontColor: string) {
-  .fontColor(fontColor)
-  .backgroundColor(0xffffff)
-  .width(100)
-  .height(22)
-  .fontSize(20)
-  .textAlign(TextAlign.Center)
-}
-
-// content style
-@Extend(Text) function controlFontSize(fontSize: number) {
-  .fontSize(fontSize)
-  .width('180%')
-  .fontColor('rgba(10, 10, 10, 1.00)')
-  .textAlign(TextAlign.Center)
-  .padding({ top: 30, left: 50, right: 50 })
-  .alignSelf(ItemAlign.Center)
-  .margin({top: 10})
-}
-
-@CustomDialog
-export default
-struct ConfirmDialog {
-  content: string
-  notAllowFontColor: string = '#E84026'
-  allowFontColor: string = '#ff1a0af7'
-  controller: CustomDialogController
-  // title style
-  @Builder TipTextStyle(tip: string, fontSize: number) {
-    Text(tip)
-      .controlFontSize(fontSize)
-      .visibility(tip.length > 0 ? Visibility.Visible : Visibility.None)
-  }
-  build() {
-    Column() {
-      this.TipTextStyle(this.content, 22)
-      Flex({ justifyContent: FlexAlign.SpaceAround }) {
-        Text($r('app.string.allowButton'))
-          .controlBtn(this.allowFontColor)
-          .onClick(() => {
-            try {
-              usbMgr.addDeviceAccessRight(globalThis.want.parameters['tokenId'], globalThis.want.parameters['deviceName'])
-              this.destruction()
-            } catch {
-              console.info('USBRight ConfirmDialog onClick error!');
-            }
-          })
-        Text('|')
-            .fontSize(10)
-        Text($r('app.string.notAllowButton'))
-          .controlBtn(this.notAllowFontColor)
-          .onClick(() => {
-            this.destruction()
-          })
-      }.margin({ top: 43, bottom: 15, left: 20, right: 20 })
-    }
-  }
-  destruction() {
-    this.controller.close()
-    try {
-      globalThis.window.destroy()
-      globalThis.extensionContext.terminateSelf()
-    } catch {
-      console.info('USBRight ConfirmDialog destruction error!');
-    }
-  }
-}
 
 @Entry
 @Component
 struct IndexHapComponent {
-  private content: string = ''
-  private allow: string = ''
-  private use: string = ''
-  confirmDialogController: CustomDialogController = new CustomDialogController( {
-    builder: ConfirmDialog({content: this.content}),
-    autoCancel: false
+  confirmDialogController: CustomDialogController = new CustomDialogController({
+    builder: AlertDialog({
+      primaryTitle: $r('app.string.usb_right_title'),
+      content: $r('app.string.usb_right_content', globalThis.want?.parameters?.['appName'], globalThis.want?.parameters?.['productName']),
+      primaryButton: {
+        value: $r('app.string.notAllowButton'),
+        action: () => {
+          console.info('USBRight not allowed');
+          this.closeDialog()
+        },
+      },
+      secondaryButton: {
+        value: $r('app.string.allowButton'),
+        role: ButtonRole.ERROR,
+        action: () => {
+          try {
+            console.info('USBRight allowed');
+            let res = usbMgr.addDeviceAccessRight(globalThis.want.parameters['tokenId'],
+              globalThis.want.parameters['deviceName'])
+            console.info(`USBRight addDeviceAccessRight result:${res}`);
+          } catch {
+            console.error('USBRight ConfirmDialog onClick error!');
+          } finally {
+            this.closeDialog()
+          }
+        }
+      },
+    }),
+    autoCancel: false,
+    cancel: () => {
+      console.info('USBRight dialog canceled !');
+      this.closeDialog()
+    }
   })
 
-  async aboutToAppear() {
-    this.allow = await globalThis.getContext().resourceManager.getStringValue($r('app.string.allow'));
-    this.use = await globalThis.getContext().resourceManager.getStringValue($r('app.string.use'));
-    this.content = this.allow + globalThis.want.parameters.bundleName + this.use +
-    globalThis.want.parameters.deviceName;
-    this.confirmDialogController.open()
+  closeDialog() {
+    console.info('USBRight close dialog');
+    this.confirmDialogController.close()
+    try {
+      globalThis.window.destroy()
+      globalThis.extensionContext.terminateSelf()
+    } catch (err) {
+      console.error('USBRight ConfirmDialog closeDialog error!', err);
+    }
   }
-  build() {}
+
+  aboutToAppear(): void {
+    console.info('USBRight show dialog', JSON.stringify(globalThis.want));
+    this.confirmDialogController.open();
+  }
+
+  build() {
+  }
 }

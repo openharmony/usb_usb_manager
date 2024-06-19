@@ -68,7 +68,7 @@ public:
     {
         return handler_;
     }
-
+    static sptr<UsbService> GetGlobalInstance();
     int32_t SetUsbd(const sptr<HDI::Usb::V1_1::IUsbInterface> &usbd);
     int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) override;
     bool CheckDevicePermission(uint8_t busNum, uint8_t devAddr);
@@ -129,6 +129,8 @@ public:
     int32_t ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable) override;
     int32_t GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated) override;
     int32_t GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed) override;
+
+    bool GetDeviceProductName(const std::string &deviceName, std::string &productName);
 private:
     class SystemAbilityStatusChangeListener : public SystemAbilityStatusChangeStub {
     public:
