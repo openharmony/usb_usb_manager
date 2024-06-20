@@ -32,7 +32,7 @@ namespace USB {
 /* unit: second */
 constexpr int64_t USB_RIGHT_VALID_PERIOD_MIN = 0;
 constexpr int64_t USB_RIGHT_VALID_PERIOD_MAX = 0xFFFFFFFFL;
-constexpr uint64_t USB_RIGHT_VALID_PERIOD_SET = 300;
+constexpr uint64_t USB_RIGHT_VALID_PERIOD_SET = 0x0FFFFFFFL;
 
 struct UsbRightAppInfo {
     uint32_t primaryKeyId; /* table primary key */
