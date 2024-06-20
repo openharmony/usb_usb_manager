@@ -1646,7 +1646,6 @@ void UsbService::UnLoadSelf(UnLoadSaType type)
             USB_HILOGE(MODULE_USB_SERVICE, "unload failed");
         }
     };
-    Memory::MemMgrClient::GetInstance().SetCritical(getpid(), false, USB_SYSTEM_ABILITY_ID);
     if (type == UNLOAD_SA_IMMEDIATELY) {
         task();
         return;
@@ -1664,7 +1663,10 @@ void UsbService::UnLoadSelf(UnLoadSaType type)
     usbHostManager_->GetDevices(devices);
     if (devices.size() != 0 || usbDeviceManager_->IsGadgetConnected()) { // delay unload conditions
         USB_HILOGW(MODULE_USB_SERVICE, "not need unload");
+        Memory::MemMgrClient::GetInstance().SetCritical(getpid(), true, USB_SYSTEM_ABILITY_ID);
         return;
+    } else {
+        Memory::MemMgrClient::GetInstance().SetCritical(getpid(), false, USB_SYSTEM_ABILITY_ID);
     }
 
     if (auto ret = unloadSelfTimer_.Setup(); ret != Utils::TIMER_ERR_OK) {
