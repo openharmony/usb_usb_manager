@@ -19,6 +19,9 @@
 #include "usb_errors.h"
 
 namespace OHOS {
+const uint32_t OFFSET = 4;
+const uint32_t OFFSET_BYTE = 8;
+constexpr size_t THRESHOLD = 10;
 namespace USB {
     bool UsbMgrBulkTransferFuzzTest(const uint8_t* data, size_t /* size */)
     {
@@ -48,7 +51,8 @@ namespace USB {
 
         std::vector<uint8_t> buf;
         ret = usbSrvClient.BulkTransfer(reinterpret_cast<USBDevicePipe &>(data),
-            reinterpret_cast<const USBEndpoint &>(data), buf, *reinterpret_cast<const int32_t *>(data));
+            reinterpret_cast<const USBEndpoint &>(data + OFFSET), buf,
+            *reinterpret_cast<const int32_t *>(data + OFFSET_BYTE));
         if (ret == UEC_OK) {
             return false;
         }
@@ -61,6 +65,9 @@ namespace USB {
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+    if (size < OHOS::THRESHOLD) {
+        return 0;
+    }
     /* Run your code on data */
     OHOS::USB::UsbMgrBulkTransferFuzzTest(data, size);
     return 0;

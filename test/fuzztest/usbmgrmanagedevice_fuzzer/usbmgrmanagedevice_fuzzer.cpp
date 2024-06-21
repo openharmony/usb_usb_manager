@@ -23,6 +23,8 @@ namespace {
 }
 
 namespace OHOS {
+constexpr int32_t OFFSET = 4;
+constexpr size_t THRESHOLD = 10;
 namespace USB {
     bool UsbMgrManageDeviceFuzzTest(const uint8_t* data, size_t /* size */)
     {
@@ -34,7 +36,7 @@ namespace USB {
             return false;
         }
         ret = usbSrvClient.ManageDevice(
-            *reinterpret_cast<const int32_t *>(data), *reinterpret_cast<const int32_t *>(data), true);
+            *reinterpret_cast<const int32_t *>(data), *reinterpret_cast<const int32_t *>(data + OFFSET), true);
         if (ret == UEC_OK) {
             return false;
         }
@@ -46,6 +48,9 @@ namespace USB {
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+    if (size < OHOS::THRESHOLD) {
+        return 0;
+    }
     /* Run your code on data */
     OHOS::USB::UsbMgrManageDeviceFuzzTest(data, size);
     return 0;

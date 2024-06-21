@@ -19,12 +19,16 @@
 #include "usb_errors.h"
 
 namespace OHOS {
+const uint32_t OFFSET = 4;
+const uint32_t OFFSET_BYTE = 8;
+constexpr size_t THRESHOLD = 10;
 namespace USB {
     bool UsbMgrSetPortRoleFuzzTest(const uint8_t* data, size_t /* size */)
     {
         auto &usbSrvClient = UsbSrvClient::GetInstance();
-        if (usbSrvClient.SetPortRole(*reinterpret_cast<const int32_t *>(data), *reinterpret_cast<const int32_t *>(data),
-            *reinterpret_cast<const int32_t *>(data)) == UEC_OK) {
+        if (usbSrvClient.SetPortRole(*reinterpret_cast<const int32_t *>(data),
+            *reinterpret_cast<const int32_t *>(data + OFFSET),
+            *reinterpret_cast<const int32_t *>(data + OFFSET_BYTE)) == UEC_OK) {
             return false;
         }
         return true;
@@ -35,6 +39,9 @@ namespace USB {
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+    if (size < OHOS::THRESHOLD) {
+        return 0;
+    }
     /* Run your code on data */
     OHOS::USB::UsbMgrSetPortRoleFuzzTest(data, size);
     return 0;
