@@ -653,7 +653,23 @@ int32_t UsbService::BulkTransferRead(
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
     int32_t ret = usbd_->BulkTransferRead(devInfo, pipe, timeOut, bufferData);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "BulkTransferRead error ret:%{public}d", ret);
+    }
+    return ret;
+}
+
+int32_t UsbService::BulkTransferReadwithLength(const UsbDev &devInfo, const UsbPipe &pipe,
+    int32_t length, std::vector<uint8_t> &bufferData, int32_t timeOut)
+{
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+
+    int32_t ret = usbd_->BulkTransferReadwithLength(devInfo, pipe, timeOut, length, bufferData);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkTransferRead error ret:%{public}d", ret);
     }

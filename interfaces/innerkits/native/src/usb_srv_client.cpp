@@ -30,6 +30,7 @@ using namespace OHOS::HDI::Usb::V1_1;
 namespace OHOS {
 namespace USB {
 constexpr uint32_t WAIT_SERVICE_LOAD = 500;
+constexpr int32_t READ_BUF_SIZE = 8192;
 UsbSrvClient::UsbSrvClient()
 {
     Connect();
@@ -257,7 +258,8 @@ int32_t UsbSrvClient::BulkTransfer(
     const UsbDev tdev = {pipe.GetBusNum(), pipe.GetDevAddr()};
     const UsbPipe tpipe = {endpoint.GetInterfaceId(), endpoint.GetAddress()};
     if (USB_ENDPOINT_DIR_IN == endpoint.GetDirection()) {
-        ret = proxy_->BulkTransferRead(tdev, tpipe, bufferData, timeOut);
+        int32_t length = bufferData.size() > 0 ? bufferData.size(): READ_BUF_SIZE;
+        ret = proxy_->BulkTransferReadwithLength(tdev, tpipe, length, bufferData, timeOut);
     } else if (USB_ENDPOINT_DIR_OUT == endpoint.GetDirection()) {
         ret = proxy_->BulkTransferWrite(tdev, tpipe, bufferData, timeOut);
     }

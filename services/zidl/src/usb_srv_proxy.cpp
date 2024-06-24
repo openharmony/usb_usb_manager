@@ -657,6 +657,40 @@ int32_t UsbServerProxy::BulkTransferRead(
     READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
     return ret;
 }
+
+int32_t UsbServerProxy::BulkTransferReadwithLength(const UsbDev &dev, const UsbPipe &pipe,
+    int32_t length, std::vector<uint8_t> &bufferData, int32_t timeOut)
+{
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_SERVICE_INNER_ERR);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    SetDeviceMessage(data, dev.busNum, dev.devAddr);
+    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.intfId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Uint8, pipe.endpointId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Int32, length, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Int32, timeOut, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_BULK_TRANSFER_READ_WITH_LENGTH),
+        data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    ret = GetBufferMessage(reply, bufferData);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "get buffer is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    USB_HILOGI(MODULE_USBD, "Set buffer message. length = %{public}zu", bufferData.size());
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
+    return ret;
+}
+
 int32_t UsbServerProxy::BulkTransferWrite(
     const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &bufferData, int32_t timeOut)
 {

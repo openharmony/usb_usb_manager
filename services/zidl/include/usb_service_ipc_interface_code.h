@@ -60,6 +60,7 @@ namespace USB {
         USB_FUN_GET_DEVICE_SPEED,
         USB_FUN_GET_DRIVER_ACTIVE_STATUS,
 		USB_FUN_ADD_ACCESS_RIGHT,
+        USB_FUN_BULK_TRANSFER_READ_WITH_LENGTH,
     };
 } // namespace USB
 } // namespace OHOS
