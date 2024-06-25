@@ -1196,7 +1196,7 @@ int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> 
             }
         }
     }
-    if (ret != UEC_OK) {
+    if (ret < UEC_OK) {
         USB_HILOGI(MODULE_USB_SERVICE, "ExecuteManageInterfaceType failed");
         return UEC_SERVICE_EXECUTE_POLICY_FAILED;
     }
