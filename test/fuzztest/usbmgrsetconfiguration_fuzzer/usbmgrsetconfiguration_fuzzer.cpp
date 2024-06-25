@@ -19,6 +19,8 @@
 #include "usb_errors.h"
 
 namespace OHOS {
+const uint32_t OFFSET = 4;
+constexpr size_t THRESHOLD = 10;
 namespace USB {
     bool UsbMgrSetConfigurationFuzzTest(const uint8_t* data, size_t /* size */)
     {
@@ -40,7 +42,7 @@ namespace USB {
         }
 
         if (usbSrvClient.SetConfiguration(reinterpret_cast<USBDevicePipe &>(data),
-            reinterpret_cast<const USBConfig &>(data)) == UEC_OK) {
+            reinterpret_cast<const USBConfig &>(data + OFFSET)) == UEC_OK) {
             return false;
         }
         return true;
@@ -51,6 +53,9 @@ namespace USB {
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+    if (size < OHOS::THRESHOLD) {
+        return 0;
+    }
     /* Run your code on data */
     OHOS::USB::UsbMgrSetConfigurationFuzzTest(data, size);
     return 0;

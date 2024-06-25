@@ -25,6 +25,8 @@
 #include "usb_errors.h"
 
 namespace {
+const uint32_t OFFSET = 4;
+constexpr size_t THRESHOLD = 10;
 const uint32_t ASHMEM_MAX_SIZE = 1024;
 const uint32_t MEM_DATA = 1024 * 1024;
 }
@@ -81,7 +83,7 @@ namespace USB {
         }
 
         if (usbSrvClient.BulkCancel(reinterpret_cast<USBDevicePipe &>(data),
-            reinterpret_cast<const USBEndpoint&>(data)) == UEC_OK) {
+            reinterpret_cast<const USBEndpoint&>(data + OFFSET)) == UEC_OK) {
             return false;
         }
         return true;
@@ -92,6 +94,9 @@ namespace USB {
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+    if (size < OHOS::THRESHOLD) {
+        return 0;
+    }
     /* Run your code on data */
     OHOS::USB::UsbMgrBulkCancelFuzzTest(data, size);
     return 0;

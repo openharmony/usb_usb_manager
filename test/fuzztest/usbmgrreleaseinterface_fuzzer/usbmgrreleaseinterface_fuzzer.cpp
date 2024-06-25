@@ -19,6 +19,8 @@
 #include "usb_srv_client.h"
 
 namespace OHOS {
+const uint32_t OFFSET = 4;
+constexpr size_t THRESHOLD = 10;
 namespace USB {
     bool UsbMgrReleaseInterfaceFuzzTest(const uint8_t* data, size_t /* size */)
     {
@@ -47,7 +49,7 @@ namespace USB {
         }
 
         ret = usbSrvClient.ReleaseInterface(
-            reinterpret_cast<USBDevicePipe &>(data), reinterpret_cast<const UsbInterface &>(data));
+            reinterpret_cast<USBDevicePipe &>(data), reinterpret_cast<const UsbInterface &>(data + OFFSET));
         if (ret == UEC_OK) {
             return false;
         }
@@ -59,6 +61,9 @@ namespace USB {
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+    if (size < OHOS::THRESHOLD) {
+        return 0;
+    }
     /* Run your code on data */
     OHOS::USB::UsbMgrReleaseInterfaceFuzzTest(data, size);
     return 0;
