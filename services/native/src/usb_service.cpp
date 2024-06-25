@@ -1656,10 +1656,7 @@ void UsbService::UnLoadSelf(UnLoadSaType type)
     }
 
     unloadSelfTimer_.Unregister(unloadSelfTimerId_);
-    if (unloadSelfTimerId_ != TIMER_ERR_INVALID_VALUE) {
-        unloadSelfTimer_.Shutdown();
-        unloadSelfTimerId_ = TIMER_ERR_INVALID_VALUE;
-    }
+    unloadSelfTimer_.Shutdown();
 
     std::map<std::string, UsbDevice *> devices;
     usbHostManager_->GetDevices(devices);
