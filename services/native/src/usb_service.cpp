@@ -1172,8 +1172,6 @@ int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> 
                 (typeValues[1] == -1 || typeValues[1] == dev.subClass)&&
                 (typeValues[HALF] == -1 || typeValues[HALF] == dev.protocal)) {
                 ret = ManageInterfaceTypeImpl(interfaceTypeValues, disable);
-            } else {
-                USB_HILOGE(MODULE_USB_SERVICE, "ExecuteManageInterfaceType Invalid data");
             }
         }
         if (dev.isDeviceType) {
