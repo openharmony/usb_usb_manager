@@ -190,7 +190,7 @@ private:
     sptr<HDI::Usb::V1_1::IUsbInterface> usbd_ = nullptr;
     std::map<std::string, std::string> deviceVidPidMap_;
     Utils::Timer unloadSelfTimer_ {"unLoadTimer"};
-    uint32_t unloadSelfTimerId_ {TIMER_ERR_INVALID_VALUE};
+    uint32_t unloadSelfTimerId_ {UINT32_MAX};
     sptr<IRemoteObject::DeathRecipient> recipient_;
 };
 } // namespace USB
