@@ -23,6 +23,7 @@ ohos_hap("dialog_hap") {
     ":usb_right_dialog_js_assets",
     ":usb_right_dialog_resources",
   ]
+  publicity_file = "../publicity.xml"
   certificate_profile = "../signature/am.p7b"
   hap_name = "usb_right_dialog"
   part_name = "prebuilt_hap"
