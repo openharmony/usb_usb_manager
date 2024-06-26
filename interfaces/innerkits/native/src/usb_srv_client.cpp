@@ -258,7 +258,7 @@ int32_t UsbSrvClient::BulkTransfer(
     const UsbDev tdev = {pipe.GetBusNum(), pipe.GetDevAddr()};
     const UsbPipe tpipe = {endpoint.GetInterfaceId(), endpoint.GetAddress()};
     if (USB_ENDPOINT_DIR_IN == endpoint.GetDirection()) {
-        int32_t length = bufferData.size() > 0 ? bufferData.size(): READ_BUF_SIZE;
+        int32_t length = static_cast<int32_t>(bufferData.size() > 0 ? bufferData.size(): READ_BUF_SIZE);
         ret = proxy_->BulkTransferReadwithLength(tdev, tpipe, length, bufferData, timeOut);
     } else if (USB_ENDPOINT_DIR_OUT == endpoint.GetDirection()) {
         ret = proxy_->BulkTransferWrite(tdev, tpipe, bufferData, timeOut);
