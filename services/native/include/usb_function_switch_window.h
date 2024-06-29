@@ -58,7 +58,10 @@ private:
         void OnAbilityConnectDone(const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject,
             int32_t resultCode) override;
         void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode) override;
-        public:
+    public:
+        void CloseDialog();
+    private:
+        sptr<IRemoteObject> remoteObject_ = nullptr;
     };
     bool ShowFunctionSwitchWindow();
     bool UnShowFunctionSwitchWindow();

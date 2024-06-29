@@ -155,7 +155,7 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
         USB_HILOGI(MODULE_USB_SERVICE, "show dialog is failed: %{public}d", ret);
         return;
     }
-
+    remoteObject_ = remoteObject;
     return;
 }
 
@@ -163,7 +163,28 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityDisconnectDone(
     const AppExecFwk::ElementName& element, int resultCode)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "OnAbilityDisconnectDone");
+    remoteObject_ = nullptr;
     return;
+}
+
+void UsbFunctionSwitchWindow::UsbFuncAbilityConn::CloseDialog()
+{
+    if (remoteObject_ == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "CloseDialog: disconnected");
+        return;
+    }
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    const uint32_t cmdCode = 3;
+    int32_t ret = remoteObject_->SendRequest(cmdCode, data, reply, option);
+    int32_t replyCode = -1;
+    bool success = false;
+    if (ret == ERR_OK) {
+        success = reply.ReadInt32(replyCode);
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "CloseDialog: ret=%{public}d, %{public}d, %{public}d", ret, success, replyCode);
 }
 
 bool UsbFunctionSwitchWindow::ShowFunctionSwitchWindow()
@@ -211,16 +232,12 @@ bool UsbFunctionSwitchWindow::UnShowFunctionSwitchWindow()
         return false;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "unshow function switch window");
-    AAFwk::Want want;
-    want.SetElementName(functionSwitchBundleName_, functionSwitchExtAbility_);
-    auto ret = abmc->StopServiceAbility(want);
+    usbFuncAbilityConn->CloseDialog();
+
+    auto ret = abmc->DisconnectAbility(usbFuncAbilityConn);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_SERVICE, "StopServiceAbility failed %{public}d", ret);
-        ret = abmc->DisconnectAbility(usbFuncAbilityConn);
-        if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_SERVICE, "DisconnectAbility failed %{public}d", ret);
-            return false;
-        }
+        USB_HILOGE(MODULE_SERVICE, "DisconnectAbility failed %{public}d", ret);
+        return false;
     }
     USB_HILOGD(MODULE_USB_SERVICE, "unshow function switch window success");
     return true;
