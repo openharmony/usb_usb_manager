@@ -483,7 +483,7 @@ int32_t UsbServerStub::DoBulkTransferReadwithLength(MessageParcel &data, Message
     std::vector<uint8_t> bufferData;
     const UsbDev tmpDev = {busNum, devAddr};
     const UsbPipe tmpPipe = {interface, endpoint};
-    int32_t ret = BulkTransferRead(tmpDev, tmpPipe, bufferData, timeOut);
+    int32_t ret = BulkTransferReadwithLength(tmpDev, tmpPipe, length, bufferData, timeOut);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "read failed ret:%{public}d", ret);
         UsbReportSysEvent::ReportTransforFaultSysEvent("BulkTransferRead", tmpDev, tmpPipe, ret);
