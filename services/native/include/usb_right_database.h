@@ -34,8 +34,7 @@ static std::string USB_RIGHT_DB_PATH = "/data/service/el1/public/usb_service/";
 
 constexpr const char *USB_RIGHT_DB_NAME = "usbRight.db";
 constexpr const char *USB_RIGHT_TABLE_NAME = "usbRightInfoTable";
-constexpr int32_t DATABASE_OPEN_VERSION = 1;
-constexpr int32_t DATABASE_NEW_VERSION = 2;
+constexpr int32_t DATABASE_OPEN_VERSION = 2;
 
 constexpr const char *CREATE_USB_RIGHT_TABLE = "CREATE TABLE IF NOT EXISTS [usbRightInfoTable]("
                                                "[id] INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -47,6 +46,7 @@ constexpr const char *CREATE_USB_RIGHT_TABLE = "CREATE TABLE IF NOT EXISTS [usbR
                                                "[deviceName] TEXT,"
                                                "[bundleName] TEXT,"
                                                "[tokenId] TEXT);";
+constexpr const char *SQL_ADD_TOKEN_ID = "ALTER TABLE usbRightInfoTable ADD COLUMN tokenId TEXT DEFAULT ''";
 
 class UsbRightDataBase {
 public:
