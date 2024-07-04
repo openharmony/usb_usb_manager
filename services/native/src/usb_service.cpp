@@ -626,7 +626,7 @@ int32_t UsbService::ClaimInterface(uint8_t busNum, uint8_t devAddr, uint8_t inte
     }
 
     int32_t ret = usbd_->ClaimInterface(dev, interface, force);
-    if (ret == UEC_OK) {
+    if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "claim interface false.");
     }
     return ret;
