@@ -214,10 +214,17 @@ int32_t UsbRightDataBaseCallBack::OnCreate(OHOS::NativeRdb::RdbStore &store)
 
 int32_t UsbRightDataBaseCallBack::OnUpgrade(OHOS::NativeRdb::RdbStore &store, int32_t oldVersion, int32_t newVersion)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "DB OnUpgrade Enter");
-    (void)store;
-    (void)oldVersion;
-    (void)newVersion;
+    USB_HILOGI(MODULE_USB_SERVICE, "DB OnUpgrade Enter %{public}d => %{public}d", oldVersion, newVersion);
+    if (oldVersion >= newVersion) {
+        return USB_RIGHT_OK;
+    }
+
+    std::string sql = SQL_ADD_TOKEN_ID;
+    int32_t ret = store.ExecuteSql(sql);
+    if (ret != OHOS::NativeRdb::E_OK) {
+        // ignore sql error when tokenId is already exists
+        USB_HILOGW(MODULE_USB_SERVICE, "DB OnUpgrade failed: %{public}d", ret);
+    }
     return USB_RIGHT_OK;
 }
 
