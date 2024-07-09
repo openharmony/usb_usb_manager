@@ -942,7 +942,6 @@ int32_t UsbService::GetDeviceInfoDescriptor(const UsbDev &uDev, std::vector<uint
     }
     int32_t ret = usbd_->GetRawDescriptor(uDev, descriptor);
     if (ret != UEC_OK) {
-        usbd_->CloseDevice(uDev);
         USB_HILOGE(MODULE_USB_SERVICE, "GetRawDescriptor failed ret=%{public}d busNum:%{public}d devAddr:%{public}d",
             ret, uDev.busNum, uDev.devAddr);
         return ret;
@@ -960,7 +959,6 @@ int32_t UsbService::GetDeviceInfoDescriptor(const UsbDev &uDev, std::vector<uint
 
     ret = UsbDescriptorParser::ParseDeviceDescriptor(buffer, length, dev);
     if (ret != UEC_OK) {
-        usbd_->CloseDevice(uDev);
         USB_HILOGE(MODULE_USB_SERVICE, "ParseDeviceDescriptor failed ret=%{public}d", ret);
         return ret;
     }
@@ -1021,9 +1019,6 @@ int32_t UsbService::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &de
         USB_HILOGE(MODULE_USB_SERVICE, "GetConfigDescriptor ret=%{public}d", ret);
         return ret;
     }
-
-    usbd_->CloseDevice(uDev);
-    USB_HILOGI(MODULE_USB_SERVICE, "CloseDevice=%{public}s", dev.ToString().c_str());
 
     return UEC_OK;
 }

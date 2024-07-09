@@ -33,15 +33,13 @@ ohos_executable("usb_function_test") {
     "${utils_path}:utils_config",
     ":usbsrv_private_config",
   ]
-  deps = [
-    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
-    "//third_party/cJSON:cjson",
-  ]
+  deps = [ "${usb_manager_path}/interfaces/innerkits:usbsrv_client" ]
   external_deps = [
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
+    "cJSON:cjson",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
