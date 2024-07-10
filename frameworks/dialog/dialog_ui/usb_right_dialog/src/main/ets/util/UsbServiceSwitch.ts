@@ -49,7 +49,7 @@ class UsbServiceSwitch {
     }
 
     console.log(TAG + 'setFunctions: current ' + JSON.stringify(this.curFunc) + 'target: ' + JSON.stringify(this.tarFunc));
-    if (this.tarFunc != this.curFunc) {
+    if (this.tarFunc !== this.curFunc) {
       usbManagerService.setCurrentFunctions(this.tarFunc).then((data) => {
         console.log(TAG + 'setCurrentFunctions success: ' + JSON.stringify(data));
       }).catch((err) => {
