@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility'
-import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession'
+import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility';
+import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
 import rpc from '@ohos.rpc';
 
 let TAG: string = 'UsbService';
@@ -32,7 +32,7 @@ export default class UsbFunctionSwitchAbility extends UIExtensionAbility {
       console.error('check permission fail');
       return;
     }
-    AppStorage.setOrCreate("session", session);
+    AppStorage.setOrCreate('session', session);
     (session as UIExtensionContentSession)?.loadContent('pages/Index');
     try {
       (session as UIExtensionContentSession)?.setWindowBackgroundColor(BG_COLOR);

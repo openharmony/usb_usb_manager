@@ -24,7 +24,7 @@ class UsbDialogStub extends rpc.RemoteObject {
   constructor(des) {
     super(des);
   }
-  onRemoteRequest(code, data, reply, option): boolean {  
+  onRemoteRequest(code, data, reply, option): boolean { 
     return true;
   }
 }
@@ -99,9 +99,6 @@ export default class UsbDialogAbility extends extension {
       const usbWin = await window.createWindow(config);
       console.log('createWindow execute');
       globalThis.window = usbWin;
-      //let token: UsbDialogStub = new UsbDialogStub('UsbRightDialog');
-      //await usbWin.bindDialogTarget(token);
-      //console.log('createWindow bindDialogTarget');
 
       await usbWin.moveTo(rect.left, rect.top);
       await usbWin.resetSize(rect.width, rect.height);
