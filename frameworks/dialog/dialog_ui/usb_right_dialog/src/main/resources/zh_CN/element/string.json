@@ -74,7 +74,7 @@
     },
     {
       "name": "usb_right_content",
-      "value": "是否允许 %s 使用 %s ?"
+      "value": "是否允许 %1$s 使用 %2$s ?"
     },
     {
       "name": "usb_right_title",
