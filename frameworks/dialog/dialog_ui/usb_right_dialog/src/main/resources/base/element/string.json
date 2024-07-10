@@ -102,7 +102,7 @@
     },
     {
       "name": "usb_right_content",
-      "value": "Whether %s allowed to use the %s ?"
+      "value": "Whether %1$s allowed to use the %2$s ?"
     },
     {
       "name": "usb_right_title",
