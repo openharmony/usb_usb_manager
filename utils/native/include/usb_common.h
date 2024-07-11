@@ -115,6 +115,14 @@ constexpr uint32_t USB_CFG_REMOTE_WAKEUP = 0x20;
         }                                                                             \
     } while (0)
 
+#define WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(type, parcel, data)        \
+    do {                                                                 \
+        if (!(parcel).Write##type(data)) {                               \
+            USB_HILOGE(MODULE_COMMON, "%{public}s write " #data " failed", __func__); \
+            return false;                                                \
+        }                                                                \
+    } while (0)
+
 #define READ_PARCEL_WITH_RET(parcel, type, out, retval)                             \
     do {                                                                            \
         if (!(parcel).Read##type(out)) {                                            \
