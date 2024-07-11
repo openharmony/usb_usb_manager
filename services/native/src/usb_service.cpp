@@ -996,7 +996,6 @@ int32_t UsbService::GetConfigDescriptor(UsbDevice &dev, std::vector<uint8_t> &de
 
 int32_t UsbService::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &dev)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "busNum:%{public}d devAddr:%{public}d", busNum, devAddr);
     const UsbDev uDev = {busNum, devAddr};
     std::vector<uint8_t> descriptor;
 

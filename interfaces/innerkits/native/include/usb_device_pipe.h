@@ -40,8 +40,8 @@ public:
     uint8_t GetDevAddr() const;
 
 private:
-    uint8_t busNum_;
-    uint8_t devAddr_;
+    uint8_t busNum_ = UINT8_MAX;
+    uint8_t devAddr_ = UINT8_MAX;
 };
 } // namespace USB
 } // namespace OHOS
