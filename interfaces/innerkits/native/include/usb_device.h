@@ -388,8 +388,8 @@ private:
     std::string productName_;
     std::string version_;
     std::string serial_;
-    uint8_t devAddr_;
-    uint8_t busNum_;
+    uint8_t devAddr_ = UINT8_MAX;
+    uint8_t busNum_ = UINT8_MAX;
     uint8_t descConfigCount_ = UINT8_MAX;
 
     uint8_t bMaxPacketSize0_ = UINT8_MAX;
@@ -399,11 +399,11 @@ private:
     uint8_t iProduct_ = UINT8_MAX;
     uint8_t iSerialNumber_ = UINT8_MAX;
 
-    int32_t vendorId_;
-    int32_t productId_;
-    int32_t baseClass_;
-    int32_t subClass_;
-    int32_t protocol_;
+    int32_t vendorId_ = INVALID_USB_INT_VALUE;
+    int32_t productId_ = INVALID_USB_INT_VALUE;
+    int32_t baseClass_ = INVALID_USB_INT_VALUE;
+    int32_t subClass_ = INVALID_USB_INT_VALUE;
+    int32_t protocol_ = INVALID_USB_INT_VALUE;
     std::vector<USBConfig> configs_;
 };
 } // namespace USB
