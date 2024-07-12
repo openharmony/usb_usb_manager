@@ -51,7 +51,6 @@ using namespace OHOS::HDI::Usb::V1_1;
 namespace OHOS {
 namespace USB {
 namespace {
-constexpr const char *USB_SERVICE_NAME = "UsbService";
 constexpr int32_t COMMEVENT_REGISTER_RETRY_TIMES = 10;
 constexpr int32_t COMMEVENT_REGISTER_WAIT_DELAY_US = 20000;
 constexpr uint32_t CURSOR_INIT = 18;
@@ -211,21 +210,11 @@ void UsbService::OnStart()
 bool UsbService::Init()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "usb_service Init enter");
-    if (!eventRunner_) {
-        eventRunner_ = AppExecFwk::EventRunner::Create(USB_SERVICE_NAME);
-        if (eventRunner_ == nullptr) {
-            USB_HILOGE(MODULE_USB_SERVICE, "Init failed due to create EventRunner");
-            return false;
-        }
+    if (!Publish(g_serviceInstance)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "OnStart register to system ability manager failed.");
+        return false;
     }
-    if (handler_ == nullptr) {
-        handler_ = std::make_shared<UsbServerEventHandler>(eventRunner_, g_serviceInstance);
 
-        if (!Publish(g_serviceInstance)) {
-            USB_HILOGE(MODULE_USB_SERVICE, "OnStart register to system ability manager failed.");
-            return false;
-        }
-    }
     while (commEventRetryTimes_ <= COMMEVENT_REGISTER_RETRY_TIMES) {
         if (!IsCommonEventServiceAbilityExist()) {
             ++commEventRetryTimes_;
@@ -270,8 +259,6 @@ void UsbService::OnStop()
     if (!ready_) {
         return;
     }
-    eventRunner_.reset();
-    handler_.reset();
     ready_ = false;
 
     if (usbd_ == nullptr) {

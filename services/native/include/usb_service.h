@@ -34,7 +34,6 @@
 #include "usb_host_manager.h"
 #include "usb_port_manager.h"
 #include "usb_right_manager.h"
-#include "usb_server_event_handler.h"
 #include "usb_server_stub.h"
 #include "usb_service_subscriber.h"
 #include "usbd_type.h"
@@ -64,10 +63,6 @@ public:
         return ready_;
     }
 
-    std::shared_ptr<UsbServerEventHandler> GetHandler() const
-    {
-        return handler_;
-    }
     static sptr<UsbService> GetGlobalInstance();
     int32_t SetUsbd(const sptr<HDI::Usb::V1_1::IUsbInterface> &usbd);
     int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) override;
@@ -187,8 +182,6 @@ private:
     std::shared_ptr<UsbRightManager> usbRightManager_;
     std::shared_ptr<UsbPortManager> usbPortManager_;
     std::shared_ptr<UsbDeviceManager> usbDeviceManager_;
-    std::shared_ptr<AppExecFwk::EventRunner> eventRunner_;
-    std::shared_ptr<UsbServerEventHandler> handler_;
     sptr<UsbServiceSubscriber> usbdSubscriber_;
     sptr<HDI::Usb::V1_0::IUsbdBulkCallback> hdiCb_ = nullptr;
     sptr<HDI::Usb::V1_1::IUsbInterface> usbd_ = nullptr;

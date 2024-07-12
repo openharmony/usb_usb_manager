@@ -28,7 +28,6 @@
             "components": [
                 "hilog",
                 "ability_base",
-                "eventhandler",
                 "napi",
                 "bundle_framework",
                 "common_event_service",
