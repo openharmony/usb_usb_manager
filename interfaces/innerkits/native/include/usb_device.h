@@ -30,7 +30,7 @@ namespace USB {
 class UsbDevice {
 public:
     UsbDevice(std::string name, std::string manufacturerName, std::string productName, std::string version,
-        uint8_t devAddr, uint8_t busNum, int32_t vendorId, int32_t productId, int32_t klass, int32_t subClass,
+        uint8_t devAddr, uint8_t busNum, int32_t vendorId, int32_t productId, int32_t baseClass, int32_t subClass,
         int32_t protocol, std::vector<USBConfig> configs)
     {
         this->name_ = name;
@@ -41,7 +41,7 @@ public:
         this->busNum_ = busNum;
         this->vendorId_ = vendorId;
         this->productId_ = productId;
-        this->klass_ = klass;
+        this->baseClass_ = baseClass;
         this->subClass_ = subClass;
         this->protocol_ = protocol;
         this->configs_ = configs;
@@ -61,7 +61,7 @@ public:
         version_ = GetStringValue(device, "version");
         vendorId_ = GetIntValue(device, "vendorId");
         productId_ = GetIntValue(device, "productId");
-        klass_ = GetIntValue(device, "clazz");
+        baseClass_ = GetIntValue(device, "clazz");
         subClass_ = GetIntValue(device, "subClass");
         protocol_ = GetIntValue(device, "protocol");
         cJSON* configs = cJSON_GetObjectItem(device, "configs");
@@ -133,7 +133,7 @@ public:
 
     int32_t GetClass() const
     {
-        return klass_;
+        return baseClass_;
     }
 
     int32_t GetSubclass() const
@@ -222,7 +222,7 @@ public:
 
     void SetClass(int32_t deviceClass)
     {
-        klass_ = deviceClass;
+        baseClass_ = deviceClass;
     }
 
     void SetSubclass(int32_t subClass)
@@ -257,7 +257,7 @@ public:
            << "devAddr_=" << (int32_t)devAddr_ << ","
            << "vendorId_=" << vendorId_ << ","
            << "productId_=" << productId_ << ","
-           << "klass_=" << klass_ << ","
+           << "baseClass_=" << baseClass_ << ","
            << "subClass_=" << subClass_ << ","
            << "protocol_=" << protocol_ << "";
         std::string str = "UsbDevice[" + ss.str() + "];    ";
@@ -357,7 +357,7 @@ public:
         cJSON_AddStringToObject(device, "version", version_.c_str());
         cJSON_AddNumberToObject(device, "vendorId", static_cast<double>(vendorId_));
         cJSON_AddNumberToObject(device, "productId", static_cast<double>(productId_));
-        cJSON_AddNumberToObject(device, "clazz", static_cast<double>(klass_));
+        cJSON_AddNumberToObject(device, "clazz", static_cast<double>(baseClass_));
         cJSON_AddNumberToObject(device, "subClass", static_cast<double>(subClass_));
         cJSON_AddNumberToObject(device, "protocol", static_cast<double>(protocol_));
         cJSON* configs = cJSON_CreateArray();
@@ -401,7 +401,7 @@ private:
 
     int32_t vendorId_;
     int32_t productId_;
-    int32_t klass_;
+    int32_t baseClass_;
     int32_t subClass_;
     int32_t protocol_;
     std::vector<USBConfig> configs_;
