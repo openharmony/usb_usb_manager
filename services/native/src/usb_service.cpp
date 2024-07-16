@@ -2049,6 +2049,28 @@ int32_t UsbService::ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t i
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
+int32_t UsbService::ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t interfaceId, uint8_t endpointId)
+{
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "ClearHalt: usbd_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
+    const UsbDev dev = {busNum, devAddr};
+    const UsbPipe pipe = {interfaceId, endpointId};
+    int32_t ret = usbd_->ClearHalt(dev, pipe);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "ClearHalt error ret:%{public}d", ret);
+    }
+    return ret;
+}
+// LCOV_EXCL_STOP
+
+// LCOV_EXCL_START
 int32_t UsbService::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated)
 {
     if (PreCallFunction() != UEC_OK) {

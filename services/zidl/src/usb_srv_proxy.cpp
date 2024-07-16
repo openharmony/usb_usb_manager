@@ -1308,6 +1308,29 @@ int32_t UsbServerProxy::ManageInterfaceType(const std::vector<UsbDeviceType> &di
     return ret;
 }
 
+int32_t UsbServerProxy::ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t interfaceId, uint8_t endpointId)
+{
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_SERVICE_INNER_ERR);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    SetDeviceMessage(data, busNum, devAddr);
+    WRITE_PARCEL_WITH_RET(data, Uint8, interfaceId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Uint8, endpointId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_CLEAR_HALT), data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "ClearHalt is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
+    return ret;
+}
+
 int32_t UsbServerProxy::GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed)
 {
     sptr<IRemoteObject> remote = Remote();

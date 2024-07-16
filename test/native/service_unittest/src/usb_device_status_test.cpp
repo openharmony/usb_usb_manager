@@ -231,6 +231,48 @@ HWTEST_F(UsbDeviceStatusTest, GetDeviceSpeed004, TestSize.Level1)
 }
 
 /**
+ * @tc.name: ClearHalt001
+ * @tc.desc: Test functions to ClearHalt
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, ClearHalt001, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ClearHalt001");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "ClearHalt001 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "ClearHalt001 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "ClearHalt001 %{public}d OpenDevice=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
+    ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceStatusTest::ClearHalt001 %{public}d ClaimInterface=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(ret == 0);
+
+    if (!interface.GetEndpoints().empty()) {
+        USBEndpoint ep = interface.GetEndpoints().front();
+        ret = UsbSrvClient.ClearHalt(pipe, ep);
+        USB_HILOGI(MODULE_USB_SERVICE, "ClearHalt001 %{public}d ClearHalt=%{public}d", __LINE__, ret);
+    } else {
+        USB_HILOGW(MODULE_USB_SERVICE, "ClearHalt001 %{public}d no endpoints", __LINE__);
+    }
+
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "ClearHalt001 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : ClearHalt001");
+}
+
+/**
  * @tc.name: GetInterfaceStatus001
  * @tc.desc: Test functions to GetInterfaceStatus
  * @tc.type: FUNC
