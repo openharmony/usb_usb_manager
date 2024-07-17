@@ -1629,6 +1629,11 @@ void UsbService::DumpHelp(int32_t fd)
 
 void UsbService::UnLoadSelf(UnLoadSaType type)
 {
+    if (OHOS::system::GetBoolParameter("const.security.developermode.state", true)) {
+        USB_HILOGI(MODULE_USB_SERVICE, "no need to unload in dev mode");
+        return;
+    }
+
     auto task = []() {
         auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (samgrProxy == nullptr) {
