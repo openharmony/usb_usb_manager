@@ -1,44 +1,44 @@
 {
-  "string": [
-    {
-      "name": "allowButton",
-      "value": "允许"
-    },
-    {
-      "name": "notAllowButton",
-      "value": "不允许"
-    },
-    {
-      "name": "notification_title",
-      "value": "可移动磁盘"
-    },
-    {
-      "name": "notification_text",
-      "value": "Usb存储设备已接入"
-    },
-    {
-      "name": "notification_button",
-      "value": "查看 "
-    },
-    {
-      "name": "USB_hint",
-      "value": "USB连接方式"
-    },
-    {
-      "name": "USB_func_charge",
-      "value": "仅充电"
-    },
-    {
-      "name": "USB_hint_cancel",
-      "value": "取消"
-    },
-    {
-      "name": "usb_right_content",
-      "value": "是否允许 %1$s 使用 %2$s ?"
-    },
-    {
-      "name": "usb_right_title",
-      "value": "USB访问授权"
-    }
-  ]
+    "string":[
+        {
+            "name":"allowButton",
+            "value":"允许"
+        },
+        {
+            "name":"notAllowButton",
+            "value":"不允许"
+        },
+        {
+            "name":"notification_title",
+            "value":"可移动磁盘"
+        },
+        {
+            "name":"notification_text",
+            "value":"USB 存储设备已接入"
+        },
+        {
+            "name":"notification_button",
+            "value":"查看"
+        },
+        {
+            "name":"USB_hint",
+            "value":"USB 连接方式"
+        },
+        {
+            "name":"USB_func_charge",
+            "value":"仅充电"
+        },
+        {
+            "name":"USB_hint_cancel",
+            "value":"取消"
+        },
+        {
+            "name":"usb_right_content",
+            "value":"是否允许 %1$s 使用 %2$s ?"
+        },
+        {
+            "name":"usb_right_title",
+            "value":"USB 访问授权"
+        }
+    ]
 }

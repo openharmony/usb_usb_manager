@@ -1,0 +1,44 @@
+{
+    "string":[
+        {
+            "name":"USB_hint_cancel",
+            "value":"取消"
+        },
+        {
+            "name":"usb_right_title",
+            "value":"USB 存取授權"
+        },
+        {
+            "name":"notification_text",
+            "value":"USB 儲存裝置已連接"
+        },
+        {
+            "name":"notification_button",
+            "value":"查看"
+        },
+        {
+            "name":"USB_hint",
+            "value":"USB 連接方式"
+        },
+        {
+            "name":"notAllowButton",
+            "value":"不允許"
+        },
+        {
+            "name":"USB_func_charge",
+            "value":"只充電"
+        },
+        {
+            "name":"allowButton",
+            "value":"允許"
+        },
+        {
+            "name":"notification_title",
+            "value":"卸除式磁碟機"
+        },
+        {
+            "name":"usb_right_content",
+            "value":"是否允許 %1$s 使用%2$s？"
+        }
+    ]
+}

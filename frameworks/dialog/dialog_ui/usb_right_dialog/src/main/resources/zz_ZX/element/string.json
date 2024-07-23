@@ -1,0 +1,44 @@
+{
+    "string":[
+        {
+            "name":"USB_hint_cancel",
+            "value":"[TS_948515]_Cancel"
+        },
+        {
+            "name":"usb_right_title",
+            "value":"[TS_948513]_USB access authorization"
+        },
+        {
+            "name":"notification_text",
+            "value":"[TS_948510]_USB storage device inserted"
+        },
+        {
+            "name":"notification_button",
+            "value":"[TS_948503]_View"
+        },
+        {
+            "name":"USB_hint",
+            "value":"[TS_948517]_Use USB to"
+        },
+        {
+            "name":"notAllowButton",
+            "value":"[TS_948507]_Deny"
+        },
+        {
+            "name":"USB_func_charge",
+            "value":"[TS_948518]_Charge only"
+        },
+        {
+            "name":"allowButton",
+            "value":"[TS_948498]_Allow"
+        },
+        {
+            "name":"notification_title",
+            "value":"[TS_948516]_Removable drive"
+        },
+        {
+            "name":"usb_right_content",
+            "value":"[TS_948519]_Allow %1$s to use %2$s?"
+        }
+    ]
+}
