@@ -435,7 +435,7 @@ static napi_value CoreConnectDevice(napi_env env, napi_callback_info info)
     if (ret == UEC_OK) {
         CreateUsbDevicePipe(env, pipObj, pipe);
     } else if (ret == UEC_SERVICE_PERMISSION_DENIED || ret == UEC_INTERFACE_PERMISSION_DENIED) {
-        ThrowBusinessError(env, USB_DEVICE_PERMISSION_DENIED, "Call requestRight to get the permission first");
+        ThrowBusinessError(env, USB_DEVICE_PERMISSION_DENIED, "need call requestRight to get the permission");
     } else {
         napi_get_undefined(env, &pipObj);
     }
