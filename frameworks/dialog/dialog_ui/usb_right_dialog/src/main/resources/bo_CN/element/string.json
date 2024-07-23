@@ -1,0 +1,44 @@
+{
+    "string":[
+        {
+            "name":"USB_hint_cancel",
+            "value":"འདོར་བ།"
+        },
+        {
+            "name":"usb_right_title",
+            "value":"USB ཡི་ལྟ་སྤྱོད་དབང་ཚད།"
+        },
+        {
+            "name":"notification_text",
+            "value":"USB གསོག་ཆས་མཐུད་ཟིན།"
+        },
+        {
+            "name":"notification_button",
+            "value":"ལྟ་ཞིབ།"
+        },
+        {
+            "name":"USB_hint",
+            "value":"USB སྦྲེལ་མཐུད་ཐབས་ལམ།"
+        },
+        {
+            "name":"notAllowButton",
+            "value":"མི་ཆོག"
+        },
+        {
+            "name":"USB_func_charge",
+            "value":"གློག་གསོག་ཁོ་ན།"
+        },
+        {
+            "name":"allowButton",
+            "value":"ཆོག་པ།"
+        },
+        {
+            "name":"notification_title",
+            "value":"སྤོ་རུང་སྡུད་སྡེར།"
+        },
+        {
+            "name":"usb_right_content",
+            "value":"%1$s ཡིས་ %2$s བཀོལ་ཆོག་པར་བྱེད་དམ།"
+        }
+    ]
+}

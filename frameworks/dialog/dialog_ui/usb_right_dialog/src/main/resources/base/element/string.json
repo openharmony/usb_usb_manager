@@ -1,76 +1,76 @@
 {
-  "string": [
-    {
-      "name": "entry_desc",
-      "value": "description"
-    },
-    {
-      "name": "UsbDialogAbility_desc",
-      "value": "description"
-    },
-    {
-      "name": "UsbDialogAbility_label",
-      "value": "label"
-    },
-    {
-      "name": "MainAbility_desc",
-      "value": "manage the permissions of all applications from the permission and application dimensions"
-    },
-    {
-      "name": "MainAbility_label",
-      "value": "authorization manager"
-    },
-    {
-      "name": "allowButton",
-      "value": "Allow"
-    },
-    {
-      "name": "notAllowButton",
-      "value": "Not Allow"
-    },
-    {
-      "name": "notification_title",
-      "value": "Mass Stroage"
-    },
-    {
-      "name": "notification_text",
-      "value": "Usb stroage device connectd"
-    },
-    {
-      "name": "notification_button",
-      "value": "Check "
-    },
-    {
-      "name": "notification_label",
-      "value": "filemanager"
-    },
-    {
-      "name": "UsbFunctionSwitchWindowAbility_desc",
-      "value": "ext ability"
-    },
-    {
-      "name": "UsbFunctionSwitchWindowAbility_label",
-      "value": "ext ability"
-    },
-    {
-      "name": "USB_hint",
-      "value": "USB Connected"
-    },
-    {
-      "name": "USB_func_charge",
-      "value": "Charge Only"
-    },
-    {
-      "name": "USB_hint_cancel",
-      "value": "Cancel"
-    },
-    {
-      "name": "usb_right_content",
-      "value": "Whether %1$s allowed to use the %2$s ?"
-    },
-    {
-      "name": "usb_right_title",
-      "value": "USB Access Right"
-    }
-  ]
+    "string":[
+        {
+            "name":"entry_desc",
+            "value":"description"
+        },
+        {
+            "name":"UsbDialogAbility_desc",
+            "value":"description"
+        },
+        {
+            "name":"UsbDialogAbility_label",
+            "value":"label"
+        },
+        {
+            "name":"MainAbility_desc",
+            "value":"manage the permissions of all applications from the permission and application dimensions"
+        },
+        {
+            "name":"MainAbility_label",
+            "value":"authorization manager"
+        },
+        {
+            "name":"allowButton",
+            "value":"Allow"
+        },
+        {
+            "name":"notAllowButton",
+            "value":"Deny"
+        },
+        {
+            "name":"notification_title",
+            "value":"Removable drive"
+        },
+        {
+            "name":"notification_text",
+            "value":"USB storage device inserted"
+        },
+        {
+            "name":"notification_button",
+            "value":"View"
+        },
+        {
+            "name":"notification_label",
+            "value":"filemanager"
+        },
+        {
+            "name":"UsbFunctionSwitchWindowAbility_desc",
+            "value":"ext ability"
+        },
+        {
+            "name":"UsbFunctionSwitchWindowAbility_label",
+            "value":"ext ability"
+        },
+        {
+            "name":"USB_hint",
+            "value":"Use USB to"
+        },
+        {
+            "name":"USB_func_charge",
+            "value":"Charge only"
+        },
+        {
+            "name":"USB_hint_cancel",
+            "value":"Cancel"
+        },
+        {
+            "name":"usb_right_content",
+            "value":"Allow %1$s to use %2$s?"
+        },
+        {
+            "name":"usb_right_title",
+            "value":"USB access authorization"
+        }
+    ]
 }

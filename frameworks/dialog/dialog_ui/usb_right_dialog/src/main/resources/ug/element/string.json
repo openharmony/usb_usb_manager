@@ -1,0 +1,44 @@
+{
+    "string":[
+        {
+            "name":"USB_hint_cancel",
+            "value":"بىكار قىلىش"
+        },
+        {
+            "name":"usb_right_title",
+            "value":"\u200fUSB ئىجازىتى"
+        },
+        {
+            "name":"notification_text",
+            "value":"\u200fUSB بوشلۇق چېتىلدى."
+        },
+        {
+            "name":"notification_button",
+            "value":"كۆرۈش"
+        },
+        {
+            "name":"USB_hint",
+            "value":"\u200fUSB ئۇلاش ئۇسۇلى"
+        },
+        {
+            "name":"notAllowButton",
+            "value":"چەكلەش"
+        },
+        {
+            "name":"USB_func_charge",
+            "value":"پەقەت توكلاش"
+        },
+        {
+            "name":"allowButton",
+            "value":"رۇخسەت"
+        },
+        {
+            "name":"notification_title",
+            "value":"كۆچمە دىسكا"
+        },
+        {
+            "name":"usb_right_content",
+            "value":"\u200f«%1$s» نىڭ «%2$s» نى ئىشلىتىشىگە رۇخسەتمۇ؟"
+        }
+    ]
+}
