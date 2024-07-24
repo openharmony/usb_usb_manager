@@ -146,7 +146,7 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     }
     std::string paramStr(pParamJson);
     data.WriteString16(Str8ToStr16(paramStr));
-    free(pParamJson);
+    cJSON_free(pParamJson);
     pParamJson = NULL;
 
     const uint32_t cmdCode = 1;

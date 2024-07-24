@@ -221,7 +221,7 @@ public:
             return "";
         }
         std::string configStr(pConfigStr);
-        free(pConfigStr);
+        cJSON_free(pConfigStr);
         return configStr;
     }
 
