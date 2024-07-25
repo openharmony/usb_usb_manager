@@ -888,7 +888,7 @@ static napi_value PipeClaimInterface(napi_env env, napi_callback_info info)
     napi_value argv[PARAM_COUNT_3] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
-    USB_ASSERT(env, (argc >= PARAM_COUNT_2 || argc <= PARAM_COUNT_3), SYSPARAM_INVALID_INPUT,
+    USB_ASSERT(env, (argc == PARAM_COUNT_2 || argc == PARAM_COUNT_3), SYSPARAM_INVALID_INPUT,
         "The function at least takes two arguments.");
 
     napi_value obj = argv[INDEX_0];
@@ -1293,7 +1293,7 @@ static bool GetBulkTransferParams(napi_env env, napi_callback_info info, USBBulk
     napi_value argv[PARAM_COUNT_4] = {nullptr};
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
     USB_ASSERT_RETURN_FALSE(
-        env, (argc >= PARAM_COUNT_3 || argc <= PARAM_COUNT_4), SYSPARAM_INVALID_INPUT,
+        env, (argc == PARAM_COUNT_3 || argc == PARAM_COUNT_4), SYSPARAM_INVALID_INPUT,
         "The function at least takes three arguments.");
 
     napi_valuetype type;
@@ -1368,7 +1368,7 @@ static napi_value PipeClose(napi_env env, napi_callback_info info)
     napi_value argv[PARAM_COUNT_1] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
-    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
+    USB_ASSERT(env, (argc == PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
 
     napi_value obj = argv[INDEX_0];
     napi_valuetype type;
