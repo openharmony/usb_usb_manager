@@ -1043,7 +1043,7 @@ int32_t UsbServerStub::DoManageInterfaceType(MessageParcel &data, MessageParcel 
     READ_PARCEL_WITH_RET(data, Int32, count, UEC_SERVICE_READ_PARCEL_ERROR);
     bool disable = false;
     std::vector<UsbDeviceType> disableType;
-    if(!count) {
+    if(count > 200) {
         USB_HILOGE(MODULE_USBD, "count:%{public}d", count);
         return UEC_SERVICE_READ_PARCEL_ERROR;
     }
