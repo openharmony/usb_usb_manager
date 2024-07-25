@@ -1823,8 +1823,6 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
 
     std::map<std::string, UsbDevice *> devices;
     usbHostManager_->GetDevices(devices);
-    USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
-        devices.size(), (int32_t)interfaceType, disable);
     for (auto it = devices.begin(); it != devices.end(); ++it) {
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         uint8_t configIndex = 0;
@@ -1846,6 +1844,8 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
                 RANDOM_VALUE_INDICATE) && (interfaces[i].GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||
                 iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
                     ManageInterface(dev, interfaces[i].GetId(), disable);
+                    USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
+                        devices.size(), (int32_t)interfaceType, disable);
                     std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
             }
         }
