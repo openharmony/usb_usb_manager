@@ -1844,7 +1844,7 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
                 RANDOM_VALUE_INDICATE) && (interfaces[i].GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||
                 iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
                     ManageInterface(dev, interfaces[i].GetId(), disable);
-                    USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
+                    USB_HILOGI(MODULE_USB_SERVICE, "size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
                         devices.size(), (int32_t)interfaceType, disable);
                     std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
             }
