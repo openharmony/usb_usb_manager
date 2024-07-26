@@ -1815,8 +1815,8 @@ int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool d
 
 int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable)
 {
-    auto iterInterface = g_typeMap .find(interfaceType);
-    if (iterInterface == g_typeMap .end()) {
+    auto iterInterface = g_typeMap.find(interfaceType);
+    if (iterInterface == g_typeMap.end()) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::not find interface type");
         return UEC_SERVICE_INVALID_VALUE;
     }
