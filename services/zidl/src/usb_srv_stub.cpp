@@ -26,6 +26,7 @@
 using namespace OHOS::HDI::Usb::V1_1;
 namespace OHOS {
 namespace USB {
+constexpr int32_t MAX_EDM_LIST_SIZE = 200;
 int32_t UsbServerStub::GetDeviceMessage(MessageParcel &data, uint8_t &busNum, uint8_t &devAddr)
 {
     if (!data.ReadUint8(busNum)) {
@@ -1043,6 +1044,10 @@ int32_t UsbServerStub::DoManageInterfaceType(MessageParcel &data, MessageParcel 
     READ_PARCEL_WITH_RET(data, Int32, count, UEC_SERVICE_READ_PARCEL_ERROR);
     bool disable = false;
     std::vector<UsbDeviceType> disableType;
+    if (count > MAX_EDM_LIST_SIZE) {
+        USB_HILOGE(MODULE_USBD, "count:%{public}d", count);
+        return UEC_SERVICE_READ_PARCEL_ERROR;
+    }
     for (int32_t i = 0; i < count; ++i) {
         UsbDeviceType usbDeviceType;
         READ_PARCEL_WITH_RET(data, Int32, usbDeviceType.baseClass, UEC_SERVICE_READ_PARCEL_ERROR);
