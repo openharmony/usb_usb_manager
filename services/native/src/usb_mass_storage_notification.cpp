@@ -40,8 +40,10 @@ namespace {
     constexpr int16_t USB_DEVICE_CLASS_MASS_STORAGE = 8;
     constexpr int16_t MASS_STORAGE_NOTIFICATION_ID = 100;
     constexpr int32_t REQUEST_CODE = 10;
+    constexpr int32_t GET_APP_INFO_FLAG = 0;
     const std::string FILEMANAGER_BUNDLE_NAME_KEY = "hmos.filemanager";
-    const std::string FILEMANAGER_ABILITY_NAME = "MainAbility";
+    const std::string FILES_BUNDLE_NAME = "com.huawei.hmos.files";
+    const std::string FILES_ABILITY_NAME = "EntryAbility";
     const std::string HAP_PATH = "/system/app/usb_right_dialog/usb_right_dialog.hap";
 } // namespace
 
@@ -123,6 +125,16 @@ void UsbMassStorageNotification::GetFilemanagerBundleName()
         USB_HILOGW(MODULE_USB_SERVICE, "BundleMgr GetApplicationInfos failed");
         return;
     }
+    OHOS::AppExecFwk::ApplicationInfo appInfoTemp;
+    int32_t resultCode = bundleMgr->GetApplicationInfoV9(
+        FILES_BUNDLE_NAME, GET_APP_INFO_FLAG, osAccountId, appInfoTemp);
+    USB_HILOGD(MODULE_USB_SERVICE, "GetApplicationInfoV9 resultCode %{public}d", resultCode);
+    if (resultCode == ERR_OK) {
+        filemanagerBundleName = appInfoTemp.bundleName;
+        filemanagerAbilityName = FILES_ABILITY_NAME;
+        return;
+    }
+
     for (auto const &appInfo : appInfos) {
         if (appInfo.bundleName.find(FILEMANAGER_BUNDLE_NAME_KEY) != std::string::npos) {
             filemanagerBundleName = appInfo.bundleName;
@@ -182,7 +194,7 @@ void UsbMassStorageNotification::PublishUsbNotification()
     }
     GetFilemanagerBundleName();
     auto want = std::make_shared<OHOS::AAFwk::Want>();
-    want->SetElementName(filemanagerBundleName, FILEMANAGER_ABILITY_NAME);
+    want->SetElementName(filemanagerBundleName, filemanagerAbilityName);
     std::vector<std::shared_ptr<OHOS::AAFwk::Want>> wants;
     wants.push_back(want);
     std::vector<OHOS::AbilityRuntime::WantAgent::WantAgentConstant::Flags> flags;
