@@ -271,7 +271,7 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
     int32_t ret;
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::DumpSetFunc usbd_ is nullptr");
-        return UEC_SERVICE_INVALID_VALUE;
+        return;
     }
     if (args.compare("Q") == 0) {
         ret = usbd_->GetCurrentFunctions(currentFunction);
