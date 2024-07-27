@@ -241,7 +241,7 @@ void UsbPortManager::DumpSetPortRoles(int32_t fd, const std::string &args)
     }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::DumpSetPortRoles usbd_ is nullptr");
-        return UEC_SERVICE_INVALID_VALUE;
+        return;
     }
     int32_t mode = stoi(args);
     switch (mode) {
