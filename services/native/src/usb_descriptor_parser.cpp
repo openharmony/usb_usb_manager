@@ -103,6 +103,7 @@ int32_t UsbDescriptorParser::ParseConfigDescriptor(
     for (int32_t i = 0; (i < configDescriptor.bNumInterfaces) && (cursor < length); ++i) {
         uint32_t interfaceCursor = 0;
         UsbInterface interface;
+
         ParseInterfaceDescriptor(
             buffer + cursor + interfaceCursor, length - cursor - interfaceCursor, interfaceCursor, interface);
         bool isRepeat = false;

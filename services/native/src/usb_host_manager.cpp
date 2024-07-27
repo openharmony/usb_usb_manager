@@ -110,6 +110,7 @@ bool UsbHostManager::AddDevice(UsbDevice *dev)
         USB_HILOGF(MODULE_SERVICE, "device:%{public}s bus:%{public}hhu dev:%{public}hhu already exist", name.c_str(),
             busNum, devNum);
         UsbDevice *devOld = iter->second;
+
         delete devOld;
         devices_.erase(iter);
     }
