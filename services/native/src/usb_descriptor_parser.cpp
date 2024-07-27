@@ -103,9 +103,12 @@ int32_t UsbDescriptorParser::ParseConfigDescriptor(
     for (int32_t i = 0; (i < configDescriptor.bNumInterfaces) && (cursor < length); ++i) {
         uint32_t interfaceCursor = 0;
         UsbInterface interface;
-
-        ParseInterfaceDescriptor(
+        ret = ParseInterfaceDescriptor(
             buffer + cursor + interfaceCursor, length - cursor - interfaceCursor, interfaceCursor, interface);
+        if (ret = UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "ParseInterfaceDescriptor failed");
+            return;
+        }
         bool isRepeat = false;
         auto iter = interfaces.begin();
         while (iter != interfaces.end()) {
