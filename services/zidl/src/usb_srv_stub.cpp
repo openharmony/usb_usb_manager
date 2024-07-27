@@ -235,6 +235,9 @@ bool UsbServerStub::StubHostTransfer(uint32_t code, int32_t &result,
         case static_cast<int>(UsbInterfaceCode::USB_FUN_CONTROL_TRANSFER):
             result = DoControlTransfer(data, reply, option);
             return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_USB_CONTROL_TRANSFER):
+            result = DoUsbControlTransfer(data, reply, option);
+            return true;
         default:;
     }
     return false;
@@ -557,6 +560,53 @@ int32_t UsbServerStub::DoControlTransfer(MessageParcel &data, MessageParcel &rep
     const UsbDev tmpDev = {busNum, devAddr};
     const UsbCtrlTransfer tctrl = {requestType, request, value, index, timeOut};
     ret = ControlTransfer(tmpDev, tctrl, bufferData);
+    if (ret != UEC_OK) {
+        UsbReportSysEvent::ReportTransforFaultSysEvent("ControlTransfer", tmpDev, {0, 0}, ret);
+        USB_HILOGE(MODULE_USBD, "ControlTransfer error ret:%{public}d", ret);
+        return ret;
+    }
+
+    if (!bWrite) {
+        ret = SetBufferMessage(reply, bufferData);
+        if (ret != UEC_OK) {
+            USB_HILOGE(MODULE_USBD, "Set buffer message error length = %{public}d", ret);
+        }
+    }
+    WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
+}
+
+int32_t UsbServerStub::DoUsbControlTransfer(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "ControlTransfer");
+    uint8_t busNum = 0;
+    uint8_t devAddr = 0;
+    int32_t requestType;
+    int32_t request;
+    int32_t value;
+    int32_t index;
+    int32_t length;
+    int32_t timeOut;
+
+    READ_PARCEL_WITH_RET(data, Uint8, busNum, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, requestType, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, request, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, value, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, index, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, length, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, timeOut, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    std::vector<uint8_t> bufferData;
+    int32_t ret = GetBufferMessage(data, bufferData);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "get error ret:%{public}d", ret);
+        return ret;
+    }
+
+    bool bWrite = ((static_cast<uint32_t>(requestType) & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT);
+    const UsbDev tmpDev = {busNum, devAddr};
+    const UsbCtrlTransferParams tctrlParams = {requestType, request, value, index, length, timeOut};
+    ret = UsbControlTransfer(tmpDev, tctrlParams, bufferData);
     if (ret != UEC_OK) {
         UsbReportSysEvent::ReportTransforFaultSysEvent("ControlTransfer", tmpDev, {0, 0}, ret);
         USB_HILOGE(MODULE_USBD, "ControlTransfer error ret:%{public}d", ret);

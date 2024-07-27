@@ -58,6 +58,7 @@ private:
     int32_t DoBulkTransferReadwithLength(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoBulkTransferWrite(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoControlTransfer(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoUsbControlTransfer(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoSetActiveConfig(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoGetActiveConfig(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoSetInterface(MessageParcel &data, MessageParcel &reply, MessageOption &option);

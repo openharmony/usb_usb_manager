@@ -282,6 +282,19 @@ int32_t UsbSrvClient::ControlTransfer(
     return ret;
 }
 
+int32_t UsbSrvClient::UsbControlTransfer(USBDevicePipe &pipe, const HDI::Usb::V1_1::UsbCtrlTransferParams &ctrlParams,
+    std::vector<uint8_t> &bufferData)
+{
+    RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
+    const UsbDev dev = {pipe.GetBusNum(), pipe.GetDevAddr()};
+    int32_t ret = proxy_->UsbControlTransfer(dev, ctrlParams, bufferData);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "failed width ret = %{public}d !", ret);
+    }
+
+    return ret;
+}
+
 int32_t UsbSrvClient::SetConfiguration(USBDevicePipe &pipe, const USBConfig &config)
 {
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);

@@ -60,6 +60,12 @@ int32_t USBDevicePipe::ControlTransfer(const UsbCtrlTransfer &ctrl, std::vector<
     return UsbSrvClient::GetInstance().ControlTransfer(*this, ctrl, bufferData);
 }
 
+int32_t USBDevicePipe::UsbControlTransfer(
+    const HDI::Usb::V1_1::UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData)
+{
+    return UsbSrvClient::GetInstance().UsbControlTransfer(*this, ctrlParams, bufferData);
+}
+
 int32_t USBDevicePipe::SetConfiguration(const USBConfig &config)
 {
     return UsbSrvClient::GetInstance().SetConfiguration(*this, config);

@@ -39,6 +39,7 @@
 using namespace OHOS;
 using namespace OHOS::USB;
 using namespace OHOS::HDI::Usb::V1_0;
+using namespace OHOS::HDI::Usb::V1_1;
 
 static constexpr int32_t INDEX_0 = 0;
 static constexpr int32_t INDEX_1 = 1;
@@ -254,6 +255,47 @@ static void ParsePipeControlParam(const napi_env env, const napi_value jsObj, Pi
     controlParam.reqType = reqType;
     controlParam.value = value;
     controlParam.index = index;
+    controlParam.data = data;
+    controlParam.dataLength = dataLength;
+}
+
+struct UsbPipeControlParam {
+    uint32_t reqType;
+    int32_t request;
+    int32_t value;
+    int32_t index;
+    int32_t length;
+    uint8_t *data;
+    size_t dataLength;
+};
+
+static void ParseUsbPipeControlParam(const napi_env env, const napi_value jsObj, UsbPipeControlParam &controlParam)
+{
+    uint32_t reqType = 0;
+    NapiUtil::JsObjectToUint(env, jsObj, "reqType", reqType);
+    int32_t request = 0;
+    NapiUtil::JsObjectToInt(env, jsObj, "request", request);
+    int32_t value = 0;
+    NapiUtil::JsObjectToInt(env, jsObj, "value", value);
+    int32_t index = 0;
+    NapiUtil::JsObjectToInt(env, jsObj, "index", index);
+    int32_t length = 0;
+    NapiUtil::JsObjectToInt(env, jsObj, "length", length);
+
+    napi_value dataValue;
+    bool hasProperty = NapiUtil::JsObjectGetProperty(env, jsObj, "data", dataValue);
+    USB_ASSERT_RETURN_VOID(
+        env, hasProperty == true, SYSPARAM_INVALID_INPUT, "The controlParam should have the data property.");
+
+    uint8_t *data = nullptr;
+    size_t dataLength = 0;
+    size_t offset = 0;
+    NapiUtil::JsUint8ArrayParse(env, dataValue, &data, dataLength, offset);
+    controlParam.reqType = reqType;
+    controlParam.request = request;
+    controlParam.value = value;
+    controlParam.index = index;
+    controlParam.length = length;
     controlParam.data = data;
     controlParam.dataLength = dataLength;
 }
@@ -1209,6 +1251,157 @@ static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
     return result;
 }
 
+static auto g_usbControlTransferExecute = [](napi_env env, void *data) {
+    USBDeviceControlTransferAsyncContext *asyncContext = (USBDeviceControlTransferAsyncContext *)data;
+    std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
+    if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
+        delete[] asyncContext->buffer;
+        asyncContext->buffer = nullptr;
+    }
+
+    const UsbCtrlTransferParams tctrl = {asyncContext->reqType, asyncContext->request,
+        asyncContext->value, asyncContext->index, asyncContext->length, asyncContext->timeOut};
+    int32_t ret;
+    do {
+        ret = asyncContext->pipe.UsbControlTransfer(tctrl, bufferData);
+        if (ret != UEC_OK) {
+            USB_HILOGE(MODULE_JS_NAPI, "ControlTransferExecute failed");
+            break;
+        }
+
+        if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_IN) {
+            ret = memcpy_s(asyncContext->buffer, asyncContext->bufferLength, bufferData.data(), bufferData.size());
+        }
+    } while (0);
+
+    if (ret == UEC_OK) {
+        asyncContext->status = napi_ok;
+        asyncContext->dataSize = bufferData.size();
+    } else {
+        asyncContext->status = napi_generic_failure;
+        asyncContext->dataSize = 0;
+    }
+};
+
+static auto g_usbControlTransferComplete = [](napi_env env, napi_status status, void *data) {
+    USBDeviceControlTransferAsyncContext *asyncContext = reinterpret_cast<USBDeviceControlTransferAsyncContext *>(data);
+    napi_value queryResult = nullptr;
+
+    if (asyncContext->status == napi_ok) {
+        napi_create_int32(env, asyncContext->dataSize, &queryResult);
+    } else {
+        USB_HILOGD(MODULE_JS_NAPI, "usbControlTransfer failed");
+        napi_create_int32(env, -1, &queryResult);
+    }
+    ProcessPromise(env, *asyncContext, queryResult);
+    napi_delete_async_work(env, asyncContext->work);
+    delete asyncContext;
+};
+
+static std::tuple<bool, USBDevicePipe, UsbPipeControlParam, int32_t> GetUsbControlTransferParam(
+    napi_env env, napi_callback_info info)
+{
+    size_t argc = PARAM_COUNT_3;
+    napi_value argv[PARAM_COUNT_3] = {nullptr};
+    napi_status status = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "ControlTransfer failed to get cb info");
+        return {false, {}, {}, {}};
+    }
+
+    if (argc < PARAM_COUNT_2) {
+        USB_HILOGE(MODULE_JS_NAPI, "The function at least takes two arguments.");
+        ThrowBusinessError(env, SYSPARAM_INVALID_INPUT, "The function at least takes two arguments.");
+        return {false, {}, {}, {}};
+    }
+
+    // pipe param
+    napi_valuetype type;
+    napi_typeof(env, argv[INDEX_0], &type);
+    if (type != napi_object) {
+        USB_HILOGE(MODULE_JS_NAPI, "index 0 wrong argument type, object expected.");
+        ThrowBusinessError(env, SYSPARAM_INVALID_INPUT, "The type of pipe must be USBDevicePipe.");
+        return {false, {}, {}, {}};
+    }
+
+    USBDevicePipe pipe;
+    ParseUsbDevicePipe(env, argv[INDEX_0], pipe);
+
+    // control params
+    UsbPipeControlParam controlParam = {0};
+    ParseUsbPipeControlParam(env, argv[INDEX_1], controlParam);
+
+    // timeOut param
+    int32_t timeOut = 0;
+    if (argc > PARAM_COUNT_2) {
+        napi_typeof(env, argv[INDEX_2], &type);
+        if (type == napi_number) {
+            napi_get_value_int32(env, argv[INDEX_2], &timeOut);
+        } else {
+            USB_HILOGW(MODULE_JS_NAPI, "index 2 wrong argument type, number expected.");
+        }
+    }
+
+    return {true, pipe, controlParam, timeOut};
+}
+
+static napi_value PipeUsbControlTransfer(napi_env env, napi_callback_info info)
+{
+    auto [res, pipe, controlParam, timeOut] = GetUsbControlTransferParam(env, info);
+    if (!res) {
+        USB_HILOGE(MODULE_JS_NAPI, "GetUsbControlTransferParam failed.");
+        return nullptr;
+    }
+
+    auto asyncContext = new (std::nothrow) USBDeviceControlTransferAsyncContext();
+    if (asyncContext == nullptr) {
+        USB_HILOGE(MODULE_JS_NAPI, "New USBDeviceControlTransferAsyncContext failed.");
+        return nullptr;
+    }
+
+    asyncContext->env = env;
+    asyncContext->pipe = pipe;
+    asyncContext->reqType = controlParam.reqType;
+    asyncContext->request = controlParam.request;
+    asyncContext->value = controlParam.value;
+    asyncContext->index = controlParam.index;
+    asyncContext->length = controlParam.length;
+
+    if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
+        uint8_t *nativeArrayBuffer = new (std::nothrow) uint8_t[controlParam.dataLength];
+        if (nativeArrayBuffer == nullptr) {
+            USB_HILOGE(MODULE_JS_NAPI, "new failed");
+            delete asyncContext;
+            return nullptr;
+        }
+
+        errno_t ret = memcpy_s(nativeArrayBuffer, controlParam.dataLength, controlParam.data, controlParam.dataLength);
+        if (ret != EOK) {
+            USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed");
+            delete asyncContext;
+            delete[] nativeArrayBuffer;
+            return nullptr;
+        }
+        asyncContext->buffer = nativeArrayBuffer;
+    } else {
+        asyncContext->buffer = controlParam.data;
+    }
+
+    asyncContext->bufferLength = controlParam.dataLength;
+    asyncContext->timeOut = timeOut;
+    napi_value result = nullptr;
+    napi_create_promise(env, &asyncContext->deferred, &result);
+
+    napi_value resource = nullptr;
+    napi_create_string_utf8(env, "PipeUsbControlTransfer", NAPI_AUTO_LENGTH, &resource);
+
+    napi_create_async_work(env, nullptr, resource, g_usbControlTransferExecute, g_usbControlTransferComplete,
+        reinterpret_cast<void *>(asyncContext), &asyncContext->work);
+    napi_queue_async_work(env, asyncContext->work);
+
+    return result;
+}
+
 static auto g_bulkTransferExecute = [](napi_env env, void *data) {
     USBBulkTransferAsyncContext *asyncContext = reinterpret_cast<USBBulkTransferAsyncContext *>(data);
     std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
@@ -1485,6 +1678,7 @@ napi_value UsbInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("releaseInterface", PipeReleaseInterface),
         DECLARE_NAPI_FUNCTION("bulkTransfer", PipeBulkTransfer),
         DECLARE_NAPI_FUNCTION("controlTransfer", PipeControlTransfer),
+        DECLARE_NAPI_FUNCTION("usbControlTransfer", PipeUsbControlTransfer),
         DECLARE_NAPI_FUNCTION("setInterface", PipeSetInterface),
         DECLARE_NAPI_FUNCTION("setConfiguration", PipeSetConfiguration),
         DECLARE_NAPI_FUNCTION("getRawDescriptor", PipeGetRawDescriptors),
