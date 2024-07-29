@@ -82,15 +82,10 @@ int32_t UsbDescriptorParser::ParseConfigDescriptor(
 
     USB_HILOGD(MODULE_USB_SERVICE, "parse begin length=%{public}u, cursor=%{public}u", length, cursor);
     uint32_t configDescriptorSize = sizeof(UsbdConfigDescriptor);
-    if (length < configDescriptorSize) {
-        USB_HILOGE(MODULE_USB_SERVICE, "buffer size error");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-
     UsbdConfigDescriptor configDescriptor = *(reinterpret_cast<const UsbdConfigDescriptor *>(buffer));
     cursor += configDescriptorSize;
-    if (configDescriptor.bLength != configDescriptorSize) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbdDeviceDescriptor size error");
+    if (length < configDescriptorSize || configDescriptor.bLength != configDescriptorSize) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbdDeviceDescriptor size error or buffer size error");
         return UEC_SERVICE_INVALID_VALUE;
     }
 
