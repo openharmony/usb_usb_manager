@@ -37,10 +37,7 @@ UsbHostManager::UsbHostManager(SystemAbility *systemAbility)
     systemAbility_ = systemAbility;
 }
 
-UsbHostManager::~UsbHostManager()
-{
-    delete devices_;
-}
+UsbHostManager::~UsbHostManager() {}
 
 void UsbHostManager::GetDevices(MAP_STR_DEVICE &devices)
 {
