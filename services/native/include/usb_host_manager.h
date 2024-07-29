@@ -26,7 +26,7 @@
 
 namespace OHOS {
 namespace USB {
-typedef std::map<std::string, std::shared_ptr<UsbDevice>> MAP_STR_DEVICE;
+typedef std::map<std::string, UsbDevice *> MAP_STR_DEVICE;
 
 class UsbHostManager {
 public:
