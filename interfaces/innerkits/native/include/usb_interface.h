@@ -223,6 +223,7 @@ public:
         cJSON* endpoints = cJSON_CreateArray();
         if (!endpoints) {
             USB_HILOGE(MODULE_USB_SERVICE, "Create endpoints error");
+            cJSON_Delete(interface);
             return "";
         }
         for (size_t i = 0; i < endpoints_.size(); ++i) {
