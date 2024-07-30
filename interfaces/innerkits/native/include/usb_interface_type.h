@@ -104,7 +104,7 @@ struct UsbDeviceId {
     int32_t vendorId;
 };
 
-const std::unordered_map<InterfaceType, std::vector<int32_t>> g_typeMap  = {
+const std::unordered_map<InterfaceType, std::vector<int32_t>> g_typeMap = {
     {InterfaceType::TYPE_AUDIO,                 {1, -1, -1}},
     {InterfaceType::TYPE_COMMUNICATION,         {2, -1, -1}},
     {InterfaceType::TYPE_HID,                   {3, -1, -1}},
