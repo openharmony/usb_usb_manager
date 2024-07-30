@@ -194,7 +194,6 @@ void UsbMassStorageNotification::PublishUsbNotification()
         return;
     }
     GetFilemanagerBundleName();
-    auto want = std::make_shared<OHOS::AAFwk::Want>();
     want->SetElementName(filemanagerBundleName, filemanagerAbilityName);
     std::vector<std::shared_ptr<OHOS::AAFwk::Want>> wants;
     wants.push_back(want);
