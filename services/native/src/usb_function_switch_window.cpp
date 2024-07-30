@@ -33,6 +33,7 @@ using namespace OHOS::EventFwk;
 
 namespace OHOS {
 namespace USB {
+constexpr int32_t PARAM_BUF_LEN = 128;
 constexpr int32_t INVALID_USERID = -1;
 constexpr int32_t MESSAGE_PARCEL_KEY_SIZE = 3;
 constexpr int32_t MAX_RETRY_TIMES = 30;

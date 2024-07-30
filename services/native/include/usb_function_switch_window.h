@@ -25,7 +25,6 @@
 #include "usb_srv_support.h"
 #include "timer.h"
 
-#define PARAM_BUF_LEN 128
 namespace OHOS {
 namespace USB {
 
