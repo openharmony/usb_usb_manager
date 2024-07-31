@@ -39,6 +39,38 @@
         {
             "name":"usb_right_content",
             "value":"[TS_948519]_Allow %1$s to use %2$s?"
+        },
+        {
+            "name":"UsbFunctionSwitchWindowAbility_desc",
+            "value":"[TS_948502]_ext ability"
+        },
+        {
+            "name":"UsbFunctionSwitchWindowAbility_label",
+            "value":"[TS_948501]_ext ability"
+        },
+        {
+            "name":"notification_label",
+            "value":"[TS_948500]_filemanager"
+        },
+        {
+            "name":"entry_desc",
+            "value":"[TS_948499]_description"
+        },
+        {
+            "name":"UsbDialogAbility_label",
+            "value":"[TS_948508]_label"
+        },
+        {
+            "name":"MainAbility_desc",
+            "value":"[TS_948514]_manage the permissions of all applications from the permission and application dimensions"
+        },
+        {
+            "name":"UsbDialogAbility_desc",
+            "value":"[TS_948496]_description"
+        },
+        {
+            "name":"MainAbility_label",
+            "value":"[TS_948504]_authorization manager"
         }
     ]
 }
