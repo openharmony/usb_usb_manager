@@ -553,18 +553,26 @@ static napi_value CoreHasRight(napi_env env, napi_callback_info info)
 static auto g_requestRightExecute = [](napi_env env, void *data) {
     USBRightAsyncContext *asyncContext = reinterpret_cast<USBRightAsyncContext *>(data);
     int32_t ret = g_usbClient.RequestRight(asyncContext->deviceName);
-    if (ret == UEC_OK) {
-        asyncContext->status = napi_ok;
-    } else {
-        asyncContext->status = napi_generic_failure;
-    }
+    asyncContext->errCode = ret;
 };
 
 static auto g_requestRightComplete = [](napi_env env, napi_status status, void *data) {
-    USBRightAsyncContext *asyncContext = reinterpret_cast<USBRightAsyncContext *>(data);
+    USBFunctionAsyncContext *asyncContext = reinterpret_cast<USBFunctionAsyncContext *>(data);
     napi_value queryResult = nullptr;
-    napi_get_boolean(env, asyncContext->status == napi_ok, &queryResult);
 
+    if (asyncContext->errCode == UEC_OK) {
+        asyncContext->status = napi_ok;
+        napi_get_boolean(env, true, &queryResult);
+    } else if (asyncContext->errCode == UEC_SERVICE_PERMISSION_DENIED_SYSAPI) {
+        asyncContext->status = napi_generic_failure;
+        queryResult = CreateBusinessError((env), USB_SYSAPI_PERMISSION_DENIED, "");
+    } else if (asyncContext->errCode == UEC_SERVICE_PERMISSION_CHECK_HDC) {
+        asyncContext->status = napi_generic_failure;
+        queryResult = CreateBusinessError((env), USB_HDC_PERMISSION_DENIED, "");
+    } else {
+        asyncContext->status = napi_generic_failure;
+        napi_get_boolean(env, false, &queryResult);
+    }
     ProcessPromise(env, *asyncContext, queryResult);
     napi_delete_async_work(env, asyncContext->work);
     delete asyncContext;
