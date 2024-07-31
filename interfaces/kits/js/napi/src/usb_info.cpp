@@ -557,7 +557,7 @@ static auto g_requestRightExecute = [](napi_env env, void *data) {
 };
 
 static auto g_requestRightComplete = [](napi_env env, napi_status status, void *data) {
-    USBFunctionAsyncContext *asyncContext = reinterpret_cast<USBFunctionAsyncContext *>(data);
+    USBRightAsyncContext *asyncContext = reinterpret_cast<USBRightAsyncContext *>(data);
     napi_value queryResult = nullptr;
 
     if (asyncContext->errCode == UEC_OK) {
