@@ -569,6 +569,9 @@ static auto g_requestRightComplete = [](napi_env env, napi_status status, void *
     } else if (asyncContext->errCode == UEC_SERVICE_PERMISSION_CHECK_HDC) {
         asyncContext->status = napi_generic_failure;
         queryResult = CreateBusinessError((env), USB_HDC_PERMISSION_DENIED, "");
+    } else if (asyncContext->errCode == UEC_INTERFACE_INVALID_VALUE) {
+        asyncContext->status = napi_generic_failure;
+        queryResult = CreateBusinessError((env), UEC_INTERFACE_INVALID_VALUE, "");
     } else {
         asyncContext->status = napi_generic_failure;
         napi_get_boolean(env, false, &queryResult);
