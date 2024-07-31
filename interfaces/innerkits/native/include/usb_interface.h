@@ -237,7 +237,7 @@ public:
             return "";
         }
         std::string interfaceJsonStr(pInterface);
-        free(pInterface);
+        cJSON_free(pInterface);
         return interfaceJsonStr;
     }
 

@@ -183,7 +183,7 @@ public:
             return "";
         }
         std::string endPointJsonStr(pEndPointJson);
-        free(pEndPointJson);
+        cJSON_free(pEndPointJson);
         pEndPointJson = NULL;
         return endPointJsonStr;
     }
