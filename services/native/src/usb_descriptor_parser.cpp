@@ -101,7 +101,7 @@ int32_t UsbDescriptorParser::ParseConfigDescriptor(
         UsbInterface interface;
         int32_t ret = ParseInterfaceDescriptor(
             buffer + cursor + interfaceCursor, length - cursor - interfaceCursor, interfaceCursor, interface);
-        if (ret == UEC_OK) {
+        if (ret != UEC_OK) {
             USB_HILOGE(MODULE_USB_SERVICE, "ParseInterfaceDescriptor failed");
             return UEC_SERVICE_INVALID_VALUE;
         }
