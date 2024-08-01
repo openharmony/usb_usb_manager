@@ -68,6 +68,7 @@ struct USBAsyncContext {
 
 struct USBRightAsyncContext : USBAsyncContext {
     std::string deviceName;
+    int32_t errCode;
     bool hasRight = false;
 };
 
