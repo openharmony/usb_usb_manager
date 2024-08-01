@@ -553,30 +553,16 @@ static napi_value CoreHasRight(napi_env env, napi_callback_info info)
 static auto g_requestRightExecute = [](napi_env env, void *data) {
     USBRightAsyncContext *asyncContext = reinterpret_cast<USBRightAsyncContext *>(data);
     int32_t ret = g_usbClient.RequestRight(asyncContext->deviceName);
-    asyncContext->errCode = ret;
+    if (ret == UEC_OK) {
+        asyncContext->status = napi_ok;
+    } else {
+        asyncContext->status = napi_generic_failure;
+    }
 };
 
 static auto g_requestRightComplete = [](napi_env env, napi_status status, void *data) {
     USBRightAsyncContext *asyncContext = reinterpret_cast<USBRightAsyncContext *>(data);
-    napi_value queryResult = nullptr;
-
-    if (asyncContext->errCode == UEC_OK) {
-        asyncContext->status = napi_ok;
-        napi_get_boolean(env, true, &queryResult);
-    } else if (asyncContext->errCode == UEC_SERVICE_PERMISSION_DENIED_SYSAPI) {
-        asyncContext->status = napi_generic_failure;
-        queryResult = CreateBusinessError((env), USB_SYSAPI_PERMISSION_DENIED, "");
-    } else if (asyncContext->errCode == UEC_SERVICE_PERMISSION_CHECK_HDC) {
-        asyncContext->status = napi_generic_failure;
-        queryResult = CreateBusinessError((env), USB_HDC_PERMISSION_DENIED, "");
-    } else if (asyncContext->errCode == UEC_INTERFACE_INVALID_VALUE) {
-        asyncContext->status = napi_generic_failure;
-        queryResult = CreateBusinessError((env), UEC_INTERFACE_INVALID_VALUE, "");
-    } else {
-        asyncContext->status = napi_generic_failure;
-        napi_get_boolean(env, false, &queryResult);
-    }
-    ProcessPromise(env, *asyncContext, queryResult);
+    
     napi_delete_async_work(env, asyncContext->work);
     delete asyncContext;
 };
@@ -603,15 +589,15 @@ static napi_value CoreRequestRight(napi_env env, napi_callback_info info)
     asyncContext->env = env;
     asyncContext->deviceName = deviceName;
 
-    napi_value result = nullptr;
-    napi_create_promise(env, &asyncContext->deferred, &result);
-
     napi_value resource = nullptr;
     napi_create_string_utf8(env, "RequestRight", NAPI_AUTO_LENGTH, &resource);
 
     napi_create_async_work(env, nullptr, resource, g_requestRightExecute, g_requestRightComplete,
         reinterpret_cast<void *>(asyncContext), &asyncContext->work);
     napi_queue_async_work(env, asyncContext->work);
+
+    napi_value result = nullptr;
+    napi_get_boolean(env, asyncContext->status == napi_ok, &result);
 
     return result;
 }
