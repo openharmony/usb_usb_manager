@@ -955,25 +955,10 @@ int32_t UsbService::GetDeviceInfoDescriptor(const UsbDev &uDev, std::vector<uint
 int32_t UsbService::GetConfigDescriptor(UsbDevice &dev, std::vector<uint8_t> &descriptor)
 {
     std::vector<USBConfig> configs;
-    uint8_t *buffer = descriptor.data();
-    uint32_t length = descriptor.size();
-    uint32_t cursor = CURSOR_INIT;
-    int32_t ret = UEC_OK;
-    for (uint8_t i = 0; i < dev.GetDescConfigCount(); ++i) {
-        if (length <= cursor) {
-            USB_HILOGE(MODULE_USB_SERVICE, "GetConfigDescriptor[%{public}d] length=%{public}d", i, length);
-            break;
-        }
-        USB_HILOGI(MODULE_USB_SERVICE, "GetConfigDescriptor length=%{public}d", length);
-        uint32_t configCursor = 0;
-        USBConfig config;
-        ret = UsbDescriptorParser::ParseConfigDescriptor(buffer + cursor, length - cursor, configCursor, config);
-        if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "ParseConfigDescriptor failed ret=%{public}d", ret);
-            return ret;
-        }
-        cursor += configCursor;
-        configs.push_back(config);
+    int32_t ret = UsbDescriptorParser::ParseConfigDescriptors(descriptor, CURSOR_INIT, configs);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "ParseConfigDescriptors failed ret=%{public}d", ret);
+        return ret;
     }
     dev.SetConfigs(configs);
     ret = FillDevStrings(dev);
