@@ -562,7 +562,12 @@ static auto g_requestRightExecute = [](napi_env env, void *data) {
 
 static auto g_requestRightComplete = [](napi_env env, napi_status status, void *data) {
     USBRightAsyncContext *asyncContext = reinterpret_cast<USBRightAsyncContext *>(data);
-    
+    napi_value queryResult = nullptr;
+    napi_get_boolean(env, asyncContext->status == napi_ok, &queryResult);
+
+    if (asyncContext->deferred) {
+        napi_resolve_deferred(env, asyncContext->deferred, queryResult);
+    }
     napi_delete_async_work(env, asyncContext->work);
     delete asyncContext;
 };
@@ -589,15 +594,15 @@ static napi_value CoreRequestRight(napi_env env, napi_callback_info info)
     asyncContext->env = env;
     asyncContext->deviceName = deviceName;
 
+    napi_value result = nullptr;
+    napi_create_promise(env, &asyncContext->deferred, &result);
+
     napi_value resource = nullptr;
     napi_create_string_utf8(env, "RequestRight", NAPI_AUTO_LENGTH, &resource);
 
     napi_create_async_work(env, nullptr, resource, g_requestRightExecute, g_requestRightComplete,
         reinterpret_cast<void *>(asyncContext), &asyncContext->work);
     napi_queue_async_work(env, asyncContext->work);
-
-    napi_value result = nullptr;
-    napi_get_boolean(env, asyncContext->status == napi_ok, &result);
 
     return result;
 }
