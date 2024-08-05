@@ -37,6 +37,12 @@ UsbSrvClient::UsbSrvClient()
 }
 UsbSrvClient::~UsbSrvClient() {}
 
+UsbSrvClient& UsbSrvClient::GetInstance()
+{
+    static UsbSrvClient instance;
+    return instance;
+}
+
 int32_t UsbSrvClient::Connect()
 {
     std::lock_guard<std::mutex> lock(mutex_);

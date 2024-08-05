@@ -51,6 +51,7 @@ private:
     };
     int32_t osAccountId = SUBSCRIBE_USER_INIT;
     std::string filemanagerBundleName = "com.ohos.filemanager";
+    std::string filemanagerAbilityName = "MainAbility";
 };
 } // namespace USB
 } // namespace OHOS
