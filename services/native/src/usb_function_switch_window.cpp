@@ -127,6 +127,11 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "OnAbilityConnectDone");
+    if (remoteObject == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "remoteObject is nullptr");
+        return;
+    }
+
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
