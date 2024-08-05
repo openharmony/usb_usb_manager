@@ -102,7 +102,7 @@ int32_t UsbDescriptorParser::ParseConfigDescriptor(
         int32_t ret = ParseInterfaceDescriptor(
             buffer + cursor + interfaceCursor, length - cursor - interfaceCursor, interfaceCursor, interface);
         if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "ParseInterfaceDescriptor failed");
+            USB_HILOGE(MODULE_USB_SERVICE, "ParseInterfaceDescriptor failed, ret=%{public}d", ret);
             return UEC_SERVICE_INVALID_VALUE;
         }
         bool isRepeat = false;
