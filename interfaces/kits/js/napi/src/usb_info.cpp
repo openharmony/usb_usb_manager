@@ -272,15 +272,15 @@ struct UsbPipeControlParam {
 static void ParseUsbPipeControlParam(const napi_env env, const napi_value jsObj, UsbPipeControlParam &controlParam)
 {
     uint32_t reqType = 0;
-    NapiUtil::JsObjectToUint(env, jsObj, "reqType", reqType);
+    NapiUtil::JsObjectToUint(env, jsObj, "bmRequestType", reqType);
     int32_t request = 0;
-    NapiUtil::JsObjectToInt(env, jsObj, "request", request);
+    NapiUtil::JsObjectToInt(env, jsObj, "bRequest", request);
     int32_t value = 0;
-    NapiUtil::JsObjectToInt(env, jsObj, "value", value);
+    NapiUtil::JsObjectToInt(env, jsObj, "wValue", value);
     int32_t index = 0;
-    NapiUtil::JsObjectToInt(env, jsObj, "index", index);
+    NapiUtil::JsObjectToInt(env, jsObj, "wIndex", index);
     int32_t length = 0;
-    NapiUtil::JsObjectToInt(env, jsObj, "length", length);
+    NapiUtil::JsObjectToInt(env, jsObj, "wLength", length);
 
     napi_value dataValue;
     bool hasProperty = NapiUtil::JsObjectGetProperty(env, jsObj, "data", dataValue);
