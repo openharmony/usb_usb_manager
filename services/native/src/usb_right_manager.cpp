@@ -41,12 +41,10 @@ using namespace OHOS::AppExecFwk;
 using namespace OHOS::EventFwk;
 using namespace OHOS::Security::AccessToken;
 
-
-#define PARAM_BUF_LEN 128
-
 namespace OHOS {
 namespace USB {
 
+constexpr int32_t PARAM_BUF_LEN = 128;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 constexpr int32_t USB_RIGHT_USERID_DEFAULT = 100;
 constexpr int32_t USB_RIGHT_USERID_CONSOLE = 0;
