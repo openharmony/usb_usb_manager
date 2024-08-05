@@ -565,7 +565,9 @@ static auto g_requestRightComplete = [](napi_env env, napi_status status, void *
     napi_value queryResult = nullptr;
     napi_get_boolean(env, asyncContext->status == napi_ok, &queryResult);
 
-    ProcessPromise(env, *asyncContext, queryResult);
+    if (asyncContext->deferred) {
+        napi_resolve_deferred(env, asyncContext->deferred, queryResult);
+    }
     napi_delete_async_work(env, asyncContext->work);
     delete asyncContext;
 };
