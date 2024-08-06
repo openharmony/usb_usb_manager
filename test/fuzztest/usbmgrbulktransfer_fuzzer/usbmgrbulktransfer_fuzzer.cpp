@@ -52,7 +52,7 @@ namespace USB {
         std::vector<uint8_t> buf;
         ret = usbSrvClient.BulkTransfer(reinterpret_cast<USBDevicePipe &>(data),
             reinterpret_cast<const USBEndpoint &>(std::move(data + OFFSET)), buf,
-+            *reinterpret_cast<const int32_t *>(std::move(data + OFFSET_BYTE)));
+            *reinterpret_cast<const int32_t *>(std::move(data + OFFSET_BYTE)));
         if (ret == UEC_OK) {
             return false;
         }

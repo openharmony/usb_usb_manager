@@ -899,7 +899,8 @@ ohos_fuzztest("UsbMgrUsbControlTransferFuzzTest") {
     "ipc:ipc_core",
   ]
 
-  sources = [ "usbmgrusbcontroltransfer_fuzzer/usbmgrusbcontroltransfer_fuzzer.cpp" ]
+  sources =
+      [ "usbmgrusbcontroltransfer_fuzzer/usbmgrusbcontroltransfer_fuzzer.cpp" ]
 }
 
 group("fuzztest") {

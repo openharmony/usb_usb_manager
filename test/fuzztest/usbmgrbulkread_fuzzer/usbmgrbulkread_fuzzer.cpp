@@ -44,7 +44,7 @@ namespace USB {
 
         if (usbSrvClient.BulkRead(reinterpret_cast<USBDevicePipe &>(data),
             reinterpret_cast<const USBEndpoint &>(std::move(data + OFFSET)),
-+            reinterpret_cast<sptr<Ashmem> &>(std::move(data + OFFSET_BYTE))) == UEC_OK) {
+            reinterpret_cast<sptr<Ashmem> &>(std::move(data + OFFSET_BYTE))) == UEC_OK) {
             return false;
         }
         return true;
