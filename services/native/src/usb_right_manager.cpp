@@ -273,6 +273,10 @@ bool UsbRightManager::ShowUsbDialog(
     want.SetParam("productName", productName);
 
     sptr<UsbAbilityConn> usbAbilityConn_ = new (std::nothrow) UsbAbilityConn();
+    if (usbAbilityConn_ == nullptr) {
+        USB_HILOGE(MODULE_SERVICE, "new (std::nothrow) UsbAbilityConn() failed");
+        return false;
+    }
     sem_init(&waitDialogDisappear_, 1, 0);
     auto ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
     if (ret != UEC_OK) {
