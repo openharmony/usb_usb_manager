@@ -129,7 +129,6 @@ usb.bulkTransfer(this.pip, this.outEndpoint, dataUint8Array, 15000).then(dataLen
 usb.releaseInterface(pipe, interface);
 usb.closePipe(pipe);
 ```
-**注意：对于Public API，需要在服务端进行访问有效性检查，保障调用的时序。因为需要确保pipe已经被claimInterface过，避免直接进行bulkTransfer传输导致数据冲突**
 #### Device功能开发
 Usb设备作为device设备，设置ACM、ECM、HDC等功能。
 1. 设置USB function功能
