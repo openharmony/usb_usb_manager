@@ -677,6 +677,9 @@ int32_t UsbService::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t in
 int32_t UsbService::BulkTransferRead(
     const UsbDev &devInfo, const UsbPipe &pipe, std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -694,6 +697,9 @@ int32_t UsbService::BulkTransferRead(
 int32_t UsbService::BulkTransferReadwithLength(const UsbDev &devInfo, const UsbPipe &pipe,
     int32_t length, std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -711,6 +717,9 @@ int32_t UsbService::BulkTransferReadwithLength(const UsbDev &devInfo, const UsbP
 int32_t UsbService::BulkTransferWrite(
     const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -726,6 +735,9 @@ int32_t UsbService::BulkTransferWrite(
 // LCOV_EXCL_START
 int32_t UsbService::ControlTransfer(const UsbDev &dev, const UsbCtrlTransfer &ctrl, std::vector<uint8_t> &bufferData)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
