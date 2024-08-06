@@ -197,15 +197,11 @@ int32_t UsbDescriptorParser::ParseConfigDescriptor(
 
     USB_HILOGD(MODULE_USB_SERVICE, "parse begin length=%{public}u, cursor=%{public}u", length, cursor);
     uint32_t configDescriptorSize = sizeof(UsbdConfigDescriptor);
-    if (length < configDescriptorSize) {
-        USB_HILOGE(MODULE_USB_SERVICE, "buffer size error");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-
     UsbdConfigDescriptor configDescriptor = *(reinterpret_cast<const UsbdConfigDescriptor *>(buffer));
     cursor += configDescriptorSize;
-    if (configDescriptor.bLength != configDescriptorSize) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbdDeviceDescriptor size error");
+    if (length < configDescriptorSize || configDescriptor.bLength != configDescriptorSize) {
+        USB_HILOGE(MODULE_USB_SERVICE, "size error length=%{public}u, configDescriptor.bLength=%{public}d",
+            length, configDescriptor.bLength);
         return UEC_SERVICE_INVALID_VALUE;
     }
 
@@ -218,8 +214,12 @@ int32_t UsbDescriptorParser::ParseConfigDescriptor(
     for (int32_t i = 0; (i < configDescriptor.bNumInterfaces) && (cursor < length); ++i) {
         uint32_t interfaceCursor = 0;
         UsbInterface interface;
-        ParseInterfaceDescriptor(
+        int32_t ret = ParseInterfaceDescriptor(
             buffer + cursor + interfaceCursor, length - cursor - interfaceCursor, interfaceCursor, interface);
+        if (ret != UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "ParseInterfaceDescriptor failed, ret=%{public}d", ret);
+            return UEC_SERVICE_INVALID_VALUE;
+        }
         bool isRepeat = false;
         auto iter = interfaces.begin();
         while (iter != interfaces.end()) {
