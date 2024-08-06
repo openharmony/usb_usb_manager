@@ -50,7 +50,8 @@ namespace USB {
         }
 
         ret = usbSrvClient.PipeRequestWait(reinterpret_cast<USBDevicePipe &>(data),
-            *reinterpret_cast<const int64_t *>(data + OFFSET), reinterpret_cast<UsbRequest &>(data + OFFSET_BYTE));
+            *reinterpret_cast<const int64_t *>(std::move(data + OFFSET)),
++           reinterpret_cast<UsbRequest &>(std::move(data + OFFSET_BYTE)));
         if (ret == UEC_OK) {
             return false;
         }

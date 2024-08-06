@@ -50,7 +50,7 @@ namespace USB {
         
         bool unactived;
         if (usbSrvClient.GetInterfaceActiveStatus(reinterpret_cast<USBDevicePipe &>(data),
-            reinterpret_cast<const UsbInterface &>(data + OFFSET), unactived) == UEC_OK) {
+            reinterpret_cast<const UsbInterface &>(std::move(data + OFFSET)), unactived) == UEC_OK) {
             return false;
         }
         return true;
