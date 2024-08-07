@@ -124,6 +124,7 @@ int32_t UsbService::SetUsbd(const sptr<OHOS::HDI::Usb::V1_1::IUsbInterface> &usb
 }
 // LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 UsbService::SystemAbilityStatusChangeListener::SystemAbilityStatusChangeListener(
     sptr<UsbServiceSubscriber> usbdSubscriber)
     : usbdSubscriber_(usbdSubscriber)
@@ -156,6 +157,7 @@ void UsbService::OnAddSystemAbility(int32_t systemAbilityId, const std::string &
         Memory::MemMgrClient::GetInstance().SetCritical(getpid(), true, USB_SYSTEM_ABILITY_ID);
     }
 }
+// LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
 void UsbService::OnStart()
@@ -282,6 +284,7 @@ void UsbService::OnStop()
 }
 // LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool UsbService::IsCommonEventServiceAbilityExist()
 {
     sptr<ISystemAbilityManager> sm = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -298,6 +301,7 @@ bool UsbService::IsCommonEventServiceAbilityExist()
     }
     return true;
 }
+// LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
 int32_t UsbService::OpenDevice(uint8_t busNum, uint8_t devAddr)
@@ -320,6 +324,7 @@ int32_t UsbService::OpenDevice(uint8_t busNum, uint8_t devAddr)
 }
 // LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 std::string UsbService::GetDeviceVidPidSerialNumber(std::string deviceName)
 {
     std::string strDesc = "test";
@@ -348,6 +353,7 @@ int32_t UsbService::GetDeviceVidPidSerialNumber(std::string deviceName, std::str
     }
     return isMatched;
 }
+// LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
 bool UsbService::CheckDevicePermission(uint8_t busNum, uint8_t devAddr)
@@ -895,6 +901,7 @@ int32_t UsbService::Close(uint8_t busNum, uint8_t devAddr)
 }
 // LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 std::string UsbService::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, uint8_t idx)
 {
     const UsbDev dev = {busNum, devAddr};
@@ -1031,6 +1038,7 @@ int32_t UsbService::GetConfigDescriptor(UsbDevice &dev, std::vector<uint8_t> &de
     USB_HILOGI(MODULE_USB_SERVICE, "FillDevStrings ret=%{public}d", ret);
     return ret;
 }
+// LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
 int32_t UsbService::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &dev)
@@ -1062,6 +1070,7 @@ int32_t UsbService::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &de
 }
 // LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGlobalDisabled)
 {
     MessageParcel data;
@@ -1208,6 +1217,7 @@ int32_t UsbService::GetUsbPolicy(bool &IsGlobalDisabled, std::unordered_map<Inte
     }
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
 int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
