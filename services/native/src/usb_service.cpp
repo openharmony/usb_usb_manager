@@ -664,6 +664,48 @@ int32_t UsbService::ClaimInterface(uint8_t busNum, uint8_t devAddr, uint8_t inte
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
+int32_t UsbService::UsbAttachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interface)
+{
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
+    const UsbDev dev = {busNum, devAddr};
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+
+    int32_t ret = usbd_->ManageInterface(dev, interface, false);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "claim interface false.");
+    }
+    return ret;
+}
+// LCOV_EXCL_STOP
+
+// LCOV_EXCL_START
+int32_t UsbService::UsbDetachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interface)
+{
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
+    const UsbDev dev = {busNum, devAddr};
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+
+    int32_t ret = usbd_->ManageInterface(dev, interface, true);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "claim interface false.");
+    }
+    return ret;
+}
+// LCOV_EXCL_STOP
+
+// LCOV_EXCL_START
 int32_t UsbService::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t interface)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {

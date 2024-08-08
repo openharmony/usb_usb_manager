@@ -56,6 +56,8 @@ public:
     int32_t UsbFunctionsFromString(std::string_view funcs);
     std::string UsbFunctionsToString(int32_t funcs);
     int32_t ClaimInterface(USBDevicePipe &pip, const UsbInterface &interface, bool force);
+    int32_t UsbAttachKernelDriver(USBDevicePipe &pip, const UsbInterface &interface);
+    int32_t UsbDetachKernelDriver(USBDevicePipe &pip, const UsbInterface &interface);
     int32_t ReleaseInterface(USBDevicePipe &pip, const UsbInterface &interface);
     int32_t BulkTransfer(USBDevicePipe &pip, const USBEndpoint &endpoint, std::vector<uint8_t> &bufferData,
         int32_t timeOut);

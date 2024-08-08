@@ -545,5 +545,581 @@ HWTEST_F(UsbDeviceStatusTest, GetInterfaceStatus008, TestSize.Level1)
     EXPECT_TRUE(close);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetInterfaceStatus008");
 }
+
+/**
+ * @tc.name: UsbDetachKernelDriver001
+ * @tc.desc: Test functions to UsbDetachKernelDriver
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver001, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbDetachKernelDriver001");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver001 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver001 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver001 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
+    ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver001 %{public}d GetInterfaceStatus=%{public}d",
+    __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver001 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbDetachKernelDriver001");
+}
+
+/**
+ * @tc.name: UsbDetachKernelDriver002
+ * @tc.desc: Test functions to UsbDetachKernelDriver
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver002, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbDetachKernelDriver002");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver002 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver002 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver002 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
+    pipe.SetBusNum(BUFFER_SIZE);
+    ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver002 %{public}d GetInterfaceStatus=%{public}d",
+    __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetBusNum(device.GetBusNum());
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver002 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbDetachKernelDriver002");
+}
+
+/**
+ * @tc.name: UsbDetachKernelDriver003
+ * @tc.desc: Test functions to UsbDetachKernelDriver
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver003, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbDetachKernelDriver003");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver003 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver003 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver003 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
+    pipe.SetDevAddr(BUFFER_SIZE);
+    ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver003 %{public}d GetInterfaceStatus=%{public}d",
+    __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver003 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbDetachKernelDriver003");
+}
+
+/**
+ * @tc.name: UsbDetachKernelDriver004
+ * @tc.desc: Test functions to  UsbDetachKernelDriver
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver004, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbDetachKernelDriver004");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver004 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver004 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver004 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
+    ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver004 %{public}d GetInterfaceStatus=%{public}d",
+    __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver004 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbDetachKernelDriver004");
+}
+
+/**
+ * @tc.name: UsbDetachKernelDriver005
+ * @tc.desc: Test functions to  UsbDetachKernelDriver
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver005, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbDetachKernelDriver005");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver005 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver005 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver005 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
+    pipe.SetBusNum(BUFFER_SIZE);
+    ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver005 %{public}d GetInterfaceStatus=%{public}d",
+        __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetBusNum(device.GetBusNum());
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver005 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbDetachKernelDriver005");
+}
+
+/**
+ * @tc.name: UsbDetachKernelDriver006
+ * @tc.desc: Test functions to  UsbDetachKernelDriver
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver006, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbDetachKernelDriver006");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver006 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver006 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver006 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
+    pipe.SetDevAddr(BUFFER_SIZE);
+    ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver006 %{public}d GetInterfaceStatus=%{public}d",
+    __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus006 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetInterfaceStatus006");
+}
+
+/**
+ * @tc.name: UsbDetachKernelDriver007
+ * @tc.desc: Test functions to  UsbDetachKernelDriver
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver007, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbDetachKernelDriver007");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver007 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver007 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver007 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(0);
+    pipe.SetDevAddr(BUFFER_SIZE);
+    pipe.SetBusNum(BUFFER_SIZE);
+    ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver007 %{public}d GetInterfaceStatus=%{public}d",
+    __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
+    pipe.SetBusNum(device.GetBusNum());
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver007 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbDetachKernelDriver007");
+}
+
+/**
+ * @tc.name: UsbDetachKernelDriver008
+ * @tc.desc: Test functions to  UsbDetachKernelDriver
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver008, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbDetachKernelDriver008");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver008 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver008 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver008 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
+    pipe.SetDevAddr(BUFFER_SIZE);
+    pipe.SetBusNum(BUFFER_SIZE);
+    ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver008 %{public}d GetInterfaceStatus=%{public}d",
+    __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
+    pipe.SetBusNum(device.GetBusNum());
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver008 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbDetachKernelDriver008");
+}
+
+/**
+ * @tc.name: UsbAttachKernelDriver001
+ * @tc.desc: Test functions to UsbAttachKernelDriver
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, UsbAttachKernelDriver001, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbAttachKernelDriver001");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver001 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver001 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver001 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
+    ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver001 %{public}d GetInterfaceStatus=%{public}d",
+    __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver001 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbAttachKernelDriver001");
+}
+
+/**
+ * @tc.name: UsbAttachKernelDriver002
+ * @tc.desc: Test functions to UsbAttachKernelDriver
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, UsbAttachKernelDriver002, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbAttachKernelDriver002");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver002 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver002 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver002 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
+    pipe.SetBusNum(BUFFER_SIZE);
+    ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver002 %{public}d GetInterfaceStatus=%{public}d",
+    __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetBusNum(device.GetBusNum());
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver002 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbAttachKernelDriver002");
+}
+
+/**
+ * @tc.name: UsbAttachKernelDriver003
+ * @tc.desc: Test functions to UsbAttachKernelDriver
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, UsbAttachKernelDriver003, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbAttachKernelDriver003");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver003 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver003 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver003 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
+    pipe.SetDevAddr(BUFFER_SIZE);
+    ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver003 %{public}d GetInterfaceStatus=%{public}d",
+    __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver003 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbAttachKernelDriver003");
+}
+
+/**
+ * @tc.name: UsbAttachKernelDriver004
+ * @tc.desc: Test functions to  UsbAttachKernelDriver
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, UsbAttachKernelDriver004, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbAttachKernelDriver004");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver004 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver004 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver004 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
+    ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver004 %{public}d GetInterfaceStatus=%{public}d",
+    __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver004 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbAttachKernelDriver004");
+}
+
+/**
+ * @tc.name: UsbAttachKernelDriver005
+ * @tc.desc: Test functions to  UsbAttachKernelDriver
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, UsbAttachKernelDriver005, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbAttachKernelDriver005");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver005 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver005 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver005 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
+    pipe.SetBusNum(BUFFER_SIZE);
+    ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver005 %{public}d GetInterfaceStatus=%{public}d",
+        __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetBusNum(device.GetBusNum());
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver005 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbAttachKernelDriver005");
+}
+
+/**
+ * @tc.name: UsbAttachKernelDriver006
+ * @tc.desc: Test functions to  UsbAttachKernelDriver
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, UsbAttachKernelDriver006, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbAttachKernelDriver006");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver006 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver006 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver006 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
+    pipe.SetDevAddr(BUFFER_SIZE);
+    ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver006 %{public}d GetInterfaceStatus=%{public}d",
+    __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "GetInterfaceStatus006 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetInterfaceStatus006");
+}
+
+/**
+ * @tc.name: UsbAttachKernelDriver007
+ * @tc.desc: Test functions to  UsbAttachKernelDriver
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, UsbAttachKernelDriver007, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbAttachKernelDriver007");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver007 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver007 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver007 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(0);
+    pipe.SetDevAddr(BUFFER_SIZE);
+    pipe.SetBusNum(BUFFER_SIZE);
+    ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver007 %{public}d GetInterfaceStatus=%{public}d",
+    __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
+    pipe.SetBusNum(device.GetBusNum());
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver007 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbAttachKernelDriver007");
+}
+
+/**
+ * @tc.name: UsbAttachKernelDriver008
+ * @tc.desc: Test functions to  UsbAttachKernelDriver
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDeviceStatusTest, UsbAttachKernelDriver008, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbAttachKernelDriver008");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver008 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver008 %{public}d size=%{public}zu", __LINE__,
+        devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver008 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
+    pipe.SetDevAddr(BUFFER_SIZE);
+    pipe.SetBusNum(BUFFER_SIZE);
+    ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver008 %{public}d GetInterfaceStatus=%{public}d",
+    __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
+    pipe.SetBusNum(device.GetBusNum());
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver008 %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbAttachKernelDriver008");
+}
 } // USB
 } // OHOS

@@ -124,6 +124,12 @@ bool UsbServerStub::StubDevice(
         case static_cast<int>(UsbInterfaceCode::USB_FUN_CLAIM_INTERFACE):
             result = DoClaimInterface(data, reply, option);
             return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_ATTACH_KERNEL_DRIVER):
+            result = DoUsbAttachKernelDriver(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_DETACH_KERNEL_DRIVER):
+            result = DoUsbDetachKernelDriver(data, reply, option);
+            return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_RELEASE_INTERFACE):
             result = DoReleaseInterface(data, reply, option);
             return true;
@@ -420,6 +426,34 @@ int32_t UsbServerStub::DoClaimInterface(MessageParcel &data, MessageParcel &repl
     READ_PARCEL_WITH_RET(data, Uint8, force, UEC_SERVICE_READ_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(
         reply, Int32, ClaimInterface(busNum, devAddr, interface, force), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
+}
+
+int32_t UsbServerStub::DoUsbAttachKernelDriver(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "ClaimInterface");
+    uint8_t busNum = 0;
+    uint8_t devAddr = 0;
+    uint8_t interface = 0;
+    READ_PARCEL_WITH_RET(data, Uint8, busNum, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, interface, UEC_SERVICE_READ_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(
+        reply, Int32, UsbAttachKernelDriver(busNum, devAddr, interface), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
+}
+
+int32_t UsbServerStub::DoUsbDetachKernelDriver(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "ClaimInterface");
+    uint8_t busNum = 0;
+    uint8_t devAddr = 0;
+    uint8_t interface = 0;
+    READ_PARCEL_WITH_RET(data, Uint8, busNum, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, interface, UEC_SERVICE_READ_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(
+        reply, Int32, UsbDetachKernelDriver(busNum, devAddr, interface), UEC_SERVICE_WRITE_PARCEL_ERROR);
     return UEC_OK;
 }
 
