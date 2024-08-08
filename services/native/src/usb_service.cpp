@@ -683,6 +683,9 @@ int32_t UsbService::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t in
 int32_t UsbService::BulkTransferRead(
     const UsbDev &devInfo, const UsbPipe &pipe, std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -700,6 +703,9 @@ int32_t UsbService::BulkTransferRead(
 int32_t UsbService::BulkTransferReadwithLength(const UsbDev &devInfo, const UsbPipe &pipe,
     int32_t length, std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -717,6 +723,9 @@ int32_t UsbService::BulkTransferReadwithLength(const UsbDev &devInfo, const UsbP
 int32_t UsbService::BulkTransferWrite(
     const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
+    if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -732,6 +741,9 @@ int32_t UsbService::BulkTransferWrite(
 // LCOV_EXCL_START
 int32_t UsbService::ControlTransfer(const UsbDev &dev, const UsbCtrlTransfer &ctrl, std::vector<uint8_t> &bufferData)
 {
+    if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -1080,7 +1092,10 @@ int32_t UsbService::GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGloba
     data.WriteInt32(WITHOUT_USERID);
     data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
-
+    if (remote == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Remote is nullpter.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     uint32_t funcCode = (1 << EMD_MASK_CODE) | DISABLE_USB;
     int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
@@ -1107,7 +1122,10 @@ int32_t UsbService::GetEdmTypePolicy(sptr<IRemoteObject> remote,
     data.WriteInt32(WITHOUT_USERID);
     data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
-
+    if (remote == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Remote is nullpter.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     uint32_t funcCode = (1 << EMD_MASK_CODE) | USB_STORAGE_DEVICE_ACCESS_POLICY;
     int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
@@ -1135,7 +1153,10 @@ int32_t UsbService::GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::vecto
     data.WriteInt32(WITHOUT_USERID);
     data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
-
+    if (remote == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Remote is nullpter.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     uint32_t funcCode = (1 << EMD_MASK_CODE) | ALLOWED_USB_DEVICES;
     int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
@@ -1221,6 +1242,10 @@ int32_t UsbService::GetUsbPolicy(bool &IsGlobalDisabled, std::unordered_map<Inte
 
 int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
+    if (usbHostManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     int32_t ret = UEC_INTERFACE_NO_MEMORY;
     std::map<std::string, UsbDevice *>devices;
     usbHostManager_->GetDevices(devices);
@@ -1678,7 +1703,10 @@ int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
         DumpHelp(fd);
         return UEC_SERVICE_INVALID_VALUE;
     }
-
+    if (usbHostManager_ == nullptr || usbDeviceManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr or usbDeviceManager_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     if (argList[0] == USB_HOST) {
         usbHostManager_->Dump(fd, argList[1]);
     } else if (argList[0] == USB_DEVICE) {
@@ -1702,6 +1730,10 @@ void UsbService::DumpHelp(int32_t fd)
     dprintf(fd, "============= dump the all device ==============\n");
     dprintf(fd, "usb_host -a: dump the all device list info\n");
     dprintf(fd, "------------------------------------------------\n");
+    if (usbDeviceManager_ == nullptr || usbPortManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbDeviceManager_ is nullptr or usbPortManager_ is nullptr");
+        return;
+    }
     usbDeviceManager_->GetDumpHelp(fd);
     usbPortManager_->GetDumpHelp(fd);
 }
@@ -1857,6 +1889,10 @@ int32_t UsbService::ManageGlobalInterfaceImpl(bool disable)
         USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbd_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     std::map<std::string, UsbDevice *> devices;
     usbHostManager_->GetDevices(devices);
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices.size());
@@ -1888,6 +1924,10 @@ int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool d
 {
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
     std::map<std::string, UsbDevice *> devices;
@@ -1929,6 +1969,10 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
 
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
     std::map<std::string, UsbDevice *> devices;
@@ -2020,6 +2064,10 @@ int32_t UsbService::GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &spe
 
 bool UsbService::GetDeviceProductName(const std::string &deviceName, std::string &productName)
 {
+    if (usbHostManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
+        return false;
+    }
     return usbHostManager_->GetProductName(deviceName, productName);
 }
 } // namespace USB
