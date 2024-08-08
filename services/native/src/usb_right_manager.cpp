@@ -590,6 +590,10 @@ int32_t UsbRightManager::CleanUpRightAppReinstalled(int32_t uid, uint32_t &total
 {
     std::vector<std::string> apps;
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "helper is nullptr, false");
+        return false;
+    }
     int32_t ret = helper->QueryRightRecordApps(uid, apps);
     if (ret <= 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "query apps failed or empty: %{public}d", ret);
@@ -636,6 +640,10 @@ int32_t UsbRightManager::CleanUpRightUserDeleted(int32_t &totalUsers, int32_t &d
 {
     std::vector<std::string> rightRecordUids;
     bool isAccountExists = false;
+    if (helper == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "helper is nullptr, false");
+        return false;
+    }
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     int32_t ret = helper->QueryRightRecordUids(rightRecordUids);
     if (ret <= 0) {
@@ -669,6 +677,10 @@ int32_t UsbRightManager::CleanUpRightUserDeleted(int32_t &totalUsers, int32_t &d
 int32_t UsbRightManager::CleanUpRightTemporaryExpired(const std::string &deviceName)
 {
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "helper is nullptr, false");
+        return false;
+    }
     int32_t ret = helper->DeleteValidPeriodRightRecord(USB_RIGHT_VALID_PERIOD_MIN, deviceName);
     if (ret != USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "failed: delete temporary expiried record: dev=%{private}s", deviceName.c_str());
