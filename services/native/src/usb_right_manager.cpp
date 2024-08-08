@@ -640,11 +640,11 @@ int32_t UsbRightManager::CleanUpRightUserDeleted(int32_t &totalUsers, int32_t &d
 {
     std::vector<std::string> rightRecordUids;
     bool isAccountExists = false;
+    std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     if (helper == nullptr) {
         USB_HILOGW(MODULE_USB_SERVICE, "helper is nullptr, false");
         return false;
     }
-    std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     int32_t ret = helper->QueryRightRecordUids(rightRecordUids);
     if (ret <= 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "query apps failed or empty: %{public}d", ret);
