@@ -378,7 +378,7 @@ public:
             return "";
         }
         std::string deviceStr(pDevice);
-        free(pDevice);
+        cJSON_free(pDevice);
         return deviceStr;
     }
 

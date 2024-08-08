@@ -33,6 +33,7 @@ using namespace OHOS::EventFwk;
 
 namespace OHOS {
 namespace USB {
+constexpr int32_t PARAM_BUF_LEN = 128;
 constexpr int32_t INVALID_USERID = -1;
 constexpr int32_t MESSAGE_PARCEL_KEY_SIZE = 3;
 constexpr int32_t MAX_RETRY_TIMES = 30;
@@ -40,9 +41,11 @@ constexpr int32_t RETRY_INTERVAL_SECONDS = 1;
 constexpr uint32_t DELAY_CHECK_DIALOG = 1;
 
 std::shared_ptr<UsbFunctionSwitchWindow> UsbFunctionSwitchWindow::instance_;
+std::mutex UsbFunctionSwitchWindow::insMutex_;
 
 std::shared_ptr<UsbFunctionSwitchWindow> UsbFunctionSwitchWindow::GetInstance()
 {
+    std::lock_guard<std::mutex> guard(insMutex_);
     if (instance_ == nullptr) {
         USB_HILOGI(MODULE_USB_SERVICE, "reset to new instance");
         instance_.reset(new UsbFunctionSwitchWindow());
@@ -125,6 +128,11 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "OnAbilityConnectDone");
+    if (remoteObject == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "remoteObject is nullptr");
+        return;
+    }
+
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -146,7 +154,7 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     }
     std::string paramStr(pParamJson);
     data.WriteString16(Str8ToStr16(paramStr));
-    free(pParamJson);
+    cJSON_free(pParamJson);
     pParamJson = NULL;
 
     const uint32_t cmdCode = 1;

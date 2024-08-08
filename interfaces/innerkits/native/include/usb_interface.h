@@ -223,6 +223,8 @@ public:
         cJSON* endpoints = cJSON_CreateArray();
         if (!endpoints) {
             USB_HILOGE(MODULE_USB_SERVICE, "Create endpoints error");
+            cJSON_Delete(interface);
+            return "";
         }
         for (size_t i = 0; i < endpoints_.size(); ++i) {
             const USBEndpoint &ep = endpoints_[i];
@@ -237,7 +239,7 @@ public:
             return "";
         }
         std::string interfaceJsonStr(pInterface);
-        free(pInterface);
+        cJSON_free(pInterface);
         return interfaceJsonStr;
     }
 

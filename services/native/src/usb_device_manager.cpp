@@ -58,6 +58,11 @@ UsbDeviceManager::UsbDeviceManager()
 int32_t UsbDeviceManager::Init()
 {
     std::shared_ptr<UsbFunctionSwitchWindow> window_ = UsbFunctionSwitchWindow::GetInstance();
+    if (window_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "get usb function switch window failed");
+        return UEC_SERVICE_INNER_ERR;
+    }
+
     int32_t ret = window_->Init();
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "Init usb function switch window failed");
@@ -226,6 +231,11 @@ void UsbDeviceManager::ProcessFuncChange(bool connected, int32_t currentFunc)
 void UsbDeviceManager::ProcessFunctionSwitchWindow(bool connected)
 {
     std::shared_ptr<UsbFunctionSwitchWindow> window_ = UsbFunctionSwitchWindow::GetInstance();
+    if (window_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "show window: get usb function switch window failed");
+        return;
+    }
+
     if (connected) {
         USB_HILOGD(MODULE_USB_SERVICE, "start pop up usb service switch window");
         if (!window_->PopUpFunctionSwitchWindow()) {
@@ -269,6 +279,10 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
 {
     int32_t currentFunction;
     int32_t ret;
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::DumpSetFunc usbd_ is nullptr");
+        return;
+    }
     if (args.compare("Q") == 0) {
         ret = usbd_->GetCurrentFunctions(currentFunction);
         if (ret != UEC_OK) {

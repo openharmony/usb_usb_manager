@@ -38,12 +38,11 @@ const std::string SUBVERSION = "001";
 const std::string DLPVERSION = "025";
 const std::string SEVVERSION = MAXVERSION + "." + SUBVERSION + "." + DLPVERSION;
 
-class UsbSrvClient final : public DelayedRefSingleton<UsbSrvClient> {
-    DECLARE_DELAYED_REF_SINGLETON(UsbSrvClient)
-
+class UsbSrvClient final {
 public:
     DISALLOW_COPY_AND_MOVE(UsbSrvClient);
 
+    static UsbSrvClient& GetInstance();
     int32_t OpenDevice(const UsbDevice &device, USBDevicePipe &pipe);
     bool HasRight(std::string deviceName);
     int32_t RequestRight(std::string deviceName);
@@ -93,6 +92,9 @@ public:
     int32_t ManageInterfaceStorage(InterfaceType interfaceType, bool disable);
     int32_t ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable);
 private:
+    UsbSrvClient();
+    ~UsbSrvClient();
+
     class UsbSrvDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         UsbSrvDeathRecipient() = default;
