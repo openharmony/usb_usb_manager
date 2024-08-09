@@ -1216,7 +1216,6 @@ int32_t UsbService::GetEdmPolicy(bool &IsGlobalDisabled, std::unordered_map<Inte
         USB_HILOGE(MODULE_USB_SERVICE, "Get Edm SystemAbility failed.");
         return UEC_SERVICE_GET_EDM_SERVICE_FAILED;
     }
-
     int32_t ret = GetEdmGlobalPolicy(remote, IsGlobalDisabled);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetEdmGlobalPolicy failed.");
