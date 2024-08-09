@@ -431,7 +431,7 @@ int32_t UsbServerStub::DoClaimInterface(MessageParcel &data, MessageParcel &repl
 
 int32_t UsbServerStub::DoUsbAttachKernelDriver(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_USB, "ClaimInterface");
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "UsbAttachKernelDriver");
     uint8_t busNum = 0;
     uint8_t devAddr = 0;
     uint8_t interface = 0;
@@ -445,7 +445,7 @@ int32_t UsbServerStub::DoUsbAttachKernelDriver(MessageParcel &data, MessageParce
 
 int32_t UsbServerStub::DoUsbDetachKernelDriver(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_USB, "ClaimInterface");
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "UsbDetachKernelDriver");
     uint8_t busNum = 0;
     uint8_t devAddr = 0;
     uint8_t interface = 0;
