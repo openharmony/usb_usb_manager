@@ -91,7 +91,6 @@ private:
 
     int32_t DoManageGlobalInterface(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoManageDevice(MessageParcel &data, MessageParcel &reply, MessageOption &option);
-    int32_t DoManageInterfaceStorage(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoManageInterfaceType(MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
     int32_t DoGetDeviceSpeed(MessageParcel &data, MessageParcel &reply, MessageOption &option);
