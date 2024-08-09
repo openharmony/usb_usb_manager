@@ -678,7 +678,7 @@ int32_t UsbService::UsbAttachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8
 
     int32_t ret = usbd_->ManageInterface(dev, interface, false);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "claim interface false.");
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbAttachKernelDriver ManageInterface false.");
     }
     return ret;
 }
@@ -699,7 +699,7 @@ int32_t UsbService::UsbDetachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8
 
     int32_t ret = usbd_->ManageInterface(dev, interface, true);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "claim interface false.");
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbDetachKernelDriver ManageInterface false.");
     }
     return ret;
 }
