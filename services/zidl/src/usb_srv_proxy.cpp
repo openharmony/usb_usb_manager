@@ -764,6 +764,52 @@ int32_t UsbServerProxy::ControlTransfer(
     READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
     return ret;
 }
+
+int32_t UsbServerProxy::UsbControlTransfer(
+    const UsbDev &dev, const UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData)
+{
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_SERVICE_INNER_ERR);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        return UEC_SERVICE_INNER_ERR;
+    }
+    SetDeviceMessage(data, dev.busNum, dev.devAddr);
+    WRITE_PARCEL_WITH_RET(data, Int32, ctrlParams.requestType, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Int32, ctrlParams.requestCmd, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Int32, ctrlParams.value, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Int32, ctrlParams.index, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Int32, ctrlParams.length, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Int32, ctrlParams.timeout, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    int32_t ret = SetBufferMessage(data, bufferData);
+    if (UEC_OK != ret) {
+        USB_HILOGE(MODULE_INNERKIT, "write failed! len:%{public}d", ret);
+        return ret;
+    }
+
+    uint32_t reqType = static_cast<uint32_t>(ctrlParams.requestType);
+    bool isWrite = ((reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT);
+    ret = remote->SendRequest(
+        static_cast<int32_t>(UsbInterfaceCode::USB_FUN_USB_CONTROL_TRANSFER), data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_INNERKIT, "USB_FUN_USB_CONTROL_TRANSFER ret:%{public}d", ret);
+        return ret;
+    }
+    if (!isWrite) {
+        ret = GetBufferMessage(reply, bufferData);
+        if (UEC_OK != ret) {
+            USB_HILOGE(MODULE_USBD, "Get buffer message error. ret = %{public}d", ret);
+            return ret;
+        }
+        USB_HILOGI(MODULE_USBD, "Get buffer message. length = %{public}zu", bufferData.size());
+    }
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
+    return ret;
+}
+
 int32_t UsbServerProxy::SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex)
 {
     sptr<IRemoteObject> remote = Remote();

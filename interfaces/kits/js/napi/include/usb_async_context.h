@@ -97,6 +97,19 @@ struct USBControlTransferAsyncContext : USBAsyncContext {
     int32_t timeOut = 0;
 };
 
+struct USBDeviceControlTransferAsyncContext : USBAsyncContext {
+    USBDevicePipe pipe;
+    uint32_t reqType;
+    int32_t request;
+    int32_t value;
+    int32_t index;
+    int32_t length;
+    uint8_t *buffer;
+    uint32_t bufferLength;
+    uint32_t dataSize;
+    int32_t timeOut = 0;
+};
+
 struct USBBulkTransferAsyncContext : USBAsyncContext {
     uint8_t *buffer;
     uint32_t bufferLength;

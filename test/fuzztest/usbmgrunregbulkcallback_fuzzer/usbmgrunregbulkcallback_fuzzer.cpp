@@ -43,7 +43,7 @@ namespace USB {
         }
 
         ret = usbSrvClient.UnRegBulkCallback(
-            reinterpret_cast<USBDevicePipe &>(data), reinterpret_cast<const USBEndpoint &>(data + OFFSET));
+            reinterpret_cast<USBDevicePipe &>(data), reinterpret_cast<const USBEndpoint &>(std::move(data + OFFSET)));
         if (ret == UEC_OK) {
             return false;
         }
