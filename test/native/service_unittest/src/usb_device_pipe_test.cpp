@@ -152,6 +152,9 @@ HWTEST_F(UsbDevicePipeTest, UsbResetDevice001, TestSize.Level1)
     UsbDevice device = deviceList.front();
     USBDevicePipe pipe;
     UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice001 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
     ret = UsbSrvClient.ResetDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice001 %{public}d ResetDevice=%{public}d", __LINE__,
         ret);
