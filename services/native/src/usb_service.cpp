@@ -325,6 +325,27 @@ int32_t UsbService::OpenDevice(uint8_t busNum, uint8_t devAddr)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
+int32_t UsbService::ResetDevice(uint8_t busNum, uint8_t devAddr)
+{
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "ResetDevice: usbd_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
+    const UsbDev dev = {busNum, devAddr};
+    int32_t ret = usbd_->ResetDevice(dev);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "ResetDevice failed ret:%{public}d", ret);
+    }
+
+    return ret;
+}
+// LCOV_EXCL_STOP
+
+// LCOV_EXCL_START
 std::string UsbService::GetDeviceVidPidSerialNumber(std::string deviceName)
 {
     std::string strDesc = "test";

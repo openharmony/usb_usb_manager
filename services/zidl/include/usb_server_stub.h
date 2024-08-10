@@ -46,6 +46,7 @@ private:
     int32_t DoUsbFunctionsToString(MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
     int32_t DoOpenDevice(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoResetDevice(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoHasRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoRequestRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoRemoveRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
