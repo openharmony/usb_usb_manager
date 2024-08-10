@@ -53,6 +53,8 @@ private:
     int32_t DoGetSupportedModes(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoSetPortRole(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoClaimInterface(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoUsbAttachKernelDriver(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoUsbDetachKernelDriver(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoReleaseInterface(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoBulkTransferRead(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoBulkTransferReadwithLength(MessageParcel &data, MessageParcel &reply, MessageOption &option);

@@ -246,6 +246,26 @@ int32_t UsbSrvClient::ClaimInterface(USBDevicePipe &pipe, const UsbInterface &in
     return ret;
 }
 
+int32_t UsbSrvClient::UsbAttachKernelDriver(USBDevicePipe &pipe, const UsbInterface &interface)
+{
+    RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
+    int32_t ret = proxy_->UsbAttachKernelDriver(pipe.GetBusNum(), pipe.GetDevAddr(), interface.GetId());
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAttachKernelDriver failed width ret = %{public}d !", ret);
+    }
+    return ret;
+}
+
+int32_t UsbSrvClient::UsbDetachKernelDriver(USBDevicePipe &pipe, const UsbInterface &interface)
+{
+    RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
+    int32_t ret = proxy_->UsbDetachKernelDriver(pipe.GetBusNum(), pipe.GetDevAddr(), interface.GetId());
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbDetachKernelDriver failed width ret = %{public}d !", ret);
+    }
+    return ret;
+}
+
 int32_t UsbSrvClient::ReleaseInterface(USBDevicePipe &pipe, const UsbInterface &interface)
 {
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
