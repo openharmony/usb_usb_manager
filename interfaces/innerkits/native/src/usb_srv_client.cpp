@@ -536,6 +536,16 @@ int32_t UsbSrvClient::ManageInterfaceType(const std::vector<UsbDeviceType> &disa
     return ret;
 }
 
+int32_t UsbSrvClient::ClearHalt(USBDevicePipe &pipe, const USBEndpoint &ep)
+{
+    RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
+    int32_t ret = proxy_->ClearHalt(pipe.GetBusNum(), pipe.GetDevAddr(), ep.GetInterfaceId(), ep.GetAddress());
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "ClearHalt failed ret = %{public}d !", ret);
+    }
+    return ret;
+}
+
 int32_t UsbSrvClient::GetDeviceSpeed(USBDevicePipe &pipe, uint8_t &speed)
 {
     RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);

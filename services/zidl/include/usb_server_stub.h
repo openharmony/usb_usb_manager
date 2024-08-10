@@ -97,6 +97,8 @@ private:
     int32_t DoManageInterfaceStorage(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoManageInterfaceType(MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
+    int32_t DoClearHalt(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+
     int32_t DoGetDeviceSpeed(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoGetInterfaceActiveStatus(MessageParcel &data, MessageParcel &reply, MessageOption &option);
 

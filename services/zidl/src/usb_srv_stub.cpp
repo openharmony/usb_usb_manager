@@ -214,6 +214,9 @@ bool UsbServerStub::StubHost(
         case static_cast<int>(UsbInterfaceCode::USB_FUN_DISABLE_INTERFACE_TYPE):
             result = DoManageInterfaceType(data, reply, option);
             return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_CLEAR_HALT):
+            result = DoClearHalt(data, reply, option);
+            return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_DEVICE_SPEED):
             result = DoGetDeviceSpeed(data, reply, option);
             return true;
@@ -1146,6 +1149,22 @@ int32_t UsbServerStub::DoManageInterfaceType(MessageParcel &data, MessageParcel 
         USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
     }
     return ret;
+}
+
+int32_t UsbServerStub::DoClearHalt(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "ClearHalt");
+    uint8_t busNum = 0;
+    uint8_t devAddr = 0;
+    uint8_t interfaceId = 0;
+    uint8_t endpointId = 0;
+    READ_PARCEL_WITH_RET(data, Uint8, busNum, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, interfaceId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, endpointId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    int32_t ret = ClearHalt(busNum, devAddr, interfaceId, endpointId);
+    WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
 }
 
 int32_t UsbServerStub::DoGetInterfaceActiveStatus(MessageParcel &data, MessageParcel &reply, MessageOption &option)

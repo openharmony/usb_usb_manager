@@ -129,6 +129,7 @@ public:
     int32_t ManageInterfaceStorage(InterfaceType interfaceType, bool disable) override;
     int32_t ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable) override;
     int32_t GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated) override;
+    int32_t ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t interfaceId, uint8_t endpointId) override;
     int32_t GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed) override;
 
     bool GetDeviceProductName(const std::string &deviceName, std::string &productName);
