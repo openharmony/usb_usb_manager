@@ -33,6 +33,7 @@ using namespace OHOS;
 using namespace OHOS::USB;
 using namespace std;
 using namespace OHOS::HDI::Usb::V1_0;
+using namespace OHOS::HDI::Usb::V1_1;
 using namespace OHOS::USB::Common;
 
 namespace OHOS {
@@ -128,6 +129,40 @@ HWTEST_F(UsbDevicePipeTest, UsbOpenDevice001, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close=%{public}d", ret);
     EXPECT_TRUE(ret);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbOpenDevice001: OpenDevice");
+}
+
+/**
+ * @tc.name: UsbResetDevice001
+ * @tc.desc: Test functions of ResetDevice
+ * @tc.desc: int32_t ResetDevice(const UsbDevice &device)
+ * @tc.desc: 正向测试：代码正常运行，返回结果为0
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, UsbResetDevice001, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbResetDevice001: ResetDevice");
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    std::vector<UsbDevice> deviceList;
+    auto ret = UsbSrvClient.GetDevices(deviceList);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice001 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(deviceList.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice001 %{public}d size=%{public}zu", __LINE__,
+        deviceList.size());
+    UsbDevice device = deviceList.front();
+    USBDevicePipe pipe;
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice001 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    ret = UsbSrvClient.ResetDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice001 %{public}d ResetDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close=%{public}d", ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbResetDevice001: ResetDevice");
 }
 
 /**

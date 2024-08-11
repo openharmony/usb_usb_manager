@@ -28,6 +28,7 @@ namespace USB {
 class IUsbSrv : public IRemoteBroker {
 public:
     virtual int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) = 0;
+    virtual int32_t ResetDevice(uint8_t busNum, uint8_t devAddr) = 0;
     virtual bool HasRight(std::string deviceName) = 0;
     virtual int32_t RequestRight(std::string deviceName) = 0;
     virtual int32_t RemoveRight(std::string deviceName) = 0;

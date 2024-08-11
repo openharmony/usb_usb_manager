@@ -103,6 +103,9 @@ bool UsbServerStub::StubDevice(
         case static_cast<int>(UsbInterfaceCode::USB_FUN_OPEN_DEVICE):
             result = DoOpenDevice(data, reply, option);
             return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_RESET_DEVICE):
+            result = DoResetDevice(data, reply, option);
+            return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_HAS_RIGHT):
             result = DoHasRight(data, reply, option);
             return true;
@@ -326,6 +329,21 @@ int32_t UsbServerStub::DoOpenDevice(MessageParcel &data, MessageParcel &reply, M
     int32_t ret = OpenDevice(busNum, devAddr);
     if (ret != UEC_OK) {
         UsbReportSysEvent::ReportTransforFaultSysEvent("OpenDevice", {busNum, devAddr}, {0, 0}, ret);
+        return ret;
+    }
+
+    return UEC_OK;
+}
+
+int32_t UsbServerStub::DoResetDevice(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    uint8_t busNum = 0;
+    uint8_t devAddr = 0;
+    READ_PARCEL_WITH_RET(data, Uint8, busNum, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = ResetDevice(busNum, devAddr);
+    if (ret != UEC_OK) {
+        UsbReportSysEvent::ReportTransforFaultSysEvent("ResetDevice", {busNum, devAddr}, {0, 0}, ret);
         return ret;
     }
 

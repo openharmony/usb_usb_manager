@@ -44,6 +44,7 @@ public:
 
     static UsbSrvClient& GetInstance();
     int32_t OpenDevice(const UsbDevice &device, USBDevicePipe &pipe);
+    int32_t ResetDevice(const UsbDevice &device, USBDevicePipe &pipe);
     bool HasRight(std::string deviceName);
     int32_t RequestRight(std::string deviceName);
     int32_t RemoveRight(std::string deviceName);

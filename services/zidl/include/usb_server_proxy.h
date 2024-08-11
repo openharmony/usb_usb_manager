@@ -35,6 +35,7 @@ public:
 
     int32_t GetDevices(std::vector<UsbDevice> &deviceList) override;
     int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) override;
+    int32_t ResetDevice(uint8_t busNum, uint8_t devAddr) override;
     bool HasRight(std::string deviceName) override;
     int32_t RequestRight(std::string deviceName) override;
     int32_t RemoveRight(std::string deviceName) override;

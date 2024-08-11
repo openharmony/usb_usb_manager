@@ -319,6 +319,31 @@ int32_t UsbServerProxy::OpenDevice(uint8_t busNum, uint8_t devAddr)
     return ret;
 }
 
+int32_t UsbServerProxy::ResetDevice(uint8_t busNum, uint8_t devAddr)
+{
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_SERVICE_INNER_ERR);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        return UEC_INTERFACE_WRITE_PARCEL_ERROR;
+    }
+
+    int32_t ret = SetDeviceMessage(data, busNum, devAddr);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "SetDeviceMessage failed, ret:%{public}d", ret);
+        return ret;
+    }
+
+    ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_RESET_DEVICE), data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %{public}d", ret);
+    }
+    return ret;
+}
+
 bool UsbServerProxy::HasRight(std::string deviceName)
 {
     MessageParcel data;
