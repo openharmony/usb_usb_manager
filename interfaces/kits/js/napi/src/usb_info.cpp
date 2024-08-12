@@ -593,15 +593,7 @@ static napi_value CoreHasRight(napi_env env, napi_callback_info info)
 }
 
 static auto g_requestRightExecute = [](napi_env env, void *data) {
-    if (data == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: data is nullptr", __func__);
-        return napi_error;
-    }
     USBRightAsyncContext *asyncContext = reinterpret_cast<USBRightAsyncContext *>(data);
-    if (asyncContext == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: asyncContext is nullptr", __func__);
-        return napi_error;
-    }
     int32_t ret = g_usbClient.RequestRight(asyncContext->deviceName);
     if (ret == UEC_OK) {
         asyncContext->status = napi_ok;
@@ -611,15 +603,7 @@ static auto g_requestRightExecute = [](napi_env env, void *data) {
 };
 
 static auto g_requestRightComplete = [](napi_env env, napi_status status, void *data) {
-    if (data == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: data is nullptr", __func__);
-        return napi_error;
-    }
     USBRightAsyncContext *asyncContext = reinterpret_cast<USBRightAsyncContext *>(data);
-    if (asyncContext == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: asyncContext is nullptr", __func__);
-        return napi_error;
-    }
     napi_value queryResult = nullptr;
     napi_get_boolean(env, asyncContext->status == napi_ok, &queryResult);
 
@@ -714,29 +698,13 @@ static napi_value CoreUsbFunctionsToString(napi_env env, napi_callback_info info
 }
 
 static auto g_setCurrentFunctionExecute = [](napi_env env, void *data) {
-    if (data == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: data is nullptr", __func__);
-        return napi_error;
-    }
     USBFunctionAsyncContext *asyncContext = reinterpret_cast<USBFunctionAsyncContext *>(data);
-    if (asyncContext == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: asyncContext is nullptr", __func__);
-        return napi_error;
-    }
     int32_t ret = g_usbClient.SetCurrentFunctions(asyncContext->functions);
     asyncContext->errCode = ret;
 };
 
 static auto g_setCurrentFunctionComplete = [](napi_env env, napi_status status, void *data) {
-    if (data == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: data is nullptr", __func__);
-        return napi_error;
-    }
     USBFunctionAsyncContext *asyncContext = reinterpret_cast<USBFunctionAsyncContext *>(data);
-    if (asyncContext == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: asyncContext is nullptr", __func__);
-        return napi_error;
-    }
     napi_value queryResult = nullptr;
 
     if (asyncContext->errCode == UEC_OK) {
@@ -884,29 +852,13 @@ static napi_value PortGetSupportedModes(napi_env env, napi_callback_info info)
 }
 
 static auto g_setPortRoleExecute = [](napi_env env, void *data) {
-    if (data == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: data is nullptr", __func__);
-        return napi_error;
-    }
     USBPortRoleAsyncContext *asyncContext = reinterpret_cast<USBPortRoleAsyncContext *>(data);
-    if (asyncContext == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: asyncContext is nullptr", __func__);
-        return napi_error;
-    }
     int32_t ret = g_usbClient.SetPortRole(asyncContext->portId, asyncContext->powerRole, asyncContext->dataRole);
     asyncContext->errCode = ret;
 };
 
 static auto g_setPortRoleComplete = [](napi_env env, napi_status status, void *data) {
-    if (data == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: data is nullptr", __func__);
-        return napi_error;
-    }
     USBPortRoleAsyncContext *asyncContext = reinterpret_cast<USBPortRoleAsyncContext *>(data);
-    if (asyncContext == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: asyncContext is nullptr", __func__);
-        return napi_error;
-    }
     napi_value queryResult = nullptr;
 
     if (asyncContext->errCode == UEC_OK) {
@@ -1151,15 +1103,7 @@ static napi_value PipeGetFileDescriptor(napi_env env, napi_callback_info info)
 }
 
 static auto g_controlTransferExecute = [](napi_env env, void *data) {
-    if (data == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: data is nullptr", __func__);
-        return napi_error;
-    }
     USBControlTransferAsyncContext *asyncContext = (USBControlTransferAsyncContext *)data;
-    if (asyncContext == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: asyncContext is nullptr", __func__);
-        return napi_error;
-    }
     std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
     if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
         delete[] asyncContext->buffer;
@@ -1191,15 +1135,7 @@ static auto g_controlTransferExecute = [](napi_env env, void *data) {
 };
 
 static auto g_controlTransferComplete = [](napi_env env, napi_status status, void *data) {
-    if (data == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: data is nullptr", __func__);
-        return napi_error;
-    }
     USBControlTransferAsyncContext *asyncContext = reinterpret_cast<USBControlTransferAsyncContext *>(data);
-    if (asyncContext == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: asyncContext is nullptr", __func__);
-        return napi_error;
-    }
     napi_value queryResult = nullptr;
 
     if (asyncContext->status == napi_ok) {
@@ -1318,15 +1254,7 @@ static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
 }
 
 static auto g_usbControlTransferExecute = [](napi_env env, void *data) {
-    if (data == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: data is nullptr", __func__);
-        return napi_error;
-    }
     USBDeviceControlTransferAsyncContext *asyncContext = (USBDeviceControlTransferAsyncContext *)data;
-    if (asyncContext == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: asyncContext is nullptr", __func__);
-        return napi_error;
-    }
     std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
     if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
         delete[] asyncContext->buffer;
@@ -1358,15 +1286,7 @@ static auto g_usbControlTransferExecute = [](napi_env env, void *data) {
 };
 
 static auto g_usbControlTransferComplete = [](napi_env env, napi_status status, void *data) {
-    if (data == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: data is nullptr", __func__);
-        return napi_error;
-    }
     USBDeviceControlTransferAsyncContext *asyncContext = reinterpret_cast<USBDeviceControlTransferAsyncContext *>(data);
-    if (asyncContext == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: asyncContext is nullptr", __func__);
-        return napi_error;
-    }
     napi_value queryResult = nullptr;
 
     if (asyncContext->status == napi_ok) {
@@ -1485,15 +1405,7 @@ static napi_value PipeUsbControlTransfer(napi_env env, napi_callback_info info)
 }
 
 static auto g_bulkTransferExecute = [](napi_env env, void *data) {
-    if (data == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: data is nullptr", __func__);
-        return napi_error;
-    }
     USBBulkTransferAsyncContext *asyncContext = reinterpret_cast<USBBulkTransferAsyncContext *>(data);
-    if (asyncContext == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: asyncContext is nullptr", __func__);
-        return napi_error;
-    }
     std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
     if (asyncContext->endpoint.GetDirection() == USB_ENDPOINT_DIR_OUT) {
         delete[] asyncContext->buffer;
@@ -1524,15 +1436,7 @@ static auto g_bulkTransferExecute = [](napi_env env, void *data) {
 };
 
 static auto g_bulkTransferComplete = [](napi_env env, napi_status status, void *data) {
-    if (data == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: data is nullptr", __func__);
-        return napi_error;
-    }
     USBBulkTransferAsyncContext *asyncContext = reinterpret_cast<USBBulkTransferAsyncContext *>(data);
-    if (asyncContext == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s: asyncContext is nullptr", __func__);
-        return napi_error;
-    }
     napi_value queryResult = nullptr;
     if (asyncContext->status == napi_ok) {
         napi_create_int32(env, asyncContext->dataSize, &queryResult);
