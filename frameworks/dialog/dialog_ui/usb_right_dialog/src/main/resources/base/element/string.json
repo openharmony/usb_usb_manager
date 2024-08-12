@@ -62,7 +62,7 @@
         },
         {
             "name":"USB_hint_cancel",
-            "value":"Cancel"
+            "value":"OK"
         },
         {
             "name":"usb_right_content",
