@@ -211,9 +211,6 @@ bool UsbServerStub::StubHost(
         case static_cast<int>(UsbInterfaceCode::USB_FUN_DISABLE_DEVICE):
             result = DoManageDevice(data, reply, option);
             return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_DISABLE_INTERFACE_STORAGE):
-            result = DoManageInterfaceStorage(data, reply, option);
-            return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_DISABLE_INTERFACE_TYPE):
             result = DoManageInterfaceType(data, reply, option);
             return true;
@@ -1130,19 +1127,6 @@ int32_t UsbServerStub::DoManageDevice(MessageParcel &data, MessageParcel &reply,
     return ret;
 }
 
-int32_t UsbServerStub::DoManageInterfaceStorage(MessageParcel &data, MessageParcel &reply, MessageOption &option)
-{
-    int32_t interfaceType = 0;
-    bool disable = false;
-    READ_PARCEL_WITH_RET(data, Int32, interfaceType, UEC_SERVICE_READ_PARCEL_ERROR);
-    READ_PARCEL_WITH_RET(data, Bool, disable, UEC_SERVICE_READ_PARCEL_ERROR);
-    int32_t ret = ManageInterfaceStorage((InterfaceType)interfaceType, disable);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
-    }
-    return ret;
-}
-
 int32_t UsbServerStub::DoManageInterfaceType(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     int32_t count;
@@ -1157,7 +1141,7 @@ int32_t UsbServerStub::DoManageInterfaceType(MessageParcel &data, MessageParcel 
         UsbDeviceType usbDeviceType;
         READ_PARCEL_WITH_RET(data, Int32, usbDeviceType.baseClass, UEC_SERVICE_READ_PARCEL_ERROR);
         READ_PARCEL_WITH_RET(data, Int32, usbDeviceType.subClass, UEC_SERVICE_READ_PARCEL_ERROR);
-        READ_PARCEL_WITH_RET(data, Int32, usbDeviceType.protocal, UEC_SERVICE_READ_PARCEL_ERROR);
+        READ_PARCEL_WITH_RET(data, Int32, usbDeviceType.protocol, UEC_SERVICE_READ_PARCEL_ERROR);
         READ_PARCEL_WITH_RET(data, Bool, usbDeviceType.isDeviceType, UEC_SERVICE_READ_PARCEL_ERROR);
         disableType.emplace_back(usbDeviceType);
     }

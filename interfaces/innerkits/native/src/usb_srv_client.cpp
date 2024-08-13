@@ -531,16 +531,6 @@ int32_t UsbSrvClient::ManageDevice(int32_t vendorId, int32_t productId, bool dis
     return ret;
 }
 
-int32_t UsbSrvClient::ManageInterfaceStorage(InterfaceType interfaceType, bool disable)
-{
-    RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
-    int32_t ret = proxy_->ManageInterfaceStorage(interfaceType, disable);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "failed width ret = %{public}d !", ret);
-    }
-    return ret;
-}
-
 int32_t UsbSrvClient::ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);

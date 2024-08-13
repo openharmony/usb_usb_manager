@@ -76,6 +76,7 @@
                 "header": {
                     "header_files": [
                         "usb_srv_client.h",
+                        "usb_interface_type.h",
                         "iusb_srv.h"
                     ],
                     "header_base": "//base/usb/usb_manager/interfaces/innerkits/native/include"
