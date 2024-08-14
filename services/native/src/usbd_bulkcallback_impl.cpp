@@ -24,6 +24,10 @@ namespace OHOS {
 namespace USB {
 int32_t UsbdBulkCallbackImpl::OnBulkWriteCallback(int32_t status, int32_t actLength)
 {
+    if (remote_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: remote_ is nullptr", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     OHOS::MessageParcel data;
     OHOS::MessageParcel reply;
     OHOS::MessageOption option;
@@ -31,7 +35,6 @@ int32_t UsbdBulkCallbackImpl::OnBulkWriteCallback(int32_t status, int32_t actLen
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write status failed", __func__);
         return UEC_SERVICE_INVALID_VALUE;
     }
-
     if (!data.WriteInt32(actLength)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write actLength failed", __func__);
         return UEC_SERVICE_INVALID_VALUE;
@@ -46,17 +49,19 @@ int32_t UsbdBulkCallbackImpl::OnBulkWriteCallback(int32_t status, int32_t actLen
 
 int32_t UsbdBulkCallbackImpl::OnBulkReadCallback(int32_t status, int32_t actLength)
 {
+    if (remote_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: remote_ is nullptr", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     OHOS::MessageParcel data;
     if (!data.WriteInt32(status)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write status failed", __func__);
         return UEC_SERVICE_INVALID_VALUE;
     }
-
     if (!data.WriteInt32(actLength)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write actLength failed", __func__);
         return UEC_SERVICE_INVALID_VALUE;
     }
-
     OHOS::MessageParcel reply;
     OHOS::MessageOption option;
     int32_t ret = remote_->SendRequest(UsbdBulkCallBack::CMD_USBD_BULK_CALLBACK_READ, data, reply, option);
