@@ -2,7 +2,7 @@
     "string":[
         {
             "name":"USB_hint_cancel",
-            "value":"取消"
+            "value":"確定"
         },
         {
             "name":"usb_right_title",
