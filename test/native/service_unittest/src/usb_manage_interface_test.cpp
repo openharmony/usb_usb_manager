@@ -195,7 +195,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType001, TestSize.Level1)
     UsbDeviceType usbDeviceType;
     usbDeviceType.baseClass = 3;
     usbDeviceType.subClass = 1;
-    usbDeviceType.protocal = 2;
+    usbDeviceType.protocol = 2;
     usbDeviceType.isDeviceType = 0;
     disableType.emplace_back(usbDeviceType);
     ret = client.ManageInterfaceType(disableType, true);
@@ -214,7 +214,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType002, TestSize.Level1)
     UsbDeviceType usbDeviceType;
     usbDeviceType.baseClass = 8;
     usbDeviceType.subClass = 6;
-    usbDeviceType.protocal = 80;
+    usbDeviceType.protocol = 80;
     usbDeviceType.isDeviceType = 0;
     disableType.emplace_back(usbDeviceType);
     ret = client.ManageInterfaceType(disableType, true);
@@ -233,7 +233,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType003, TestSize.Level1)
     UsbDeviceType usbDeviceType;
     usbDeviceType.baseClass = 3;
     usbDeviceType.subClass = 1;
-    usbDeviceType.protocal = 2;
+    usbDeviceType.protocol = 2;
     usbDeviceType.isDeviceType = 0;
     disableType.emplace_back(usbDeviceType);
     ret = client.ManageInterfaceType(disableType, false);
@@ -252,7 +252,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType004, TestSize.Level1)
     UsbDeviceType usbDeviceType;
     usbDeviceType.baseClass = 8;
     usbDeviceType.subClass = 6;
-    usbDeviceType.protocal = 80;
+    usbDeviceType.protocol = 80;
     usbDeviceType.isDeviceType = 0;
     disableType.emplace_back(usbDeviceType);
     ret = client.ManageInterfaceType(disableType, false);
