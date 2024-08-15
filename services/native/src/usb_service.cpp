@@ -697,7 +697,7 @@ int32_t UsbService::UsbAttachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
-
+    std::lock_guard<std::mutex> guard(mutex_);
     const UsbDev dev = {busNum, devAddr};
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -718,7 +718,7 @@ int32_t UsbService::UsbDetachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
-
+    std::lock_guard<std::mutex> guard(mutex_);
     const UsbDev dev = {busNum, devAddr};
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -739,7 +739,7 @@ int32_t UsbService::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t in
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
-
+    std::lock_guard<std::mutex> guard(mutex_);
     const UsbDev dev = {busNum, devAddr};
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -756,6 +756,7 @@ int32_t UsbService::BulkTransferRead(
     if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
+    std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -776,6 +777,7 @@ int32_t UsbService::BulkTransferReadwithLength(const UsbDev &devInfo, const UsbP
     if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
+    std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -796,6 +798,7 @@ int32_t UsbService::BulkTransferWrite(
     if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
+    std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -874,6 +877,7 @@ int32_t UsbService::SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t con
     }
 
     const UsbDev dev = {busNum, devAddr};
+    std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -903,6 +907,7 @@ int32_t UsbService::SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interf
     }
 
     const UsbDev dev = {busNum, devAddr};
+    std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -1364,7 +1369,7 @@ int32_t UsbService::GetUsbPolicy(bool &IsGlobalDisabled, std::vector<UsbDeviceTy
 int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
     std::vector<InterfaceType> interfaceTypes;
-    for (auto dev : disableType) {
+    for (const auto &dev : disableType) {
         if (!dev.isDeviceType) {
             ExecuteManageDeviceType(disableType, disable, g_typeMap, false);
         } else {
@@ -1377,10 +1382,10 @@ int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> 
 
 // LCOV_EXCL_START
 void UsbService::ExecuteManageDeviceType(const std::vector<UsbDeviceType> &disableType, bool disable,
-    const std::unordered_map<InterfaceType, std::vector<int32_t>> map, bool isDev)
+    const std::unordered_map<InterfaceType, std::vector<int32_t>> &map, bool isDev)
 {
     std::vector<InterfaceType> interfaceTypes;
-    for (auto dev : disableType) {
+    for (const auto &dev : disableType) {
         bool isMatch = false;
         for (auto& [interfaceTypeValues, typeValues] : map) {
             if ((typeValues[0] == dev.baseClass) &&
@@ -2169,8 +2174,8 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
 // LCOV_EXCL_START
 int32_t UsbService::ManageDeviceTypeImpl(InterfaceType interfaceType, bool disable)
 {
-    auto iterInterface = g_typeMap .find(interfaceType);
-    if (iterInterface == g_typeMap .end()) {
+    auto iterInterface = g_typeMap.find(interfaceType);
+    if (iterInterface == g_typeMap.end()) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::not find interface type");
         return UEC_SERVICE_INVALID_VALUE;
     }
