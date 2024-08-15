@@ -1277,7 +1277,7 @@ static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
 static auto g_usbControlTransferExecute = [](napi_env env, void *data) {
     USBDeviceControlTransferAsyncContext *asyncContext = (USBDeviceControlTransferAsyncContext *)data;
     std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
-    if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT || asyncContext->buffer != nullptr) {
+    if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT && asyncContext->buffer != nullptr) {
         delete[] asyncContext->buffer;
         asyncContext->buffer = nullptr;
     }
