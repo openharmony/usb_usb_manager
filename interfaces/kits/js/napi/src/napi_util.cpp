@@ -91,6 +91,24 @@ bool NapiUtil::JsObjectGetProperty(
     return hasProperty;
 }
 
+void NapiUtil::JsObjectToBool(const napi_env &env, const napi_value &object, std::string fieldStr, bool &fieldRef)
+{
+    bool hasProperty = false;
+    napi_has_named_property(env, object, fieldStr.c_str(), &hasProperty);
+    if (hasProperty) {
+        napi_value field;
+        napi_valuetype valueType;
+
+        napi_get_named_property(env, object, fieldStr.c_str(), &field);
+        napi_typeof(env, field, &valueType);
+        USB_ASSERT_RETURN_VOID(
+            env, valueType == napi_boolean, SYSPARAM_INVALID_INPUT, "The type of " + fieldStr + " must be boolean.");
+        napi_get_value_bool(env, field, &fieldRef);
+    } else {
+        USB_HILOGW(MODULE_JS_NAPI, "js to boolean no property: %{public}s", fieldStr.c_str());
+    }
+}
+
 void NapiUtil::JsObjectToInt(const napi_env &env, const napi_value &object, std::string fieldStr, int32_t &fieldRef)
 {
     bool hasProperty = false;

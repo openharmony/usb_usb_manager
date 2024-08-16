@@ -28,6 +28,7 @@ public:
         const int32_t bufLen, std::string &fieldRef);
     static bool JsObjectGetProperty(
         const napi_env &env, const napi_value &object, std::string fieldStr, napi_value &value);
+    static void JsObjectToBool(const napi_env &env, const napi_value &object, std::string fieldStr, bool &fieldRef);
     static void JsObjectToInt(const napi_env &env, const napi_value &object, std::string fieldStr, int32_t &fieldRef);
     static void JsObjectToUint(
         const napi_env &env, const napi_value &object, const std::string &fieldStr, uint32_t &fieldRef);
