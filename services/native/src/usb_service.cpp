@@ -1538,6 +1538,11 @@ bool UsbService::AddDevice(uint8_t busNum, uint8_t devAddr)
 
     usbHostManager_->AddDevice(devInfo);
     ExecuteStrategy(devInfo);
+    const UsbDev dev = {busNum, devAddr};
+    ret = usbd_->CloseDevice(dev);
+    if (ret != UEC_OK) {
+        USB_HILOGI(MODULE_USB_SERVICE, "CloseDevice failed ret=%{public}d", ret);
+    }
     return true;
 }
 // LCOV_EXCL_STOP
@@ -2157,7 +2162,7 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
                 iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
                     ManageInterface(dev, interfaces[i].GetId(), disable);
                     USB_HILOGI(MODULE_USB_SERVICE, "size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
-                        devices.size(), (int32_t)interfaceType, disable);
+                        devices.size(), static_cast<int32_t>(interfaceType), disable);
                     std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
             }
         }
@@ -2177,14 +2182,14 @@ int32_t UsbService::ManageDeviceTypeImpl(InterfaceType interfaceType, bool disab
 
     std::map<std::string, UsbDevice *> devices;
     usbHostManager_->GetDevices(devices);
-    USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
-        devices.size(), (int32_t)interfaceType, disable);
     for (auto it = devices.begin(); it != devices.end(); ++it) {
         if ((it->second->GetClass() == iterInterface->second[BASECLASS_INDEX]) && (it->second->GetSubclass() ==
             iterInterface->second[SUBCLASS_INDEX] || iterInterface->second[SUBCLASS_INDEX] ==
             RANDOM_VALUE_INDICATE) && (it->second->GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||
             iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
                 ManageDeviceImpl(it->second->GetVendorId(), it->second->GetProductId(), disable);
+                USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
+                    devices.size(), static_cast<int32_t>(interfaceType), disable);
                 std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
         }
     }
