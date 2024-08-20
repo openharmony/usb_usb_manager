@@ -83,7 +83,7 @@ namespace USB {
         }
 
         if (usbSrvClient.BulkCancel(reinterpret_cast<USBDevicePipe &>(data),
-            reinterpret_cast<const USBEndpoint&>(data + OFFSET)) == UEC_OK) {
+            reinterpret_cast<const USBEndpoint&>(std::move(data + OFFSET))) == UEC_OK) {
             return false;
         }
         return true;
@@ -94,7 +94,7 @@ namespace USB {
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
-    if (size < OHOS::THRESHOLD) {
+    if (size < THRESHOLD) {
         return 0;
     }
     /* Run your code on data */

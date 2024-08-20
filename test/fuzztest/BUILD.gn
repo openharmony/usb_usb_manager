@@ -879,6 +879,30 @@ ohos_fuzztest("UsbMgrGetInterfaceStatusFuzzTest") {
       [ "usbmgrgetinterfacestatus_fuzzer/usbmgrgetinterfacestatus_fuzzer.cpp" ]
 }
 
+ohos_fuzztest("UsbMgrUsbControlTransferFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrusbcontroltransfer_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources =
+      [ "usbmgrusbcontroltransfer_fuzzer/usbmgrusbcontroltransfer_fuzzer.cpp" ]
+}
+
 group("fuzztest") {
   testonly = true
   deps = []
@@ -914,6 +938,7 @@ group("fuzztest") {
     ":UsbMgrSetInterfaceFuzzTest",
     ":UsbMgrSetPortRoleFuzzTest",
     ":UsbMgrUnRegBulkCallbackFuzzTest",
+    ":UsbMgrUsbControlTransferFuzzTest",
     ":UsbMgrUsbFunctionsFromStringFuzzTest",
     ":UsbMgrUsbFunctionsToStringFuzzTest",
   ]

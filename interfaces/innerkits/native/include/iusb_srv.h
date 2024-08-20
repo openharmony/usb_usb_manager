@@ -20,7 +20,7 @@
 #include "iremote_object.h"
 #include "usb_device.h"
 #include "usb_port.h"
-#include "v1_0/usb_types.h"
+#include "v1_1/usb_types.h"
 #include "usb_interface_type.h"
 
 namespace OHOS {
@@ -49,6 +49,8 @@ public:
         int32_t length, std::vector<uint8_t> &bufferData, int32_t timeOut) = 0;
     virtual int32_t ControlTransfer(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbCtrlTransfer &ctrl,
         std::vector<uint8_t> &bufferData) = 0;
+    virtual int32_t UsbControlTransfer(const HDI::Usb::V1_0::UsbDev &dev,
+        const HDI::Usb::V1_1::UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData) = 0;
     virtual int32_t SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configId) = 0;
     virtual int32_t GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &configId) = 0;
     virtual int32_t SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t altIndex) = 0;

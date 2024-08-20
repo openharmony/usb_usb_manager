@@ -49,7 +49,7 @@ namespace USB {
         }
 
         ret = usbSrvClient.ReleaseInterface(
-            reinterpret_cast<USBDevicePipe &>(data), reinterpret_cast<const UsbInterface &>(data + OFFSET));
+            reinterpret_cast<USBDevicePipe &>(data), reinterpret_cast<const UsbInterface &>(std::move(data + OFFSET)));
         if (ret == UEC_OK) {
             return false;
         }

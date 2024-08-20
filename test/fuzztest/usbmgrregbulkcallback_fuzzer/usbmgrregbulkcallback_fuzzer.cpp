@@ -36,8 +36,8 @@ namespace USB {
         }
 
         int32_t ret = UsbSrvClient::GetInstance().RegBulkCallback(reinterpret_cast<USBDevicePipe &>(data),
-            reinterpret_cast<const USBEndpoint &>(data + OFFSET),
-            reinterpret_cast<const sptr<IRemoteObject> &>(data + OFFSET_BYTE));
+            reinterpret_cast<const USBEndpoint &>(std::move(data + OFFSET)),
+            reinterpret_cast<const sptr<IRemoteObject> &>(std::move(data + OFFSET_BYTE)));
         if (ret == UEC_OK) {
             return false;
         }

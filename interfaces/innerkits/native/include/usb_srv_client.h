@@ -61,6 +61,8 @@ public:
         int32_t timeOut);
     int32_t ControlTransfer(USBDevicePipe &pip, const HDI::Usb::V1_0::UsbCtrlTransfer &ctrl,
         std::vector<uint8_t> &bufferData);
+    int32_t UsbControlTransfer(USBDevicePipe &pipe, const HDI::Usb::V1_1::UsbCtrlTransferParams &ctrlParams,
+        std::vector<uint8_t> &bufferData);
     int32_t SetConfiguration(USBDevicePipe &pip, const USBConfig &config);
     int32_t SetInterface(USBDevicePipe &pipe, const UsbInterface &interface);
     int32_t GetRawDescriptors(USBDevicePipe &pipe, std::vector<uint8_t> &bufferData);
