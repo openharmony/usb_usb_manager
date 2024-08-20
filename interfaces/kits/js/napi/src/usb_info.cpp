@@ -1254,7 +1254,7 @@ static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
 static auto g_usbControlTransferExecute = [](napi_env env, void *data) {
     USBDeviceControlTransferAsyncContext *asyncContext = (USBDeviceControlTransferAsyncContext *)data;
     std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
-    if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
+    if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT && asyncContext->buffer != nullptr) {
         delete[] asyncContext->buffer;
         asyncContext->buffer = nullptr;
     }
@@ -1328,6 +1328,13 @@ static std::tuple<bool, USBDevicePipe, UsbPipeControlParam, int32_t> GetUsbContr
     ParseUsbDevicePipe(env, argv[INDEX_0], pipe);
 
     // control params
+    napi_typeof(env, argv[INDEX_1], &type);
+    if (type != napi_object) {
+        USB_HILOGE(MODULE_JS_NAPI, "index 1 wrong argument type, object expected.");
+        ThrowBusinessError(env, SYSPARAM_INVALID_INPUT, "The type of requestparam must be USBDeviceRequestParams.");
+        return {false, {}, {}, {}};
+    }
+
     UsbPipeControlParam controlParam = {0};
     ParseUsbPipeControlParam(env, argv[INDEX_1], controlParam);
 
