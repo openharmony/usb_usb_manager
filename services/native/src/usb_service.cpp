@@ -701,6 +701,33 @@ int32_t UsbService::ControlTransfer(const UsbDev &dev, const UsbCtrlTransfer &ct
     return ret;
 }
 
+int32_t UsbService::UsbControlTransfer(
+    const UsbDev &dev, const UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData)
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+
+    int32_t ret = UEC_SERVICE_INNER_ERR;
+    UsbCtrlTransfer ctrl = {
+        ctrlParams.requestType, ctrlParams.requestCmd, ctrlParams.value, ctrlParams.index, ctrlParams.timeout};
+    if (((uint32_t)ctrlParams.requestType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
+        ret = usbd_->ControlTransferWrite(dev, ctrl, bufferData);
+        if (ret != UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "ControlTransferWrite error ret:%{public}d", ret);
+        }
+    } else {
+        bufferData.clear();
+        ret = usbd_->ControlTransferReadwithLength(dev, ctrlParams, bufferData);
+        if (ret != UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "ControlTransferWritewithLength error ret:%{public}d", ret);
+        }
+    }
+    return ret;
+}
+
 int32_t UsbService::SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {

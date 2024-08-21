@@ -954,6 +954,829 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer021, TestSize.Level1)
 }
 
 /**
+ * @tc.name: Usbcontrolstansfer022
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer022, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer022 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer022 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer022 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer022 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    uint32_t len = 8;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    struct UsbCtrlTransferParams ctrldata = {0b10000000, 8, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer022 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close=%{public}d", ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer022 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer023
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer023, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer023 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer023 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer023 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer023 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    uint32_t len = 8;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    pipe.SetBusNum(BUFFER_SIZE);
+    struct UsbCtrlTransferParams ctrldata = {0b10000000, 8, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer023 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetBusNum(device.GetBusNum());
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close=%{public}d", ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer023 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer024
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer024, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer024 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer024 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer024 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer024 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    uint32_t len = 8;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    pipe.SetDevAddr(BUFFER_SIZE);
+    struct UsbCtrlTransferParams ctrldata = {0b10000000, 8, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer024 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close=%{public}d", ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer024 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer025
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer025, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer025 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer025 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer025 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer025 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    uint32_t len = 8;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    struct UsbCtrlTransferParams ctrldata = {0b10000000, 6, 0x100, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer025 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close=%{public}d", ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer025 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer026
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer026, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer026 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer026 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer026 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer026 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    uint32_t len = 8;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    pipe.SetBusNum(BUFFER_SIZE);
+    struct UsbCtrlTransferParams ctrldata = {0b10000000, 6, 0x100, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer026 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetBusNum(device.GetBusNum());
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close=%{public}d", ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer026 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer027
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer027, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer027 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer027 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer027 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer027 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    uint32_t len = 8;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    pipe.SetDevAddr(BUFFER_SIZE);
+    struct UsbCtrlTransferParams ctrldata = {0b10000000, 6, 0x100, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer027 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close=%{public}d", ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer027 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer028
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer028, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer028 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer028 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer028 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().front();
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer028 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    uint32_t len = BUFFER_SIZE;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    struct UsbCtrlTransferParams ctrldata = {0b10000001, 0X0A, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer028 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer028 %{public}d Close=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer028 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer029
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer029, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer029 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer029 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer029 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().front();
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer029 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    uint32_t len = BUFFER_SIZE;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    pipe.SetBusNum(BUFFER_SIZE);
+    struct UsbCtrlTransferParams ctrldata = {0b10000001, 0X0A, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer029 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetBusNum(device.GetBusNum());
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer029 %{public}d Close=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer029 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer030
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer030, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer030 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer030 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer030 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().front();
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer030 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    uint32_t len = BUFFER_SIZE;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    pipe.SetDevAddr(BUFFER_SIZE);
+    struct UsbCtrlTransferParams ctrldata = {0b10000001, 0X0A, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer030 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer030 %{public}d Close=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer030 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer031
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer031, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer031 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer031 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer031 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer031 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    uint32_t len = BUFFER_SIZE;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    struct UsbCtrlTransferParams ctrldata = {0b10000000, 0, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer031 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer031 %{public}d Close=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer031 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer032
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer032, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer032 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer032 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer032 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer032 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    uint32_t len = BUFFER_SIZE;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    pipe.SetBusNum(BUFFER_SIZE);
+    struct UsbCtrlTransferParams ctrldata = {0b10000000, 0, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer032 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetBusNum(device.GetBusNum());
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer032 %{public}d Close=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer032 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer033
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer033, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer033 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer033 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer033 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer033 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    uint32_t len = BUFFER_SIZE;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    pipe.SetDevAddr(BUFFER_SIZE);
+    struct UsbCtrlTransferParams ctrldata = {0b10000000, 0, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer033 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer033 %{public}d Close=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer033 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer034
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer034, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer034 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer034 %{public}d ret=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer034 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer034 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    uint32_t len = BUFFER_SIZE;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    struct UsbCtrlTransferParams ctrldata = {0b10000001, 0, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer034 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer034 %{public}d Close=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer034 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer035
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer035, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer035 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer035 %{public}d ret=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer035 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer035 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    uint32_t len = BUFFER_SIZE;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    pipe.SetBusNum(BUFFER_SIZE);
+    struct UsbCtrlTransferParams ctrldata = {0b10000001, 0, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer035 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetBusNum(device.GetBusNum());
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer035 %{public}d Close=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer035 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer036
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer036, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer036 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer036 %{public}d ret=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer036 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer036 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    uint32_t len = BUFFER_SIZE;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    pipe.SetDevAddr(BUFFER_SIZE);
+    struct UsbCtrlTransferParams ctrldata = {0b10000001, 0, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer036 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer036 %{public}d Close=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer036 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer037
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer037, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer037 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer037 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer037 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer037 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    uint32_t len = 16;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    struct UsbCtrlTransferParams ctrldata = {0b10000010, 0, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer037 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer037 %{public}d Close=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer037 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer038
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer038, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer038 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer038 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer038 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer038 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    uint32_t len = 16;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    pipe.SetBusNum(BUFFER_SIZE);
+    struct UsbCtrlTransferParams ctrldata = {0b10000010, 0, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer038 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetBusNum(device.GetBusNum());
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer038 %{public}d Close=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer038 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer039
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer039, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer039 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer039 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer039 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer039 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    uint32_t len = 16;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    pipe.SetDevAddr(BUFFER_SIZE);
+    struct UsbCtrlTransferParams ctrldata = {0b10000010, 0, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer039 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer039 %{public}d Close=%{public}d", __LINE__,
+               ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer039 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer040
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer040, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer040 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer040 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer040 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer040 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    uint32_t len = BUFFER_SIZE;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    struct UsbCtrlTransferParams ctrldata = {0b10000010, 0X0C, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer040 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::Close=%{public}d", ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer040 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer041
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer041, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer041 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer041 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer041 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer041 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    uint32_t len = BUFFER_SIZE;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    pipe.SetBusNum(BUFFER_SIZE);
+    struct UsbCtrlTransferParams ctrldata = {0b10000010, 0X0C, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer041 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetBusNum(device.GetBusNum());
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::Close=%{public}d", ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer041 : UsbControlTransfer");
+}
+
+/**
+ * @tc.name: Usbcontrolstansfer042
+ * @tc.desc: Test functions to UsbControlTransfer
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer042, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer042 : UsbControlTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer042 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer042 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer042 %{public}d OpenDevice=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
+    uint32_t len = BUFFER_SIZE;
+    uint8_t buffer[BUFFER_SIZE] = {0};
+    pipe.SetDevAddr(BUFFER_SIZE);
+    struct UsbCtrlTransferParams ctrldata = {0b10000010, 0X0C, 0, 0, 0, 500};
+    std::vector<uint8_t> ctrlbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.UsbControlTransfer(pipe, ctrldata, ctrlbuffer);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer042 %{public}d UsbControlTransfer=%{public}d",
+               __LINE__, ret);
+    EXPECT_TRUE(ret != 0);
+    pipe.SetDevAddr(device.GetDevAddr());
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::Close=%{public}d", ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : Usbcontrolstansfer042 : UsbControlTransfer");
+}
+
+/**
  * @tc.name: UsbClaimInterface001
  * @tc.desc: Test functions to ClaimInterface(const UsbInterface &interface, bool force);
  * @tc.type: FUNC

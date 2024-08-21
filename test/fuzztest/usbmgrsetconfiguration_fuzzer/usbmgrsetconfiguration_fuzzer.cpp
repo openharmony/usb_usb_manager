@@ -42,7 +42,7 @@ namespace USB {
         }
 
         if (usbSrvClient.SetConfiguration(reinterpret_cast<USBDevicePipe &>(data),
-            reinterpret_cast<const USBConfig &>(data + OFFSET)) == UEC_OK) {
+            reinterpret_cast<const USBConfig &>(std::move(data + OFFSET))) == UEC_OK) {
             return false;
         }
         return true;
