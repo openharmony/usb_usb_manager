@@ -187,6 +187,7 @@ private:
     int32_t commEventRetryTimes_ = 0;
     std::mutex mutex_;
     std::mutex hdiCbMutex_;
+    std::mutex functionMutex_;
     std::shared_ptr<UsbHostManager> usbHostManager_;
     std::shared_ptr<UsbRightManager> usbRightManager_;
     std::shared_ptr<UsbPortManager> usbPortManager_;

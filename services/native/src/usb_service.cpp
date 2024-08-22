@@ -526,7 +526,7 @@ int32_t UsbService::GetDevices(std::vector<UsbDevice> &deviceList)
 // LCOV_EXCL_START
 int32_t UsbService::GetCurrentFunctions(int32_t &functions)
 {
-    std::lock_guard<std::mutex> guard(mutex_);
+
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
@@ -539,6 +539,7 @@ int32_t UsbService::GetCurrentFunctions(int32_t &functions)
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    std::lock_guard<std::mutex> guard(functionMutex_);
     return usbd_->GetCurrentFunctions(functions);
 }
 // LCOV_EXCL_STOP
@@ -546,7 +547,6 @@ int32_t UsbService::GetCurrentFunctions(int32_t &functions)
 // LCOV_EXCL_START
 int32_t UsbService::SetCurrentFunctions(int32_t functions)
 {
-    std::lock_guard<std::mutex> guard(mutex_);
     USB_HILOGI(MODULE_USB_SERVICE, "func = %{public}d", functions);
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
@@ -568,7 +568,7 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-
+    std::lock_guard<std::mutex> guard(functionMutex_);
     return usbd_->SetCurrentFunctions(functions);
 }
 // LCOV_EXCL_STOP
