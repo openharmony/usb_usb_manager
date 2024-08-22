@@ -505,14 +505,6 @@ int32_t UsbService::RemoveRight(std::string deviceName)
 // LCOV_EXCL_START
 int32_t UsbService::GetDevices(std::vector<UsbDevice> &deviceList)
 {
-    if (usbRightManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    if (!(usbRightManager_->CheckPermission())) {
-        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
-    }
     std::map<std::string, UsbDevice *> devices;
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbHostManager_");
