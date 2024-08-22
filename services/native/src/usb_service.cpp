@@ -841,7 +841,7 @@ int32_t UsbService::ControlTransfer(const UsbDev &dev, const UsbCtrlTransfer &ct
 int32_t UsbService::UsbControlTransfer(
     const UsbDev &dev, const UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData)
 {
-    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+    if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
@@ -1718,7 +1718,7 @@ int32_t UsbService::RegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe, 
     if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
-    
+
     if (cb == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "cb is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
