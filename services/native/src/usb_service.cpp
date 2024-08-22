@@ -505,6 +505,14 @@ int32_t UsbService::RemoveRight(std::string deviceName)
 // LCOV_EXCL_START
 int32_t UsbService::GetDevices(std::vector<UsbDevice> &deviceList)
 {
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!(usbRightManager_->CheckPermission())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    }
     std::map<std::string, UsbDevice *> devices;
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbHostManager_");
@@ -2048,6 +2056,14 @@ int32_t UsbService::PreCallFunction()
 // LCOV_EXCL_START
 int32_t UsbService::ManageGlobalInterface(bool disable)
 {
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!(usbRightManager_->CheckPermission())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
@@ -2060,6 +2076,14 @@ int32_t UsbService::ManageGlobalInterface(bool disable)
 // LCOV_EXCL_START
 int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disable)
 {
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!(usbRightManager_->CheckPermission())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
@@ -2072,6 +2096,14 @@ int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disab
 // LCOV_EXCL_START
 int32_t UsbService::ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!(usbRightManager_->CheckPermission())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
@@ -2268,6 +2300,9 @@ int32_t UsbService::ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t interface
 // LCOV_EXCL_START
 int32_t UsbService::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
@@ -2289,6 +2324,9 @@ int32_t UsbService::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, ui
 // LCOV_EXCL_START
 int32_t UsbService::GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
