@@ -33,9 +33,9 @@ namespace USB {
             USB_HILOGE(MODULE_USB_SERVICE, "get devices failed ret=%{public}d", ret);
             return false;
         }
-        InterfaceType interfaceType = (InterfaceType)(*data);
+        std::vector<UsbDeviceType> disableType;
         ret = usbSrvClient.ManageInterfaceType(
-            interfaceType, true);
+            disableType, true);
         if (ret == UEC_OK) {
             return false;
         }
