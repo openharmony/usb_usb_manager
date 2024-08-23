@@ -841,6 +841,10 @@ int32_t UsbService::ControlTransfer(const UsbDev &dev, const UsbCtrlTransfer &ct
 int32_t UsbService::UsbControlTransfer(
     const UsbDev &dev, const UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData)
 {
+    if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -885,6 +889,10 @@ int32_t UsbService::SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t con
 // LCOV_EXCL_START
 int32_t UsbService::GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &configIndex)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     const UsbDev dev = {busNum, devAddr};
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -955,6 +963,10 @@ int32_t UsbService::GetFileDescriptor(uint8_t busNum, uint8_t devAddr, int32_t &
 int32_t UsbService::RequestQueue(const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &clientData,
     const std::vector<uint8_t> &bufferData)
 {
+    if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -971,6 +983,10 @@ int32_t UsbService::RequestQueue(const UsbDev &dev, const UsbPipe &pipe, const s
 int32_t UsbService::RequestWait(
     const UsbDev &dev, int32_t timeOut, std::vector<uint8_t> &clientData, std::vector<uint8_t> &bufferData)
 {
+    if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -986,6 +1002,10 @@ int32_t UsbService::RequestWait(
 // LCOV_EXCL_START
 int32_t UsbService::RequestCancel(uint8_t busNum, uint8_t devAddr, uint8_t interfaceId, uint8_t endpointId)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     const UsbDev dev = {busNum, devAddr};
     const UsbPipe pipe = {interfaceId, endpointId};
     if (usbd_ == nullptr) {
@@ -1695,6 +1715,10 @@ bool UsbService::GetBundleInfo(std::string &tokenId, int32_t &userId)
 // LCOV_EXCL_START
 int32_t UsbService::RegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe, const sptr<IRemoteObject> &cb)
 {
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     if (cb == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "cb is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -1719,6 +1743,10 @@ int32_t UsbService::RegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe, 
 // LCOV_EXCL_START
 int32_t UsbService::UnRegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe)
 {
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -1736,6 +1764,10 @@ int32_t UsbService::UnRegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe
 // LCOV_EXCL_START
 int32_t UsbService::BulkRead(const UsbDev &devInfo, const UsbPipe &pipe, sptr<Ashmem> &ashmem)
 {
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     if (ashmem == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkRead error ashmem");
         return UEC_SERVICE_INVALID_VALUE;
@@ -1756,6 +1788,10 @@ int32_t UsbService::BulkRead(const UsbDev &devInfo, const UsbPipe &pipe, sptr<As
 // LCOV_EXCL_START
 int32_t UsbService::BulkWrite(const UsbDev &devInfo, const UsbPipe &pipe, sptr<Ashmem> &ashmem)
 {
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     if (ashmem == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkWrite error ashmem");
         return UEC_SERVICE_INVALID_VALUE;
@@ -1776,6 +1812,10 @@ int32_t UsbService::BulkWrite(const UsbDev &devInfo, const UsbPipe &pipe, sptr<A
 // LCOV_EXCL_START
 int32_t UsbService::BulkCancel(const UsbDev &devInfo, const UsbPipe &pipe)
 {
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -2008,6 +2048,14 @@ int32_t UsbService::PreCallFunction()
 // LCOV_EXCL_START
 int32_t UsbService::ManageGlobalInterface(bool disable)
 {
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!(usbRightManager_->CheckPermission())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
@@ -2020,6 +2068,14 @@ int32_t UsbService::ManageGlobalInterface(bool disable)
 // LCOV_EXCL_START
 int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disable)
 {
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!(usbRightManager_->CheckPermission())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
@@ -2032,6 +2088,14 @@ int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disab
 // LCOV_EXCL_START
 int32_t UsbService::ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!(usbRightManager_->CheckPermission())) {
+        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
@@ -2228,6 +2292,9 @@ int32_t UsbService::ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t interface
 // LCOV_EXCL_START
 int32_t UsbService::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
@@ -2249,6 +2316,9 @@ int32_t UsbService::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, ui
 // LCOV_EXCL_START
 int32_t UsbService::GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed)
 {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
