@@ -526,7 +526,6 @@ int32_t UsbService::GetDevices(std::vector<UsbDevice> &deviceList)
 // LCOV_EXCL_START
 int32_t UsbService::GetCurrentFunctions(int32_t &functions)
 {
-
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
