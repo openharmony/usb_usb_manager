@@ -1491,7 +1491,6 @@ int32_t UsbService::RegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe, 
         USB_HILOGE(MODULE_USB_SERVICE, "cb is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-
     std::lock_guard<std::mutex> guard(hdiCbMutex_);
     if (hdiCb_ == nullptr) {
         hdiCb_ = new UsbdBulkCallbackImpl(cb);
