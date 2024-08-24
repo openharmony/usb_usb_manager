@@ -1478,9 +1478,6 @@ int32_t UsbService::RegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe, 
         USB_HILOGE(MODULE_USB_SERVICE, "cb is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
-        return UEC_SERVICE_PERMISSION_DENIED;
-    }
 
     std::lock_guard<std::mutex> guard(hdiCbMutex_);
     if (hdiCb_ == nullptr) {
@@ -1489,6 +1486,9 @@ int32_t UsbService::RegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe, 
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
     }
 
     int32_t ret = usbd_->RegBulkCallback(devInfo, pipe, hdiCb_);
