@@ -607,7 +607,9 @@ static auto g_requestRightComplete = [](napi_env env, napi_status status, void *
     napi_value queryResult = nullptr;
     napi_get_boolean(env, asyncContext->status == napi_ok, &queryResult);
 
-    ProcessPromise(env, *asyncContext, queryResult);
+    if (asyncContext->deferred) {
+        napi_resolve_deferred(env, asyncContext->deferred, queryResult);
+    }
     napi_delete_async_work(env, asyncContext->work);
     delete asyncContext;
 };
@@ -1449,7 +1451,9 @@ static auto g_bulkTransferComplete = [](napi_env env, napi_status status, void *
         USB_HILOGE(MODULE_JS_NAPI, "BulkTransfer failed");
         napi_create_int32(env, -1, &queryResult);
     }
-    ProcessPromise(env, *asyncContext, queryResult);
+    if (asyncContext->deferred) {
+        napi_resolve_deferred(env, asyncContext->deferred, queryResult);
+    }
     napi_delete_async_work(env, asyncContext->work);
     delete asyncContext;
 };
@@ -1543,7 +1547,9 @@ static napi_value PipeBulkTransfer(napi_env env, napi_callback_info info)
         asyncContext->status = napi_invalid_arg;
         napi_value queryResult = nullptr;
         napi_create_int32(env, -1, &queryResult);
-        ProcessPromise(env, *asyncContext, queryResult);
+        if (asyncContext->deferred) {
+            napi_resolve_deferred(env, asyncContext->deferred, queryResult);
+        }
         delete asyncContext;
         return result;
     }
