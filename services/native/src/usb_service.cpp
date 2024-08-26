@@ -640,6 +640,9 @@ int32_t UsbService::BulkTransferRead(
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
 
     int32_t ret = usbd_->BulkTransferRead(devInfo, pipe, timeOut, bufferData);
     if (ret != UEC_OK) {
@@ -654,6 +657,9 @@ int32_t UsbService::BulkTransferReadwithLength(const UsbDev &devInfo, const UsbP
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
     }
 
     int32_t ret = usbd_->BulkTransferReadwithLength(devInfo, pipe, timeOut, length, bufferData);
@@ -670,6 +676,10 @@ int32_t UsbService::BulkTransferWrite(
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     int32_t ret = usbd_->BulkTransferWrite(dev, pipe, timeOut, bufferData);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkTransferWrite error ret:%{public}d", ret);
@@ -683,6 +693,9 @@ int32_t UsbService::ControlTransfer(const UsbDev &dev, const UsbCtrlTransfer &ct
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
     }
 
     int32_t ret = UEC_SERVICE_INNER_ERR;
@@ -708,6 +721,9 @@ int32_t UsbService::UsbControlTransfer(
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
     }
 
     int32_t ret = UEC_SERVICE_INNER_ERR;
@@ -748,6 +764,10 @@ int32_t UsbService::GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &co
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
+    }
+
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
     }
 
     return usbd_->GetConfig(dev, configIndex);
@@ -810,6 +830,10 @@ int32_t UsbService::RequestQueue(const UsbDev &dev, const UsbPipe &pipe, const s
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     int32_t ret = usbd_->RequestQueue(dev, pipe, clientData, bufferData);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "error ret:%{public}d", ret);
@@ -824,6 +848,10 @@ int32_t UsbService::RequestWait(
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     int32_t ret = usbd_->RequestWait(dev, clientData, bufferData, timeOut);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "error ret:%{public}d", ret);
@@ -839,6 +867,10 @@ int32_t UsbService::RequestCancel(uint8_t busNum, uint8_t devAddr, uint8_t inter
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     return usbd_->RequestCancel(dev, pipe);
 }
 
@@ -1467,6 +1499,9 @@ int32_t UsbService::RegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe, 
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
 
     int32_t ret = usbd_->RegBulkCallback(devInfo, pipe, hdiCb_);
     if (ret != UEC_OK) {
@@ -1481,6 +1516,10 @@ int32_t UsbService::UnRegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     std::lock_guard<std::mutex> guard(hdiCbMutex_);
     hdiCb_ = nullptr;
     int32_t ret = usbd_->UnRegBulkCallback(devInfo, pipe);
@@ -1501,6 +1540,11 @@ int32_t UsbService::BulkRead(const UsbDev &devInfo, const UsbPipe &pipe, sptr<As
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     int32_t ret = usbd_->BulkRead(devInfo, pipe, ashmem);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkRead error ret:%{public}d", ret);
@@ -1519,6 +1563,11 @@ int32_t UsbService::BulkWrite(const UsbDev &devInfo, const UsbPipe &pipe, sptr<A
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     int32_t ret = usbd_->BulkWrite(devInfo, pipe, ashmem);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkWrite error ret:%{public}d", ret);
@@ -1532,6 +1581,11 @@ int32_t UsbService::BulkCancel(const UsbDev &devInfo, const UsbPipe &pipe)
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
     int32_t ret = usbd_->BulkCancel(devInfo, pipe);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkCancel error ret:%{public}d", ret);

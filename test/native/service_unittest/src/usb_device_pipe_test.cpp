@@ -33,6 +33,7 @@ using namespace OHOS;
 using namespace OHOS::USB;
 using namespace std;
 using namespace OHOS::HDI::Usb::V1_0;
+using namespace OHOS::HDI::Usb::V1_1;
 using namespace OHOS::USB::Common;
 
 namespace OHOS {
