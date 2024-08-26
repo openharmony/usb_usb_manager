@@ -612,8 +612,11 @@ HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver001, TestSize.Level1)
         ret);
     EXPECT_TRUE(ret == 0);
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver001 %{public}d UsbAttachKernelDriver=%{public}d",
+        __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
     ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver001 %{public}d GetInterfaceStatus=%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver001 %{public}d UsbDetachKernelDriver=%{public}d",
         __LINE__, ret);
     EXPECT_TRUE(ret == 0);
     bool close = UsbSrvClient.Close(pipe);
@@ -648,7 +651,7 @@ HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver002, TestSize.Level1)
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
     pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver002 %{public}d GetInterfaceStatus=%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver002 %{public}d UsbDetachKernelDriver=%{public}d",
         __LINE__, ret);
     EXPECT_TRUE(ret != 0);
     pipe.SetBusNum(device.GetBusNum());
@@ -684,7 +687,7 @@ HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver003, TestSize.Level1)
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
     pipe.SetDevAddr(BUFFER_SIZE);
     ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver003 %{public}d GetInterfaceStatus=%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver003 %{public}d UsbDetachKernelDriver=%{public}d",
         __LINE__, ret);
     EXPECT_TRUE(ret != 0);
     pipe.SetDevAddr(device.GetDevAddr());
@@ -718,10 +721,14 @@ HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver004, TestSize.Level1)
         ret);
     EXPECT_TRUE(ret == 0);
     UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
-    ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver004 %{public}d GetInterfaceStatus=%{public}d",
+    ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver004 %{public}d UsbAttachKernelDriver=%{public}d",
         __LINE__, ret);
-    EXPECT_TRUE(ret != 0);
+    EXPECT_TRUE(ret == 0);
+    ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver004 %{public}d UsbDetachKernelDriver=%{public}d",
+        __LINE__, ret);
+    EXPECT_TRUE(ret == 0);
     bool close = UsbSrvClient.Close(pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver004 %{public}d close=%{public}d", __LINE__, close);
     EXPECT_TRUE(close);
@@ -754,7 +761,7 @@ HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver005, TestSize.Level1)
     UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
     pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver005 %{public}d GetInterfaceStatus=%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver005 %{public}d UsbDetachKernelDriver=%{public}d",
         __LINE__, ret);
     EXPECT_TRUE(ret != 0);
     pipe.SetBusNum(device.GetBusNum());
@@ -790,7 +797,7 @@ HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver006, TestSize.Level1)
     UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
     pipe.SetDevAddr(BUFFER_SIZE);
     ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver006 %{public}d GetInterfaceStatus=%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver006 %{public}d UsbDetachKernelDriver=%{public}d",
         __LINE__, ret);
     EXPECT_TRUE(ret != 0);
     pipe.SetDevAddr(device.GetDevAddr());
@@ -827,7 +834,7 @@ HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver007, TestSize.Level1)
     pipe.SetDevAddr(BUFFER_SIZE);
     pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver007 %{public}d GetInterfaceStatus=%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver007 %{public}d UsbDetachKernelDriver=%{public}d",
         __LINE__, ret);
     EXPECT_TRUE(ret != 0);
     pipe.SetDevAddr(device.GetDevAddr());
@@ -865,7 +872,7 @@ HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver008, TestSize.Level1)
     pipe.SetDevAddr(BUFFER_SIZE);
     pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver008 %{public}d GetInterfaceStatus=%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver008 %{public}d UsbDetachKernelDriver=%{public}d",
         __LINE__, ret);
     EXPECT_TRUE(ret != 0);
     pipe.SetDevAddr(device.GetDevAddr());
@@ -901,7 +908,7 @@ HWTEST_F(UsbDeviceStatusTest, UsbAttachKernelDriver001, TestSize.Level1)
     EXPECT_TRUE(ret == 0);
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
     ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver001 %{public}d GetInterfaceStatus=%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver001 %{public}d UsbAttachKernelDriver=%{public}d",
         __LINE__, ret);
     EXPECT_TRUE(ret == 0);
     bool close = UsbSrvClient.Close(pipe);
@@ -936,7 +943,7 @@ HWTEST_F(UsbDeviceStatusTest, UsbAttachKernelDriver002, TestSize.Level1)
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
     pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver002 %{public}d GetInterfaceStatus=%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver002 %{public}d UsbAttachKernelDriver=%{public}d",
         __LINE__, ret);
     EXPECT_TRUE(ret != 0);
     pipe.SetBusNum(device.GetBusNum());
@@ -972,7 +979,7 @@ HWTEST_F(UsbDeviceStatusTest, UsbAttachKernelDriver003, TestSize.Level1)
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
     pipe.SetDevAddr(BUFFER_SIZE);
     ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver003 %{public}d GetInterfaceStatus=%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver003 %{public}d UsbAttachKernelDriver=%{public}d",
         __LINE__, ret);
     EXPECT_TRUE(ret != 0);
     pipe.SetDevAddr(device.GetDevAddr());
@@ -1007,9 +1014,9 @@ HWTEST_F(UsbDeviceStatusTest, UsbAttachKernelDriver004, TestSize.Level1)
     EXPECT_TRUE(ret == 0);
     UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
     ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver004 %{public}d GetInterfaceStatus=%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver004 %{public}d UsbAttachKernelDriver=%{public}d",
         __LINE__, ret);
-    EXPECT_TRUE(ret != 0);
+    EXPECT_TRUE(ret == 0);
     bool close = UsbSrvClient.Close(pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver004 %{public}d close=%{public}d", __LINE__, close);
     EXPECT_TRUE(close);
@@ -1042,7 +1049,7 @@ HWTEST_F(UsbDeviceStatusTest, UsbAttachKernelDriver005, TestSize.Level1)
     UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
     pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver005 %{public}d GetInterfaceStatus=%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver005 %{public}d UsbAttachKernelDriver=%{public}d",
         __LINE__, ret);
     EXPECT_TRUE(ret != 0);
     pipe.SetBusNum(device.GetBusNum());
@@ -1078,7 +1085,7 @@ HWTEST_F(UsbDeviceStatusTest, UsbAttachKernelDriver006, TestSize.Level1)
     UsbInterface interface = device.GetConfigs().at(0).GetInterfaces().at(1);
     pipe.SetDevAddr(BUFFER_SIZE);
     ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver006 %{public}d GetInterfaceStatus=%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver006 %{public}d UsbAttachKernelDriver=%{public}d",
         __LINE__, ret);
     EXPECT_TRUE(ret != 0);
     pipe.SetDevAddr(device.GetDevAddr());
@@ -1115,7 +1122,7 @@ HWTEST_F(UsbDeviceStatusTest, UsbAttachKernelDriver007, TestSize.Level1)
     pipe.SetDevAddr(BUFFER_SIZE);
     pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver007 %{public}d GetInterfaceStatus=%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver007 %{public}d UsbAttachKernelDriver=%{public}d",
         __LINE__, ret);
     EXPECT_TRUE(ret != 0);
     pipe.SetDevAddr(device.GetDevAddr());
@@ -1153,7 +1160,7 @@ HWTEST_F(UsbDeviceStatusTest, UsbAttachKernelDriver008, TestSize.Level1)
     pipe.SetDevAddr(BUFFER_SIZE);
     pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.UsbAttachKernelDriver(pipe, interface);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver008 %{public}d GetInterfaceStatus=%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAttachKernelDriver008 %{public}d UsbAttachKernelDriver=%{public}d",
         __LINE__, ret);
     EXPECT_TRUE(ret != 0);
     pipe.SetDevAddr(device.GetDevAddr());
