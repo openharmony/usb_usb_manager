@@ -1179,16 +1179,16 @@ int32_t UsbService::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &de
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceInfoDescriptor ret=%{public}d", ret);
     }
-    ret = GetConfigDescriptor(dev, descriptor);
-    if (ret != UEC_OK) {
+    int32_t res = GetConfigDescriptor(dev, descriptor);
+    if (res != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetConfigDescriptor ret=%{public}d", ret);
-        return ret;
     }
     ret = usbd_->CloseDevice(uDev);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceInfo CloseDevice failed ret=%{public}d", ret);
+        return ret;
     }
-    return ret;
+    return res;
 }
 // LCOV_EXCL_STOP
 
@@ -2207,16 +2207,16 @@ int32_t UsbService::ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t i
         USB_HILOGE(MODULE_USB_SERVICE, "ManageInterface OpenDevice failed ret=%{public}d", ret);
         return ret;
     }
-    ret = usbd_->ManageInterface(dev, interfaceId, disable);
-    if (ret != 0) {
+    int32_t res = usbd_->ManageInterface(dev, interfaceId, disable);
+    if (res != 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "ManageInterface  failed ret=%{public}d", ret);
-        return ret;
     }
     ret = usbd_->CloseDevice(dev);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "ManageInterface Close device failed ret = %{public}d", ret);
+        return ret;
     }
-    return ret;
+    return res;
 }
 // LCOV_EXCL_STOP
 
