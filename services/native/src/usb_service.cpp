@@ -1183,7 +1183,7 @@ int32_t UsbService::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &de
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetConfigDescriptor ret=%{public}d", ret);
     }
-    int32_t ret = usbd_->CloseDevice(uDev);
+    ret = usbd_->CloseDevice(uDev);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceInfo CloseDevice failed ret=%{public}d", ret);
     }
