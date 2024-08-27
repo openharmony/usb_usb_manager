@@ -1008,7 +1008,6 @@ int32_t UsbService::Close(uint8_t busNum, uint8_t devAddr)
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-
     return usbd_->CloseDevice(dev);
 }
 // LCOV_EXCL_STOP
