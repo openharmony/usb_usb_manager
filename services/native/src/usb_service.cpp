@@ -1009,12 +1009,7 @@ int32_t UsbService::Close(uint8_t busNum, uint8_t devAddr)
         return UEC_SERVICE_INVALID_VALUE;
     }
 
-    int32_t ret = usbd_->CloseDevice(dev);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USBD, "Close device failed width ret = %{public}d", ret);
-        return ret;
-    }
-    return UEC_OK;
+    return usbd_->CloseDevice(dev);
 }
 // LCOV_EXCL_STOP
 
