@@ -1182,6 +1182,7 @@ int32_t UsbService::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &de
     ret = GetConfigDescriptor(dev, descriptor);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetConfigDescriptor ret=%{public}d", ret);
+        return ret;
     }
     ret = usbd_->CloseDevice(uDev);
     if (ret != UEC_OK) {
@@ -2209,6 +2210,7 @@ int32_t UsbService::ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t i
     ret = usbd_->ManageInterface(dev, interfaceId, disable);
     if (ret != 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "ManageInterface  failed ret=%{public}d", ret);
+        return ret;
     }
     ret = usbd_->CloseDevice(dev);
     if (ret != UEC_OK) {
