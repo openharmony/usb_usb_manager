@@ -1383,7 +1383,7 @@ int32_t UsbService::GetUsbPolicy(bool &IsGlobalDisabled, std::vector<UsbDeviceTy
 int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
     std::vector<InterfaceType> interfaceTypes;
-    for (auto dev : disableType) {
+    for (const auto &dev : disableType) {
         if (!dev.isDeviceType) {
             ExecuteManageDeviceType(disableType, disable, g_typeMap, false);
         } else {
@@ -1396,10 +1396,10 @@ int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> 
 
 // LCOV_EXCL_START
 void UsbService::ExecuteManageDeviceType(const std::vector<UsbDeviceType> &disableType, bool disable,
-    const std::unordered_map<InterfaceType, std::vector<int32_t>> map, bool isDev)
+    const std::unordered_map<InterfaceType, std::vector<int32_t>> &map, bool isDev)
 {
     std::vector<InterfaceType> interfaceTypes;
-    for (auto dev : disableType) {
+    for (const auto &dev : disableType) {
         bool isMatch = false;
         for (auto& [interfaceTypeValues, typeValues] : map) {
             if ((typeValues[0] == dev.baseClass) &&
@@ -2220,7 +2220,7 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
                 iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
                     ManageInterface(dev, interfaces[i].GetId(), disable);
                     USB_HILOGI(MODULE_USB_SERVICE, "size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
-                        devices.size(), (int32_t)interfaceType, disable);
+                        devices.size(), static_cast<int32_t>(interfaceType), disable);
                     std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
             }
         }
@@ -2232,22 +2232,22 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
 // LCOV_EXCL_START
 int32_t UsbService::ManageDeviceTypeImpl(InterfaceType interfaceType, bool disable)
 {
-    auto iterInterface = g_typeMap .find(interfaceType);
-    if (iterInterface == g_typeMap .end()) {
+    auto iterInterface = g_typeMap.find(interfaceType);
+    if (iterInterface == g_typeMap.end()) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::not find interface type");
         return UEC_SERVICE_INVALID_VALUE;
     }
 
     std::map<std::string, UsbDevice *> devices;
     usbHostManager_->GetDevices(devices);
-    USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
-        devices.size(), (int32_t)interfaceType, disable);
     for (auto it = devices.begin(); it != devices.end(); ++it) {
         if ((it->second->GetClass() == iterInterface->second[BASECLASS_INDEX]) && (it->second->GetSubclass() ==
             iterInterface->second[SUBCLASS_INDEX] || iterInterface->second[SUBCLASS_INDEX] ==
             RANDOM_VALUE_INDICATE) && (it->second->GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||
             iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
                 ManageDeviceImpl(it->second->GetVendorId(), it->second->GetProductId(), disable);
+                USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
+                    devices.size(), static_cast<int32_t>(interfaceType), disable);
                 std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
         }
     }

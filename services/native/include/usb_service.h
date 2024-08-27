@@ -177,7 +177,7 @@ private:
     int32_t GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceId> &trustUsbDeviceId);
     int32_t ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t interfaceId, bool disable);
     void ExecuteManageDeviceType(const std::vector<UsbDeviceType> &disableType, bool disable,
-        const std::unordered_map<InterfaceType, std::vector<int32_t>> map, bool isDev);
+        const std::unordered_map<InterfaceType, std::vector<int32_t>> &map, bool isDev);
     int32_t ManageGlobalInterfaceImpl(bool disable);
     int32_t ManageDeviceImpl(int32_t vendorId, int32_t productId, bool disable);
     int32_t ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable);
