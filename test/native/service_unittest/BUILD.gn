@@ -44,7 +44,6 @@ ohos_unittest("test_usbdevicepipe") {
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
     "${usb_manager_path}/services:usbservice",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
@@ -57,6 +56,7 @@ ohos_unittest("test_usbdevicepipe") {
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
     "eventhandler:libeventhandler",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -80,7 +80,6 @@ ohos_unittest("test_bulkcallback") {
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
     "${usb_manager_path}/services:usbservice",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
@@ -93,6 +92,7 @@ ohos_unittest("test_bulkcallback") {
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
     "eventhandler:libeventhandler",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -115,7 +115,6 @@ ohos_unittest("test_usbrequest") {
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
     "${usb_manager_path}/services:usbservice",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
@@ -128,6 +127,7 @@ ohos_unittest("test_usbrequest") {
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
     "eventhandler:libeventhandler",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -150,7 +150,6 @@ ohos_unittest("test_usbcore") {
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
     "${usb_manager_path}/services:usbservice",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
@@ -163,6 +162,7 @@ ohos_unittest("test_usbcore") {
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
     "eventhandler:libeventhandler",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -182,17 +182,17 @@ ohos_unittest("test_usbevent") {
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
     "${usb_manager_path}/services:usbservice",
-    "//third_party/cJSON:cjson",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "cJSON:cjson",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
     "eventhandler:libeventhandler",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -223,7 +223,6 @@ ohos_unittest("test_usbmanageinterface") {
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
     "${usb_manager_path}/services:usbservice",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
@@ -236,6 +235,7 @@ ohos_unittest("test_usbmanageinterface") {
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
     "eventhandler:libeventhandler",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -258,7 +258,6 @@ ohos_unittest("test_usbdevicestatus") {
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
     "${usb_manager_path}/services:usbservice",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
@@ -271,6 +270,7 @@ ohos_unittest("test_usbdevicestatus") {
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.1",
     "eventhandler:libeventhandler",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -293,8 +293,6 @@ ohos_unittest("test_usbdfx") {
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
     "${usb_manager_path}/services:usbservice",
-    "//third_party/cJSON:cjson",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
@@ -303,10 +301,12 @@ ohos_unittest("test_usbdfx") {
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
+    "cJSON:cjson",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_1.0",
     "eventhandler:libeventhandler",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",

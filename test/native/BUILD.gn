@@ -16,5 +16,8 @@ import("./../../usbmgr.gni")
 
 group("usb_unittest_test") {
   testonly = true
-  deps = []
+  deps = [
+    "${usb_manager_path}/test/fuzztest:fuzztest",
+    "${usb_manager_path}/test/native/service_unittest:unittest",
+  ]
 }
