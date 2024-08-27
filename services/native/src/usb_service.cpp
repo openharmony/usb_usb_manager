@@ -1169,6 +1169,7 @@ int32_t UsbService::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &de
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    int32_t res = false;
     int32_t ret = usbd_->OpenDevice(uDev);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceInfo OpenDevice failed ret=%{public}d", ret);
@@ -1178,8 +1179,14 @@ int32_t UsbService::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &de
     ret = GetDeviceInfoDescriptor(uDev, descriptor, dev);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceInfoDescriptor ret=%{public}d", ret);
+        res = usbd_->CloseDevice(uDev);
+        if (res != UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceInfo CloseDevice failed res=%{public}d", res);
+            return res;
+        }
+        return ret;
     }
-    int32_t res = GetConfigDescriptor(dev, descriptor);
+    res = GetConfigDescriptor(dev, descriptor);
     if (res != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetConfigDescriptor ret=%{public}d", ret);
     }
