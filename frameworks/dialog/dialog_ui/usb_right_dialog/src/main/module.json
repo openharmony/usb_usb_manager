@@ -42,6 +42,7 @@
         "icon": "$media:icon",
         "label": "$string:UsbFunctionSwitchWindowAbility_label",
         "exported": false,
+        "extensionProcessMode": "instance",
         "type": "sysDialog/common"
       }
     ]
