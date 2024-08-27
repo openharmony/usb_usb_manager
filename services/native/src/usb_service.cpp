@@ -1169,7 +1169,7 @@ int32_t UsbService::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &de
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    int32_t res = false;
+    int32_t res = UEC_OK;
     int32_t ret = usbd_->OpenDevice(uDev);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceInfo OpenDevice failed ret=%{public}d", ret);
