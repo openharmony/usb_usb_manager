@@ -1546,7 +1546,7 @@ bool UsbService::AddDevice(uint8_t busNum, uint8_t devAddr)
 
     usbHostManager_->AddDevice(devInfo);
     ExecuteStrategy(devInfo);
-    return ret;
+    return true;
 }
 // LCOV_EXCL_STOP
 
