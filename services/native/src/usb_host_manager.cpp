@@ -12,6 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <iostream>
+#include <sstream>
+#include <map>
+#include <string>
+#include <set>
 
 #include "usb_host_manager.h"
 #include "common_event_data.h"
@@ -21,6 +26,10 @@
 #include "hisysevent.h"
 #include "cJSON.h"
 #include "usb_serial_reader.h"
+#include "usb_device.h"
+#include "usb_config.h"
+#include "usb_interface.h"
+#include "usb_errors.h"
 
 #ifdef USB_NOTIFICATION_ENABLE
 #include "usb_mass_storage_notification.h"
@@ -32,6 +41,33 @@ using namespace OHOS::HiviewDFX;
 
 namespace OHOS {
 namespace USB {
+constexpr int32_t CLASS_PRINT_LENGTH = 2;
+constexpr int32_t USAGE_IN_INTERFACE_CLASS = 0;
+constexpr uint8_t DES_USAGE_IN_INTERFACE = 0x02;
+std::map<int32_t, DeviceClassUsage> deviceUsageMap = {
+    {0x00, {DeviceClassUsage(2, "Use class information in the Interface Descriptors")}},
+    {0x01, {DeviceClassUsage(2, "Audio")}},
+    {0x02, {DeviceClassUsage(3, "Communications and CDC Control")}},
+    {0x03, {DeviceClassUsage(2, "HID(Human Interface Device)")}},
+    {0x05, {DeviceClassUsage(2, "Physical")}},
+    {0x06, {DeviceClassUsage(2, "Image")}},
+    {0x07, {DeviceClassUsage(2, "Printer")}},
+    {0x08, {DeviceClassUsage(2, "Mass Storage")}},
+    {0x09, {DeviceClassUsage(1, "Hub")}},
+    {0x0a, {DeviceClassUsage(2, "CDC-Data")}},
+    {0x0b, {DeviceClassUsage(2, "Smart Card")}},
+    {0x0d, {DeviceClassUsage(2, "Content Security")}},
+    {0x0e, {DeviceClassUsage(2, "Video")}},
+    {0x0f, {DeviceClassUsage(2, "Personal Healthcare")}},
+    {0x10, {DeviceClassUsage(2, "Audio/Video Device")}},
+    {0x11, {DeviceClassUsage(1, "Billboard Device Class")}},
+    {0x12, {DeviceClassUsage(2, "USB Type-C Bridge Class")}}
+};
+
+std::map<UsbDeviceType, std::string> interfaceUsageMap = {
+    {{UsbDeviceType(0x03, 0x01, 0x01, 0)}, "KeyBoard"},
+    {{UsbDeviceType(0x03, 0x01, 0x02, 0)}, "Mouse/Table/Touch screen"},
+};
 UsbHostManager::UsbHostManager(SystemAbility *systemAbility)
 {
     systemAbility_ = systemAbility;
@@ -158,13 +194,86 @@ bool UsbHostManager::Dump(int fd, const std::string &args)
     return true;
 }
 
+int32_t UsbHostManager::GetDeviceDescription(int32_t baseClass, std::string &description, uint8_t &usage)
+{
+    auto iter = deviceUsageMap.find(baseClass);
+    if (iter != deviceUsageMap.end()) {
+        description = iter->second.description;
+        usage = iter->second.usage;
+    } else {
+        description = "NA";
+        usage = 1;
+    }
+    return UEC_OK;
+}
+
+
+std::string UsbHostManager::ConcatenateToDescription(const UsbDeviceType &interfaceType, const std::string& str)
+{
+    std::stringstream ss;
+    ss << std::setw(CLASS_PRINT_LENGTH) << std::setfill('0') << std::hex << interfaceType.baseClass << "_";
+    ss << std::setw(CLASS_PRINT_LENGTH) << std::setfill('0') << std::hex << interfaceType.subClass << "_";
+    ss << std::setw(CLASS_PRINT_LENGTH) << std::setfill('0') << std::hex << interfaceType.protocol << ",";
+    ss << str;
+    return ss.str();
+}
+
+std::string UsbHostManager::GetInterfaceUsageDescription(const UsbDeviceType &interfaceType)
+{
+    std::string infUsageDes = "NA";
+    auto infUsageIter = interfaceUsageMap.find(interfaceType);
+    if (infUsageIter != interfaceUsageMap.end()) {
+        return infUsageIter->second;
+    }
+    return infUsageDes;
+}
+
+int32_t UsbHostManager::GetInterfaceDescription(const UsbDevice &dev, std::string &description, int32_t &baseClass)
+{
+    std::set<UsbDeviceType> useInterfaceType;
+    for (int32_t i = 0; i < dev.GetConfigCount(); i++) {
+        USBConfig config;
+        dev.GetConfig(i, config);
+        for (uint32_t j = 0; j < config.GetInterfaceCount(); j++) {
+            if (i != 0 || j != 0) {
+                description += ";";
+            }
+            UsbInterface interface;
+            config.GetInterface(j, interface);
+            baseClass = interface.GetClass();
+            UsbDeviceType interfaceType = {interface.GetClass(),
+                interface.GetSubClass(), interface.GetProtocol(), 0};
+            if (useInterfaceType.find(interfaceType) == useInterfaceType.end()) {
+                useInterfaceType.insert(interfaceType);
+                std::string infUsageDes = GetInterfaceUsageDescription(interfaceType);
+                description += ConcatenateToDescription(interfaceType, infUsageDes);
+            }
+        }
+    }
+    return UEC_OK;
+}
+
 void UsbHostManager::ReportHostPlugSysEvent(const std::string &event, const UsbDevice &dev)
 {
+    std::string deviceUsageDes;
+    uint8_t deviceUsage = 0;
+    GetDeviceDescription(dev.GetClass(), deviceUsageDes, deviceUsage);
+    std::string extUsageDes;
+    int32_t intfBaseClass = 0;
+    if (deviceUsage & DES_USAGE_IN_INTERFACE) {
+        GetInterfaceDescription(dev, extUsageDes, intfBaseClass);
+    }
+
+    if (dev.GetClass() == USAGE_IN_INTERFACE_CLASS) {
+        GetDeviceDescription(intfBaseClass, deviceUsageDes, deviceUsage);
+    }
     USB_HILOGI(MODULE_SERVICE, "Host mode Indicates the insertion and removal information");
     HiSysEventWrite(HiSysEvent::Domain::USB, "PLUG_IN_OUT_HOST_MODE", HiSysEvent::EventType::BEHAVIOR,
-        "DEVICE_NAME", dev.GetName(), "DEVICE_PROTOCOL", dev.GetProtocol(), "DEVICE_CLASS", dev.GetClass(),
-        "VENDOR_ID", dev.GetVendorId(), "PRODUCT_ID", dev.GetProductId(), "VERSION", dev.GetVersion(),
-        "EVENT_NAME", event);
+        "DEVICE_NAME", dev.GetName(), "DEVICE_PROTOCOL", dev.GetProtocol(),
+        "DEVICE_SUBCLASS", dev.GetSubclass(), "DEVICE_CLASS", dev.GetClass(),
+        "DEVICE_CLASS_DESCRIPTION", deviceUsageDes, "INTERFACE_CLASS_DESCRIPTION", extUsageDes,
+        "VENDOR_ID", dev.GetVendorId(), "PRODUCT_ID", dev.GetProductId(),
+        "VERSION", dev.GetVersion(), "EVENT_NAME", event);
 }
 } // namespace USB
 } // namespace OHOS
