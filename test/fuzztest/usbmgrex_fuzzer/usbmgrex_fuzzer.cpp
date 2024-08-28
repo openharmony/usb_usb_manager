@@ -29,6 +29,7 @@ enum class UsbInterfaceCode {
     USB_FUN_REQUEST_RIGHT,
     USB_FUN_REMOVE_RIGHT,
     USB_FUN_OPEN_DEVICE,
+    USB_FUN_RESET_DEVICE,
     USB_FUN_GET_DEVICE,
     USB_FUN_GET_DEVICES,
     USB_FUN_GET_CURRENT_FUNCTIONS,
@@ -40,6 +41,7 @@ enum class UsbInterfaceCode {
     USB_FUN_BULK_TRANSFER_READ,
     USB_FUN_BULK_TRANSFER_WRITE,
     USB_FUN_CONTROL_TRANSFER,
+    USB_FUN_USB_CONTROL_TRANSFER,
     USB_FUN_SET_ACTIVE_CONFIG,
     USB_FUN_GET_ACTIVE_CONFIG,
     USB_FUN_SET_INTERFACE,
@@ -61,12 +63,17 @@ enum class UsbInterfaceCode {
     USB_FUN_DISABLE_GLOBAL_INTERFACE,
     USB_FUN_DISABLE_DEVICE,
     USB_FUN_DISABLE_INTERFACE_TYPE,
+    USB_FUN_CLEAR_HALT,
     USB_FUN_GET_DEVICE_SPEED,
     USB_FUN_GET_DRIVER_ACTIVE_STATUS,
-    USB_FUN_ADD_ACCESS_RIGHT,
+	USB_FUN_ADD_ACCESS_RIGHT,
+    USB_FUN_BULK_TRANSFER_READ_WITH_LENGTH,
+    USB_FUN_ATTACH_KERNEL_DRIVER,
+    USB_FUN_DETACH_KERNEL_DRIVER,
 };
 const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbSrv";
-static int32_t CODE = 0;
+static uint32_t g_UsbInterfaceCode = 0;
+static constexpr uint32_t g_UsbInterfaceCodeCount = 43; // UsbInterfaceCode Count - 1 
 
 void SetTestCaseNative(TokenInfoParams *infoInstance)
 {
@@ -122,12 +129,12 @@ bool DoSomethingInterestingWithMyAPI(const uint8_t *rawData, size_t size)
     if (rawData == nullptr) {
         return false;
     }
-    if (CODE > static_cast<int32_t>(UsbInterfaceCode::USB_FUN_ADD_ACCESS_RIGHT)) {
+    if (g_UsbInterfaceCode > g_UsbInterfaceCodeCount) {
         return true;
     }
-    uint32_t code = CODE;
-    if (code <= static_cast<int32_t>(UsbInterfaceCode::USB_FUN_ADD_ACCESS_RIGHT)) {
-        CODE += 1;
+    uint32_t code = g_UsbInterfaceCode;
+    if (code <= g_UsbInterfaceCodeCount) {
+        g_UsbInterfaceCode += 1;
     }
     rawData = rawData + OFFSET;
     size = size - OFFSET;
@@ -138,7 +145,6 @@ bool DoSomethingInterestingWithMyAPI(const uint8_t *rawData, size_t size)
     data.RewindRead(0);
     MessageParcel reply;
     MessageOption option;
-    GrantPermissionSysNative();
     DelayedSpSingleton<UsbService>::GetInstance()->OnRemoteRequest(code, data, reply, option);
     return true;
 }
