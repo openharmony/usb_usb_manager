@@ -23,11 +23,19 @@
 #include "system_ability.h"
 #include "usb_device.h"
 #include "usb_right_manager.h"
+#include "usb_interface_type.h"
 
 namespace OHOS {
 namespace USB {
-typedef std::map<std::string, UsbDevice *> MAP_STR_DEVICE;
+struct DeviceClassUsage {
+    uint8_t usage;
+    std::string description;
 
+    DeviceClassUsage(int8_t uage, std::string des)
+        : usage(uage), description(des) {};
+};
+
+typedef std::map<std::string, UsbDevice *> MAP_STR_DEVICE;
 class UsbHostManager {
 public:
     explicit UsbHostManager(SystemAbility *systemAbility);
@@ -41,7 +49,10 @@ public:
 private:
     bool PublishCommonEvent(const std::string &event, const UsbDevice &dev);
     void ReportHostPlugSysEvent(const std::string &event, const UsbDevice &dev);
-
+    std::string ConcatenateToDescription(const UsbDeviceType &interfaceType, const std::string& str);
+    int32_t GetDeviceDescription(int32_t baseClass, std::string &description, uint8_t &usage);
+    int32_t GetInterfaceDescription(const UsbDevice &dev, std::string &description, int32_t &baseClass);
+    std::string GetInterfaceUsageDescription(const UsbDeviceType &interfaceType);
     MAP_STR_DEVICE devices_;
     SystemAbility *systemAbility_;
 };

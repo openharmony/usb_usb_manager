@@ -115,6 +115,9 @@ struct UsbDeviceType {
         return (baseClass == other.baseClass) && (subClass == other.subClass) && (protocol == other.protocol) &&
             (isDeviceType == other.isDeviceType);
     }
+    UsbDeviceType (int32_t deviceBaseClass, int32_t sub, int32_t prot, bool deviceType)
+        : baseClass(deviceBaseClass), subClass(sub), protocol(prot), isDeviceType(deviceType) {};
+    UsbDeviceType (): baseClass(0), subClass(0), protocol(0), isDeviceType(0) {};
     bool Marshalling(MessageParcel &parcel) const;
     static bool Unmarshalling(MessageParcel &parcel, UsbDeviceType &usbDeviceType);
     bool ReadFromParcel(MessageParcel &parcel);
