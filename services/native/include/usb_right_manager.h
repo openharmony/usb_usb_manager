@@ -51,6 +51,7 @@ public:
     bool IsSystemApp();
     int32_t CleanUpRightExpired(std::vector<std::string> &devices);
     static int32_t CleanUpRightUserDeleted(int32_t &totalUsers, int32_t &deleteUsers);
+    static int32_t CleanUpRightUserStopped(int32_t uid);
     static int32_t IsOsAccountExists(int32_t id, bool &isAccountExists);
     static int32_t CleanUpRightAppUninstalled(int32_t uid, const std::string &bundleName);
     int32_t HasSetFuncRight(int32_t functions);
