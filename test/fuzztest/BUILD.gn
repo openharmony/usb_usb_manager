@@ -271,6 +271,29 @@ ohos_fuzztest("UsbMgrReleaseInterfaceFuzzTest") {
       [ "usbmgrreleaseinterface_fuzzer/usbmgrreleaseinterface_fuzzer.cpp" ]
 }
 
+ohos_fuzztest("UsbMgrResetDeviceFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrresetdevice_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources = [ "usbmgrresetdevice_fuzzer/usbmgrresetdevice_fuzzer.cpp" ]
+}
+
 ohos_fuzztest("UsbMgrBulkTransferFuzzTest") {
   module_out_path = module_output_path
 
@@ -935,6 +958,7 @@ group("fuzztest") {
     ":UsbMgrRequestInitializeFuzzTest",
     ":UsbMgrRequestQueueFuzzTest",
     ":UsbMgrRequestRightFuzzTest",
+    ":UsbMgrResetDeviceFuzzTest",
     ":UsbMgrSetConfigurationFuzzTest",
     ":UsbMgrSetCurrentFunctionsFuzzTest",
     ":UsbMgrSetInterfaceFuzzTest",
