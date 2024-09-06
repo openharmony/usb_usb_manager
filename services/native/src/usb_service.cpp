@@ -1418,7 +1418,7 @@ void UsbService::ExecuteManageDeviceType(const std::vector<UsbDeviceType> &disab
                 return (entry.second[0] == dev.baseClass) &&
                     (entry.second[1] == -1 || entry.second[1] == dev.subClass) &&
                     (entry.second[HALF] == -1 || entry.second[HALF] == dev.protocol);
-            })-》first);
+            })->first);
         } else {
             USB_HILOGE(MODULE_USB_SERVICE, "is not in the type list, %{public}d, %{public}d, %{public}d",
                 dev.baseClass, dev.subClass, dev.protocol);
