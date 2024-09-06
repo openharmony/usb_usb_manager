@@ -243,11 +243,9 @@ int32_t UsbHostManager::GetInterfaceDescription(const UsbDevice &dev, std::strin
             baseClass = interface.GetClass();
             UsbDeviceType interfaceType = {interface.GetClass(),
                 interface.GetSubClass(), interface.GetProtocol(), 0};
-            if (useInterfaceType.find(interfaceType) == useInterfaceType.end()) {
                 useInterfaceType.insert(interfaceType);
                 std::string infUsageDes = GetInterfaceUsageDescription(interfaceType);
                 description += ConcatenateToDescription(interfaceType, infUsageDes);
-            }
         }
     }
     return UEC_OK;
