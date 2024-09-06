@@ -1409,12 +1409,12 @@ void UsbService::ExecuteManageDeviceType(const std::vector<UsbDeviceType> &disab
 {
     std::vector<InterfaceType> interfaceTypes;
     for (const auto &dev : disableType) {
-        if (std::any_of(map.begin(), map.end(), [dev](const auto &entry){
+        if (std::any_of(map.begin(), map.end(), [dev](const auto &entry) {
             return (entry.second[0] == dev.baseClass) &&
                 (entry.second[1] == -1 || entry.second[1] == dev.subClass) &&
                 (entry.second[HALF] == -1 || entry.second[HALF] == dev.protocol);
         })) {
-            interfaceTypes.push_back(std::find_if(map.begin(), map.end(), [dev](const auto &entry){
+            interfaceTypes.push_back(std::find_if(map.begin(), map.end(), [dev](const auto &entry) {
                 return (entry.second[0] == dev.baseClass) &&
                     (entry.second[1] == -1 || entry.second[1] == dev.subClass) &&
                     (entry.second[HALF] == -1 || entry.second[HALF] == dev.protocol);
