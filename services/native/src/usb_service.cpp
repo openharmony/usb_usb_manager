@@ -1409,17 +1409,17 @@ void UsbService::ExecuteManageDeviceType(const std::vector<UsbDeviceType> &disab
 {
     std::vector<InterfaceType> interfaceTypes;
     for (const auto &dev : disableType) {
-        if (std::any_of(map.begin(), map.end(), [dev](const auto &entry) {
-            return (entry.second[0] == dev.baseClass) &&
-                (entry.second[1] == -1 || entry.second[1] == dev.subClass) &&
-                (entry.second[HALF] == -1 || entry.second[HALF] == dev.protocol);
-        })) {
-            interfaceTypes.push_back(std::find_if(map.begin(), map.end(), [dev](const auto &entry) {
-                return (entry.second[0] == dev.baseClass) &&
-                    (entry.second[1] == -1 || entry.second[1] == dev.subClass) &&
-                    (entry.second[HALF] == -1 || entry.second[HALF] == dev.protocol);
-            })->first);
-        } else {
+        bool isMatch = false;
+        for (auto& [interfaceTypeValues, typeValues] : map) {
+            if ((typeValues[0] == dev.baseClass) &&
+                (typeValues[1] == -1 || typeValues[1] == dev.subClass)&&
+                (typeValues[HALF] == -1 || typeValues[HALF] == dev.protocol)) {
+                    isMatch = true;
+                    interfaceTypes.emplace_back(interfaceTypeValues);
+                    break;
+            }
+        }
+        if (!isMatch) {
             USB_HILOGE(MODULE_USB_SERVICE, "is not in the type list, %{public}d, %{public}d, %{public}d",
                 dev.baseClass, dev.subClass, dev.protocol);
         }
