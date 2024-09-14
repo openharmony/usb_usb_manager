@@ -1412,12 +1412,13 @@ int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> 
     }
     for (auto it = devices.begin(); it != devices.end(); ++it) {
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
-        ret = usbd_->close(dev);
+        int32_t ret = usbd_->CloseDevice(dev);
         if (ret != UEC_OK) {
             USB_HILOGW(MODULE_USB_SERVICE, "ExecuteManageInterfaceType close fail ret = %{public}d", ret);
+            return ret;
         }
     }
-    return ret;
+    return UEC_OK;
 }
 // LCOV_EXCL_STOP
 
