@@ -182,6 +182,7 @@ private:
     int32_t ManageDeviceImpl(int32_t vendorId, int32_t productId, bool disable);
     int32_t ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable);
     int32_t ManageDeviceTypeImpl(InterfaceType interfaceType, bool disable);
+    int32_t CheckUecValue();
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     bool ready_ = false;
     int32_t commEventRetryTimes_ = 0;

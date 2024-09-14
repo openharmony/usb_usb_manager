@@ -1387,11 +1387,29 @@ int32_t UsbService::GetUsbPolicy(bool &IsGlobalDisabled, std::vector<UsbDeviceTy
 int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
     std::vector<InterfaceType> interfaceTypes;
+    std::map<std::string, UsbDevice *> devices;
+    usbHostManager_->GetDevices(devices);
+    for (auto it = devices.begin(); it != devices.end(); ++it) {
+        UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
+        int32_t ret = usbd_->OpenDevice(dev);
+        if (ret != UEC_OK) {
+            USB_HILOGW(MODULE_USB_SERVICE, "ExecuteManageInterfaceType open fail ret = %{public}d", ret);
+            return ret;
+        }
+    }
     for (const auto &dev : disableType) {
         if (!dev.isDeviceType) {
             ExecuteManageDeviceType(disableType, disable, g_typeMap, false);
         } else {
             ExecuteManageDeviceType(disableType, disable, d_typeMap, true);
+        }
+    }
+    for (auto it = devices.begin(); it != devices.end(); ++it) {
+        UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
+        int32_t ret = usbd_->CloseDevice(dev);
+        if (ret != UEC_OK) {
+            USB_HILOGW(MODULE_USB_SERVICE, "ExecuteManageInterfaceType close fail ret = %{public}d", ret);
+            return ret;
         }
     }
     return UEC_OK;
@@ -2107,12 +2125,7 @@ int32_t UsbService::ManageInterfaceType(const std::vector<UsbDeviceType> &disabl
 // LCOV_EXCL_START
 int32_t UsbService::ManageGlobalInterfaceImpl(bool disable)
 {
-    if (usbHostManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    if (usbd_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "usbd_ is nullptr");
+    if (CheckUecValue() != UEC_OK) {
         return UEC_SERVICE_INVALID_VALUE;
     }
     std::map<std::string, UsbDevice *> devices;
@@ -2121,6 +2134,11 @@ int32_t UsbService::ManageGlobalInterfaceImpl(bool disable)
     for (auto it = devices.begin(); it != devices.end(); ++it) {
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         uint8_t configIndex = 0;
+        int32_t ret = usbd_->OpenDevice(dev);
+        if (ret != UEC_OK) {
+            USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl open fail ret = %{public}d", ret);
+            return ret;
+        }
         if (usbd_->GetConfig(dev, configIndex)) {
             USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
             continue;
@@ -2136,6 +2154,11 @@ int32_t UsbService::ManageGlobalInterfaceImpl(bool disable)
             ManageInterface(dev, interfaces[i].GetId(), disable);
             std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
         }
+        ret = usbd_->CloseDevice(dev);
+        if (ret != UEC_OK) {
+            USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl Close fail ret = %{public}d", ret);
+            return ret;
+        }
     }
     return UEC_OK;
 }
@@ -2144,12 +2167,7 @@ int32_t UsbService::ManageGlobalInterfaceImpl(bool disable)
 // LCOV_EXCL_START
 int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool disable)
 {
-    if (usbHostManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    if (usbd_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "usbd_ is nullptr");
+    if (CheckUecValue() != UEC_OK) {
         return UEC_SERVICE_INVALID_VALUE;
     }
     std::map<std::string, UsbDevice *> devices;
@@ -2160,6 +2178,11 @@ int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool d
         if ((it->second->GetVendorId() == vendorId) && (it->second->GetProductId() == productId)) {
             UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
             uint8_t configIndex = 0;
+            int32_t ret = usbd_->OpenDevice(dev);
+            if (ret != UEC_OK) {
+                USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl open fail ret = %{public}d", ret);
+                return ret;
+            }
             if (usbd_->GetConfig(dev, configIndex)) {
                 USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
                 continue;
@@ -2173,6 +2196,11 @@ int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool d
             for (uint32_t i = 0; i < interfaces.size(); i++) {
                 ManageInterface(dev, interfaces[i].GetId(), disable);
                 std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
+            }
+            ret = usbd_->CloseDevice(dev);
+            if (ret != UEC_OK) {
+                USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceImpl Close fail ret = %{public}d", ret);
+                return ret;
             }
         }
     }
@@ -2189,12 +2217,7 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
         return UEC_SERVICE_INVALID_VALUE;
     }
 
-    if (usbHostManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    if (usbd_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "usbd_ is nullptr");
+    if (CheckUecValue() != UEC_OK) {
         return UEC_SERVICE_INVALID_VALUE;
     }
     std::map<std::string, UsbDevice *> devices;
@@ -2225,6 +2248,21 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
                     std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
             }
         }
+    }
+    return UEC_OK;
+}
+// LCOV_EXCL_STOP
+
+// LCOV_EXCL_START
+int32_t UsbService::CheckUecValue()
+{
+    if (usbHostManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbd_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
     }
     return UEC_OK;
 }
@@ -2263,21 +2301,7 @@ int32_t UsbService::ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t i
         USB_HILOGE(MODULE_USB_SERVICE, "usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    int32_t ret = usbd_->OpenDevice(dev);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "ManageInterface OpenDevice failed ret=%{public}d", ret);
-        return ret;
-    }
-    int32_t res = usbd_->ManageInterface(dev, interfaceId, disable);
-    if (res != 0) {
-        USB_HILOGE(MODULE_USB_SERVICE, "ManageInterface  failed ret=%{public}d", ret);
-    }
-    ret = usbd_->CloseDevice(dev);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USBD, "ManageInterface Close device failed ret = %{public}d", ret);
-        return ret;
-    }
-    return res;
+    return usbd_->ManageInterface(dev, interfaceId, disable);
 }
 // LCOV_EXCL_STOP
 
