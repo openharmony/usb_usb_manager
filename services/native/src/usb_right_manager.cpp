@@ -90,6 +90,10 @@ public:
             USB_HILOGD(MODULE_USB_SERVICE,
                 "recv event user delete: event=%{public}s, delete detail[%{public}d/%{public}d]: %{public}d",
                 wantAction.c_str(), deleteUsers, totalUsers, ret);
+        } else if (wantAction == CommonEventSupport::COMMON_EVENT_USER_STOPPED) {
+            int32_t uid = data.GetCode();
+            int32_t ret = UsbRightManager::CleanUpRightUserStopped(uid);
+            USB_HILOGD(MODULE_USB_SERVICE, "on user %{public}d stopped, ret=%{public}d", uid, ret);
         }
     }
 };
@@ -105,6 +109,7 @@ int32_t UsbRightManager::Init()
     /* subscribe uid/user remove event */
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_UID_REMOVED);
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_REMOVED);
+    matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_STOPPED);
     CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     std::shared_ptr<RightSubscriber> subscriber = std::make_shared<RightSubscriber>(subscriberInfo);
     bool ret = CommonEventManager::SubscribeCommonEvent(subscriber);
@@ -638,6 +643,17 @@ int32_t UsbRightManager::CleanUpRightUserDeleted(int32_t &totalUsers, int32_t &d
     }
     totalUsers = static_cast<int32_t>(rightRecordUids.size());
     return USB_RIGHT_OK;
+}
+
+int32_t UsbRightManager::CleanUpRightUserStopped(int32_t uid)
+{
+    std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "CleanUpRightUserStopped %{public}d: helper is null", uid);
+        return false;
+    }
+
+    return helper->DeleteUidRightRecord(uid);
 }
 
 int32_t UsbRightManager::CleanUpRightTemporaryExpired(const std::string &deviceName)
