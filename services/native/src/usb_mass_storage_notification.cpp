@@ -130,7 +130,8 @@ void UsbMassStorageNotification::GetFilemanagerBundleName()
         size_t start_pos = appInfo.bundleName.find(FILEMANAGER_BUNDLE_NAME_KEY);
         if (start_pos != std::string::npos) {
             filemanagerBundleName = appInfo.bundleName;
-            int32_t resultCode = bundleMgr->GetApplicationInfoV9(filemanagerBundleName.replace(
+            std::string bundleNameTemp = appInfo.bundleName;
+            int32_t resultCode = bundleMgr->GetApplicationInfoV9(bundleNameTemp.replace(
                 start_pos, FILEMANAGER_BUNDLE_NAME_KEY.length(), FILES_BUNDLE_NAME_KEY),
                 GET_APP_INFO_FLAG, osAccountId, appInfoTemp);
             USB_HILOGD(MODULE_USB_SERVICE, "GetApplicationInfoV9 resultCode %{public}d", resultCode);
