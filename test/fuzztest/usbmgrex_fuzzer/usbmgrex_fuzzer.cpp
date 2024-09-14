@@ -66,7 +66,7 @@ enum class UsbInterfaceCode {
     USB_FUN_ADD_ACCESS_RIGHT,
 };
 const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbSrv";
-static int32_t CODE = 0;
+static int32_t g_usbFunCode = 0;
 
 void SetTestCaseNative(TokenInfoParams *infoInstance)
 {
@@ -122,12 +122,12 @@ bool DoSomethingInterestingWithMyAPI(const uint8_t *rawData, size_t size)
     if (rawData == nullptr) {
         return false;
     }
-    if (CODE > static_cast<int32_t>(UsbInterfaceCode::USB_FUN_ADD_ACCESS_RIGHT)) {
+    if (g_usbFunCode > static_cast<int32_t>(UsbInterfaceCode::USB_FUN_ADD_ACCESS_RIGHT)) {
         return true;
     }
-    uint32_t code = CODE;
+    uint32_t code = g_usbFunCode;
     if (code <= static_cast<int32_t>(UsbInterfaceCode::USB_FUN_ADD_ACCESS_RIGHT)) {
-        CODE += 1;
+        g_usbFunCode += 1;
     }
     rawData = rawData + OFFSET;
     size = size - OFFSET;
