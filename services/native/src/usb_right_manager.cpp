@@ -36,6 +36,7 @@
 #include "usb_napi_errors.h"
 #include "usb_srv_support.h"
 #include "usb_service.h"
+#include "parameters.h"
 
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::EventFwk;
@@ -49,6 +50,7 @@ constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 constexpr int32_t USB_RIGHT_USERID_DEFAULT = 100;
 constexpr int32_t USB_RIGHT_USERID_CONSOLE = 0;
 const std::string USB_MANAGE_ACCESS_USB_DEVICE = "ohos.permission.MANAGE_USB_CONFIG";
+const std::string DEVELOPERMODE_STATE = "const.security.developermode.state";
 enum UsbRightTightUpChoose : uint32_t {
     TIGHT_UP_USB_RIGHT_RECORD_NONE = 0,
     TIGHT_UP_USB_RIGHT_RECORD_APP_UNINSTALLED = 1 << 0,
@@ -378,35 +380,33 @@ bool UsbRightManager::GetProductName(const std::string &devName, std::string &pr
     return usbService->GetDeviceProductName(devName, productName);
 }
 
-bool UsbRightManager::IsSystemApp()
+bool UsbRightManager::IsSystemAppOrSa()
 {
     uint64_t tokenid = IPCSkeleton::GetCallingFullTokenID();
     bool isSystemApp = TokenIdKit::IsSystemAppByFullTokenID(tokenid);
-    if (!isSystemApp) {
-        USB_HILOGW(MODULE_USB_SERVICE, "not is sysapp, return false");
-        return false;
+    if (isSystemApp) {
+        return true;
     }
-    return true;
+
+    AccessTokenID accessTokenId = IPCSkeleton::GetCallingTokenID();
+    ATokenTypeEnum tokenType = AccessTokenKit::GetTokenTypeFlag(accessTokenId);
+    if (tokenType == TOKEN_NATIVE) {
+        return true;
+    }
+
+    USB_HILOGW(MODULE_USB_SERVICE, "neither system app nor sa");
+    return false;
 }
 
-bool UsbRightManager::CheckSaPermission()
+bool UsbRightManager::VerifyPermission()
 {
     AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     int32_t ret = AccessTokenKit::VerifyAccessToken(tokenId, USB_MANAGE_ACCESS_USB_DEVICE);
     if (ret == PermissionState::PERMISSION_DENIED) {
-        USB_HILOGW(MODULE_USB_SERVICE, "not authorized, ret: %{public}d", ret);
+        USB_HILOGW(MODULE_USB_SERVICE, "no permission");
         return false;
     }
     return true;
-}
-
-bool UsbRightManager::CheckPermission()
-{
-    if (CheckSaPermission() || IsSystemApp()) {
-        return true;
-    }
-    USB_HILOGW(MODULE_USB_SERVICE, "not authorized or not system app, return false");
-    return false;
 }
 
 bool UsbRightManager::IsAppInstalled(int32_t uid, const std::string &bundleName)
@@ -471,8 +471,7 @@ int32_t UsbRightManager::IsOsAccountExists(int32_t id, bool &isAccountExists)
 
 int32_t UsbRightManager::HasSetFuncRight(int32_t functions)
 {
-    if (!CheckPermission()) {
-        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
+    if (!(IsSystemAppOrSa() && VerifyPermission())) {
         return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
     }
     if (!(static_cast<uint32_t>(functions) & UsbSrvSupport::FUNCTION_HDC)) {
@@ -487,6 +486,10 @@ int32_t UsbRightManager::HasSetFuncRight(int32_t functions)
     ret = strcmp(paramValue, "true");
     if (ret != 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "HDC setup failed");
+        return UEC_SERVICE_PERMISSION_CHECK_HDC;
+    }
+    if (!OHOS::system::GetBoolParameter(DEVELOPERMODE_STATE, false)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Developer mode unabled, FUNCTION_HDC cannot be set");
         return UEC_SERVICE_PERMISSION_CHECK_HDC;
     }
     return UEC_OK;

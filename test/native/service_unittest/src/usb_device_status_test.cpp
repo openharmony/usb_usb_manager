@@ -261,7 +261,7 @@ HWTEST_F(UsbDeviceStatusTest, ClearHalt001, TestSize.Level1)
     if (!interface.GetEndpoints().empty()) {
         USBEndpoint ep = interface.GetEndpoints().front();
         ret = UsbSrvClient.ClearHalt(pipe, ep);
-        USB_HILOGI(MODULE_USB_SERVICE, "ClearHalt001 %{public}d ClearHalt=%{public}d", __LINE__, ret);
+        EXPECT_TRUE(ret == 0);
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "ClearHalt001 %{public}d no endpoints", __LINE__);
     }
@@ -304,7 +304,7 @@ HWTEST_F(UsbDeviceStatusTest, ClearHalt002, TestSize.Level1)
     if (!interface.GetEndpoints().empty()) {
         USBEndpoint ep = interface.GetEndpoints().front();
         ret = UsbSrvClient.ClearHalt(pipe, ep);
-        USB_HILOGI(MODULE_USB_SERVICE, "ClearHalt002 %{public}d ClearHalt=%{public}d", __LINE__, ret);
+        EXPECT_FALSE(ret == 0);
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "ClearHalt002 %{public}d no endpoints", __LINE__);
     }
@@ -347,7 +347,7 @@ HWTEST_F(UsbDeviceStatusTest, ClearHalt003, TestSize.Level1)
     if (!interface.GetEndpoints().empty()) {
         USBEndpoint ep = interface.GetEndpoints().front();
         ret = UsbSrvClient.ClearHalt(pipe, ep);
-        USB_HILOGI(MODULE_USB_SERVICE, "ClearHalt003 %{public}d ClearHalt=%{public}d", __LINE__, ret);
+        EXPECT_FALSE(ret == 0);
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "ClearHalt003 %{public}d no endpoints", __LINE__);
     }
@@ -390,7 +390,7 @@ HWTEST_F(UsbDeviceStatusTest, ClearHalt004, TestSize.Level1)
     if (!interface.GetEndpoints().empty()) {
         USBEndpoint ep = interface.GetEndpoints().front();
         ret = UsbSrvClient.ClearHalt(pipe, ep);
-        USB_HILOGI(MODULE_USB_SERVICE, "ClearHalt004 %{public}d ClearHalt=%{public}d", __LINE__, ret);
+        EXPECT_FALSE(ret == 0);
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "ClearHalt004 %{public}d no endpoints", __LINE__);
     }

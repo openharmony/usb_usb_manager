@@ -72,8 +72,8 @@ enum class UsbInterfaceCode {
     USB_FUN_DETACH_KERNEL_DRIVER,
 };
 const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbSrv";
-static uint32_t g_UsbInterfaceCode = 0;
-static constexpr uint32_t g_UsbInterfaceCodeCount = 43; // UsbInterfaceCode Count - 1
+static uint32_t g_usbInterfaceCode = 0;
+static constexpr uint32_t g_usbInterfaceCodeCount = 43; // UsbInterfaceCode Count - 1
 
 void SetTestCaseNative(TokenInfoParams *infoInstance)
 {
@@ -129,12 +129,12 @@ bool DoSomethingInterestingWithMyAPI(const uint8_t *rawData, size_t size)
     if (rawData == nullptr) {
         return false;
     }
-    if (g_UsbInterfaceCode > g_UsbInterfaceCodeCount) {
+    if (g_usbInterfaceCode > g_usbInterfaceCodeCount) {
         return true;
     }
-    uint32_t code = g_UsbInterfaceCode;
-    if (code <= g_UsbInterfaceCodeCount) {
-        g_UsbInterfaceCode += 1;
+    uint32_t code = g_usbInterfaceCode;
+    if (code <= g_usbInterfaceCodeCount) {
+        g_usbInterfaceCode += 1;
     }
     rawData = rawData + OFFSET;
     size = size - OFFSET;
