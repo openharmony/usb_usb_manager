@@ -25,6 +25,11 @@
         "launchType": "standard"
       }
     ],
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.MANAGE_USB_CONFIG"
+      }
+    ],
     "extensionAbilities": [
       {
         "name": "UsbServiceExtAbility",
