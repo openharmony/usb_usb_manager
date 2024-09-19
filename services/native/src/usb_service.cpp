@@ -739,7 +739,7 @@ int32_t UsbService::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t in
         return UEC_SERVICE_INVALID_VALUE;
     }
     int32_t ret = usbd_->ReleaseInterface(dev, interface);
-    if (ret == HDF_DEV_ERR_OP) {
+    if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "ReleaseInterface failed.");
         return UEC_INTERFACE_INVALID_OPERATION;
     }
