@@ -47,8 +47,8 @@ public:
     bool RemoveDeviceRight(const std::string &deviceName, const std::string &bundleName,
         const std::string &tokenId, const int32_t &userId);
     bool RemoveDeviceAllRight(const std::string &deviceName);
-    bool IsSystemAppOrSa();
-    bool VerifyPermission();
+    bool CheckPermission();
+    bool IsSystemApp();
     int32_t CleanUpRightExpired(std::vector<std::string> &devices);
     static int32_t CleanUpRightUserDeleted(int32_t &totalUsers, int32_t &deleteUsers);
     static int32_t CleanUpRightUserStopped(int32_t uid);
@@ -61,6 +61,7 @@ private:
         const std::string &tokenId, const int32_t &userId);
     bool ShowUsbDialog(const std::string &busDev, const std::string &deviceName,
         const std::string &bundleName, const std::string &tokenId);
+    bool CheckSaPermission();
     bool IsAllDigits(const std::string &bundleName);
     sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
     sptr<AppExecFwk::IBundleResource> GetBundleResMgr();
