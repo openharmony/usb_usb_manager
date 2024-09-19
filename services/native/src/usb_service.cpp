@@ -738,7 +738,11 @@ int32_t UsbService::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t in
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    return usbd_->ReleaseInterface(dev, interface);
+    int32_t ret = usbd_->ReleaseInterface(dev, interface);
+    if (ret == HDF_DEV_ERR_OP) {
+        USB_HILOGE(MODULE_USB_SERVICE, "ReleaseInterface failed.");
+    }
+    return ret;
 }
 // LCOV_EXCL_STOP
 
