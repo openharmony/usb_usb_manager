@@ -36,6 +36,7 @@
 #include "usb_napi_errors.h"
 #include "usb_srv_support.h"
 #include "usb_service.h"
+#include "parameters.h"
 
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::EventFwk;
@@ -51,6 +52,7 @@ constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 constexpr int32_t USB_RIGHT_USERID_DEFAULT = 100;
 constexpr int32_t USB_RIGHT_USERID_CONSOLE = 0;
 const std::string USB_MANAGE_ACCESS_USB_DEVICE = "ohos.permission.MANAGE_USB_CONFIG";
+const std::string DEVELOPERMODE_STATE = "const.security.developermode.state";
 enum UsbRightTightUpChoose : uint32_t {
     TIGHT_UP_USB_RIGHT_RECORD_NONE = 0,
     TIGHT_UP_USB_RIGHT_RECORD_APP_UNINSTALLED = 1 << 0,
@@ -466,6 +468,10 @@ int32_t UsbRightManager::HasSetFuncRight(int32_t functions)
     ret = strcmp(paramValue, "true");
     if (ret != 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "HDC setup failed");
+        return UEC_SERVICE_PERMISSION_CHECK_HDC;
+    }
+    if (!OHOS::system::GetBoolParameter(DEVELOPERMODE_STATE, false)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Developer mode unabled, FUNCTION_HDC cannot be set");
         return UEC_SERVICE_PERMISSION_CHECK_HDC;
     }
     return UEC_OK;
