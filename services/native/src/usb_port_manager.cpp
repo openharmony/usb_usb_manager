@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <regex>
 #include "usb_port_manager.h"
 #include <unistd.h>
 #include "hisysevent.h"
@@ -241,6 +242,11 @@ void UsbPortManager::DumpSetPortRoles(int32_t fd, const std::string &args)
     }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::DumpSetPortRoles usbd_ is nullptr");
+        return;
+    }
+    if (!std::regex_match(args, std::regex("^[0-9]+$"))) {
+        dprintf(fd, "Invalid input, please enter a valid integer\n");
+        GetDumpHelp(fd);
         return;
     }
     int32_t mode = stoi(args);
