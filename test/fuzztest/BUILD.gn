@@ -294,6 +294,112 @@ ohos_fuzztest("UsbMgrResetDeviceFuzzTest") {
   sources = [ "usbmgrresetdevice_fuzzer/usbmgrresetdevice_fuzzer.cpp" ]
 }
 
+ohos_fuzztest("UsbMgrClearHaltFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file = "${usb_manager_path}/test/fuzztest/usbmgrclearhalt_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "drivers_interface_usb:libusb_proxy_1.1",
+    "drivers_interface_usb:usb_idl_headers_1.1",
+    "drivers_peripheral_usb:libusb_interface_service_1.1",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  sources = [ "usbmgrclearhalt_fuzzer/usbmgrclearhalt_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrAttachKernelDriverFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrattachkerneldriver_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "drivers_interface_usb:libusb_proxy_1.1",
+    "drivers_interface_usb:usb_idl_headers_1.1",
+    "drivers_peripheral_usb:libusb_interface_service_1.1",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  sources =
+      [ "usbmgrattachkerneldriver_fuzzer/usbmgrattachkerneldriver_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrDetachKernelDriverFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrdetachkerneldriver_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "drivers_interface_usb:libusb_proxy_1.1",
+    "drivers_interface_usb:usb_idl_headers_1.1",
+    "drivers_peripheral_usb:libusb_interface_service_1.1",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  sources =
+      [ "usbmgrdetachkerneldriver_fuzzer/usbmgrdetachkerneldriver_fuzzer.cpp" ]
+}
+
 ohos_fuzztest("UsbMgrBulkTransferFuzzTest") {
   module_out_path = module_output_path
 
@@ -932,13 +1038,16 @@ group("fuzztest") {
   testonly = true
   deps = []
   deps += [
+    ":UsbMgrAttachKernelDriverFuzzTest",
     ":UsbMgrBulkCancelFuzzTest",
     ":UsbMgrBulkReadFuzzTest",
     ":UsbMgrBulkTransferFuzzTest",
     ":UsbMgrBulkWriteFuzzTest",
     ":UsbMgrClaimInterfaceFuzzTest",
+    ":UsbMgrClearHaltFuzzTest",
     ":UsbMgrCloseFuzzTest",
     ":UsbMgrControlTransferFuzzTest",
+    ":UsbMgrDetachKernelDriverFuzzTest",
     ":UsbMgrExFuzzTest",
     ":UsbMgrFuzzTest",
     ":UsbMgrGetDeviceSpeedFuzzTest",
