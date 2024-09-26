@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <regex>
 #include "usb_device_manager.h"
 #include <hdf_base.h>
 #include "common_event_data.h"
@@ -292,7 +293,11 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
         dprintf(fd, "current function: %s\n", ConvertToString(currentFunction).c_str());
         return;
     }
-
+    if (!std::regex_match(args, std::regex("^[0-9]+$"))) {
+        dprintf(fd, "Invalid input, please enter a valid integer\n");
+        GetDumpHelp(fd);
+        return;
+    }
     int32_t mode = stoi(args);
     ret = usbd_->SetCurrentFunctions(mode);
     if (ret != UEC_OK) {
