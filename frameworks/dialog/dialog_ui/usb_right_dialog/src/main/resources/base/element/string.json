@@ -22,23 +22,38 @@
         },
         {
             "name":"allowButton",
-            "value":"Allow"
+            "value":"Allow",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notAllowButton",
-            "value":"Deny"
+            "value":"Deny",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notification_title",
-            "value":"Removable drive"
+            "value":"Removable drive",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notification_text",
-            "value":"USB storage device inserted"
+            "value":"USB storage device inserted",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notification_button",
-            "value":"View"
+            "value":"View",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notification_label",
@@ -54,23 +69,38 @@
         },
         {
             "name":"USB_hint",
-            "value":"Use USB to"
+            "value":"Use USB to",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"USB_func_charge",
-            "value":"Charge only"
+            "value":"Charge only",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"USB_hint_cancel",
-            "value":"OK"
+            "value":"OK",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"usb_right_content",
-            "value":"Allow %1$s to use %2$s?"
+            "value":"Allow %1$s to use %2$s?",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"usb_right_title",
-            "value":"USB access authorization"
+            "value":"USB access authorization",
+            "attr":{
+                "priority":"LT"
+            }
         }
     ]
 }

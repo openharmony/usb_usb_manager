@@ -2,43 +2,73 @@
     "string":[
         {
             "name":"USB_hint_cancel",
-            "value":"確定"
+            "value":"確定",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"usb_right_title",
-            "value":"USB 存取授權"
+            "value":"USB 存取授權",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notification_text",
-            "value":"USB 儲存裝置已連接"
+            "value":"USB 儲存裝置已連接",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notification_button",
-            "value":"查看"
+            "value":"查看",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"USB_hint",
-            "value":"USB 連接方式"
+            "value":"USB 連接方式",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notAllowButton",
-            "value":"不允許"
+            "value":"不允許",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"USB_func_charge",
-            "value":"只充電"
+            "value":"只充電",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"allowButton",
-            "value":"允許"
+            "value":"允許",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notification_title",
-            "value":"卸除式磁碟機"
+            "value":"卸除式磁碟機",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"usb_right_content",
-            "value":"是否允許 %1$s 使用%2$s？"
+            "value":"是否允許 %1$s 使用%2$s？",
+            "attr":{
+                "priority":"LT"
+            }
         }
     ]
 }

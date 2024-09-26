@@ -2,7 +2,7 @@
     "string":[
         {
             "name":"USB_hint_cancel",
-            "value":"[TS_948515]_Cancel"
+            "value":"[TS_948515]_OK"
         },
         {
             "name":"usb_right_title",
