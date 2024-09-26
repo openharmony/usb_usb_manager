@@ -1253,8 +1253,6 @@ int32_t UsbService::GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGloba
 int32_t UsbService::GetEdmStroageTypePolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceType> &disableType)
 {
     int32_t stroageDisableType = 0;
-    bool isStorageDisable = false;
-
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -1271,14 +1269,12 @@ int32_t UsbService::GetEdmStroageTypePolicy(sptr<IRemoteObject> remote, std::vec
     int32_t ret = ERR_INVALID_VALUE;
     bool isSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!isSuccess) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmStroageTypePolicy failed. ErrCode =  %{public}d, ret = %{public}d",
-            ErrCode, ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmStroageTypePolicy failed. ErrCode =  %{public}d, ret = %{public}d", ErrCode, ret);
         return UEC_SERVICE_EDM_SEND_REQUEST_FAILED;
     }
 
     reply.ReadInt32(stroageDisableType);
     if (stroageDisableType == GET_EDM_STORAGE_DISABLE_TYPE) {
-        isStorageDisable = true;
         UsbDeviceType usbDeviceType;
         usbDeviceType.baseClass = STORAGE_BASE_CLASS;
         usbDeviceType.subClass = 0;
@@ -1448,7 +1444,6 @@ int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> 
         int32_t ret = usbd_->OpenDevice(dev);
         if (ret != UEC_OK) {
             USB_HILOGW(MODULE_USB_SERVICE, "ExecuteManageInterfaceType open fail ret = %{public}d", ret);
-            return ret;
         }
     }
     for (const auto &dev : disableType) {
@@ -1463,7 +1458,6 @@ int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> 
         int32_t ret = usbd_->CloseDevice(dev);
         if (ret != UEC_OK) {
             USB_HILOGW(MODULE_USB_SERVICE, "ExecuteManageInterfaceType close fail ret = %{public}d", ret);
-            return ret;
         }
     }
     return UEC_OK;
