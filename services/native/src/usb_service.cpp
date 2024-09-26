@@ -1269,7 +1269,8 @@ int32_t UsbService::GetEdmStroageTypePolicy(sptr<IRemoteObject> remote, std::vec
     int32_t ret = ERR_INVALID_VALUE;
     bool isSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!isSuccess) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmStroageTypePolicy failed. ErrCode =  %{public}d, ret = %{public}d", ErrCode, ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmStroageTypePolicy failed. ErrCode =  %{public}d, ret = %{public}d",
+            ErrCode, ret);
         return UEC_SERVICE_EDM_SEND_REQUEST_FAILED;
     }
 
@@ -1277,8 +1278,6 @@ int32_t UsbService::GetEdmStroageTypePolicy(sptr<IRemoteObject> remote, std::vec
     if (stroageDisableType == GET_EDM_STORAGE_DISABLE_TYPE) {
         UsbDeviceType usbDeviceType;
         usbDeviceType.baseClass = STORAGE_BASE_CLASS;
-        usbDeviceType.subClass = 0;
-        usbDeviceType.protocol = 0;
         usbDeviceType.isDeviceType = 0;
         disableType.emplace_back(usbDeviceType);
     }
