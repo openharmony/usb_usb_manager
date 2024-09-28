@@ -1391,7 +1391,6 @@ int32_t UsbService::GetUsbPolicy(bool &IsGlobalDisabled, std::vector<UsbDeviceTy
 // LCOV_EXCL_START
 int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
-    std::vector<InterfaceType> interfaceTypes;
     std::map<std::string, UsbDevice *> devices;
     usbHostManager_->GetDevices(devices);
     for (auto it = devices.begin(); it != devices.end(); ++it) {
