@@ -259,6 +259,28 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType004, TestSize.Level1)
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageInterfaceType004 : ManageInterfaceType");
 }
+
+
+HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType005, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ManageInterfaceType005 : ManageDevice");
+    UsbCommonTest::GrantPermissionNormalNative();
+    auto &client = UsbSrvClient::GetInstance();
+    vector<UsbDevice> devi;
+    auto ret = client.GetDevices(devi);
+    EXPECT_TRUE(ret == 0);
+    vector<UsbDeviceType> disableType;
+    UsbDeviceType usbDeviceType;
+    usbDeviceType.baseClass = 8;
+    usbDeviceType.subClass = 6;
+    usbDeviceType.protocol = 80;
+    usbDeviceType.isDeviceType = 0;
+    disableType.emplace_back(usbDeviceType);
+    ret = client.ManageInterfaceType(disableType, false);
+    ASSERT_NE(ret, 0);
+    UsbCommonTest::GrantPermissionSysNative();
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageInterfaceType005 : ManageDevice");
+}
 } // ManagerInterface
 } // USB
 } // OHOS

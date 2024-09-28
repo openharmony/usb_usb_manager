@@ -71,12 +71,15 @@ constexpr uint32_t WITHOUT_ADMIN = 1;
 constexpr uint32_t EMD_MASK_CODE = 20;
 constexpr uint32_t DISABLE_USB = 1043;
 constexpr uint32_t ALLOWED_USB_DEVICES = 1044;
-constexpr uint32_t USB_STORAGE_DEVICE_ACCESS_POLICY = 1059;
+constexpr uint32_t USB_STORAGE_DEVICE_ACCESS_POLICY = 1026;
+constexpr uint32_t USB_DEVICE_ACCESS_POLICY = 1059;
 constexpr int32_t WHITELIST_POLICY_MAX_DEVICES = 1000;
 constexpr uint32_t EDM_SA_TIME_OUT_CODE = 9200007;
 constexpr int32_t BASECLASS_INDEX = 0;
 constexpr int32_t SUBCLASS_INDEX = 1;
 constexpr int32_t PROTOCAL_INDEX = 2;
+constexpr int32_t STORAGE_BASE_CLASS = 8;
+constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
@@ -1247,6 +1250,42 @@ int32_t UsbService::GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGloba
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
+int32_t UsbService::GetEdmStroageTypePolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceType> &disableType)
+{
+    int32_t stroageDisableType = 0;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    data.WriteInterfaceToken(DESCRIPTOR);
+    data.WriteInt32(WITHOUT_USERID);
+    data.WriteString("");
+    data.WriteInt32(WITHOUT_ADMIN);
+    if (remote == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Remote is nullpter.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    uint32_t funcCode = (1 << EMD_MASK_CODE) | USB_STORAGE_DEVICE_ACCESS_POLICY;
+    int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
+    int32_t ret = ERR_INVALID_VALUE;
+    bool isSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
+    if (!isSuccess) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmStroageTypePolicy failed. ErrCode =  %{public}d, ret = %{public}d",
+            ErrCode, ret);
+        return UEC_SERVICE_EDM_SEND_REQUEST_FAILED;
+    }
+
+    reply.ReadInt32(stroageDisableType);
+    if (stroageDisableType == GET_EDM_STORAGE_DISABLE_TYPE) {
+        UsbDeviceType usbDeviceType;
+        usbDeviceType.baseClass = STORAGE_BASE_CLASS;
+        usbDeviceType.isDeviceType = 0;
+        disableType.emplace_back(usbDeviceType);
+    }
+    return UEC_OK;
+}
+// LCOV_EXCL_STOP
+
+// LCOV_EXCL_START
 int32_t UsbService::GetEdmTypePolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceType> &disableType)
 {
     MessageParcel data;
@@ -1260,7 +1299,7 @@ int32_t UsbService::GetEdmTypePolicy(sptr<IRemoteObject> remote, std::vector<Usb
         USB_HILOGE(MODULE_USB_SERVICE, "Remote is nullpter.");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    uint32_t funcCode = (1 << EMD_MASK_CODE) | USB_STORAGE_DEVICE_ACCESS_POLICY;
+    uint32_t funcCode = (1 << EMD_MASK_CODE) | USB_DEVICE_ACCESS_POLICY;
     int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
     bool isSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
@@ -1347,6 +1386,11 @@ int32_t UsbService::GetEdmPolicy(bool &IsGlobalDisabled, std::vector<UsbDeviceTy
         USB_HILOGE(MODULE_USB_SERVICE, "GetEdmGlobalPolicy failed.");
         return ret;
     }
+    ret = GetEdmStroageTypePolicy(remote, disableType);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmStroageTypePolicy failed.");
+        return ret;
+    }
     ret = GetEdmTypePolicy(remote, disableType);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetEdmTypePolicy failed.");
@@ -1398,7 +1442,6 @@ int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> 
         int32_t ret = usbd_->OpenDevice(dev);
         if (ret != UEC_OK) {
             USB_HILOGW(MODULE_USB_SERVICE, "ExecuteManageInterfaceType open fail ret = %{public}d", ret);
-            return ret;
         }
     }
     for (const auto &dev : disableType) {
@@ -1413,7 +1456,6 @@ int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> 
         int32_t ret = usbd_->CloseDevice(dev);
         if (ret != UEC_OK) {
             USB_HILOGW(MODULE_USB_SERVICE, "ExecuteManageInterfaceType close fail ret = %{public}d", ret);
-            return ret;
         }
     }
     return UEC_OK;
@@ -2050,10 +2092,9 @@ int32_t UsbService::PreCallFunction()
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    if (!(usbRightManager_->IsSystemAppOrSa())) {
+    if (!(usbRightManager_->IsSystemAppOrSa() && usbRightManager_->VerifyPermission())) {
         return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
     }
-
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbHostManager_");
         return UEC_SERVICE_INVALID_VALUE;
@@ -2070,14 +2111,6 @@ int32_t UsbService::PreCallFunction()
 // LCOV_EXCL_START
 int32_t UsbService::ManageGlobalInterface(bool disable)
 {
-    if (usbRightManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    if (!(usbRightManager_->IsSystemAppOrSa())) {
-        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
-    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
@@ -2090,14 +2123,6 @@ int32_t UsbService::ManageGlobalInterface(bool disable)
 // LCOV_EXCL_START
 int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disable)
 {
-    if (usbRightManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    if (!(usbRightManager_->IsSystemAppOrSa())) {
-        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
-    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
@@ -2110,14 +2135,6 @@ int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disab
 // LCOV_EXCL_START
 int32_t UsbService::ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
-    if (usbRightManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    if (!(usbRightManager_->IsSystemAppOrSa())) {
-        USB_HILOGW(MODULE_USB_SERVICE, "is not system app");
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
-    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
