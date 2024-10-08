@@ -123,8 +123,8 @@ int32_t UsbRightManager::Init()
 bool UsbRightManager::HasRight(const std::string &deviceName, const std::string &bundleName,
     const std::string &tokenId, const int32_t &userId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "HasRight: uid=%{public}d dev=%{private}s app=%{public}s",
-        userId, deviceName.c_str(), bundleName.c_str());
+    USB_HILOGI(MODULE_USB_SERVICE, "HasRight: uid=%{public}d app=%{public}s",
+        userId, bundleName.c_str());
     if (userId == USB_RIGHT_USERID_CONSOLE) {
         USB_HILOGW(MODULE_USB_SERVICE, "console called, bypass");
         return true;
@@ -144,8 +144,8 @@ bool UsbRightManager::HasRight(const std::string &deviceName, const std::string 
 int32_t UsbRightManager::RequestRight(const std::string &busDev, const std::string &deviceName,
     const std::string &bundleName, const std::string &tokenId, const int32_t &userId)
 {
-    USB_HILOGD(MODULE_USB_SERVICE, "RequestRight: busdev=%{private}s device=%{public}s app=%{public}s", busDev.c_str(),
-        deviceName.c_str(), bundleName.c_str());
+    USB_HILOGD(MODULE_USB_SERVICE, "RequestRight: busdev=%{private}s app=%{public}s", busDev.c_str(),
+        bundleName.c_str());
     if (HasRight(deviceName, bundleName, tokenId, userId)) {
         USB_HILOGW(MODULE_USB_SERVICE, "device has Right ");
         return UEC_OK;

@@ -46,8 +46,7 @@ std::shared_ptr<UsbRightDbHelper> UsbRightDbHelper::GetInstance()
 bool UsbRightDbHelper::IsRecordExpired(int32_t uid, const std::string &deviceName, const std::string &bundleName,
     const std::string &tokenId, uint64_t expiredTime)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "info: uid=%{public}d dev=%{public}s app=%{public}s",
-        uid, deviceName.c_str(), bundleName.c_str());
+    USB_HILOGI(MODULE_USB_SERVICE, "info: uid=%{public}d app=%{public}s", uid, bundleName.c_str());
     std::vector<struct UsbRightAppInfo> infos;
     int32_t ret = QueryRightRecord(uid, deviceName, bundleName, tokenId, infos);
     if (ret <= 0) {
@@ -125,9 +124,8 @@ int32_t UsbRightDbHelper::AddRightRecord(
     }
     USB_HILOGI(MODULE_USB_SERVICE,
         "add success: uid=%{public}d inst=%{public}" PRIu64 " updt=%{public}" PRIu64 " rqst=%{public}" PRIu64
-        " vald=%{public}" PRIu64 " dev=%{public}s app=%{public}s",
-        info.uid, info.installTime, info.updateTime, info.requestTime, info.validPeriod, deviceName.c_str(),
-        bundleName.c_str());
+        " vald=%{public}" PRIu64 " app=%{public}s",
+        info.uid, info.installTime, info.updateTime, info.requestTime, info.validPeriod, bundleName.c_str());
     return ret;
 }
 
@@ -162,8 +160,7 @@ int32_t UsbRightDbHelper::QueryRightRecord(int32_t uid, const std::string &devic
     const std::string &tokenId, std::vector<struct UsbRightAppInfo> &infos)
 {
     std::lock_guard<std::mutex> guard(databaseMutex_);
-    USB_HILOGI(MODULE_USB_SERVICE, "Query detail: uid=%{public}d dev=%{public}s app=%{public}s", uid,
-        deviceName.c_str(), bundleName.c_str());
+    USB_HILOGI(MODULE_USB_SERVICE, "Query detail: uid=%{public}d app=%{public}s", uid, bundleName.c_str());
     std::vector<std::string> columns;
     RdbPredicates rdbPredicates(USB_RIGHT_TABLE_NAME);
     rdbPredicates.BeginWrap()
@@ -192,7 +189,7 @@ int32_t UsbRightDbHelper::QueryDeviceRightRecord(
     int32_t uid, const std::string &deviceName, std::vector<struct UsbRightAppInfo> &infos)
 {
     std::lock_guard<std::mutex> guard(databaseMutex_);
-    USB_HILOGD(MODULE_USB_SERVICE, "Query detail: uid=%{public}d dev=%{public}s", uid, deviceName.c_str());
+    USB_HILOGD(MODULE_USB_SERVICE, "Query detail: uid=%{public}d", uid);
     std::vector<std::string> columns;
     RdbPredicates rdbPredicates(USB_RIGHT_TABLE_NAME);
     rdbPredicates.BeginWrap()->EqualTo("uid", std::to_string(uid))->And()->EqualTo("deviceName", deviceName)->EndWrap();
