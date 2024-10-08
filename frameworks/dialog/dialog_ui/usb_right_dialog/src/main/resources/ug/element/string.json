@@ -2,43 +2,73 @@
     "string":[
         {
             "name":"USB_hint_cancel",
-            "value":"جەزملەش"
+            "value":"جەزملەش",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"usb_right_title",
-            "value":"\u200fUSB ئىجازىتى"
+            "value":"\u200fUSB ئىجازىتى",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notification_text",
-            "value":"\u200fUSB بوشلۇق چېتىلدى."
+            "value":"\u200fUSB بوشلۇق چېتىلدى.",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notification_button",
-            "value":"كۆرۈش"
+            "value":"كۆرۈش",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"USB_hint",
-            "value":"\u200fUSB ئۇلاش ئۇسۇلى"
+            "value":"\u200fUSB ئۇلاش ئۇسۇلى",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notAllowButton",
-            "value":"چەكلەش"
+            "value":"چەكلەش",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"USB_func_charge",
-            "value":"پەقەت توكلاش"
+            "value":"پەقەت توكلاش",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"allowButton",
-            "value":"رۇخسەت"
+            "value":"رۇخسەت",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notification_title",
-            "value":"كۆچمە دىسكا"
+            "value":"كۆچمە دىسكا",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"usb_right_content",
-            "value":"\u200f«%1$s» نىڭ «%2$s» نى ئىشلىتىشىگە رۇخسەتمۇ؟"
+            "value":"\u200f«%1$s» نىڭ «%2$s» نى ئىشلىتىشىگە رۇخسەتمۇ؟",
+            "attr":{
+                "priority":"LT"
+            }
         }
     ]
 }

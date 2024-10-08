@@ -2,43 +2,73 @@
     "string":[
         {
             "name":"USB_hint_cancel",
-            "value":"གཏན་འཁེལ།"
+            "value":"གཏན་འཁེལ།",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"usb_right_title",
-            "value":"USB ཡི་ལྟ་སྤྱོད་དབང་ཚད།"
+            "value":"USB ཡི་ལྟ་སྤྱོད་དབང་ཚད།",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notification_text",
-            "value":"USB གསོག་ཆས་མཐུད་ཟིན།"
+            "value":"USB གསོག་ཆས་མཐུད་ཟིན།",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notification_button",
-            "value":"ལྟ་ཞིབ།"
+            "value":"ལྟ་ཞིབ།",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"USB_hint",
-            "value":"USB སྦྲེལ་མཐུད་ཐབས་ལམ།"
+            "value":"USB སྦྲེལ་མཐུད་ཐབས་ལམ།",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notAllowButton",
-            "value":"མི་ཆོག"
+            "value":"མི་ཆོག",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"USB_func_charge",
-            "value":"གློག་གསོག་ཁོ་ན།"
+            "value":"གློག་གསོག་ཁོ་ན།",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"allowButton",
-            "value":"ཆོག་པ།"
+            "value":"ཆོག་པ།",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"notification_title",
-            "value":"སྤོ་རུང་སྡུད་སྡེར།"
+            "value":"སྤོ་རུང་སྡུད་སྡེར།",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"usb_right_content",
-            "value":"%1$s ཡིས་ %2$s བཀོལ་ཆོག་པར་བྱེད་དམ།"
+            "value":"%1$s ཡིས་ %2$s བཀོལ་ཆོག་པར་བྱེད་དམ།",
+            "attr":{
+                "priority":"LT"
+            }
         }
     ]
 }
