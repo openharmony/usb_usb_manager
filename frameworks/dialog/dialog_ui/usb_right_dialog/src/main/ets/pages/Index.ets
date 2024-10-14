@@ -66,8 +66,9 @@ struct IndexHapComponent {
   });
 
   async aboutToAppear() {
-    this.dialogControllerList.open();
-
+    setTimeout(() => {
+      this.dialogControllerList.open();
+    });
   }
 
   async aboutToDisappear() {
