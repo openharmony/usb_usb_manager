@@ -187,6 +187,14 @@ static void ParseEndpointObj(const napi_env env, const napi_value endpointObj, U
     NapiUtil::JsObjectToInt(env, endpointObj, "interval", interval);
     int32_t maxPacketSize = 0;
     NapiUtil::JsObjectToInt(env, endpointObj, "maxPacketSize", maxPacketSize);
+    int32_t direction = 0;
+    NapiUtil::JsObjectToInt(env, endpointObj, "direction", direction);
+    USB_ASSERT_RETURN_VOID(env, (direction == USB_ENDPOINT_DIR_IN || direction == USB_ENDPOINT_DIR_OUT),
+        SYSPARAM_INVALID_INPUT, "The interface should have the endpoints property.");
+    int32_t number = 0;
+    NapiUtil::JsObjectToInt(env, endpointObj, "number", number);
+    int32_t type = 0;
+    NapiUtil::JsObjectToInt(env, endpointObj, "type", type);
     int32_t interfaceId = 0;
     NapiUtil::JsObjectToInt(env, endpointObj, "interfaceId", interfaceId);
     ep = USBEndpoint(address, attributes, interval, maxPacketSize);
@@ -362,6 +370,10 @@ static void ParseConfigObj(const napi_env env, const napi_value configObj, USBCo
     NapiUtil::JsObjectToInt(env, configObj, "maxPower", maxPower);
     std::string name;
     NapiUtil::JsObjectToString(env, configObj, "name", DEFAULT_DESCRIPTION_SIZE, name);
+    bool isRemoteWakeup = false;
+    NapiUtil::JsObjectToBool(env, configObj, "isRemoteWakeup", isRemoteWakeup);
+    bool isSelfPowered = false;
+    NapiUtil::JsObjectToBool(env, configObj, "isSelfPowered", isSelfPowered);
 
     std::vector<UsbInterface> interfaces;
     bool ret = ParseInterfacesObjs(env, configObj, interfaces);
@@ -405,6 +417,8 @@ static void ParseDeviceObj(const napi_env env, const napi_value deviceObj, UsbDe
     NapiUtil::JsObjectToString(env, deviceObj, "productName", DEFAULT_DESCRIPTION_SIZE, productName);
     std::string version;
     NapiUtil::JsObjectToString(env, deviceObj, "version", DEFAULT_DESCRIPTION_SIZE, version);
+    std::string serial;
+    NapiUtil::JsObjectToString(env, deviceObj, "serial", DEFAULT_DESCRIPTION_SIZE, serial);
     int32_t devAddr = 0;
     NapiUtil::JsObjectToInt(env, deviceObj, "devAddress", devAddr);
     int32_t busNum = 0;
@@ -490,7 +504,7 @@ static napi_value DeviceAddRight(napi_env env, napi_callback_info info)
     size_t argc = PARAM_COUNT_2;
     napi_value argv[PARAM_COUNT_2] = {nullptr};
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
-    USB_ASSERT(env, (argc >= PARAM_COUNT_2), SYSPARAM_INVALID_INPUT, "The function takes two argument.");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_2), SYSPARAM_INVALID_INPUT, "The function at least takes two argument.");
 
     napi_valuetype type;
     NAPI_CHECK(env, napi_typeof(env, argv[INDEX_0], &type), "Get args 1 type failed");
@@ -520,7 +534,7 @@ static napi_value DeviceAddAccessRight(napi_env env, napi_callback_info info)
     size_t argc = PARAM_COUNT_2;
     napi_value argv[PARAM_COUNT_2] = {nullptr};
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
-    USB_ASSERT(env, (argc >= PARAM_COUNT_2), SYSPARAM_INVALID_INPUT, "The function takes two argument.");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_2), SYSPARAM_INVALID_INPUT, "The function at least takes two argument.");
 
     napi_valuetype type;
     NAPI_CHECK(env, napi_typeof(env, argv[INDEX_0], &type), "Get args 1 type failed");
@@ -655,7 +669,7 @@ static napi_value CoreUsbFunctionsFromString(napi_env env, napi_callback_info in
     napi_value argv[PARAM_COUNT_1] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
-    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function at least takes one argument.");
 
     napi_valuetype type;
     NAPI_CHECK(env, napi_typeof(env, argv[INDEX_0], &type), "Get args 1 type failed");
@@ -731,7 +745,7 @@ static napi_value CoreSetCurrentFunctions(napi_env env, napi_callback_info info)
     napi_value argv[PARAM_COUNT_1] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
-    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function at least takes one argument.");
 
     napi_valuetype type;
     NAPI_CHECK(env, napi_typeof(env, argv[INDEX_0], &type), "Get args 1 type failed");
@@ -829,7 +843,7 @@ static napi_value PortGetSupportedModes(napi_env env, napi_callback_info info)
     napi_value args[PARAM_COUNT_1] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr), "Get call back info failed");
-    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function at least takes one argument.");
 
     napi_valuetype type;
     NAPI_CHECK(env, napi_typeof(env, args[INDEX_0], &type), "Get args 1 type failed");
@@ -885,7 +899,7 @@ static napi_value PortSetPortRole(napi_env env, napi_callback_info info)
     napi_value args[PARAM_COUNT_3] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr), "Get call back info failed");
-    USB_ASSERT(env, (argc >= PARAM_COUNT_3), SYSPARAM_INVALID_INPUT, "The function takes three arguments.");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_3), SYSPARAM_INVALID_INPUT, "The function at least takes three arguments.");
 
     napi_valuetype type;
     NAPI_CHECK(env, napi_typeof(env, args[INDEX_0], &type), "Get args 1 type failed");
@@ -1085,7 +1099,7 @@ static napi_value PipeGetFileDescriptor(napi_env env, napi_callback_info info)
     napi_value argv[PARAM_COUNT_1] = {nullptr};
 
     NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
-    USB_ASSERT(env, (argc == PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function takes one argument.");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function at least takes one argument.");
     napi_value obj = argv[INDEX_0];
     napi_valuetype type;
     napi_typeof(env, obj, &type);
@@ -1144,7 +1158,9 @@ static auto g_controlTransferComplete = [](napi_env env, napi_status status, voi
         USB_HILOGD(MODULE_JS_NAPI, "ControlTransfer failed");
         napi_create_int32(env, -1, &queryResult);
     }
-    ProcessPromise(env, *asyncContext, queryResult);
+    if (asyncContext->deferred) {
+        napi_resolve_deferred(env, asyncContext->deferred, queryResult);
+    }
     napi_delete_async_work(env, asyncContext->work);
     delete asyncContext;
 };
@@ -1295,7 +1311,9 @@ static auto g_usbControlTransferComplete = [](napi_env env, napi_status status, 
         USB_HILOGD(MODULE_JS_NAPI, "usbControlTransfer failed");
         napi_create_int32(env, -1, &queryResult);
     }
-    ProcessPromise(env, *asyncContext, queryResult);
+    if (asyncContext->deferred) {
+        napi_resolve_deferred(env, asyncContext->deferred, queryResult);
+    }
     napi_delete_async_work(env, asyncContext->work);
     delete asyncContext;
 };
@@ -1330,6 +1348,13 @@ static std::tuple<bool, USBDevicePipe, UsbPipeControlParam, int32_t> GetUsbContr
     ParseUsbDevicePipe(env, argv[INDEX_0], pipe);
 
     // control params
+    napi_typeof(env, argv[INDEX_1], &type);
+    if (type != napi_object) {
+        USB_HILOGE(MODULE_JS_NAPI, "index 1 wrong argument type, object expected.");
+        ThrowBusinessError(env, SYSPARAM_INVALID_INPUT, "The type of pipe must be USBDeviceRequestParams.");
+        return {false, {}, {}, {}};
+    }
+
     napi_typeof(env, argv[INDEX_1], &type);
     if (type != napi_object) {
         USB_HILOGE(MODULE_JS_NAPI, "index 1 wrong argument type, object expected.");
