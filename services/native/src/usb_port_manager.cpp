@@ -239,7 +239,10 @@ void UsbPortManager::DumpSetPortRoles(int32_t fd, const std::string &args)
         GetPortsInfo(fd);
         return;
     }
-
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::DumpSetPortRoles usbd_ is nullptr");
+        return;
+    }
     int32_t mode = stoi(args);
     switch (mode) {
         case DEFAULT_ROLE_HOST:

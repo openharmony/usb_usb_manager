@@ -37,7 +37,13 @@ UsbHostManager::UsbHostManager(SystemAbility *systemAbility)
     systemAbility_ = systemAbility;
 }
 
-UsbHostManager::~UsbHostManager() {}
+UsbHostManager::~UsbHostManager()
+{
+    for (auto &pair : devices_) {
+        delete pair.second;
+    }
+    devices_.clear();
+}
 
 void UsbHostManager::GetDevices(MAP_STR_DEVICE &devices)
 {
@@ -110,7 +116,9 @@ bool UsbHostManager::AddDevice(UsbDevice *dev)
         USB_HILOGF(MODULE_SERVICE, "device:%{public}s bus:%{public}hhu dev:%{public}hhu already exist", name.c_str(),
             busNum, devNum);
         UsbDevice *devOld = iter->second;
-        delete devOld;
+        if (devOld != nullptr && devOld != dev) {
+            delete devOld;
+        }
         devices_.erase(iter);
     }
     USB_HILOGI(
