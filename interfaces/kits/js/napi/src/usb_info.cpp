@@ -236,7 +236,7 @@ struct PipeControlParam {
     size_t dataLength;
 };
 
-static void ParsePipeControlParam(const napi_env env, const napi_value jsObj, PipeControlParam &controlParam)
+static bool ParsePipeControlParam(const napi_env env, const napi_value jsObj, PipeControlParam &controlParam)
 {
     int32_t request = 0;
     NapiUtil::JsObjectToInt(env, jsObj, "request", request);
@@ -251,7 +251,7 @@ static void ParsePipeControlParam(const napi_env env, const napi_value jsObj, Pi
 
     napi_value dataValue;
     bool hasProperty = NapiUtil::JsObjectGetProperty(env, jsObj, "data", dataValue);
-    USB_ASSERT_RETURN_VOID(
+    USB_ASSERT_RETURN_FALSE(
         env, hasProperty == true, SYSPARAM_INVALID_INPUT, "The controlParam should have the data property.");
 
     uint8_t *data = nullptr;
@@ -265,6 +265,7 @@ static void ParsePipeControlParam(const napi_env env, const napi_value jsObj, Pi
     controlParam.index = index;
     controlParam.data = data;
     controlParam.dataLength = dataLength;
+    return true;
 }
 
 struct UsbPipeControlParam {
@@ -1196,7 +1197,11 @@ static std::tuple<bool, USBDevicePipe, PipeControlParam, int32_t> GetControlTran
 
     // control params
     PipeControlParam controlParam = {0};
-    ParsePipeControlParam(env, argv[INDEX_1], controlParam);
+    bool ret = ParsePipeControlParam(env, argv[INDEX_1], controlParam);
+    if (!ret) {
+        USB_HILOGE(MODULE_JS_NAPI, "index 1 wrong argument type, object expected.");
+        return {false, {}, {}, {}};
+    }
 
     // timeOut param
     int32_t timeOut = 0;
