@@ -39,6 +39,8 @@ using namespace OHOS::USB::Common;
 namespace OHOS {
 namespace USB {
 namespace DevicePipe {
+constexpr int32_t USB_BUS_NUM_INVALID = -1;
+constexpr int32_t USB_DEV_ADDR_INVALID = -1;
 constexpr int32_t SLEEP_TIME = 3;
 constexpr int32_t BUFFER_SIZE = 255;
 #define USBDEVFS_GET_SPEED          _IO('U', 31)
@@ -129,6 +131,143 @@ HWTEST_F(UsbDevicePipeTest, UsbOpenDevice001, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close=%{public}d", ret);
     EXPECT_TRUE(ret);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbOpenDevice001: OpenDevice");
+}
+
+/**
+ * @tc.name: UsbResetDevice001
+ * @tc.desc: Test functions of ResetDevice
+ * @tc.desc: int32_t ResetDevice(const UsbDevice &device)
+ * @tc.desc: 正向测试：代码正常运行，返回结果为0
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, UsbResetDevice001, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbResetDevice001: ResetDevice");
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    std::vector<UsbDevice> deviceList;
+    auto ret = UsbSrvClient.GetDevices(deviceList);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice001 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(deviceList.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice001 %{public}d size=%{public}zu", __LINE__,
+        deviceList.size());
+    UsbDevice device = deviceList.front();
+    USBDevicePipe pipe;
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice001 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    ret = UsbSrvClient.ResetDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice001 %{public}d ResetDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret == 0);
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close=%{public}d", ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbResetDevice001: ResetDevice");
+}
+
+/**
+ * @tc.name: UsbResetDevice002
+ * @tc.desc: Test functions of ResetDevice
+ * @tc.desc: int32_t ResetDevice(const UsbDevice &device)=
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, UsbResetDevice002, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbResetDevice002: ResetDevice");
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    std::vector<UsbDevice> deviceList;
+    auto ret = UsbSrvClient.GetDevices(deviceList);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice002 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(deviceList.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice002 %{public}d size=%{public}zu", __LINE__,
+        deviceList.size());
+    UsbDevice device = deviceList.front();
+    USBDevicePipe pipe;
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice002 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    device.SetBusNum(USB_BUS_NUM_INVALID);
+    ret = UsbSrvClient.ResetDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice002 %{public}d ResetDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret != 0);
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close=%{public}d", ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbResetDevice002: ResetDevice");
+}
+
+/**
+ * @tc.name: UsbResetDevice003
+ * @tc.desc: Test functions of ResetDevice
+ * @tc.desc: int32_t ResetDevice(const UsbDevice &device)=
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, UsbResetDevice003, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbResetDevice003: ResetDevice");
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    std::vector<UsbDevice> deviceList;
+    auto ret = UsbSrvClient.GetDevices(deviceList);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice003 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(deviceList.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice003 %{public}d size=%{public}zu", __LINE__,
+        deviceList.size());
+    UsbDevice device = deviceList.front();
+    USBDevicePipe pipe;
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice003 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    device.SetDevAddr(USB_DEV_ADDR_INVALID);
+    ret = UsbSrvClient.ResetDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice003 %{public}d ResetDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret != 0);
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close=%{public}d", ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbResetDevice003: ResetDevice");
+}
+
+/**
+ * @tc.name: UsbResetDevice004
+ * @tc.desc: Test functions of ResetDevice
+ * @tc.desc: int32_t ResetDevice(const UsbDevice &device)=
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, UsbResetDevice004, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbResetDevice004: ResetDevice");
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    std::vector<UsbDevice> deviceList;
+    auto ret = UsbSrvClient.GetDevices(deviceList);
+    EXPECT_TRUE(ret == 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice004 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(deviceList.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice004 %{public}d size=%{public}zu", __LINE__,
+        deviceList.size());
+    UsbDevice device = deviceList.front();
+    USBDevicePipe pipe;
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice004 %{public}d OpenDevice=%{public}d", __LINE__,
+        ret);
+    device.SetBusNum(USB_BUS_NUM_INVALID);
+    device.SetDevAddr(USB_DEV_ADDR_INVALID);
+    ret = UsbSrvClient.ResetDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice004 %{public}d ResetDevice=%{public}d", __LINE__,
+        ret);
+    EXPECT_TRUE(ret != 0);
+    ret = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close=%{public}d", ret);
+    EXPECT_TRUE(ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbResetDevice004: ResetDevice");
 }
 
 /**

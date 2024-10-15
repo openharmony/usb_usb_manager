@@ -14,8 +14,6 @@
  */
 
 #include <csignal>
-#include <cstdint>
-#include <cstdio>
 #include <iostream>
 #include <strings.h>
 #include <vector>
