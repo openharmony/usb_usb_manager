@@ -51,7 +51,6 @@
                 "resource_management",
                 "ability_runtime",
                 "hisysevent",
-                "node",
                 "cJSON",
                 "bounds_checking_function",
                 "hitrace"
