@@ -276,7 +276,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType001, TestSize.Level1)
     UsbDeviceType usbDeviceType;
     usbDeviceType.baseClass = 3;
     usbDeviceType.subClass = 1;
-    usbDeviceType.protocol = 2;
+    usbDeviceType.protocal = 2;
     usbDeviceType.isDeviceType = 0;
     disableType.emplace_back(usbDeviceType);
     ret = client.ManageInterfaceType(disableType, true);
@@ -295,7 +295,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType002, TestSize.Level1)
     UsbDeviceType usbDeviceType;
     usbDeviceType.baseClass = 3;
     usbDeviceType.subClass = 1;
-    usbDeviceType.protocol = 2;
+    usbDeviceType.protocal = 2;
     usbDeviceType.isDeviceType = 0;
     disableType.emplace_back(usbDeviceType);
     ret = client.ManageInterfaceType(disableType, false);
