@@ -17,7 +17,10 @@ PLUG_IN_OUT_HOST_MODE:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: UsbManager, desc: UsbDevicePlugInHostMode}
   DEVICE_NAME: {type: STRING, desc: device name}
   DEVICE_PROTOCOL: {type: INT32, desc: device protocol}
+  DEVICE_SUBCLASS: {type: INT32, desc: device subclass}
   DEVICE_CLASS: {type: INT32, desc: device class}
+  DEVICE_CLASS_DESCRIPTION: {type: STRING, desc: device class description}
+  INTERFACE_CLASS_DESCRIPTION: {type: STRING, desc: interface class description}
   VENDOR_ID: {type: INT32, desc: vendor id}
   PRODUCT_ID: {type: INT32, desc: product id}
   VERSION: {type: STRING, desc: device version}

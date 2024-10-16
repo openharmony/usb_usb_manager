@@ -136,6 +136,10 @@ bool UsbRightManager::HasRight(const std::string &deviceName, const std::string 
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     // no record or expired record: expired true, has right false, add right next time
     // valid record: expired false, has right true, no need add right
+    if (helper == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "helper is nullptr, false");
+        return false;
+    }
     return !helper->IsRecordExpired(userId, deviceName, bundleName, tokenId, nowTime);
 }
 
@@ -187,6 +191,10 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
     info.validPeriod = USB_RIGHT_VALID_PERIOD_SET;
 
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "helper is nullptr, false");
+        return false;
+    }
     ret = helper->AddOrUpdateRightRecord(uid, deviceName, hapTokenInfoRes.bundleName, tokenIdStr, info);
     if (ret < 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "add or update failed: %{public}s/%{public}d, ret=%{public}d",
@@ -218,6 +226,10 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
     info.validPeriod = USB_RIGHT_VALID_PERIOD_SET;
 
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "helper is nullptr, false");
+        return false;
+    }
     auto ret = helper->AddOrUpdateRightRecord(userId, deviceName, bundleName, tokenId, info);
     if (ret < 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "add or update failed: %{public}s/%{public}s/%{public}d, ret=%{public}d",
@@ -235,6 +247,10 @@ bool UsbRightManager::RemoveDeviceRight(const std::string &deviceName, const std
         return true;
     }
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "helper is nullptr, false");
+        return false;
+    }
     int32_t ret = helper->DeleteRightRecord(userId, deviceName, bundleName, tokenId);
     if (ret < 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "delete failed: %{public}s/%{public}s/%{public}d", deviceName.c_str(),
@@ -505,6 +521,10 @@ int32_t UsbRightManager::CleanUpRightAppUninstalled(int32_t uid, int32_t &totalA
 {
     std::vector<std::string> apps;
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "helper is nullptr, false");
+        return false;
+    }
     int32_t ret = helper->QueryRightRecordApps(uid, apps);
     if (ret <= 0) {
         /* error or empty record */
@@ -514,7 +534,7 @@ int32_t UsbRightManager::CleanUpRightAppUninstalled(int32_t uid, int32_t &totalA
     deleteApps = 0;
     for (int32_t i = 0; i < totalApps; i++) {
         std::string app = apps.at(i);
-        if (!IsAppInstalled(uid, app)) {
+        if (helper != nullptr && (!IsAppInstalled(uid, app))) {
             ret = helper->DeleteAppRightRecord(uid, app);
             if (ret != USB_RIGHT_OK) {
                 USB_HILOGW(MODULE_USB_SERVICE, "clean failed: app=%{public}s, ret=%{public}d", app.c_str(), ret);
@@ -532,6 +552,10 @@ int32_t UsbRightManager::CleanUpRightAppUninstalled(int32_t uid, const std::stri
 {
     std::vector<std::string> apps;
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "helper is nullptr, false");
+        return false;
+    }
     int32_t ret = helper->QueryRightRecordApps(uid, apps);
     if (ret <= 0) {
         /* error or empty record */
@@ -572,6 +596,10 @@ int32_t UsbRightManager::CleanUpRightAppReinstalled(int32_t uid, uint32_t &total
 {
     std::vector<std::string> apps;
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "helper is nullptr, false");
+        return false;
+    }
     int32_t ret = helper->QueryRightRecordApps(uid, apps);
     if (ret <= 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "query apps failed or empty: %{public}d", ret);
@@ -619,6 +647,10 @@ int32_t UsbRightManager::CleanUpRightUserDeleted(int32_t &totalUsers, int32_t &d
     std::vector<std::string> rightRecordUids;
     bool isAccountExists = false;
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "helper is nullptr, false");
+        return false;
+    }
     int32_t ret = helper->QueryRightRecordUids(rightRecordUids);
     if (ret <= 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "query apps failed or empty: %{public}d", ret);
@@ -662,6 +694,10 @@ int32_t UsbRightManager::CleanUpRightUserStopped(int32_t uid)
 int32_t UsbRightManager::CleanUpRightTemporaryExpired(const std::string &deviceName)
 {
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "helper is nullptr, false");
+        return false;
+    }
     int32_t ret = helper->DeleteValidPeriodRightRecord(USB_RIGHT_VALID_PERIOD_MIN, deviceName);
     if (ret != USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "failed: delete temporary expiried record: dev=%{private}s", deviceName.c_str());
@@ -673,6 +709,10 @@ int32_t UsbRightManager::CleanUpRightNormalExpired(int32_t uid)
 {
     uint64_t nowTime = GetCurrentTimestamp();
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "helper is nullptr, false");
+        return false;
+    }
     int32_t ret = helper->DeleteNormalExpiredRightRecord(uid, nowTime);
     if (ret != USB_RIGHT_OK) {
         USB_HILOGD(MODULE_USB_SERVICE, "failed: clean up expired record at %{public}" PRIu64 "", nowTime);
