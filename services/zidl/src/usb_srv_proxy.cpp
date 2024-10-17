@@ -1293,7 +1293,7 @@ int32_t UsbServerProxy::ManageInterfaceType(const std::vector<UsbDeviceType> &di
     for (const auto &type : disableType) {
         WRITE_PARCEL_WITH_RET(data, Int32, type.baseClass, UEC_SERVICE_WRITE_PARCEL_ERROR);
         WRITE_PARCEL_WITH_RET(data, Int32, type.subClass, UEC_SERVICE_WRITE_PARCEL_ERROR);
-        WRITE_PARCEL_WITH_RET(data, Int32, type.protocal, UEC_SERVICE_WRITE_PARCEL_ERROR);
+        WRITE_PARCEL_WITH_RET(data, Int32, type.protocol, UEC_SERVICE_WRITE_PARCEL_ERROR);
         WRITE_PARCEL_WITH_RET(data, Bool, type.isDeviceType, UEC_SERVICE_WRITE_PARCEL_ERROR);
     }
     WRITE_PARCEL_WITH_RET(data, Bool, disable, UEC_SERVICE_WRITE_PARCEL_ERROR);

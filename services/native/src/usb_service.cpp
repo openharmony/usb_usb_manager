@@ -1205,7 +1205,7 @@ int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> 
             if ((!dev.isDeviceType) &&
                 (typeValues[0] == dev.baseClass) &&
                 (typeValues[1] == -1 || typeValues[1] == dev.subClass)&&
-                (typeValues[HALF] == -1 || typeValues[HALF] == dev.protocal)) {
+                (typeValues[HALF] == -1 || typeValues[HALF] == dev.protocol)) {
                 ret = ManageInterfaceTypeImpl(interfaceTypeValues, disable);
             }
         }
@@ -1896,7 +1896,7 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
         std::vector<UsbInterface> interfaces = configs.GetInterfaces();
 
         for (uint32_t i = 0; i < interfaces.size(); i++) {
-            // 0 indicate base class, 1 indicate subclass, 2 indicate protocal. -1 indicate any value.
+            // 0 indicate base class, 1 indicate subclass, 2 indicate protocol. -1 indicate any value.
             if ((interfaces[i].GetClass() == iterInterface->second[BASECLASS_INDEX]) && (interfaces[i].GetClass() ==
                 iterInterface->second[SUBCLASS_INDEX] || iterInterface->second[SUBCLASS_INDEX] ==
                 RANDOM_VALUE_INDICATE) && (interfaces[i].GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||

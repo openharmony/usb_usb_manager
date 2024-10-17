@@ -95,8 +95,29 @@ enum InterfaceType {
 struct UsbDeviceType {
     int32_t baseClass;
     int32_t subClass;
-    int32_t protocal;
+    int32_t protocol;
     bool isDeviceType;
+    bool operator<(const UsbDeviceType &other) const
+    {
+        if (baseClass != other.baseClass) {
+            return baseClass < other.baseClass;
+        } else if (subClass != other.subClass) {
+            return subClass < other.subClass;
+        } else {
+            return protocol < other.protocol;
+        }
+    }
+    bool operator == (const UsbDeviceType &other) const
+    {
+        return (baseClass == other.baseClass) && (subClass == other.subClass) && (protocol == other.protocol) &&
+            (isDeviceType == other.isDeviceType);
+    }
+    UsbDeviceType (int32_t deviceBaseClass, int32_t sub, int32_t prot, bool deviceType)
+        : baseClass(deviceBaseClass), subClass(sub), protocol(prot), isDeviceType(deviceType) {};
+    UsbDeviceType (): baseClass(0), subClass(0), protocol(0), isDeviceType(0) {};
+    bool Marshalling(MessageParcel &parcel) const;
+    static bool Unmarshalling(MessageParcel &parcel, UsbDeviceType &usbDeviceType);
+    bool ReadFromParcel(MessageParcel &parcel);
 };
 
 struct UsbDeviceId {

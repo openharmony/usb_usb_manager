@@ -1102,7 +1102,7 @@ int32_t UsbServerStub::DoManageInterfaceType(MessageParcel &data, MessageParcel 
         UsbDeviceType usbDeviceType;
         READ_PARCEL_WITH_RET(data, Int32, usbDeviceType.baseClass, UEC_SERVICE_READ_PARCEL_ERROR);
         READ_PARCEL_WITH_RET(data, Int32, usbDeviceType.subClass, UEC_SERVICE_READ_PARCEL_ERROR);
-        READ_PARCEL_WITH_RET(data, Int32, usbDeviceType.protocal, UEC_SERVICE_READ_PARCEL_ERROR);
+        READ_PARCEL_WITH_RET(data, Int32, usbDeviceType.protocol, UEC_SERVICE_READ_PARCEL_ERROR);
         READ_PARCEL_WITH_RET(data, Bool, usbDeviceType.isDeviceType, UEC_SERVICE_READ_PARCEL_ERROR);
         disableType.emplace_back(usbDeviceType);
     }
