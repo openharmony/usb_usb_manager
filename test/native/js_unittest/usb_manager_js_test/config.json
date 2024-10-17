@@ -1,0 +1,68 @@
+{
+    "app": {
+      "bundleName": "com.example.usb.manager",
+      "vendor": "example",
+      "version": {
+        "code": 1,
+        "name": "1.0"
+      },
+      "apiVersion": {
+        "compatible": 4,
+        "target": 5
+      }
+    },
+    "deviceConfig": {},
+    "module": {
+      "reqPermissions": [
+        {
+          "name": "ohos.permission.MANAGE_USB_CONFIG"
+        }
+      ],
+      "package": "com.example.usb.manager",
+      "name": ".MyApplication",
+      "deviceType": [
+        "default",
+        "tablet",
+        "2in1"
+      ],
+      "distro": {
+        "deliveryWithInstall": true,
+        "moduleName": "entry",
+        "moduleType": "entry"
+      },
+      "abilities": [
+        {
+          "visible": true,
+          "skills": [
+            {
+              "entities": [
+                "entity.system.home"
+              ],
+              "actions": [
+                "action.system.home"
+              ]
+            }
+          ],
+          "name": "com.example.usb.manager.MainAbility",
+          "icon": "$media:icon",
+          "description": "$string:mainability_description",
+          "label": "UsbManagerJsTest",
+          "type": "page",
+          "launchType": "standard"
+        }
+      ],
+      "js": [
+        {
+          "pages": [
+            "pages/index/index"
+          ],
+          "name": "default",
+          "window": {
+            "designWidth": 720,
+            "autoDesignWidth": false
+          }
+        }
+      ]
+    }
+  }
+  
