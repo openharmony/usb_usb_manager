@@ -183,8 +183,8 @@ void UsbService::OnStart()
         }
     }
 
-    if (usbPortManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbPortManager_");
+    if (usbPortManager_ == nullptr || usbDeviceManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbPortManager_ or invalid usbDeviceManager_");
         return;
     }
 
@@ -1315,12 +1315,6 @@ bool UsbService::AddDevice(uint8_t busNum, uint8_t devAddr)
         return false;
     }
 
-    errno_t retSafe = memset_s(devInfo, sizeof(UsbDevice), 0, sizeof(UsbDevice));
-    if (retSafe != EOK) {
-        USB_HILOGI(MODULE_USB_SERVICE, "memset_s failed");
-        return false;
-    }
-
     int32_t ret = GetDeviceInfo(busNum, devAddr, *devInfo);
     USB_HILOGI(MODULE_USB_SERVICE, "GetDeviceInfo ret=%{public}d", ret);
     if (ret != UEC_OK) {
@@ -1380,6 +1374,10 @@ bool UsbService::DelDevice(uint8_t busNum, uint8_t devAddr)
 
 int32_t UsbService::InitUsbRight()
 {
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     int32_t ret = usbRightManager_->Init();
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "Init usb right manager failed: %{public}d", ret);
@@ -1817,6 +1815,10 @@ int32_t UsbService::ManageInterfaceType(const std::vector<UsbDeviceType> &disabl
 
 int32_t UsbService::ManageGlobalInterfaceImpl(bool disable)
 {
+    if (usbHostManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     std::map<std::string, UsbDevice *> devices;
     usbHostManager_->GetDevices(devices);
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices.size());
@@ -1844,6 +1846,10 @@ int32_t UsbService::ManageGlobalInterfaceImpl(bool disable)
 
 int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool disable)
 {
+    if (usbHostManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     std::map<std::string, UsbDevice *> devices;
     usbHostManager_->GetDevices(devices);
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, vId: %{public}d, pId: %{public}d, b: %{public}d",
@@ -1873,6 +1879,10 @@ int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool d
 
 int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable)
 {
+    if (usbHostManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     auto iterInterface = g_typeMap.find(interfaceType);
     if (iterInterface == g_typeMap.end()) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::not find interface type");
