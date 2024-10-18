@@ -630,7 +630,7 @@ int32_t UsbService::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t in
 int32_t UsbService::BulkTransferRead(
     const UsbDev &devInfo, const UsbPipe &pipe, std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
-    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     if (usbd_ == nullptr) {
@@ -651,7 +651,7 @@ int32_t UsbService::BulkTransferRead(
 int32_t UsbService::BulkTransferReadwithLength(const UsbDev &devInfo, const UsbPipe &pipe,
     int32_t length, std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
-    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     if (usbd_ == nullptr) {
@@ -672,7 +672,7 @@ int32_t UsbService::BulkTransferReadwithLength(const UsbDev &devInfo, const UsbP
 int32_t UsbService::BulkTransferWrite(
     const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
-    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+    if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     if (usbd_ == nullptr) {
