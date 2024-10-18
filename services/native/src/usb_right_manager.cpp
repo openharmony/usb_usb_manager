@@ -44,6 +44,7 @@ using namespace OHOS::Security::AccessToken;
 
 namespace OHOS {
 namespace USB {
+
 constexpr int32_t PARAM_BUF_LEN = 128;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 constexpr int32_t USB_RIGHT_USERID_DEFAULT = 100;
@@ -553,6 +554,10 @@ int32_t UsbRightManager::CleanUpRightAppUninstalled(int32_t uid, const std::stri
 {
     std::vector<std::string> apps;
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "helper is nullptr, false");
+        return false;
+    }
     int32_t ret = helper->QueryRightRecordApps(uid, apps);
     if (ret <= 0) {
         /* error or empty record */
@@ -706,10 +711,6 @@ int32_t UsbRightManager::CleanUpRightNormalExpired(int32_t uid)
 {
     uint64_t nowTime = GetCurrentTimestamp();
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
-    if (helper == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "helper is nullptr, false");
-        return false;
-    }
     int32_t ret = helper->DeleteNormalExpiredRightRecord(uid, nowTime);
     if (ret != USB_RIGHT_OK) {
         USB_HILOGD(MODULE_USB_SERVICE, "failed: clean up expired record at %{public}" PRIu64 "", nowTime);
