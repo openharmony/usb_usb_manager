@@ -108,6 +108,8 @@ ohos_shared_library("usbservice") {
   if (usb_manager_feature_pop_up_func_switch_model) {
     defines += [ "USB_FUNC_SWITCH_MODE" ]
   }
+  shlib_type = "sa"
+  version_script = "usbservice.map"
   subsystem_name = "usb"
   part_name = "usb_manager"
 }
