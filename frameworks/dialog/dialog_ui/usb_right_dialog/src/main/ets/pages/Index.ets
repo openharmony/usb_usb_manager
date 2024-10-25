@@ -30,13 +30,13 @@ let USBSERVICESWITCH_ID_XFER_PIC : number = 16;
 @Entry
 @Component
 struct IndexHapComponent {
-  private curChoose: number = 0;
+  private currentChoice: number = 1;
   private content: string = ''
   private thisWant: string = ''
   dialogControllerList: CustomDialogController = new CustomDialogController({
     builder: SelectDialog({
       title: $r('app.string.USB_hint'),
-      selectedIndex: this.curChoose,
+      selectedIndex: this.currentChoice,
       confirm: {
         value: $r('app.string.USB_hint_cancel'),
         action: () => {
@@ -48,14 +48,17 @@ struct IndexHapComponent {
       },
       radioContent: [
         {
+          title: $r('app.string.USB_func_mtp'),
+          action: () => {
+            let tmpChooseNumber:number = USBSERVICESWITCH_ID_XFER_FILE;
+            this.setUsbFunction(tmpChooseNumber);
+          }
+        },
+        {
           title: $r('app.string.USB_func_charge'),
           action: () => {
             let tmpChooseNumber:number = USBSERVICESWITCH_ID_CHARGE_ONLY;
-            usbServiceSwitch.serviceChoose(tmpChooseNumber);
-            let session = AppStorage.get<UIExtensionContentSession>('session');
-            if (session) {
-              session.terminateSelf();
-            }
+            this.setUsbFunction(tmpChooseNumber);
           }
         },
       ]
@@ -64,6 +67,16 @@ struct IndexHapComponent {
     autoCancel: true,
     cancel: this.onCancel
   });
+
+  setUsbFunction(choose: number) {
+    usbServiceSwitch.serviceChoose(choose);
+    let session = AppStorage.get<UIExtensionContentSession>('session');
+    if (session) {
+      session.terminateSelf();
+    } else {
+      console.log(TAG + 'get session fail.');
+    }
+  }
 
   async aboutToAppear() {
     setTimeout(() => {
@@ -76,7 +89,7 @@ struct IndexHapComponent {
   }
 
   async onPageShow() {
-    console.log(TAG + 'onPageShow, curChoose: ' + this.curChoose);
+    console.log(TAG + 'onPageShow, currentChoice: ' + this.currentChoice);
   }
 
   async onPageHide() {

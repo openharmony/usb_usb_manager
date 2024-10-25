@@ -101,6 +101,14 @@
             "attr":{
                 "priority":"LT"
             }
+        },
+        {
+            "name":"USB_func_mtp",
+            "value":"Transfer the file"
+        },
+        {
+            "name":"USB_func_ptp",
+            "value":"Transfer pictures"
         }
     ]
 }
