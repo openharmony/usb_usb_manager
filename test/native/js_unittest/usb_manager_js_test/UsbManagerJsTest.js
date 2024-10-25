@@ -3435,4 +3435,1483 @@ describe('UsbManagerJsTest', function () {
             expect(err.code).assertEqual(PARAM_ERRCODE);
         }
     })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0470
+     * @tc.name     : testSetConfigurationParamErr011
+     * @tc.desc     : Negative test: config id is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr011', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr011 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.id = PARAM_NULL;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.id:null] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr011 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0480
+     * @tc.name     : testSetConfigurationParamErr012
+     * @tc.desc     : Negative test: config id is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr012', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr012 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.id = PARAM_UNDEFINED;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.id:undefined] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr012 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0490
+     * @tc.name     : testSetConfigurationParamErr013
+     * @tc.desc     : Negative test: config id is ""
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr013', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr013 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.id = PARAM_NULLSTRING;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.id:""] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr013 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0510
+     * @tc.name     : testSetConfigurationParamErr014
+     * @tc.desc     : Negative test: config attributes is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr014', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr014 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.attributes = PARAM_NULL;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.attributes:null] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr014 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0520
+     * @tc.name     : testSetConfigurationParamErr015
+     * @tc.desc     : Negative test: config attributes is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr015', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr015 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.attributes = PARAM_UNDEFINED;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.attributes:undefined] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr015 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0530
+     * @tc.name     : testSetConfigurationParamErr016
+     * @tc.desc     : Negative test: config attributes is ""
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr016', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr016 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.attributes = PARAM_NULLSTRING;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.attributes:""] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr016 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0540
+     * @tc.name     : testSetConfigurationParamErr017
+     * @tc.desc     : Negative test: config maxPower is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr017', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr017 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.maxPower = PARAM_NULL;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.maxPower:null] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr017 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0550
+     * @tc.name     : testSetConfigurationParamErr018
+     * @tc.desc     : Negative test: config maxPower is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr018', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr018 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.maxPower = PARAM_UNDEFINED;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.maxPower:undefined] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr018 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0560
+     * @tc.name     : testSetConfigurationParamErr019
+     * @tc.desc     : Negative test: config maxPower is ""
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr019', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr019 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.maxPower = PARAM_NULLSTRING;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.maxPower:""] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr019 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0570
+     * @tc.name     : testSetConfigurationParamErr020
+     * @tc.desc     : Negative test: config name is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr020', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr020 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.name = PARAM_NULL;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.name:null] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr020 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0580
+     * @tc.name     : testSetConfigurationParamErr021
+     * @tc.desc     : Negative test: config name is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr021', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr021 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.name = PARAM_UNDEFINED;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.name:undefined] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr021 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0590
+     * @tc.name     : testSetConfigurationParamErr022
+     * @tc.desc     : Negative test: config name is 123
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr022', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr022 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.name = PARAM_NUMBERTYPE;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.name:""] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr022 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0610
+     * @tc.name     : testSetConfigurationParamErr023
+     * @tc.desc     : Negative test: config isRemoteWakeup is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr023', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr023 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.isRemoteWakeup = PARAM_NULL;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.isRemoteWakeup:null] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr023 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0620
+     * @tc.name     : testSetConfigurationParamErr024
+     * @tc.desc     : Negative test: config isRemoteWakeup is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr024', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr024 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.isRemoteWakeup = PARAM_UNDEFINED;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.isRemoteWakeup:undefined] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr024 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0630
+     * @tc.name     : testSetConfigurationParamErr025
+     * @tc.desc     : Negative test: config isRemoteWakeup is ""
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr025', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr025 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.isRemoteWakeup = PARAM_NULLSTRING;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.isRemoteWakeup:""] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr025 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0640
+     * @tc.name     : testSetConfigurationParamErr026
+     * @tc.desc     : Negative test: config isSelfPowered is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr026', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr026 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.isSelfPowered = PARAM_NULL;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.isSelfPowered:null] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr026 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0650
+     * @tc.name     : testSetConfigurationParamErr027
+     * @tc.desc     : Negative test: config isSelfPowered is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr027', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr027 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.isSelfPowered = PARAM_UNDEFINED;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.isSelfPowered:undefined] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr027 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0660
+     * @tc.name     : testSetConfigurationParamErr028
+     * @tc.desc     : Negative test: config isSelfPowered is ""
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr028', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr028 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.isSelfPowered = PARAM_NULLSTRING;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.isSelfPowered:""] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr028 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0670
+     * @tc.name     : testSetConfigurationParamErr029
+     * @tc.desc     : Negative test: config interfaces is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr029', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr029 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.interfaces = PARAM_NULL;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.interfaces:null] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr029 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0680
+     * @tc.name     : testSetConfigurationParamErr030
+     * @tc.desc     : Negative test: config interfaces is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr030', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr030 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.interfaces = PARAM_UNDEFINED;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.interfaces:undefined] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr030 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0690
+     * @tc.name     : testSetConfigurationParamErr031
+     * @tc.desc     : Negative test: config interfaces is ""
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr031', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr031 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.interfaces = PARAM_NULLSTRING;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.interfaces:""] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr031 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0710
+     * @tc.name     : testSetConfigurationParamErr032
+     * @tc.desc     : Negative test: config isRemoteWakeup is 123
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr032', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr032 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.isRemoteWakeup = PARAM_NUMBERTYPE;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.isRemoteWakeup:123] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr032 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0720
+     * @tc.name     : testSetConfigurationParamErr033
+     * @tc.desc     : Negative test: config isSelfPowered is 123
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr033', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr033 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.isSelfPowered = PARAM_NUMBERTYPE;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.isSelfPowered:123] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr033 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0730
+     * @tc.name     : testSetConfigurationParamErr034
+     * @tc.desc     : Negative test: config interfaces is 123
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetConfigurationParamErr034', 0, function () {
+        console.info(TAG, 'usb testSetConfigurationParamErr034 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let tmpConfig = devices.configs[0];
+            tmpConfig.interfaces = PARAM_NUMBERTYPE;
+            let ret = usbManager.setConfiguration(gPipe, tmpConfig);
+            console.info(TAG, 'usb [config.interfaces:123] setConfiguration ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetConfigurationParamErr034 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0740
+     * @tc.name     : testSetInterfaceParamErr001
+     * @tc.desc     : Negative test: Enter three parameters
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr001', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr001 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        getPipe('testSetInterfaceParamErr001');
+        let tmpInterface = devices.configs[0].interfaces[0];
+        let isClaim = usbManager.claimInterface(gPipe, tmpInterface, true);
+        expect(isClaim).assertEqual(0);
+        try {
+            let ret = usbManager.setInterface(gPipe, tmpInterface, gPipe);
+            console.info(TAG, 'usb [Enter three parameters] setInterface ret : ', ret);
+            expect(ret).assertEqual(0);
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr001 catch err code: ', err.code, ', message: ', err.message);
+            expect(err !== null).assertFalse();
+        }
+        toReleaseInterface('testSetInterfaceParamErr001', tmpInterface);
+        toClosePipe('testSetInterfaceParamErr001');
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0750
+     * @tc.name     : testSetInterfaceParamErr002
+     * @tc.desc     : Negative test: Param is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr002', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr002 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let ret = usbManager.setInterface(PARAM_NULL);
+            console.info(TAG, 'usb [param:null] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr002 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0760
+     * @tc.name     : testSetInterfaceParamErr003
+     * @tc.desc     : Negative test: Param is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr003', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr003 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let ret = usbManager.setInterface(PARAM_UNDEFINED);
+            console.info(TAG, 'usb [param:undefined] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr003 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0770
+     * @tc.name     : testSetInterfaceParamErr004
+     * @tc.desc     : Negative test: Param is ""
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr004', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr004 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let ret = usbManager.setInterface(PARAM_NULLSTRING);
+            console.info(TAG, 'usb [param:""] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr004 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0780
+     * @tc.name     : testSetInterfaceParamErr005
+     * @tc.desc     : Negative test: pipe is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr005', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr005 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            let ret = usbManager.setInterface(PARAM_NULL, tmpInterface);
+            console.info(TAG, 'usb [pipe:null] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr005 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0790
+     * @tc.name     : testSetInterfaceParamErr006
+     * @tc.desc     : Negative test: pipe is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr006', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr006 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            let ret = usbManager.setInterface(PARAM_UNDEFINED, tmpInterface);
+            console.info(TAG, 'usb [pipe:undefined] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr006 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0810
+     * @tc.name     : testSetInterfaceParamErr007
+     * @tc.desc     : Negative test: pipe is ""
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr007', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr007 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            let ret = usbManager.setInterface(PARAM_NULLSTRING, tmpInterface);
+            console.info(TAG, 'usb [pipe:""] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr007 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0820
+     * @tc.name     : testSetInterfaceParamErr008
+     * @tc.desc     : Negative test: iface is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr008', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr008 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let ret = usbManager.setInterface(gPipe, PARAM_NULL);
+            console.info(TAG, 'usb [iface:null] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr008 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0830
+     * @tc.name     : testSetInterfaceParamErr009
+     * @tc.desc     : Negative test: iface is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr009', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr009 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let ret = usbManager.setInterface(gPipe, PARAM_UNDEFINED);
+            console.info(TAG, 'usb [iface:undefined] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr009 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0840
+     * @tc.name     : testSetInterfaceParamErr010
+     * @tc.desc     : Negative test: iface is ""
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr010', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr010 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = devices.devAddress;
+            let ret = usbManager.setInterface(gPipe, PARAM_NULLSTRING);
+            console.info(TAG, 'usb [iface:""] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr010 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0850
+     * @tc.name     : testSetInterfaceParamErr011
+     * @tc.desc     : Negative test: pipe busNum is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr011', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr011 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = PARAM_NULL;
+            gPipe.devAddress = devices.devAddress;
+            let tmpInterface = devices.configs[0].interfaces[0];
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [gPipe.busNum:null] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr011 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0860
+     * @tc.name     : testSetInterfaceParamErr012
+     * @tc.desc     : Negative test: pipe busNum is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr012', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr012 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = PARAM_UNDEFINED;
+            gPipe.devAddress = devices.devAddress;
+            let tmpInterface = devices.configs[0].interfaces[0];
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [gPipe.busNum:undefined] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr012 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0870
+     * @tc.name     : testSetInterfaceParamErr013
+     * @tc.desc     : Negative test: pipe busNum is ""
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr013', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr013 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = PARAM_NULLSTRING;
+            gPipe.devAddress = devices.devAddress;
+            let tmpInterface = devices.configs[0].interfaces[0];
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [gPipe.busNum:""] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr013 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0880
+     * @tc.name     : testSetInterfaceParamErr014
+     * @tc.desc     : Negative test: pipe devAddress is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr014', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr014 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = PARAM_NULL;
+            let tmpInterface = devices.configs[0].interfaces[0];
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [gPipe.devAddress:null] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr014 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0890
+     * @tc.name     : testSetInterfaceParamErr015
+     * @tc.desc     : Negative test: pipe devAddress is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr015', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr015 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = PARAM_UNDEFINED;
+            let tmpInterface = devices.configs[0].interfaces[0];
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [gPipe.devAddress:undefined] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr015 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0910
+     * @tc.name     : testSetInterfaceParamErr016
+     * @tc.desc     : Negative test: pipe devAddress is ""
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr016', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr016 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            gPipe.busNum = devices.busNum;
+            gPipe.devAddress = PARAM_NULLSTRING;
+            let tmpInterface = devices.configs[0].interfaces[0];
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [gPipe.devAddress:""] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr016 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0920
+     * @tc.name     : testSetInterfaceParamErr017
+     * @tc.desc     : Negative test: interface id is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr017', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr017 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.id = PARAM_NULL;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.id:null] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr017 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0930
+     * @tc.name     : testSetInterfaceParamErr018
+     * @tc.desc     : Negative test: interface id is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr018', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr018 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.id = PARAM_UNDEFINED;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.id:undefined] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr018 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0940
+     * @tc.name     : testSetInterfaceParamErr019
+     * @tc.desc     : Negative test: interface id is ""
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr019', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr019 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.id = PARAM_NULLSTRING;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.id:""] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr019 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0950
+     * @tc.name     : testSetInterfaceParamErr020
+     * @tc.desc     : Negative test: interface protocol is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr020', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr020 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.protocol = PARAM_NULL;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.protocol:null] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr020 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0960
+     * @tc.name     : testSetInterfaceParamErr021
+     * @tc.desc     : Negative test: interface protocol is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr021', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr021 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.protocol = PARAM_UNDEFINED;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.protocol:undefined] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr021 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0970
+     * @tc.name     : testSetInterfaceParamErr022
+     * @tc.desc     : Negative test: interface protocol is ""
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr022', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr022 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.protocol = PARAM_NULLSTRING;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.protocol:""] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr022 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0980
+     * @tc.name     : testSetInterfaceParamErr023
+     * @tc.desc     : Negative test: interface clazz is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr023', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr023 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.clazz = PARAM_NULL;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.clazz:null] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr023 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_0990
+     * @tc.name     : testSetInterfaceParamErr024
+     * @tc.desc     : Negative test: interface clazz is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr024', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr024 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.clazz = PARAM_UNDEFINED;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.clazz:undefined] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr024 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_1010
+     * @tc.name     : testSetInterfaceParamErr025
+     * @tc.desc     : Negative test: interface clazz is ""
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr025', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr025 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.clazz = PARAM_NULLSTRING;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.clazz:""] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr025 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_1020
+     * @tc.name     : testSetInterfaceParamErr026
+     * @tc.desc     : Negative test: interface subClass is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr026', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr026 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.subClass = PARAM_NULL;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.subClass:null] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr026 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_1030
+     * @tc.name     : testSetInterfaceParamErr027
+     * @tc.desc     : Negative test: interface subClass is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr027', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr027 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.subClass = PARAM_UNDEFINED;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.subClass:undefined] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr027 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_1040
+     * @tc.name     : testSetInterfaceParamErr028
+     * @tc.desc     : Negative test: interface subClass is ""
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr028', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr028 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.subClass = PARAM_NULLSTRING;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.subClass:""] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr028 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_1050
+     * @tc.name     : testSetInterfaceParamErr029
+     * @tc.desc     : Negative test: interface alternateSetting is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr029', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr029 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.alternateSetting = PARAM_NULL;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.alternateSetting:null] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr029 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_1060
+     * @tc.name     : testSetInterfaceParamErr030
+     * @tc.desc     : Negative test: interface alternateSetting is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr030', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr030 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.alternateSetting = PARAM_UNDEFINED;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.alternateSetting:undefined] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr030 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_1070
+     * @tc.name     : testSetInterfaceParamErr031
+     * @tc.desc     : Negative test: interface alternateSetting is ""
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr031', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr031 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.alternateSetting = PARAM_NULLSTRING;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.alternateSetting:""] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr031 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
 })
