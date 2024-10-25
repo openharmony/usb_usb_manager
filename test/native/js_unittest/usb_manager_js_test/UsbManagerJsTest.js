@@ -4914,4 +4914,82 @@ describe('UsbManagerJsTest', function () {
             expect(err.code).assertEqual(PARAM_ERRCODE);
         }
     })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_1080
+     * @tc.name     : testSetInterfaceParamErr032
+     * @tc.desc     : Negative test: interface name is null
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr032', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr032 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.name = PARAM_NULL;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.name:null] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr032 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_1090
+     * @tc.name     : testSetInterfaceParamErr033
+     * @tc.desc     : Negative test: interface name is undefined
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr033', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr033 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.name = PARAM_UNDEFINED;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.name:undefined] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr033 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_ParamErr_1110
+     * @tc.name     : testSetInterfaceParamErr034
+     * @tc.desc     : Negative test: interface name is 123
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testSetInterfaceParamErr034', 0, function () {
+        console.info(TAG, 'usb testSetInterfaceParamErr034 begin');
+        if (!isDeviceConnected) {
+            expect(isDeviceConnected).assertFalse();
+            return
+        }
+        try {
+            let tmpInterface = devices.configs[0].interfaces[0];
+            tmpInterface.name = PARAM_NUMBERTYPE;
+            let ret = usbManager.setInterface(gPipe, tmpInterface);
+            console.info(TAG, 'usb [interface.name:123] setInterface ret : ', ret);
+            expect(ret !== null).assertFalse();
+        } catch (err) {
+            console.info(TAG, 'testSetInterfaceParamErr034 catch err code: ', err.code, ', message: ', err.message);
+            expect(err.code).assertEqual(PARAM_ERRCODE);
+        }
+    })
 })
