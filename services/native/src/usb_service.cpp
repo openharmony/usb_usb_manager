@@ -563,14 +563,28 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbDeviceManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    usbDeviceManager_->UpdateFunctions(functions);
 
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    int32_t lastFunc;
     std::lock_guard<std::mutex> guard(functionMutex_);
-    return usbd_->SetCurrentFunctions(functions);
+    if (usbd_->GetCurrentFunctions(lastFunc) != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::get current functions fail");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (lastFunc == functions) {
+        USB_HILOGI(MODULE_USB_SERVICE, "UsbService::no change in functionality");
+        return UEC_OK;
+    }
+    ret = usbd_->SetCurrentFunctions(functions);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ set function error");
+        return ret;
+    }
+    usbDeviceManager_->UpdateFunctions(functions);
+    return UEC_OK;
 }
 // LCOV_EXCL_STOP
 

@@ -147,8 +147,12 @@ std::string UsbDeviceManager::ConvertToString(uint32_t function)
 
 void UsbDeviceManager::UpdateFunctions(int32_t func)
 {
+    if (func == currentFunctions_) {
+        return;
+    }
     ReportFuncChangeSysEvent(currentFunctions_, func);
     currentFunctions_ = func;
+    BroadcastFuncChange(connected_, currentFunctions_);
 }
 
 int32_t UsbDeviceManager::GetCurrentFunctions()
@@ -187,6 +191,11 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             connected_ = false;
+            if ((currentFunctions_ & USB_FUNCTION_MTP) != 0 || (currentFunctions_ & USB_FUNCTION_PTP) != 0) {
+                currentFunctions_ = currentFunctions_ & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
+                USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
+                usbd_->SetCurrentFunctions(currentFunctions_);
+            }
             ProcessFuncChange(connected_, currentFunctions_);
             return;
         };
@@ -201,7 +210,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     }
 }
 
-void UsbDeviceManager::ProcessFuncChange(bool connected, int32_t currentFunc)
+void UsbDeviceManager::BroadcastFuncChange(bool connected, int32_t currentFunc)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Current Connect %{public}d,bconnected: %{public}d", connected, currentFunc);
     Want want;
@@ -226,6 +235,11 @@ void UsbDeviceManager::ProcessFuncChange(bool connected, int32_t currentFunc)
         "currentFunctions:%{public}d", connected, currentFunc);
     CommonEventManager::PublishCommonEvent(data, publishInfo);
     ReportDevicePlugSysEvent(currentFunc, connected);
+}
+
+void UsbDeviceManager::ProcessFuncChange(bool connected, int32_t currentFunc)
+{
+    BroadcastFuncChange(connected, currentFunc);
     ProcessFunctionSwitchWindow(connected);
 }
 
