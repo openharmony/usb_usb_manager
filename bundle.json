@@ -35,7 +35,6 @@
                 "napi",
                 "bundle_framework",
                 "common_event_service",
-                "distributed_notification_service",
                 "drivers_interface_usb",
                 "drivers_peripheral_usb",
                 "i18n",
