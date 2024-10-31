@@ -102,6 +102,16 @@ private:
     int32_t DoGetDeviceSpeed(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoGetInterfaceActiveStatus(MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
+    int32_t DoAddAccessoryRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoHasAccessoryRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoRequestAccessoryRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoCancelAccessoryRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoGetAccessoryList(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoOpenAccessory(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoCloseAccessory(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t SetAccessoryListMessageParcel(std::vector<USBAccessory> &accessoryList, MessageParcel &data);
+    int32_t SetAccessoryMessageParcel(USBAccessory &accessoryInfo, MessageParcel &data);
+    int32_t GetAccessoryMessageParcel(MessageParcel &data, USBAccessory &accessoryInfo);
     bool WriteFileDescriptor(MessageParcel &data, int fd);
 };
 } // namespace USB

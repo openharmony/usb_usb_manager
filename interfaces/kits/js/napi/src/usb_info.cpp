@@ -35,7 +35,7 @@
 #include "usb_errors.h"
 #include "usb_napi_errors.h"
 #include "usb_srv_client.h"
-
+#include "usb_accessory.h"
 using namespace OHOS;
 using namespace OHOS::USB;
 using namespace OHOS::HDI::Usb::V1_0;
@@ -52,7 +52,8 @@ static constexpr int32_t PARAM_COUNT_3 = 3;
 static constexpr int32_t PARAM_COUNT_4 = 4;
 static constexpr int32_t STR_DEFAULT_SIZE = 256;
 static constexpr int32_t DEFAULT_DESCRIPTION_SIZE = 32;
-
+static constexpr int32_t DEFAULT_ACCESSORY_DESCRIPTION_SIZE = 256;
+static int32_t accFd = 0;
 static void ParseUsbDevicePipe(const napi_env env, const napi_value &obj, USBDevicePipe &pipe)
 {
     napi_valuetype valueType;
@@ -84,6 +85,12 @@ static void CreateUsbDevicePipe(const napi_env env, napi_value &obj, const USBDe
     napi_create_object(env, &obj);
     NapiUtil::SetValueInt32(env, "busNum", pipe.GetBusNum(), obj);
     NapiUtil::SetValueInt32(env, "devAddress", pipe.GetDevAddr(), obj);
+}
+
+static void CreatAccessoryHandle(const napi_env env, napi_value &obj, int32_t fd)
+{
+    napi_create_object(env, &obj);
+    NapiUtil::SetValueInt32(env, "accessoryFd", fd, obj);
 }
 
 static void CtoJSUsbEndpoint(const napi_env &env, napi_value &obj, const USBEndpoint &usbEndpoint)
@@ -171,6 +178,16 @@ static void CtoJSUsbDevice(const napi_env &env, napi_value &obj, const UsbDevice
         napi_set_element(env, arr, i, objTmp);
     }
     napi_set_named_property(env, obj, "configs", arr);
+}
+
+static void CtoJSUSBAccessory(const napi_env &env, napi_value &obj, const USBAccessory &accessory)
+{
+    napi_create_object(env, &obj);
+    NapiUtil::SetValueUtf8String(env, "manufacturer", accessory.GetManufacturer(), obj);
+    NapiUtil::SetValueUtf8String(env, "model", accessory.GetModel(), obj);
+    NapiUtil::SetValueUtf8String(env, "description", accessory.GetDescription(), obj);
+    NapiUtil::SetValueUtf8String(env, "version", accessory.GetVersion(), obj);
+    NapiUtil::SetValueUtf8String(env, "serial", accessory.GetSerial(), obj);
 }
 
 static UsbSrvClient &g_usbClient = UsbSrvClient::GetInstance();
@@ -440,6 +457,21 @@ static void ParseDeviceObj(const napi_env env, const napi_value deviceObj, UsbDe
         protocol, configs);
 }
 
+static void ParseAccessoryObj(const napi_env env, const napi_value accessoryObj, USBAccessory &accessory)
+{
+    std::string manufacturer;
+    NapiUtil::JsObjectToString(env, accessoryObj, "manufacturer", DEFAULT_ACCESSORY_DESCRIPTION_SIZE, manufacturer);
+    std::string model;
+    NapiUtil::JsObjectToString(env, accessoryObj, "model", DEFAULT_ACCESSORY_DESCRIPTION_SIZE, model);
+    std::string description;
+    NapiUtil::JsObjectToString(env, accessoryObj, "description", DEFAULT_ACCESSORY_DESCRIPTION_SIZE, description);
+    std::string version;
+    NapiUtil::JsObjectToString(env, accessoryObj, "version", DEFAULT_ACCESSORY_DESCRIPTION_SIZE, version);
+    std::string serial;
+    NapiUtil::JsObjectToString(env, accessoryObj, "serial", DEFAULT_ACCESSORY_DESCRIPTION_SIZE, serial);
+    accessory = USBAccessory(manufacturer, model, description, version, serial);
+}
+
 /* ============================================= Usb Core ============================================= */
 
 static napi_value CoreGetDevices(napi_env env, napi_callback_info info)
@@ -472,6 +504,41 @@ static napi_value CoreGetDevices(napi_env env, napi_callback_info info)
     return result;
 }
 
+static napi_value DeviceGetAccessoryList(napi_env env, napi_callback_info info)
+{
+    size_t argc = PARAM_COUNT_1;
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
+    napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
+    USB_ASSERT(env, (argc == PARAM_COUNT_0), SYSPARAM_INVALID_INPUT, "The function takes no arguments.");
+
+    std::vector<USBAccessory> accessoryList;
+    int32_t ret = g_usbClient.GetAccessoryList(accessoryList);
+    if (ret == UEC_OK) {
+        napi_value result;
+        napi_create_array(env, &result);
+        int32_t i = 0;
+        for (const auto &ent1 : accessoryList) {
+            napi_value element;
+            napi_create_object(env, &element);
+            napi_value device;
+            CtoJSUSBAccessory(env, device, ent1);
+            napi_set_element(env, result, i, device);
+            ++i;
+        }
+        return result;
+    } else if (ret == UEC_SERVICE_ACCESSORY_NOT_MATCH) {
+        ThrowBusinessError(env, USB_ACCESSORY_NOT_MATCH,
+            "Get accessory through getAccessoryList");
+    }  else if (ret == UEC_SERVICE_DATABASE_OPERATOR_FAILED) {
+        ThrowBusinessError(env, USB_DATABASE_REQUESTEXCEPTION,
+            "Database request operation exception");
+    } else {
+        ThrowBusinessError(env, USB_SERVICE_EXCEPTION,
+            "Service exception");
+    }
+    return nullptr;
+}
+
 static napi_value CoreConnectDevice(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
@@ -492,12 +559,81 @@ static napi_value CoreConnectDevice(napi_env env, napi_callback_info info)
     if (ret == UEC_OK) {
         CreateUsbDevicePipe(env, pipObj, pipe);
     } else if (ret == UEC_SERVICE_PERMISSION_DENIED || ret == UEC_INTERFACE_PERMISSION_DENIED) {
-        ThrowBusinessError(env, USB_DEVICE_PERMISSION_DENIED, "need call requestRight to get the permission");
+        ThrowBusinessError(env, USB_DEVICE_PERMISSION_DENIED,
+            "need call requestRight to get the permission");
     } else {
         napi_get_undefined(env, &pipObj);
     }
 
     return pipObj;
+}
+
+static napi_value DeviceOpenAccessory(napi_env env, napi_callback_info info)
+{
+    size_t argc = PARAM_COUNT_1;
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function at least takes one argument.");
+
+    napi_value accessoryObj = argv[INDEX_0];
+    napi_valuetype type;
+    NAPI_CHECK(env, napi_typeof(env, accessoryObj, &type), "Get accessoryObj type failed");
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of device must be USBAccessory.");
+    USBAccessory accessory;
+    ParseAccessoryObj(env, accessoryObj, accessory);
+
+    int32_t fd = -1;
+    int32_t ret = g_usbClient.OpenAccessory(accessory, fd);
+
+    napi_value handleObj = nullptr;
+    if (ret == UEC_OK) {
+        accFd = fd;
+        CreatAccessoryHandle(env, handleObj, fd);
+    } else if (ret == UEC_SERVICE_PERMISSION_DENIED || ret == UEC_INTERFACE_PERMISSION_DENIED) {
+        ThrowBusinessError(env, USB_WITHOUT_USER_AUTHORIZATION,
+            "Call requestAccessoryRight to get the permission first");
+    } else if (ret == UEC_SERVICE_ACCESSORY_NOT_MATCH) {
+        ThrowBusinessError(env, USB_ACCESSORY_NOT_MATCH,
+            "Get accessory through getAccessoryList");
+    }  else if (ret == UEC_SERVICE_ACCESSORY_REOPEN) {
+        ThrowBusinessError(env, USB_ACCESSORY_CAN_NOT_REOPEN,
+            "Cannot repeatedly open accessory");
+    }  else if (ret == UEC_SERVICE_DATABASE_OPERATOR_FAILED) {
+        ThrowBusinessError(env, USB_DATABASE_REQUESTEXCEPTION,
+            "Database request operation exception");
+    } else {
+        ThrowBusinessError(env, USB_SERVICE_EXCEPTION,
+            "Service exception");
+    }
+    return handleObj;
+}
+
+static napi_value DeviceCloseAccessory(napi_env env, napi_callback_info info)
+{
+    size_t argc = PARAM_COUNT_1;
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function at least takes one argument.");
+
+    napi_value accessoryFdObj = argv[INDEX_0];
+    napi_valuetype type;
+    NAPI_CHECK(env, napi_typeof(env, accessoryFdObj, &type), "Get accessoryObj type failed");
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of device must be USBAccessoryHandle.");
+    int32_t accessoryFd;
+    NapiUtil::JsObjectToInt(env, argv[INDEX_0], "accessoryFd", accessoryFd);
+    if (accessoryFd == 0 || accessoryFd != accFd || accFd == 0) {
+        ThrowBusinessError(env, SYSPARAM_INVALID_INPUT,
+            "Parameter accessoryHandle error, need openAccessory first.");
+    }
+    close(accessoryFd);
+    accessoryFd = 0;
+    int32_t ret = g_usbClient.CloseAccessory(accFd);
+    accFd = 0;
+    if (ret != UEC_OK) {
+        ThrowBusinessError(env, USB_SERVICE_EXCEPTION,
+            "Service exception");
+    }
+    return nullptr;
 }
 
 static napi_value DeviceAddRight(napi_env env, napi_callback_info info)
@@ -528,6 +664,45 @@ static napi_value DeviceAddRight(napi_env env, napi_callback_info info)
         napi_get_boolean(env, false, &result);
     }
     return result;
+}
+
+static napi_value DeviceAddAccessoryRight(napi_env env, napi_callback_info info)
+{
+    size_t argc = PARAM_COUNT_2;
+    napi_value argv[PARAM_COUNT_2] = {nullptr};
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_2), SYSPARAM_INVALID_INPUT, "The function at least takes two argument.");
+
+    napi_valuetype type;
+    NAPI_CHECK(env, napi_typeof(env, argv[INDEX_0], &type), "Get args 1 type failed");
+    USB_ASSERT(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of tokenId must be number.");
+    uint32_t tokenId;
+    napi_get_value_uint32(env, argv[INDEX_0], &tokenId);
+
+    napi_value accessoryObj = argv[INDEX_1];
+    napi_valuetype type1;
+    NAPI_CHECK(env, napi_typeof(env, accessoryObj, &type1), "Get accessoryObj type failed");
+    USB_ASSERT(env, type1 == napi_object, SYSPARAM_INVALID_INPUT, "The type of device must be USBAccessory.");
+    USBAccessory accessory;
+    ParseAccessoryObj(env, accessoryObj, accessory);
+
+    int32_t ret = g_usbClient.AddAccessoryRight(tokenId, accessory);
+    if (ret == UEC_OK) {
+        return nullptr;
+    } else if (ret == UEC_SERVICE_GET_TOKEN_INFO_FAILED) {
+        ThrowBusinessError(env, SYSPARAM_INVALID_INPUT, "");
+    } else if (ret == UEC_SERVICE_ACCESSORY_NOT_MATCH) {
+        ThrowBusinessError(env, SYSPARAM_INVALID_INPUT,
+            "Get accessory through getAccessoryList");
+    } else if (ret == UEC_SERVICE_DATABASE_OPERATOR_FAILED) {
+        ThrowBusinessError(env, USB_DATABASE_REQUESTEXCEPTION,
+            "Database request operation exception");
+    } else {
+        ThrowBusinessError(env, USB_SERVICE_EXCEPTION,
+            "Service exception");
+    }
+    USB_HILOGD(MODULE_JS_NAPI, "Device call AddAccessoryRight ret: %{public}d", ret);
+    return nullptr;
 }
 
 static napi_value DeviceAddAccessRight(napi_env env, napi_callback_info info)
@@ -585,6 +760,37 @@ static napi_value DeviceRemoveRight(napi_env env, napi_callback_info info)
     return result;
 }
 
+static napi_value DeviceCancelAccessoryRight(napi_env env, napi_callback_info info)
+{
+    size_t argc = PARAM_COUNT_1;
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function at least takes one argument.");
+
+    napi_value accessoryObj = argv[INDEX_0];
+    napi_valuetype type;
+    NAPI_CHECK(env, napi_typeof(env, accessoryObj, &type), "Get accessoryObj type failed");
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of device must be USBAccessory.");
+    USBAccessory accessory;
+    ParseAccessoryObj(env, accessoryObj, accessory);
+
+    int32_t ret = g_usbClient.CancelAccessoryRight(accessory);
+    if (ret == UEC_OK) {
+        return nullptr;
+    } else if (ret == UEC_SERVICE_ACCESSORY_NOT_MATCH) {
+        ThrowBusinessError(env, USB_ACCESSORY_NOT_MATCH,
+            "Get accessory through getAccessoryList");
+    } else if (ret == UEC_SERVICE_DATABASE_OPERATOR_FAILED) {
+        ThrowBusinessError(env, USB_DATABASE_REQUESTEXCEPTION,
+            "Database request operation exception");
+    } else {
+        ThrowBusinessError(env, USB_SERVICE_EXCEPTION,
+            "Service exception");
+    }
+    USB_HILOGD(MODULE_JS_NAPI, "Device call RemoveRight ret: %{public}d", ret);
+    return nullptr;
+}
+
 static napi_value CoreHasRight(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
@@ -605,6 +811,39 @@ static napi_value CoreHasRight(napi_env env, napi_callback_info info)
     napi_get_boolean(env, result, &napiValue);
 
     return napiValue;
+}
+
+static napi_value DeviceHasAccessoryRight(napi_env env, napi_callback_info info)
+{
+    size_t argc = PARAM_COUNT_1;
+    napi_value args[PARAM_COUNT_1] = {nullptr};
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function at least takes one argument.");
+
+    napi_value accessoryObj = args[INDEX_0];
+    napi_valuetype type;
+    NAPI_CHECK(env, napi_typeof(env, accessoryObj, &type), "Get accessoryObj type failed");
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of device must be USBAccessory.");
+    USBAccessory accessory;
+    ParseAccessoryObj(env, accessoryObj, accessory);
+    bool result = false;
+    int32_t ret = g_usbClient.HasAccessoryRight(accessory, result);
+    if (ret == UEC_OK) {
+        napi_value napiValue = nullptr;
+        napi_get_boolean(env, result, &napiValue);
+        return napiValue;
+    } else if (ret == UEC_SERVICE_ACCESSORY_NOT_MATCH) {
+        ThrowBusinessError(env, USB_ACCESSORY_NOT_MATCH,
+            "Get accessory through getAccessoryList");
+    } else if (ret == UEC_SERVICE_DATABASE_OPERATOR_FAILED) {
+        ThrowBusinessError(env, USB_DATABASE_REQUESTEXCEPTION,
+            "Database request operation exception");
+    } else {
+        ThrowBusinessError(env, USB_SERVICE_EXCEPTION,
+            "Service exception");
+    }
+
+    return nullptr;
 }
 
 static auto g_requestRightExecute = [](napi_env env, void *data) {
@@ -658,6 +897,80 @@ static napi_value CoreRequestRight(napi_env env, napi_callback_info info)
     napi_create_string_utf8(env, "RequestRight", NAPI_AUTO_LENGTH, &resource);
 
     napi_create_async_work(env, nullptr, resource, g_requestRightExecute, g_requestRightComplete,
+        reinterpret_cast<void *>(asyncContext), &asyncContext->work);
+    napi_queue_async_work(env, asyncContext->work);
+
+    return result;
+}
+
+static auto g_requestAccessoryRightExecute = [](napi_env env, void *data) {
+    if (data == nullptr) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create async work, data is nullptr");
+        return;
+    }
+    USBAccessoryRightAsyncContext *asyncContext = reinterpret_cast<USBAccessoryRightAsyncContext *>(data);
+    bool result = false;
+    asyncContext->errCode = g_usbClient.RequestAccessoryRight(asyncContext->accessory, result);
+    asyncContext->hasRight = result;
+};
+
+static auto g_requestAccessoryRightComplete = [](napi_env env, napi_status status, void *data) {
+    if (data == nullptr) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create async work, data is nullptr");
+        return;
+    }
+    USBAccessoryRightAsyncContext *asyncContext = reinterpret_cast<USBAccessoryRightAsyncContext *>(data);
+    napi_value queryResult = nullptr;
+
+    if (asyncContext->errCode == UEC_OK) {
+        asyncContext->status = napi_ok;
+        napi_get_boolean(env, asyncContext->hasRight, &queryResult);
+    } else if (asyncContext->errCode == UEC_SERVICE_ACCESSORY_NOT_MATCH) {
+        asyncContext->status = napi_generic_failure;
+        queryResult = CreateBusinessError(env, USB_ACCESSORY_NOT_MATCH, "");
+    } else if (asyncContext->errCode == UEC_SERVICE_DATABASE_OPERATOR_FAILED) {
+        asyncContext->status = napi_generic_failure;
+        queryResult = CreateBusinessError(env, USB_DATABASE_REQUESTEXCEPTION, "");
+    } else {
+        asyncContext->status = napi_generic_failure;
+        queryResult = CreateBusinessError(env, USB_SERVICE_EXCEPTION, "");
+    }
+    ProcessPromise(env, *asyncContext, queryResult);
+    napi_delete_async_work(env, asyncContext->work);
+    delete asyncContext;
+    asyncContext = nullptr;
+};
+
+static napi_value DeviceRequestAccessoryRight(napi_env env, napi_callback_info info)
+{
+    size_t argc = PARAM_COUNT_1;
+    napi_value args[PARAM_COUNT_1] = {nullptr};
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), SYSPARAM_INVALID_INPUT, "The function at least takes one argument.");
+
+    napi_value accessoryObj = args[INDEX_0];
+    napi_valuetype type;
+    NAPI_CHECK(env, napi_typeof(env, accessoryObj, &type), "Get accessoryObj type failed");
+    USB_ASSERT(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of device must be USBAccessory.");
+    USBAccessory accessory;
+    ParseAccessoryObj(env, accessoryObj, accessory);
+
+    auto asyncContext = new (std::nothrow) USBAccessoryRightAsyncContext();
+    if (asyncContext == nullptr) {
+        USB_HILOGE(MODULE_JS_NAPI, "Create USBAccessoryRightAsyncContext failed.");
+        return nullptr;
+    }
+
+    asyncContext->env = env;
+    asyncContext->accessory = accessory;
+
+    napi_value result = nullptr;
+    napi_create_promise(env, &asyncContext->deferred, &result);
+
+    napi_value resource = nullptr;
+    napi_create_string_utf8(env, "RequestRight", NAPI_AUTO_LENGTH, &resource);
+
+    napi_create_async_work(env, nullptr, resource, g_requestAccessoryRightExecute, g_requestAccessoryRightComplete,
         reinterpret_cast<void *>(asyncContext), &asyncContext->work);
     napi_queue_async_work(env, asyncContext->work);
 
@@ -1726,6 +2039,13 @@ napi_value UsbInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addRight", DeviceAddRight),
         DECLARE_NAPI_FUNCTION("addDeviceAccessRight", DeviceAddAccessRight),
         DECLARE_NAPI_FUNCTION("removeRight", DeviceRemoveRight),
+        DECLARE_NAPI_FUNCTION("getAccessoryList", DeviceGetAccessoryList),
+        DECLARE_NAPI_FUNCTION("openAccessory", DeviceOpenAccessory),
+        DECLARE_NAPI_FUNCTION("closeAccessory", DeviceCloseAccessory),
+        DECLARE_NAPI_FUNCTION("addAccessoryRight", DeviceAddAccessoryRight),
+        DECLARE_NAPI_FUNCTION("hasAccessoryRight", DeviceHasAccessoryRight),
+        DECLARE_NAPI_FUNCTION("requestAccessoryRight", DeviceRequestAccessoryRight),
+        DECLARE_NAPI_FUNCTION("cancelAccessoryRight", DeviceCancelAccessoryRight),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
 
