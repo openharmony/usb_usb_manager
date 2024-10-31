@@ -31,6 +31,7 @@
 #include "system_ability_status_change_stub.h"
 #include "timer.h"
 #include "usb_device_manager.h"
+#include "usb_accessory_manager.h"
 #include "usb_host_manager.h"
 #include "usb_port_manager.h"
 #include "usb_right_manager.h"
@@ -133,6 +134,14 @@ public:
     int32_t GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed) override;
 
     bool GetDeviceProductName(const std::string &deviceName, std::string &productName);
+
+    int32_t GetAccessoryList(std::vector<USBAccessory> &accessList) override;
+    int32_t OpenAccessory(const USBAccessory &access, int32_t &fd) override;
+    int32_t CloseAccessory(int32_t fd) override;
+    int32_t AddAccessoryRight(const uint32_t tokenId, const USBAccessory &access) override;
+    int32_t HasAccessoryRight(const USBAccessory &access, bool &result) override;
+    int32_t RequestAccessoryRight(const USBAccessory &access, bool &result) override;
+    int32_t CancelAccessoryRight(const USBAccessory &access) override;
 private:
     class SystemAbilityStatusChangeListener : public SystemAbilityStatusChangeStub {
     public:
@@ -194,6 +203,7 @@ private:
     std::shared_ptr<UsbRightManager> usbRightManager_;
     std::shared_ptr<UsbPortManager> usbPortManager_;
     std::shared_ptr<UsbDeviceManager> usbDeviceManager_;
+    std::shared_ptr<UsbAccessoryManager> usbAccessoryManager_;
     sptr<UsbServiceSubscriber> usbdSubscriber_;
     sptr<HDI::Usb::V1_0::IUsbdBulkCallback> hdiCb_ = nullptr;
     sptr<HDI::Usb::V1_1::IUsbInterface> usbd_ = nullptr;
