@@ -37,7 +37,6 @@
                 "common_event_service",
                 "drivers_interface_usb",
                 "drivers_peripheral_usb",
-                "i18n",
                 "init",
                 "ipc",
                 "safwk",

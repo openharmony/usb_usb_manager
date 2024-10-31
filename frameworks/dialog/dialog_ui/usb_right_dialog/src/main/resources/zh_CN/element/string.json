@@ -15,27 +15,6 @@
             }
         },
         {
-            "name":"notification_title",
-            "value":"可移动磁盘",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"notification_text",
-            "value":"USB 存储设备已接入",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"notification_button",
-            "value":"查看",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"USB_hint",
             "value":"USB 连接方式",
             "attr":{

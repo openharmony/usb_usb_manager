@@ -15,20 +15,6 @@
             }
         },
         {
-            "name":"notification_text",
-            "value":"USB གསོག་ཆས་མཐུད་ཟིན།",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"notification_button",
-            "value":"ལྟ་ཞིབ།",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"USB_hint",
             "value":"USB སྦྲེལ་མཐུད་ཐབས་ལམ།",
             "attr":{
@@ -52,13 +38,6 @@
         {
             "name":"allowButton",
             "value":"ཆོག་པ།",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"notification_title",
-            "value":"སྤོ་རུང་སྡུད་སྡེར།",
             "attr":{
                 "priority":"LT"
             }

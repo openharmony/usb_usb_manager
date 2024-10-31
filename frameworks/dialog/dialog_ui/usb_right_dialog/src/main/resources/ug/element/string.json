@@ -15,20 +15,6 @@
             }
         },
         {
-            "name":"notification_text",
-            "value":"\u200fUSB بوشلۇق چېتىلدى.",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"notification_button",
-            "value":"كۆرۈش",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"USB_hint",
             "value":"\u200fUSB ئۇلاش ئۇسۇلى",
             "attr":{
@@ -52,13 +38,6 @@
         {
             "name":"allowButton",
             "value":"رۇخسەت",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"notification_title",
-            "value":"كۆچمە دىسكا",
             "attr":{
                 "priority":"LT"
             }
