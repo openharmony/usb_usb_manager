@@ -46,7 +46,6 @@
                 "memmgr",
                 "os_account",
                 "relational_store",
-                "resource_management",
                 "ability_runtime",
                 "hisysevent",
                 "cJSON",
