@@ -15,20 +15,6 @@
             }
         },
         {
-            "name":"notification_text",
-            "value":"已插入 USB 儲存裝置",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"notification_button",
-            "value":"檢視",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"USB_hint",
             "value":"USB 連接方式",
             "attr":{
@@ -52,13 +38,6 @@
         {
             "name":"allowButton",
             "value":"允許",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"notification_title",
-            "value":"可移動磁碟",
             "attr":{
                 "priority":"LT"
             }

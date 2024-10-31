@@ -9,14 +9,6 @@
             "value":"[TS_948513]_USB access authorization"
         },
         {
-            "name":"notification_text",
-            "value":"[TS_948510]_USB storage device inserted"
-        },
-        {
-            "name":"notification_button",
-            "value":"[TS_948503]_View"
-        },
-        {
             "name":"USB_hint",
             "value":"[TS_948517]_Use USB to"
         },
@@ -33,10 +25,6 @@
             "value":"[TS_948498]_Allow"
         },
         {
-            "name":"notification_title",
-            "value":"[TS_948516]_Removable drive"
-        },
-        {
             "name":"usb_right_content",
             "value":"[TS_948519]_Allow %1$s to use %2$s?"
         },
@@ -47,10 +35,6 @@
         {
             "name":"UsbFunctionSwitchWindowAbility_label",
             "value":"[TS_948501]_ext ability"
-        },
-        {
-            "name":"notification_label",
-            "value":"[TS_948500]_filemanager"
         },
         {
             "name":"entry_desc",

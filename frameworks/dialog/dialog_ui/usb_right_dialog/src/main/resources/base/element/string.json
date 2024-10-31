@@ -35,31 +35,6 @@
             }
         },
         {
-            "name":"notification_title",
-            "value":"Removable drive",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"notification_text",
-            "value":"USB storage device inserted",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"notification_button",
-            "value":"View",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"notification_label",
-            "value":"filemanager"
-        },
-        {
             "name":"UsbFunctionSwitchWindowAbility_desc",
             "value":"ext ability"
         },
