@@ -35,7 +35,7 @@ constexpr int32_t PARAM_COUNT_TWO = 2;
 constexpr int32_t PARAM_COUNT_THR = 3;
 constexpr uint32_t CMD_INDEX = 1;
 constexpr uint32_t PARAM_INDEX = 2;
-constexpr uint32_t DELAY_DISCONN_INTERVAL = 1 * 1000;
+constexpr uint32_t DELAY_DISCONN_INTERVAL = 2 * 1000;
 const std::map<std::string_view, uint32_t> UsbDeviceManager::FUNCTION_MAPPING_N2C = {
     {UsbSrvSupport::FUNCTION_NAME_NONE, UsbSrvSupport::FUNCTION_NONE},
     {UsbSrvSupport::FUNCTION_NAME_ACM, UsbSrvSupport::FUNCTION_ACM},
@@ -163,24 +163,26 @@ int32_t UsbDeviceManager::GetCurrentFunctions()
 void UsbDeviceManager::HandleEvent(int32_t status)
 {
     if (usbd_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::usbd_ is nullptr");
         return;
     }
     bool curConnect = false;
     switch (status) {
-        case ACT_UPDEVICE: {
+        case ACT_UPDEVICE:
             curConnect = true;
             gadgetConnected_ = true;
             break;
-        }
-        case ACT_DOWNDEVICE: {
+        case ACT_DOWNDEVICE:
             curConnect = false;
             gadgetConnected_ = false;
             break;
-        }
+        case ACT_ACCESSORYUP:
+        case ACT_ACCESSORYDOWN:
+        case ACT_ACCESSORYSEND:
+            ProcessFunctionSwitchWindow(false);
+            return;
         default:
             USB_HILOGE(MODULE_USB_SERVICE, "invalid status %{public}d", status);
-            curConnect = false;
+            return;
     }
     delayDisconn_.Unregister(delayDisconnTimerId_);
     delayDisconn_.Shutdown();

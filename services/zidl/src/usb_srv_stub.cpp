@@ -23,6 +23,8 @@
 #include "v1_1/iusb_interface.h"
 #include "usb_report_sys_event.h"
 #include "hitrace_meter.h"
+#include "usb_accessory.h"
+
 using namespace OHOS::HDI::Usb::V1_1;
 namespace OHOS {
 namespace USB {
@@ -246,6 +248,27 @@ bool UsbServerStub::StubHostTransfer(uint32_t code, int32_t &result,
             return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_USB_CONTROL_TRANSFER):
             result = DoUsbControlTransfer(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_ACCESSORY_LIST):
+            result = DoGetAccessoryList(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_OPEN_ACCESSORY):
+            result = DoOpenAccessory(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_CLOSE_ACCESSORY):
+            result = DoCloseAccessory(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_HAS_ACCESSORY_RIGHT):
+            result = DoHasAccessoryRight(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REMOVE_ACCESSORY_RIGHT):
+            result = DoCancelAccessoryRight(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_ADD_ACCESSORY_RIGHT):
+            result = DoAddAccessoryRight(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REQUEST_ACCESSORY_RIGHT):
+            result = DoRequestAccessoryRight(data, reply, option);
             return true;
         default:;
     }
@@ -870,6 +893,31 @@ int32_t UsbServerStub::DoGetDevices(MessageParcel &data, MessageParcel &reply, M
     return ret;
 }
 
+int32_t UsbServerStub::SetAccessoryListMessageParcel(std::vector<USBAccessory> &accessoryList, MessageParcel &data)
+{
+    int32_t accessoryCount = (int32_t)accessoryList.size();
+    WRITE_PARCEL_WITH_RET(data, Int32, accessoryCount, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    for (int32_t i = 0; i < accessoryCount; ++i) {
+        int32_t ret = SetAccessoryMessageParcel(accessoryList[i], data);
+        if (ret) {
+            return ret;
+        }
+    }
+    return UEC_OK;
+}
+
+int32_t UsbServerStub::SetAccessoryMessageParcel(USBAccessory &accessoryInfo, MessageParcel &data)
+{
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetManufacturer(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetModel(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetDescription(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetVersion(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetSerial(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
+}
+
 int32_t UsbServerStub::SetDeviceListMessageParcel(std::vector<UsbDevice> &deviceList, MessageParcel &data)
 {
     int32_t deviceCount = (int32_t)deviceList.size();
@@ -1204,5 +1252,141 @@ int32_t UsbServerStub::DoGetDeviceSpeed(MessageParcel &data, MessageParcel &repl
     return ret;
 }
 
+int32_t UsbServerStub::DoGetAccessoryList(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    std::vector<USBAccessory> accessoryList;
+    int32_t ret = GetAccessoryList(accessoryList);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_SERVICE, "GetDevices failed ret = %{public}d", ret);
+        UsbReportSysEvent::ReportTransforFaultSysEvent("GetAccessoryList", {0, 0}, {0, 0}, ret);
+        return ret;
+    }
+    USB_HILOGI(MODULE_SERVICE, "accessory list size = %{public}zu", accessoryList.size());
+    ret = SetAccessoryListMessageParcel(accessoryList, reply);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "SetDeviceListMessageParcel failed ret:%{public}d", ret);
+    }
+    return ret;
+}
+int32_t UsbServerStub::GetAccessoryMessageParcel(MessageParcel &data, USBAccessory &accessoryInfo)
+{
+    std::string tmp;
+    READ_PARCEL_WITH_RET(data, String, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
+    accessoryInfo.SetManufacturer(tmp);
+
+    READ_PARCEL_WITH_RET(data, String, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
+    accessoryInfo.SetModel(tmp);
+
+    READ_PARCEL_WITH_RET(data, String, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
+    accessoryInfo.SetDescription(tmp);
+
+    READ_PARCEL_WITH_RET(data, String, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
+    accessoryInfo.SetVersion(tmp);
+
+    READ_PARCEL_WITH_RET(data, String, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
+    accessoryInfo.SetSerial(tmp);
+    return UEC_OK;
+}
+int32_t UsbServerStub::DoOpenAccessory(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    USBAccessory accessory;
+    int32_t ret = GetAccessoryMessageParcel(data, accessory);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_SERVICE, "GetDevices failed ret = %{public}d", ret);
+        UsbReportSysEvent::ReportTransforFaultSysEvent("GetAccessoryList", {0, 0}, {0, 0}, ret);
+        return ret;
+    }
+    int32_t fd = -1;
+    ret = OpenAccessory(accessory, fd);
+    if (ret == UEC_OK) {
+        if (!WriteFileDescriptor(reply, fd)) {
+            USB_HILOGW(MODULE_USB_SERVICE, "%{public}s: write fd failed!", __func__);
+            return UEC_INTERFACE_WRITE_PARCEL_ERROR;
+        }
+    } else {
+        USB_HILOGE(MODULE_USBD, "OpenAccessory ret:%{public}d", ret);
+    }
+    return ret;
+}
+
+int32_t UsbServerStub::DoCloseAccessory(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    int32_t fd = -1;
+    READ_PARCEL_WITH_RET(data, Int32, fd, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = CloseAccessory(fd);
+    if (ret == UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "%{public}s, ret:%{public}d", __func__, ret);
+    }
+    WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return ret;
+}
+
+int32_t UsbServerStub::DoAddAccessoryRight(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    uint32_t tokenId;
+    READ_PARCEL_WITH_RET(data, Uint32, tokenId, UEC_SERVICE_READ_PARCEL_ERROR);
+    USBAccessory accessory;
+    int32_t ret = GetAccessoryMessageParcel(data, accessory);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_SERVICE, "GetAccessory failed ret = %{public}d", ret);
+        return ret;
+    }
+    ret = AddAccessoryRight(tokenId, accessory);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "%{public}s, ret:%{public}d", __func__, ret);
+    }
+    WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return ret;
+}
+int32_t UsbServerStub::DoHasAccessoryRight(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    USBAccessory accessory;
+    int32_t ret = GetAccessoryMessageParcel(data, accessory);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_SERVICE, "GetAccessory failed ret = %{public}d", ret);
+        return ret;
+    }
+    bool result = false;
+    ret = HasAccessoryRight(accessory, result);
+    if (!ret) {
+        USB_HILOGE(MODULE_USBD, "%{public}s, ret:%{public}d", __func__, result);
+    }
+    WRITE_PARCEL_WITH_RET(reply, Bool, result, false);
+    WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
+}
+int32_t UsbServerStub::DoRequestAccessoryRight(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    USBAccessory accessory;
+    int32_t ret = GetAccessoryMessageParcel(data, accessory);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_SERVICE, "GetAccessory failed ret = %{public}d", ret);
+        return ret;
+    }
+    bool result = false;
+    ret = RequestAccessoryRight(accessory, result);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "%{public}s, ret:%{public}d", __func__, ret);
+    }
+    WRITE_PARCEL_WITH_RET(reply, Bool, result, false);
+    WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return ret;
+}
+
+int32_t UsbServerStub::DoCancelAccessoryRight(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    USBAccessory accessory;
+    int32_t ret = GetAccessoryMessageParcel(data, accessory);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_SERVICE, "GetAccessory failed ret = %{public}d", ret);
+        return ret;
+    }
+    ret = CancelAccessoryRight(accessory);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "%{public}s, ret:%{public}d", __func__, ret);
+    }
+    WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return ret;
+}
 } // namespace USB
 } // namespace OHOS
