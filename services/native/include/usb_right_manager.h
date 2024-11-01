@@ -28,7 +28,7 @@
 #include "bundle_resource_interface.h"
 #include "usb_common.h"
 #include "parameter.h"
-#include "usb_accessory.h"
+
 namespace OHOS {
 namespace USB {
 
@@ -41,14 +41,10 @@ public:
     /* busDev is in busNum-devAddr format */
     int32_t RequestRight(const std::string &busDev, const std::string &deviceName, const std::string &bundleName,
         const std::string &tokenId, const int32_t &userId);
-    int32_t RequestRight(const USBAccessory &access, const std::string &seriaValue, const std::string &bundleName,
-        const std::string &tokenId, const int32_t &userId, bool &result);
     bool AddDeviceRight(const std::string &deviceName, const std::string &tokenIdStr);
     bool AddDeviceRight(const std::string &deviceName, const std::string &bundleName,
         const std::string &tokenId, const int32_t &userId);
     bool RemoveDeviceRight(const std::string &deviceName, const std::string &bundleName,
-        const std::string &tokenId, const int32_t &userId);
-    int32_t CancelDeviceRight(const std::string &deviceName, const std::string &bundleName,
         const std::string &tokenId, const int32_t &userId);
     bool RemoveDeviceAllRight(const std::string &deviceName);
     bool IsSystemAppOrSa();
@@ -63,18 +59,14 @@ public:
 private:
     bool GetUserAgreementByDiag(const std::string &busDev, const std::string &deviceName, const std::string &bundleName,
         const std::string &tokenId, const int32_t &userId);
-    bool GetUserAgreementByDiag(const USBAccessory &access, const std::string &seriaValue,
-        const std::string &bundleName, const std::string &tokenId, const int32_t &userId);
     bool ShowUsbDialog(const std::string &busDev, const std::string &deviceName,
-        const std::string &bundleName, const std::string &tokenId);
-    bool ShowUsbDialog(const USBAccessory &access, const std::string &seriaValue,
         const std::string &bundleName, const std::string &tokenId);
     bool IsAllDigits(const std::string &bundleName);
     sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
     sptr<AppExecFwk::IBundleResource> GetBundleResMgr();
     bool GetAppName(const std::string &bundleName, std::string &appName);
     bool GetProductName(const std::string &devName, std::string &productName);
-    bool GetAccessoryName(const USBAccessory &access, std::string &accessName);
+
     static sem_t waitDialogDisappear_;
     class UsbAbilityConn : public AAFwk::AbilityConnectionStub {
         void OnAbilityConnectDone(const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject,

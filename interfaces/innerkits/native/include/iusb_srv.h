@@ -22,7 +22,6 @@
 #include "usb_port.h"
 #include "v1_1/usb_types.h"
 #include "usb_interface_type.h"
-#include "usb_accessory.h"
 
 namespace OHOS {
 namespace USB {
@@ -84,13 +83,6 @@ public:
     virtual int32_t GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed)  = 0;
     virtual int32_t GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid,
         bool &unactivated) = 0;
-    virtual int32_t AddAccessoryRight(const uint32_t tokenId, const USBAccessory &access) = 0;
-    virtual int32_t HasAccessoryRight(const USBAccessory &access, bool &result) = 0;
-    virtual int32_t RequestAccessoryRight(const USBAccessory &access, bool &result) = 0;
-    virtual int32_t CancelAccessoryRight(const USBAccessory &access) = 0;
-    virtual int32_t GetAccessoryList(std::vector<USBAccessory> &accessList) = 0;
-    virtual int32_t OpenAccessory(const USBAccessory &access, int32_t &fd) = 0;
-    virtual int32_t CloseAccessory(const int32_t fd) = 0;
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.usb.IUsbSrv");
 };

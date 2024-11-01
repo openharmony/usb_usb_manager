@@ -47,7 +47,7 @@
 #include "usb_function_switch_window.h"
 using OHOS::sptr;
 using namespace OHOS::HDI::Usb::V1_1;
-using namespace OHOS::Security::AccessToken;
+
 namespace OHOS {
 namespace USB {
 namespace {
@@ -94,7 +94,6 @@ UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
     usbRightManager_ = std::make_shared<UsbRightManager>();
     usbPortManager_ = std::make_shared<UsbPortManager>();
     usbDeviceManager_ = std::make_shared<UsbDeviceManager>();
-    usbAccessoryManager_ = std::make_shared<UsbAccessoryManager>();
     usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "IUsbInterface::Get inteface failed");
@@ -123,12 +122,6 @@ int32_t UsbService::SetUsbd(const sptr<OHOS::HDI::Usb::V1_1::IUsbInterface> &usb
         return UEC_SERVICE_INVALID_VALUE;
     }
     usbDeviceManager_->SetUsbd(usbd);
-
-    if (usbAccessoryManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbAccessoryManager_");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    usbAccessoryManager_->SetUsbd(usbd);
     return UEC_OK;
 }
 // LCOV_EXCL_STOP
@@ -1729,12 +1722,6 @@ void UsbService::UpdateDeviceState(int32_t status)
     }
 
     usbDeviceManager_->HandleEvent(status);
-
-    if (usbAccessoryManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbAccessoryManager_");
-        return;
-    }
-    usbAccessoryManager_->HandleEvent(status);
 }
 // LCOV_EXCL_STOP
 
@@ -2432,193 +2419,5 @@ bool UsbService::GetDeviceProductName(const std::string &deviceName, std::string
     }
     return usbHostManager_->GetProductName(deviceName, productName);
 }
-
-int32_t UsbService::GetAccessoryList(std::vector<USBAccessory> &accessList)
-{
-    if (usbAccessoryManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbAccessoryManager_");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    std::string bundleName;
-    std::string tokenId;
-    int32_t userId = USB_RIGHT_USERID_INVALID;
-    if (!GetCallingInfo(bundleName, tokenId, userId)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetCallingInfo false");
-        return UEC_SERVICE_INNER_ERR;
-    }
-
-    usbAccessoryManager_->GetAccessoryList(bundleName, accessList);
-    USB_HILOGD(MODULE_USB_SERVICE, "get accessory list size %{public}zu", accessList.size());
-    return UEC_OK;
-}
-
-int32_t UsbService::OpenAccessory(const USBAccessory &access, int32_t &fd)
-{
-    if (usbAccessoryManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbAccessoryManager_");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    std::string bundleName;
-    std::string tokenId;
-    int32_t userId = USB_RIGHT_USERID_INVALID;
-    if (!GetCallingInfo(bundleName, tokenId, userId)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetCallingInfo false");
-        return UEC_SERVICE_GET_TOKEN_INFO_FAILED;
-    }
-
-    std::string serialNum = "";
-    int32_t ret = usbAccessoryManager_->GetAccessorySerialNumber(access, bundleName, serialNum);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "can not find accessory.");
-        return ret;
-    }
-   
-    bool result = false;
-    ret = UsbService::HasAccessoryRight(access, result);
-    if (ret != UEC_OK || !result) {
-        USB_HILOGE(MODULE_USB_SERVICE, "No permission");
-        return UEC_SERVICE_PERMISSION_DENIED;
-    }
-
-    ret = usbAccessoryManager_->OpenAccessory(fd);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "error ret:%{public}d", ret);
-    }
-    return ret;
-}
-
-int32_t UsbService::CloseAccessory(int32_t fd)
-{
-    if (usbAccessoryManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbAccessoryManager_");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    int32_t ret = usbAccessoryManager_->CloseAccessory(fd);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "error ret:%{public}d", ret);
-    }
-    return ret;
-}
-
-int32_t UsbService::AddAccessoryRight(const uint32_t tokenId, const USBAccessory &access)
-{
-    if (usbRightManager_ == nullptr || usbAccessoryManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_ or usbAccessoryManager_");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    HapTokenInfo hapTokenInfoRes;
-    int32_t ret = AccessTokenKit::GetHapTokenInfo((AccessTokenID) tokenId, hapTokenInfoRes);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetHapTokenInfo failed:ret:%{public}d", ret);
-        return UEC_SERVICE_GET_TOKEN_INFO_FAILED;
-    }
-
-    std::string serialNum = "";
-    ret = usbAccessoryManager_->GetAccessorySerialNumber(access, hapTokenInfoRes.bundleName, serialNum);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "can not find accessory.");
-        return ret;
-    }
-    if (!(usbRightManager_->IsSystemAppOrSa() && usbRightManager_->VerifyPermission())) {
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
-    }
-
-    USB_HILOGI(MODULE_USB_SERVICE, "Add accessory Right, deviceName = %{public}s", serialNum.c_str());
-    if (!usbRightManager_->AddDeviceRight(serialNum, std::to_string(tokenId))) {
-        USB_HILOGE(MODULE_USB_SERVICE, "AddDeviceRight failed");
-        return UEC_SERVICE_DATABASE_OPERATOR_FAILED;
-    }
-    USB_HILOGI(MODULE_USB_SERVICE, "AddAccessoryRight done");
-    return UEC_OK;
-}
-
-int32_t UsbService::HasAccessoryRight(const USBAccessory &access, bool &result)
-{
-    USB_HILOGI(MODULE_USB_SERVICE, "calling HasAccessoryRight");
-    if (usbRightManager_ == nullptr || usbAccessoryManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_ or usbAccessoryManager_");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-
-    std::string bundleName;
-    std::string tokenId;
-    int32_t userId = USB_RIGHT_USERID_INVALID;
-    if (!GetCallingInfo(bundleName, tokenId, userId)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "HasRight GetCallingInfo false");
-        return UEC_SERVICE_GET_TOKEN_INFO_FAILED;
-    }
-
-    std::string serialNum = "";
-    int32_t ret = usbAccessoryManager_->GetAccessorySerialNumber(access, bundleName, serialNum);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "can not find accessory.");
-        return ret;
-    }
-
-    USB_HILOGI(MODULE_USB_SERVICE, "bundle=%{public}s, serialNum=%{public}s", bundleName.c_str(), serialNum.c_str());
-    result = usbRightManager_->HasRight(serialNum, bundleName, tokenId, userId);
-
-    return UEC_OK;
-}
-
-int32_t UsbService::RequestAccessoryRight(const USBAccessory &access, bool &result)
-{
-    USB_HILOGI(MODULE_USB_SERVICE, "calling usbRightManager RequestAccessoryRight");
-    if (usbRightManager_ == nullptr || usbAccessoryManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_ or usbAccessoryManager_");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-
-    std::string bundleName;
-    std::string tokenId;
-    int32_t userId = USB_RIGHT_USERID_INVALID;
-    if (!GetCallingInfo(bundleName, tokenId, userId)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetCallingInfo false");
-        return UEC_SERVICE_GET_TOKEN_INFO_FAILED;
-    }
-
-    std::string serialNum = "";
-    int32_t ret = usbAccessoryManager_->GetAccessorySerialNumber(access, bundleName, serialNum);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "can not find accessory.");
-        return ret;
-    }
-
-    USB_HILOGI(MODULE_USB_SERVICE, "bundle=%{public}s, device=%{public}s", bundleName.c_str(), serialNum.c_str());
-    return usbRightManager_->RequestRight(access, serialNum, bundleName, tokenId, userId, result);
-}
-
-int32_t UsbService::CancelAccessoryRight(const USBAccessory &access)
-{
-    USB_HILOGI(MODULE_USB_SERVICE, "calling CancelAccessoryRight");
-    if (usbRightManager_ == nullptr || usbAccessoryManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_ or usbAccessoryManager_");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-
-    std::string bundleName;
-    std::string tokenId;
-    int32_t userId = USB_RIGHT_USERID_INVALID;
-    if (!GetCallingInfo(bundleName, tokenId, userId)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetCallingInfo false");
-        return UEC_SERVICE_GET_TOKEN_INFO_FAILED;
-    }
-
-    std::string serialNum = "";
-    int32_t ret = usbAccessoryManager_->GetAccessorySerialNumber(access, bundleName, serialNum);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "can not find accessory.");
-        return ret;
-    }
-
-    if (usbRightManager_->CancelDeviceRight(serialNum, bundleName, tokenId, userId) != UEC_OK) {
-        USB_HILOGI(MODULE_USB_SERVICE, "CancelAccessoryRight failed");
-        return UEC_SERVICE_DATABASE_OPERATOR_FAILED;
-    }
-
-    USB_HILOGI(MODULE_USB_SERVICE, "CancelAccessoryRight done");
-    return UEC_OK;
-}
-
 } // namespace USB
 } // namespace OHOS

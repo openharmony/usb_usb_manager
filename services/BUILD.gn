@@ -39,7 +39,6 @@ ohos_shared_library("usbservice") {
   install_enable = true
   sources = [
     "${usb_manager_path}/services/zidl/src/usb_srv_stub.cpp",
-    "native/src/usb_accessory_manager.cpp",
     "native/src/usb_descriptor_parser.cpp",
     "native/src/usb_device_manager.cpp",
     "native/src/usb_function_switch_window.cpp",

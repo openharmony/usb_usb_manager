@@ -20,7 +20,6 @@
 #include "usb_device_pipe.h"
 #include "usb_endpoint.h"
 #include "usb_request.h"
-#include "usb_accessory.h"
 
 namespace OHOS {
 namespace USB {
@@ -70,12 +69,6 @@ struct USBAsyncContext {
 struct USBRightAsyncContext : USBAsyncContext {
     std::string deviceName;
     bool hasRight = false;
-};
-
-struct USBAccessoryRightAsyncContext : USBAsyncContext {
-    USBAccessory accessory;
-    bool hasRight = false;
-    int32_t errCode;
 };
 
 struct USBFunctionAsyncContext : USBAsyncContext {

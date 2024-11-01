@@ -90,13 +90,6 @@ public:
     int32_t ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t interfaceId, uint8_t endpointId) override;
     int32_t GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed) override;
     int32_t GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated) override;
-    int32_t AddAccessoryRight(const uint32_t tokenId, const USBAccessory &access) override;
-    int32_t HasAccessoryRight(const USBAccessory &access, bool &result) override;
-    int32_t RequestAccessoryRight(const USBAccessory &access, bool &result) override;
-    int32_t CancelAccessoryRight(const USBAccessory &access) override;
-    int32_t GetAccessoryList(std::vector<USBAccessory> &accessList) override;
-    int32_t OpenAccessory(const USBAccessory &access, int32_t &fd) override;
-    int32_t CloseAccessory(int32_t fd) override;
 private:
     static inline BrokerDelegator<UsbServerProxy> delegator_;
     int32_t ParseUsbPort(MessageParcel &reply, std::vector<UsbPort> &result);
@@ -108,9 +101,7 @@ private:
     int32_t GetDeviceConfigsMessageParcel(MessageParcel &data, std::vector<USBConfig> &configs);
     int32_t GetDeviceInterfacesMessageParcel(MessageParcel &data, std::vector<UsbInterface> &interfaces);
     int32_t GetDeviceEndpointsMessageParcel(MessageParcel &data, std::vector<USBEndpoint> &eps);
-    int32_t GetAccessoryListMessageParcel(MessageParcel &data, std::vector<USBAccessory> &accessoryList);
-    int32_t GetAccessoryMessageParcel(MessageParcel &data, USBAccessory &accessoryInfo);
-    int32_t SetAccessoryMessageParcel(const USBAccessory &accessoryInfo, MessageParcel &data);
+
     bool ReadFileDescriptor(MessageParcel &data, int &fd);
 };
 } // namespace USB

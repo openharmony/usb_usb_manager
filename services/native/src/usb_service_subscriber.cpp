@@ -76,8 +76,7 @@ int32_t UsbServiceSubscriber::DeviceEvent(const USBDeviceInfo &info)
         return UEC_SERVICE_GET_USB_SERVICE_FAILED;
     }
 
-    if (status == ACT_UPDEVICE || status == ACT_DOWNDEVICE ||
-        status == ACT_ACCESSORYUP || status == ACT_ACCESSORYDOWN || status == ACT_ACCESSORYSEND) {
+    if (status == ACT_UPDEVICE || status == ACT_DOWNDEVICE) {
         pms->UpdateDeviceState(status);
         pms->UnLoadSelf(UsbService::UnLoadSaType::UNLOAD_SA_DELAY);
         return UEC_OK;
