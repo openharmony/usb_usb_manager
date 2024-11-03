@@ -938,6 +938,7 @@ static auto g_requestAccessoryRightComplete = [](napi_env env, napi_status statu
     ProcessPromise(env, *asyncContext, queryResult);
     napi_delete_async_work(env, asyncContext->work);
     delete asyncContext;
+    asyncContext = nullptr;
 };
 
 static napi_value DeviceRequestAccessoryRight(napi_env env, napi_callback_info info)

@@ -35,10 +35,16 @@ struct IndexHapComponent {
         role: ButtonRole.ERROR,
         action: () => {
           try {
-            console.info('USBRight allowed');
-            let res = usbMgr.addDeviceAccessRight(globalThis.want.parameters['tokenId'],
-              globalThis.want.parameters['deviceName'])
-            console.info(`USBRight addDeviceAccessRight result:${res}`);
+            if (globalThis.want.parameters['accessory'] === undefined) {
+              console.info('USBRight allowed');
+              let res = usbMgr.addDeviceAccessRight(globalThis.want.parameters['tokenId'],
+                globalThis.want.parameters['deviceName'])
+              console.info(`USBRight addDeviceAccessRight result:${res}`);
+            } else {
+              let accessoryInfo: usbMgr.USBAccessory = JSON.parse(globalThis.want.parameters['accessory']);
+              console.info('USB accessory right allowed: ' + globalThis.want.parameters['accessory']);
+              usbMgr.addAccessoryRight(parseInt(globalThis.want.parameters['tokenId']), accessoryInfo)
+            }
           } catch {
             console.error('USBRight ConfirmDialog onClick error!');
           } finally {

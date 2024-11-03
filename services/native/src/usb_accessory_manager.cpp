@@ -90,6 +90,10 @@ void UsbAccessoryManager::GetAccessoryList(const std::string &bundleName,
 
 int32_t UsbAccessoryManager::OpenAccessory(int32_t &fd)
 {
+    if (usbdImpl_ == nullptr) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbdImpl_ is nullptr.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     int32_t ret = usbdImpl_->OpenAccessory(fd);
     if (ret == UEC_OK) {
         accFd_ = fd;
@@ -102,6 +106,10 @@ int32_t UsbAccessoryManager::OpenAccessory(int32_t &fd)
 
 int32_t UsbAccessoryManager::CloseAccessory(int32_t fd)
 {
+    if (usbdImpl_ == nullptr) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbdImpl_ is nullptr.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     int32_t ret = usbdImpl_->CloseAccessory(accFd_);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "%{public}s, close ret: %{public}d, fd: %{public}d.", __func__, ret, fd);
@@ -111,7 +119,7 @@ int32_t UsbAccessoryManager::CloseAccessory(int32_t fd)
     return ret;
 }
 
-int32_t UsbAccessoryManager::PorcessAccessoryStart(int32_t curFunc, int32_t curAccStatus)
+int32_t UsbAccessoryManager::ProcessAccessoryStart(int32_t curFunc, int32_t curAccStatus)
 {
     if ((curFunc & FUN_ACCESSORY) != 0 && accStatus_ != ACC_START) {
         this->accStatus_ = ACC_START;
@@ -157,7 +165,7 @@ int32_t UsbAccessoryManager::PorcessAccessoryStart(int32_t curFunc, int32_t curA
     return UEC_OK;
 }
 
-int32_t UsbAccessoryManager::PorcessAccessoryStop(int32_t curFunc, int32_t curAccStatus)
+int32_t UsbAccessoryManager::ProcessAccessoryStop(int32_t curFunc, int32_t curAccStatus)
 {
     if ((curFunc & FUN_ACCESSORY) != 0 && accStatus_ == ACC_START) {
         accStatus_ = ACC_STOP;
@@ -182,7 +190,7 @@ int32_t UsbAccessoryManager::PorcessAccessoryStop(int32_t curFunc, int32_t curAc
     return UEC_OK;
 }
 
-int32_t UsbAccessoryManager::PorcessAccessoryStop()
+int32_t UsbAccessoryManager::ProcessAccessoryStop()
 {
     this->accStatus_ = ACC_SEND;
     std::vector<std::string> accessorys;
@@ -194,7 +202,7 @@ int32_t UsbAccessoryManager::PorcessAccessoryStop()
             InitBase64Map();
         }
         std::string extraEcode = accessorys[ACCESSORY_EXTRA_INDEX];
-        USB_HILOGE(MODULE_USB_SERVICE, "extraEcode,  length: %{public}zu, extraData: %{public}s",
+        USB_HILOGE(MODULE_USB_SERVICE, "extraEcode, length: %{public}zu, extraData: %{public}s",
             extraEcode.length(), extraEcode.c_str());
         std::vector<uint8_t> extraData = Base64Decode(extraEcode);
         cJSON *root = cJSON_CreateArray();
@@ -204,7 +212,8 @@ int32_t UsbAccessoryManager::PorcessAccessoryStop()
         char *pExtraJson = cJSON_PrintUnformatted(root);
         cJSON_Delete(root);
         if (!pExtraJson) {
-            USB_HILOGE(MODULE_USB_SERVICE, "print json error .");
+            USB_HILOGE(MODULE_USB_SERVICE, "print json error.");
+            return UEC_SERVICE_INVALID_VALUE;
         }
         extraInfo = pExtraJson;
         cJSON_free(pExtraJson);
@@ -290,19 +299,19 @@ void UsbAccessoryManager::ProcessHandle(int32_t curAccStatus)
             return;
         }
         this->curDeviceFunc_ = curFunc;
-        ret = PorcessAccessoryStart(curFunc, curAccStatus);
+        ret = ProcessAccessoryStart(curFunc, curAccStatus);
         if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "PorcessAccessoryStart ret: %{public}d", ret);
+            USB_HILOGE(MODULE_USB_SERVICE, "ProcessAccessoryStart ret: %{public}d", ret);
             return;
         }
     } else if (curAccStatus == ACC_STOP && accStatus_ != ACC_CONFIGURING) {
-        ret = PorcessAccessoryStop(curDeviceFunc_, curAccStatus);
+        ret = ProcessAccessoryStop(curDeviceFunc_, curAccStatus);
         if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "PorcessAccessoryStop ret: %{public}d", ret);
+            USB_HILOGE(MODULE_USB_SERVICE, "ProcessAccessoryStop ret: %{public}d", ret);
             return;
         }
     } else if (curAccStatus == ACC_SEND) {
-        PorcessAccessoryStop();
+        ProcessAccessoryStop();
     }
     return;
 }

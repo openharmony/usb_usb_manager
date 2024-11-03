@@ -51,9 +51,9 @@ public:
     int32_t CloseAccessory(int32_t fd);
 private:
     void ProcessHandle(int32_t curAccStatus);
-    int32_t PorcessAccessoryStart(int32_t curFunc, int32_t curAccStatus);
-    int32_t PorcessAccessoryStop(int32_t curFunc, int32_t curAccStatus);
-    int32_t PorcessAccessoryStop();
+    int32_t ProcessAccessoryStart(int32_t curFunc, int32_t curAccStatus);
+    int32_t ProcessAccessoryStop(int32_t curFunc, int32_t curAccStatus);
+    int32_t ProcessAccessoryStop();
     void InitBase64Map();
     std::vector<uint8_t> Base64Decode(const std::string& encoded_string);
     std::string SerialValueHash(const std::string &serialValue);

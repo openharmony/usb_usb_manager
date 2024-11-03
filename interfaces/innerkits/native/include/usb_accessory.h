@@ -112,11 +112,11 @@ public:
             return;
         }
 
-        this->manufacturer_ = accessorys.at(ACC_MANUFACTURER_INDEX);
-        this->model_ = accessorys.at(ACC_MODEL_INDEX);
-        this->description_ = accessorys.at(ACC_DESCRIPTION_INDEX);
-        this->version_ = accessorys.at(ACC_VERSION_INDEX);
-        this->serial_ = accessorys.at(ACC_SERIAL_INDEX);
+        this->manufacturer_ = accessorys[ACC_MANUFACTURER_INDEX];
+        this->model_ = accessorys[ACC_MODEL_INDEX];
+        this->description_ = accessorys[ACC_DESCRIPTION_INDEX];
+        this->version_ = accessorys[ACC_VERSION_INDEX];
+        this->serial_ = accessorys[ACC_SERIAL_INDEX];
     }
 
     std::string GetManufacturer() const
