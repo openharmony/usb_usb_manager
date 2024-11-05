@@ -183,6 +183,7 @@ bool UsbDeviceManager::UpdateConnectionStatus(int32_t status)
     }
     return curConnect;
 }
+
 void UsbDeviceManager::HandleEvent(int32_t status)
 {
     if (usbd_ == nullptr) {
