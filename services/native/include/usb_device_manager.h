@@ -29,6 +29,7 @@
 
 #define USB_FUNCTION_MTP     (1 << 3)
 #define USB_FUNCTION_PTP     (1 << 4)
+#define USB_FUNCTION_STORAGE     (1 << 9)
 namespace OHOS {
 namespace USB {
 class UsbDeviceManager {

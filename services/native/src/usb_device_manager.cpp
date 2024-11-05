@@ -196,6 +196,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             if ((currentFunctions_ & USB_FUNCTION_MTP) != 0 || (currentFunctions_ & USB_FUNCTION_PTP) != 0) {
                 currentFunctions_ = currentFunctions_ & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
                 USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
+                currentFunctions_ = currentFunctions_ == 0 ? USB_FUNCTION_STORAGE : currentFunctions_;
                 usbd_->SetCurrentFunctions(currentFunctions_);
             }
             ProcessFuncChange(connected_, currentFunctions_);
