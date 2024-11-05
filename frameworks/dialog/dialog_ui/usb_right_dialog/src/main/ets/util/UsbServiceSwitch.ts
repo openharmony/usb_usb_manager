@@ -19,6 +19,7 @@ const TAG: string = 'usbfunctionswitchwindow_UsbServiceSwitch';
 const USBFUNCTION_NONE: number = 0;
 const USBFUNCTION_MTP: number = 8;
 const USBFUNCTION_PTP: number = 16;
+const USBFUNCTION_STORAGE: number = 512;
 
 class UsbServiceSwitch {
   private curFunc: number = USBFUNCTION_NONE;
@@ -38,14 +39,16 @@ class UsbServiceSwitch {
 
     if (chooseId === -1) {
       console.log(TAG + 'choose: charge only');
+      return;
     } else if (chooseId === USBFUNCTION_MTP) {
-      this.tarFunc = this.tarFunc | USBFUNCTION_MTP;
+      this.tarFunc = (this.tarFunc | USBFUNCTION_MTP) & (~USBFUNCTION_STORAGE);
       console.log(TAG + 'choose: xfer file(MTP)');
     } else if (chooseId === USBFUNCTION_PTP) {
-      this.tarFunc = this.tarFunc | USBFUNCTION_PTP;
+      this.tarFunc = (this.tarFunc | USBFUNCTION_PTP) & (~USBFUNCTION_STORAGE);
       console.log(TAG + 'choose: xfer pic(PTP)');
     } else {
       console.log(TAG + 'choose error');
+      return;
     }
 
     console.log(TAG + 'setFunctions: current ' + JSON.stringify(this.curFunc) + 'target: ' + JSON.stringify(this.tarFunc));
