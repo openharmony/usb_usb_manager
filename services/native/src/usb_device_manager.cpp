@@ -160,11 +160,8 @@ int32_t UsbDeviceManager::GetCurrentFunctions()
     return currentFunctions_;
 }
 
-void UsbDeviceManager::HandleEvent(int32_t status)
+bool UsbDeviceManager::UpdateConnectionStatus(int32_t status)
 {
-    if (usbd_ == nullptr) {
-        return;
-    }
     bool curConnect = false;
     switch (status) {
         case ACT_UPDEVICE:
@@ -179,11 +176,19 @@ void UsbDeviceManager::HandleEvent(int32_t status)
         case ACT_ACCESSORYDOWN:
         case ACT_ACCESSORYSEND:
             ProcessFunctionSwitchWindow(false);
-            return;
+            return false;
         default:
             USB_HILOGE(MODULE_USB_SERVICE, "invalid status %{public}d", status);
-            return;
+            return false;
     }
+    return curConnect;
+}
+void UsbDeviceManager::HandleEvent(int32_t status)
+{
+    if (usbd_ == nullptr) {
+        return;
+    }
+    bool curConnect = UpdateConnectionStatus(status);
     delayDisconn_.Unregister(delayDisconnTimerId_);
     delayDisconn_.Shutdown();
     if (curConnect && (connected_ != curConnect)) {
