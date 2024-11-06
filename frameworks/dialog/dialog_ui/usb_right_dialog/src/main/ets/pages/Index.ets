@@ -30,7 +30,7 @@ let USBSERVICESWITCH_ID_XFER_PIC : number = 16;
 @Entry
 @Component
 struct IndexHapComponent {
-  private currentChoice: number = 1;
+  private currentChoice: number = 2;
   private content: string = ''
   private thisWant: string = ''
   dialogControllerList: CustomDialogController = new CustomDialogController({
@@ -51,6 +51,13 @@ struct IndexHapComponent {
           title: $r('app.string.USB_func_mtp'),
           action: () => {
             let tmpChooseNumber:number = USBSERVICESWITCH_ID_XFER_FILE;
+            this.setUsbFunction(tmpChooseNumber);
+          }
+        },
+        {
+          title: $r('app.string.USB_func_ptp'),
+          action: () => {
+            let tmpChooseNumber:number = USBSERVICESWITCH_ID_XFER_PIC;
             this.setUsbFunction(tmpChooseNumber);
           }
         },
