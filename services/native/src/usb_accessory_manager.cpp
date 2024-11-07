@@ -82,7 +82,7 @@ void UsbAccessoryManager::GetAccessoryList(const std::string &bundleName,
 {
     if (accStatus_ == ACC_START) {
         USBAccessory access = this->accessory;
-        access.SetSerial(bundleName + this->accessory.GetSerial());
+        access.SetSerialNumber(bundleName + this->accessory.GetSerialNumber());
         accessoryList.push_back(access);
     }
     return;
@@ -101,7 +101,7 @@ int32_t UsbAccessoryManager::OpenAccessory(int32_t &fd)
     } else if (ret == ACCESSORY_IS_BUSY) {
         return UEC_SERVICE_ACCESSORY_REOPEN;
     }
-    return UEC_SERVICE_ACCESSORY_NOT_SUPPORT;
+    return UEC_SERVICE_ACCESSORY_OPEN_NATIVE_NODE_FAILED;
 }
 
 int32_t UsbAccessoryManager::CloseAccessory(int32_t fd)
@@ -126,8 +126,8 @@ int32_t UsbAccessoryManager::ProcessAccessoryStart(int32_t curFunc, int32_t curA
         std::vector<std::string> accessorys;
         usbdImpl_->GetAccessoryInfo(accessorys);
         this->accessory.SetAccessory(accessorys);
-        std::string hashSerial = SerialValueHash(this->accessory.GetSerial());
-        this->accessory.SetSerial(hashSerial);
+        std::string hashSerial = SerialValueHash(this->accessory.GetSerialNumber());
+        this->accessory.SetSerialNumber(hashSerial);
         Want want;
         want.SetAction(CommonEventSupport::COMMON_EVENT_USB_ACCESSORY_ATTACHED);
         CommonEventData data(want);
@@ -402,18 +402,18 @@ int32_t UsbAccessoryManager::GetAccessorySerialNumber(const USBAccessory &access
     const std::string &bundleName, std::string &serialValue)
 {
     USB_HILOGD(MODULE_USB_SERVICE, "%{public}s, bundleName: %{public}s, serial: %{public}s",
-        __func__, bundleName.c_str(), this->accessory.GetSerial().c_str());
+        __func__, bundleName.c_str(), this->accessory.GetSerialNumber().c_str());
     if (accStatus_ != ACC_START) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid status %{public}d", accStatus_);
         return UEC_SERVICE_ACCESSORY_NOT_MATCH;
     } else if (compare(this->accessory.GetManufacturer(), access.GetManufacturer()) &&
-        (compare(this->accessory.GetModel(), access.GetModel())) &&
+        (compare(this->accessory.GetProduct(), access.GetProduct())) &&
         compare(this->accessory.GetDescription(), access.GetDescription()) &&
         compare(this->accessory.GetManufacturer(), access.GetManufacturer()) &&
         compare(this->accessory.GetVersion(), access.GetVersion()) &&
-        (compare(this->accessory.GetSerial(), access.GetSerial()) ||
-        compare(bundleName + this->accessory.GetSerial(), access.GetSerial()))) {
-        serialValue = access.GetManufacturer() + access.GetModel() + access.GetVersion() + access.GetSerial();
+        (compare(this->accessory.GetSerialNumber(), access.GetSerialNumber()) ||
+        compare(bundleName + this->accessory.GetSerialNumber(), access.GetSerialNumber()))) {
+        serialValue = access.GetManufacturer() + access.GetProduct() + access.GetVersion() + access.GetSerialNumber();
         return UEC_OK;
     }
     return UEC_SERVICE_ACCESSORY_NOT_MATCH;
