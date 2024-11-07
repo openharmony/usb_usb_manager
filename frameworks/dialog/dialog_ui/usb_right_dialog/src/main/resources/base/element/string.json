@@ -79,11 +79,17 @@
         },
         {
             "name":"USB_func_mtp",
-            "value":"Transfer the file"
+            "value":"Transfer files",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"USB_func_ptp",
-            "value":"Transfer pictures"
+            "value":"Transfer images",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

@@ -55,6 +55,14 @@
         {
             "name":"MainAbility_label",
             "value":"[TS_948504]_authorization manager"
+        },
+        {
+            "name":"USB_func_mtp",
+            "value":"[TS_948506]_Transfer files"
+        },
+        {
+            "name":"USB_func_ptp",
+            "value":"[TS_948509]_Transfer images"
         }
     ]
 }

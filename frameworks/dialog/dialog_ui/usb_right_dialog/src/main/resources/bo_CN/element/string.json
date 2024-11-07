@@ -48,6 +48,20 @@
             "attr":{
                 "priority":"LT"
             }
+        },
+        {
+            "name":"USB_func_mtp",
+            "value":"ཡིག་ཆ་བརྒྱུད་གཏོང་།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp",
+            "value":"པར་རིས་བརྒྱུད་གཏོང་།",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
