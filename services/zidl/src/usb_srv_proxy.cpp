@@ -185,7 +185,7 @@ int32_t UsbServerProxy::GetAccessoryListMessageParcel(MessageParcel &data, std::
     int32_t count;
     READ_PARCEL_WITH_RET(data, Int32, count, UEC_SERVICE_READ_PARCEL_ERROR);
     if (count > MAX_DEVICE_NUM || count < 0) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "the maximum number of accessory is out of range!");
+        USB_HILOGE(MODULE_USB_INNERKIT, "the number of accessory is out of range!");
         return ERR_INVALID_VALUE;
     }
 
@@ -204,7 +204,7 @@ int32_t UsbServerProxy::GetAccessoryMessageParcel(MessageParcel &data, USBAccess
     accessoryInfo.SetManufacturer(tmp);
 
     READ_PARCEL_WITH_RET(data, String, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
-    accessoryInfo.SetModel(tmp);
+    accessoryInfo.SetProduct(tmp);
 
     READ_PARCEL_WITH_RET(data, String, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
     accessoryInfo.SetDescription(tmp);
@@ -213,7 +213,7 @@ int32_t UsbServerProxy::GetAccessoryMessageParcel(MessageParcel &data, USBAccess
     accessoryInfo.SetVersion(tmp);
 
     READ_PARCEL_WITH_RET(data, String, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
-    accessoryInfo.SetSerial(tmp);
+    accessoryInfo.SetSerialNumber(tmp);
     return UEC_OK;
 }
 
@@ -1508,12 +1508,12 @@ int32_t UsbServerProxy::SetAccessoryMessageParcel(const USBAccessory &accessoryI
     USB_HILOGD(MODULE_USB_INNERKIT, "%{public}s, proxy parse: %{public}s.",
         __func__, accessoryInfo.GetJsonString().c_str());
     WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetManufacturer(), UEC_SERVICE_WRITE_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetModel(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetProduct(), UEC_SERVICE_WRITE_PARCEL_ERROR);
 
     WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetDescription(), UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetVersion(), UEC_SERVICE_WRITE_PARCEL_ERROR);
 
-    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetSerial(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetSerialNumber(), UEC_SERVICE_WRITE_PARCEL_ERROR);
     return UEC_OK;
 }
 

@@ -62,7 +62,7 @@ void NapiUtil::JsObjectToString(
         napi_get_named_property(env, object, fieldStr.c_str(), &field);
         napi_typeof(env, field, &valueType);
         USB_ASSERT_RETURN_VOID(
-            env, valueType == napi_string, SYSPARAM_INVALID_INPUT, "The type of " + fieldStr + " must be string.");
+            env, valueType == napi_string, OHEC_COMMON_PARAM_ERROR, "The type of " + fieldStr + " must be string.");
         // 1 represent '\0'
         int32_t actBufLen = bufLen + 1;
         std::unique_ptr<char[]> buf = std::make_unique<char[]>(actBufLen);
@@ -102,7 +102,7 @@ void NapiUtil::JsObjectToBool(const napi_env &env, const napi_value &object, std
         napi_get_named_property(env, object, fieldStr.c_str(), &field);
         napi_typeof(env, field, &valueType);
         USB_ASSERT_RETURN_VOID(
-            env, valueType == napi_boolean, SYSPARAM_INVALID_INPUT, "The type of " + fieldStr + " must be boolean.");
+            env, valueType == napi_boolean, OHEC_COMMON_PARAM_ERROR, "The type of " + fieldStr + " must be boolean.");
         napi_get_value_bool(env, field, &fieldRef);
     } else {
         USB_HILOGW(MODULE_JS_NAPI, "js to boolean no property: %{public}s", fieldStr.c_str());
@@ -120,7 +120,7 @@ void NapiUtil::JsObjectToInt(const napi_env &env, const napi_value &object, std:
         napi_get_named_property(env, object, fieldStr.c_str(), &field);
         napi_typeof(env, field, &valueType);
         USB_ASSERT_RETURN_VOID(
-            env, valueType == napi_number, SYSPARAM_INVALID_INPUT, "The type of " + fieldStr + " must be number.");
+            env, valueType == napi_number, OHEC_COMMON_PARAM_ERROR, "The type of " + fieldStr + " must be number.");
         napi_get_value_int32(env, field, &fieldRef);
     } else {
         USB_HILOGW(MODULE_JS_NAPI, "js to int32_t no property: %{public}s", fieldStr.c_str());
@@ -153,7 +153,7 @@ void NapiUtil::JsObjectToUint(
     }
 
     USB_ASSERT_RETURN_VOID(
-        env, valueType == napi_number, SYSPARAM_INVALID_INPUT, "The type of " + fieldStr + " must be number.");
+        env, valueType == napi_number, OHEC_COMMON_PARAM_ERROR, "The type of " + fieldStr + " must be number.");
     status = napi_get_value_uint32(env, field, &fieldRef);
     if (status != napi_ok) {
         USB_HILOGE(MODULE_JS_NAPI, "get value failed: %{public}s", fieldStr.c_str());
@@ -165,7 +165,7 @@ bool NapiUtil::JsUint8ArrayParse(
 {
     bool isTypedArray = false;
     if (napi_is_typedarray(env, object, &isTypedArray) != napi_ok || !isTypedArray) {
-        USB_ASSERT_RETURN_FALSE(env, isTypedArray, SYSPARAM_INVALID_INPUT, "The type of buffer must be TypedArray.");
+        USB_ASSERT_RETURN_FALSE(env, isTypedArray, OHEC_COMMON_PARAM_ERROR, "The type of buffer must be TypedArray.");
         USB_HILOGW(MODULE_JS_NAPI, "invalid type");
         return false;
     }
@@ -180,9 +180,9 @@ bool NapiUtil::JsUint8ArrayParse(
         return false;
     }
     USB_ASSERT_RETURN_FALSE(
-        env, type == napi_uint8_array, SYSPARAM_INVALID_INPUT, "The type of buffer must be Uint8Array.");
+        env, type == napi_uint8_array, OHEC_COMMON_PARAM_ERROR, "The type of buffer must be Uint8Array.");
     USB_ASSERT_RETURN_FALSE(
-        env, bufferSize != 0, SYSPARAM_INVALID_INPUT, "The size of buffer must be a positive number.");
+        env, bufferSize != 0, OHEC_COMMON_PARAM_ERROR, "The size of buffer must be a positive number.");
     return true;
 }
 

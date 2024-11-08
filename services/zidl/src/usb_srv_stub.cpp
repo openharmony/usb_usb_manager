@@ -909,12 +909,12 @@ int32_t UsbServerStub::SetAccessoryListMessageParcel(std::vector<USBAccessory> &
 int32_t UsbServerStub::SetAccessoryMessageParcel(USBAccessory &accessoryInfo, MessageParcel &data)
 {
     WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetManufacturer(), UEC_SERVICE_WRITE_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetModel(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetProduct(), UEC_SERVICE_WRITE_PARCEL_ERROR);
 
     WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetDescription(), UEC_SERVICE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetVersion(), UEC_SERVICE_WRITE_PARCEL_ERROR);
 
-    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetSerial(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetSerialNumber(), UEC_SERVICE_WRITE_PARCEL_ERROR);
     return UEC_OK;
 }
 
@@ -1275,7 +1275,7 @@ int32_t UsbServerStub::GetAccessoryMessageParcel(MessageParcel &data, USBAccesso
     accessoryInfo.SetManufacturer(tmp);
 
     READ_PARCEL_WITH_RET(data, String, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
-    accessoryInfo.SetModel(tmp);
+    accessoryInfo.SetProduct(tmp);
 
     READ_PARCEL_WITH_RET(data, String, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
     accessoryInfo.SetDescription(tmp);
@@ -1284,7 +1284,7 @@ int32_t UsbServerStub::GetAccessoryMessageParcel(MessageParcel &data, USBAccesso
     accessoryInfo.SetVersion(tmp);
 
     READ_PARCEL_WITH_RET(data, String, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
-    accessoryInfo.SetSerial(tmp);
+    accessoryInfo.SetSerialNumber(tmp);
     return UEC_OK;
 }
 int32_t UsbServerStub::DoOpenAccessory(MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -1338,6 +1338,7 @@ int32_t UsbServerStub::DoAddAccessoryRight(MessageParcel &data, MessageParcel &r
     WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
     return ret;
 }
+
 int32_t UsbServerStub::DoHasAccessoryRight(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     USBAccessory accessory;
@@ -1355,6 +1356,7 @@ int32_t UsbServerStub::DoHasAccessoryRight(MessageParcel &data, MessageParcel &r
     WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
     return UEC_OK;
 }
+
 int32_t UsbServerStub::DoRequestAccessoryRight(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     USBAccessory accessory;

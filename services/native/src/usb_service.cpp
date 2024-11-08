@@ -2472,7 +2472,7 @@ int32_t UsbService::OpenAccessory(const USBAccessory &access, int32_t &fd)
         USB_HILOGE(MODULE_USB_SERVICE, "can not find accessory.");
         return ret;
     }
-   
+
     bool result = false;
     ret = UsbService::HasAccessoryRight(access, result);
     if (ret != UEC_OK || !result) {
@@ -2526,7 +2526,7 @@ int32_t UsbService::AddAccessoryRight(const uint32_t tokenId, const USBAccessory
     USB_HILOGI(MODULE_USB_SERVICE, "Add accessory Right, deviceName = %{public}s", serialNum.c_str());
     if (!usbRightManager_->AddDeviceRight(serialNum, std::to_string(tokenId))) {
         USB_HILOGE(MODULE_USB_SERVICE, "AddDeviceRight failed");
-        return UEC_SERVICE_DATABASE_OPERATOR_FAILED;
+        return UEC_SERVICE_DATABASE_OPERATION_FAILED;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "AddAccessoryRight done");
     return UEC_OK;
@@ -2613,7 +2613,7 @@ int32_t UsbService::CancelAccessoryRight(const USBAccessory &access)
 
     if (usbRightManager_->CancelDeviceRight(serialNum, bundleName, tokenId, userId) != UEC_OK) {
         USB_HILOGI(MODULE_USB_SERVICE, "CancelAccessoryRight failed");
-        return UEC_SERVICE_DATABASE_OPERATOR_FAILED;
+        return UEC_SERVICE_DATABASE_OPERATION_FAILED;
     }
 
     USB_HILOGI(MODULE_USB_SERVICE, "CancelAccessoryRight done");

@@ -25,22 +25,22 @@
 
 const int32_t ACC_SIZE = 5;
 const int32_t ACC_MANUFACTURER_INDEX = 0;
-const int32_t ACC_MODEL_INDEX = 1;
+const int32_t ACC_PRODUCT_INDEX = 1;
 const int32_t ACC_DESCRIPTION_INDEX = 2;
 const int32_t ACC_VERSION_INDEX = 3;
-const int32_t ACC_SERIAL_INDEX = 4;
+const int32_t ACC_SERIAL_NUMBER_INDEX = 4;
 namespace OHOS {
 namespace USB {
 class USBAccessory {
 public:
-    USBAccessory(const std::string &manufacturer, const std::string &model,
-        const std::string &description, const std::string &version, const std::string &serial)
+    USBAccessory(const std::string &manufacturer, const std::string &product,
+        const std::string &description, const std::string &version, const std::string &serialNumber)
     {
         this->manufacturer_ = manufacturer;
-        this->model_ = model;
+        this->product_ = product;
         this->description_ = description;
         this->version_ = version;
-        this->serial_ = serial;
+        this->serialNumber_ = serialNumber;
     }
 
     explicit USBAccessory(const cJSON *accesory)
@@ -50,10 +50,10 @@ public:
             return;
         }
         manufacturer_ = GetStringValue(accesory, "manufacturer");
-        model_ = GetStringValue(accesory, "model");
+        product_ = GetStringValue(accesory, "product");
         description_ = GetStringValue(accesory, "description");
         version_ = GetStringValue(accesory, "version");
-        serial_ = GetStringValue(accesory, "serial");
+        serialNumber_ = GetStringValue(accesory, "serialNumber");
     }
 
     USBAccessory() {}
@@ -77,10 +77,10 @@ public:
             return "";
         }
         cJSON_AddStringToObject(accJson, "manufacturer", manufacturer_.c_str());
-        cJSON_AddStringToObject(accJson, "model", model_.c_str());
+        cJSON_AddStringToObject(accJson, "product", product_.c_str());
         cJSON_AddStringToObject(accJson, "description", description_.c_str());
         cJSON_AddStringToObject(accJson, "version", version_.c_str());
-        cJSON_AddStringToObject(accJson, "serial", serial_.c_str());
+        cJSON_AddStringToObject(accJson, "serialNumber", serialNumber_.c_str());
         char *pAccJson = cJSON_PrintUnformatted(accJson);
         cJSON_Delete(accJson);
         if (!pAccJson) {
@@ -97,10 +97,10 @@ public:
     {
         std::ostringstream ss;
         ss << "manufacturer=" << manufacturer_ << ","
-           << "model=" << model_ << ","
+           << "product=" << product_ << ","
            << "description=" << description_ << ","
            << "version=" << version_ << ","
-           << "serial=" << serial_ << ";  ";
+           << "serialNumber=" << serialNumber_ << ";  ";
         std::string str = "USBAccessory[" + ss.str() + "]";
         return str;
     }
@@ -113,10 +113,10 @@ public:
         }
 
         this->manufacturer_ = accessorys[ACC_MANUFACTURER_INDEX];
-        this->model_ = accessorys[ACC_MODEL_INDEX];
+        this->product_ = accessorys[ACC_PRODUCT_INDEX];
         this->description_ = accessorys[ACC_DESCRIPTION_INDEX];
         this->version_ = accessorys[ACC_VERSION_INDEX];
-        this->serial_ = accessorys[ACC_SERIAL_INDEX];
+        this->serialNumber_ = accessorys[ACC_SERIAL_NUMBER_INDEX];
     }
 
     std::string GetManufacturer() const
@@ -124,9 +124,9 @@ public:
         return manufacturer_;
     }
 
-    std::string GetModel() const
+    std::string GetProduct() const
     {
-        return model_;
+        return product_;
     }
 
     std::string GetDescription() const
@@ -139,9 +139,9 @@ public:
         return version_;
     }
 
-    std::string GetSerial() const
+    std::string GetSerialNumber() const
     {
-        return serial_;
+        return serialNumber_;
     }
 
     void SetManufacturer(const std::string &manufacturer)
@@ -149,9 +149,9 @@ public:
         this->manufacturer_ = manufacturer;
     }
 
-    void SetModel(const std::string &model)
+    void SetProduct(const std::string &product)
     {
-        this->model_ = model;
+        this->product_ = product;
     }
 
     void SetDescription(const std::string &description)
@@ -164,19 +164,20 @@ public:
         this->version_ = version;
     }
 
-    void SetSerial(const std::string &serial)
+    void SetSerialNumber(const std::string &serialNumber)
     {
-        this->serial_ = serial;
+        this->serialNumber_ = serialNumber;
     }
 
     bool operator==(USBAccessory& obj) const
     {
         return (compare(manufacturer_, obj.GetManufacturer()) &&
-                compare(model_, obj.GetModel()) &&
+                compare(product_, obj.GetProduct()) &&
                 compare(description_, obj.GetDescription()) &&
                 compare(version_, obj.GetVersion()) &&
-                compare(serial_, obj.GetSerial()));
+                compare(serialNumber_, obj.GetSerialNumber()));
     }
+
 private:
     static bool compare(const std::string &s1, const std::string &s2)
     {
@@ -185,10 +186,10 @@ private:
 
 private:
    std::string manufacturer_;
-   std::string model_;
+   std::string product_;
    std::string description_;
    std::string version_;
-   std::string serial_;
+   std::string serialNumber_;
 };
 
 } // USB
