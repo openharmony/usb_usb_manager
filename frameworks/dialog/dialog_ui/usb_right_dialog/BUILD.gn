@@ -26,8 +26,8 @@ ohos_hap("dialog_hap") {
   publicity_file = "../publicity.xml"
   certificate_profile = "../signature/am.p7b"
   hap_name = "usb_right_dialog"
-  part_name = "prebuilt_hap"
-  subsystem_name = "applications"
+  part_name = "usb_manager"
+  subsystem_name = "usb"
   js_build_mode = "release"
   module_install_dir = "app/com.usb.right"
   if (defined(sign_hap_py_path) && usb_manager_feature_usb_right_dialog != "") {
