@@ -54,6 +54,9 @@
             ]
         },
         "build": {
+            "sub_component":[
+                "//base/usb/usb_manager/frameworks/dialog/dialog_ui/usb_right_dialog:dialog_hap"
+            ]
             "group_type": {
                 "base_group": [],
                 "fwk_group": [
