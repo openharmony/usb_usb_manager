@@ -53,7 +53,7 @@ static constexpr int32_t PARAM_COUNT_4 = 4;
 static constexpr int32_t STR_DEFAULT_SIZE = 256;
 static constexpr int32_t DEFAULT_DESCRIPTION_SIZE = 32;
 static constexpr int32_t DEFAULT_ACCESSORY_DESCRIPTION_SIZE = 256;
-static int32_t accFd = 0;
+static int32_t g_accFd = 0;
 static void ParseUsbDevicePipe(const napi_env env, const napi_value &obj, USBDevicePipe &pipe)
 {
     napi_valuetype valueType;
@@ -581,7 +581,7 @@ static napi_value DeviceOpenAccessory(napi_env env, napi_callback_info info)
 
     napi_value handleObj = nullptr;
     if (ret == UEC_OK) {
-        accFd = fd;
+        g_accFd = fd;
         CreatAccessoryHandle(env, handleObj, fd);
     } else if (ret == UEC_SERVICE_PERMISSION_DENIED || ret == UEC_INTERFACE_PERMISSION_DENIED) {
         ThrowBusinessError(env, UEC_COMMON_HAS_NO_RIGHT,
@@ -615,14 +615,14 @@ static napi_value DeviceCloseAccessory(napi_env env, napi_callback_info info)
     USB_ASSERT(env, type == napi_object, OHEC_COMMON_PARAM_ERROR, "The type of device must be USBAccessoryHandle.");
     int32_t accessoryFd;
     NapiUtil::JsObjectToInt(env, argv[INDEX_0], "accessoryFd", accessoryFd);
-    if (accessoryFd == 0 || accessoryFd != accFd || accFd == 0) {
+    if (accessoryFd == 0 || accessoryFd != g_accFd || g_accFd == 0) {
         ThrowBusinessError(env, OHEC_COMMON_PARAM_ERROR,
             "Parameter accessoryHandle error, need openAccessory first.");
     }
     close(accessoryFd);
     accessoryFd = 0;
-    int32_t ret = g_usbClient.CloseAccessory(accFd);
-    accFd = 0;
+    int32_t ret = g_usbClient.CloseAccessory(g_accFd);
+    g_accFd = 0;
     if (ret != UEC_OK) {
         ThrowBusinessError(env, UEC_COMMON_SERVICE_EXCEPTION,
             "Service exception");
@@ -769,6 +769,12 @@ static napi_value DeviceCancelAccessoryRight(napi_env env, napi_callback_info in
     USB_ASSERT(env, type == napi_object, OHEC_COMMON_PARAM_ERROR, "The type of device must be USBAccessory.");
     USBAccessory accessory;
     ParseAccessoryObj(env, accessoryObj, accessory);
+
+    if (g_accFd != 0) {
+        close(g_accFd);
+        g_accFd = 0;
+        g_usbClient.CloseAccessory(g_accFd);
+    }
 
     int32_t ret = g_usbClient.CancelAccessoryRight(accessory);
     if (ret == UEC_OK) {
