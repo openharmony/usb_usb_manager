@@ -126,7 +126,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageDevice001, TestSize.Level1)
     auto &client = UsbSrvClient::GetInstance();
     vector<UsbDevice> devi;
     auto ret = client.GetDevices(devi);
-    EXPECT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
     int32_t vendorId = 0;
     int32_t productId = 0;
     if (devi.size() > 0) {
@@ -150,7 +150,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageDevice002, TestSize.Level1)
     auto &client = UsbSrvClient::GetInstance();
     vector<UsbDevice> devi;
     auto ret = client.GetDevices(devi);
-    EXPECT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
     int32_t vendorId = 0;
     int32_t productId = 0;
     if (devi.size() > 0) {
@@ -173,7 +173,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageDevice003, TestSize.Level1)
     auto &client = UsbSrvClient::GetInstance();
     vector<UsbDevice> devi;
     auto ret = client.GetDevices(devi);
-    EXPECT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
     int32_t vendorId = 0;
     int32_t productId = 0;
     if (devi.size() > 0) {
@@ -190,7 +190,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType001, TestSize.Level1)
     auto &client = UsbSrvClient::GetInstance();
     vector<UsbDevice> devi;
     auto ret = client.GetDevices(devi);
-    EXPECT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
     vector<UsbDeviceType> disableType;
     UsbDeviceType usbDeviceType;
     usbDeviceType.baseClass = 3;
@@ -209,7 +209,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType002, TestSize.Level1)
     auto &client = UsbSrvClient::GetInstance();
     vector<UsbDevice> devi;
     auto ret = client.GetDevices(devi);
-    EXPECT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
     vector<UsbDeviceType> disableType;
     UsbDeviceType usbDeviceType;
     usbDeviceType.baseClass = 8;
@@ -228,7 +228,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType003, TestSize.Level1)
     auto &client = UsbSrvClient::GetInstance();
     vector<UsbDevice> devi;
     auto ret = client.GetDevices(devi);
-    EXPECT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
     vector<UsbDeviceType> disableType;
     UsbDeviceType usbDeviceType;
     usbDeviceType.baseClass = 3;
@@ -247,7 +247,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType004, TestSize.Level1)
     auto &client = UsbSrvClient::GetInstance();
     vector<UsbDevice> devi;
     auto ret = client.GetDevices(devi);
-    EXPECT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
     vector<UsbDeviceType> disableType;
     UsbDeviceType usbDeviceType;
     usbDeviceType.baseClass = 8;
@@ -268,7 +268,7 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType005, TestSize.Level1)
     auto &client = UsbSrvClient::GetInstance();
     vector<UsbDevice> devi;
     auto ret = client.GetDevices(devi);
-    EXPECT_TRUE(ret == 0);
+    ASSERT_EQ(ret, 0);
     vector<UsbDeviceType> disableType;
     UsbDeviceType usbDeviceType;
     usbDeviceType.baseClass = 8;
