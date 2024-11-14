@@ -351,7 +351,7 @@ bool UsbRightManager::ShowUsbDialog(
 
 bool UsbRightManager::GetAccessoryName(const USBAccessory &access, std::string &accessName)
 {
-    accessName = access.GetManufacturer();
+    accessName = access.GetProduct();
     return true;
 }
 
