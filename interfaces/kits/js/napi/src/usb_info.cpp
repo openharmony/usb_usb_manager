@@ -63,11 +63,11 @@ static void ParseUsbDevicePipe(const napi_env env, const napi_value &obj, USBDev
     }
 
     int32_t busNum = 0;
-    NapiUtil::JsObjectToInt(env, obj, "busNum", busNum)
+    NapiUtil::JsObjectToInt(env, obj, "busNum", busNum);
     pipe.SetBusNum(static_cast<uint8_t>(busNum));
 
     int32_t devAddr = 0;
-    NapiUtil::JsObjectToInt(env, obj, "devAddr", devAddr)
+    NapiUtil::JsObjectToInt(env, obj, "devAddress", devAddr);
     pipe.SetDevAddr(static_cast<uint8_t>(devAddr));
 }
 
@@ -311,7 +311,6 @@ static void ParseUsbPipeControlParam(const napi_env env, const napi_value jsObj,
     NapiUtil::JsObjectToInt(env, jsObj, "wLength", length);
 
     napi_value dataValue;
-    NapiUtil::jsObjectHasProperty(env, isObj, "data", &hasDataProperty);
     bool hasProperty = NapiUtil::JsObjectGetProperty(env, jsObj, "data", dataValue);
     USB_ASSERT_RETURN_VOID(
         env, hasProperty == true, OHEC_COMMON_PARAM_ERROR, "The controlParam should have the data property.");
