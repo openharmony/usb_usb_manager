@@ -43,20 +43,19 @@ int32_t UsbServerProxy::SetDeviceMessage(MessageParcel &data, uint8_t busNum, ui
 
 int32_t UsbServerProxy::SetBufferMessage(MessageParcel &data, const std::vector<uint8_t> &bufferData)
 {
-    if (bufferData.empty()) {
-        uint32_t length = 0;
-    } else {
-        uint32_t length = bufferData.size();
-        const uint8_t *ptr = bufferData.data();
+    uint32_t length = bufferData.size();
+    const uint8_t *ptr = bufferData.data();
+    if (!ptr) {
+        length = 0;
+    }
 
-        if (!data.WriteUint32(length)) {
-            USB_HILOGE(MODULE_USBD, "write length failed:%{public}u", length);
-            return UEC_SERVICE_WRITE_PARCEL_ERROR;
-        }
-        if ((ptr) && (length > 0) && !data.WriteBuffer(reinterpret_cast<const void *>(ptr), length)) {
-            USB_HILOGE(MODULE_USBD, "write buffer failed length:%{public}u", length);
-            return UEC_SERVICE_WRITE_PARCEL_ERROR;
-        }
+    if (!data.WriteUint32(length)) {
+        USB_HILOGE(MODULE_USBD, "write length failed:%{public}u", length);
+        return UEC_SERVICE_WRITE_PARCEL_ERROR;
+    }
+    if ((ptr) && (length > 0) && !data.WriteBuffer(reinterpret_cast<const void *>(ptr), length)) {
+        USB_HILOGE(MODULE_USBD, "write buffer failed length:%{public}u", length);
+        return UEC_SERVICE_WRITE_PARCEL_ERROR;
     }
 
     USB_HILOGI(MODULE_USBD, "success length:%{public}u", length);
