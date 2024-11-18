@@ -58,14 +58,20 @@ static void ParseUsbDevicePipe(const napi_env env, const napi_value &obj, USBDev
 {
     napi_valuetype valueType;
     napi_typeof(env, obj, &valueType);
-    USB_ASSERT_RETURN_VOID(
-        env, valueType == napi_object, OHEC_COMMON_PARAM_ERROR, "The type of pipe must be USBDevicePipe.");
+    if (valueType != napi_object) {
+        USB_ASSERT_RETURN_VOID(env, false, OHEC_COMMON_PARAM_ERROR, "The type of pipe is not USBDevicePipe.");
+    }
 
     int32_t busNum = 0;
-    NapiUtil::JsObjectToInt(env, obj, "busNum", busNum);
+    if (!NapiUtil::JsObjectToInt(env, obj, "busNum", busNum)) {
+        USB_ASSERT_RETURN_VOID(env, false, OHEC_COMMON_PARAM_ERROR, "Failed to parse busNum from the object.");
+    }
     pipe.SetBusNum(static_cast<uint8_t>(busNum));
+
     int32_t devAddr = 0;
-    NapiUtil::JsObjectToInt(env, obj, "devAddress", devAddr);
+    if (!NapiUtil::JsObjectToInt(env, obj, "devAddr", devAddr)) {
+        USB_ASSERT_RETURN_VOID(env, false, OHEC_COMMON_PARAM_ERROR, "Failed to parse devAddr from the object.");
+    }
     pipe.SetDevAddr(static_cast<uint8_t>(devAddr));
 }
 
@@ -308,7 +314,13 @@ static void ParseUsbPipeControlParam(const napi_env env, const napi_value jsObj,
     int32_t length = 0;
     NapiUtil::JsObjectToInt(env, jsObj, "wLength", length);
 
+    bool hasDataProperty = false;
     napi_value dataValue;
+    NapiUtil::jsObjectHasProperty(env, isObj, "data", &hasDataProperty);
+    if (!hasDataProperty) {
+        OHEC_COMMON_PARAM_ERROR(env, "The controlParam should have the data property");
+        USB_ASSERT_RETURN_VOID(env);
+    }
     bool hasProperty = NapiUtil::JsObjectGetProperty(env, jsObj, "data", dataValue);
     USB_ASSERT_RETURN_VOID(
         env, hasProperty == true, OHEC_COMMON_PARAM_ERROR, "The controlParam should have the data property.");

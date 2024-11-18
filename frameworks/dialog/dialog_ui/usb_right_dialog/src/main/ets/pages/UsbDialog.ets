@@ -41,9 +41,17 @@ struct IndexHapComponent {
                 globalThis.want.parameters['deviceName'])
               console.info(`USBRight addDeviceAccessRight result:${res}`);
             } else {
+              if (!isJSONString(globalThis.want.parameters['accessory'])) {
+                console.error('Invalid JSON string for accessory');
+                return;
+              }
               let accessoryInfo: usbMgr.USBAccessory = JSON.parse(globalThis.want.parameters['accessory']);
               console.info('USB accessory right allowed: ' + globalThis.want.parameters['accessory']);
-              usbMgr.addAccessoryRight(parseInt(globalThis.want.parameters['tokenId']), accessoryInfo)
+              let res = usbMgr.addAccessoryRight(parseInt(globalThis.want.parameters['tokenId']), accessoryInfo);
+              if (!res) {
+                console.error('addAccessoryRight failed for tokenId:', globalThis.want.parameters['tokenId']);
+                throw new Error('addAccessoryRight failed');
+              }
             }
           } catch {
             console.error('USBRight ConfirmDialog onClick error!');
