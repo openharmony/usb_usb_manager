@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -128,7 +128,7 @@ struct UsbDeviceId {
     int32_t vendorId;
 };
 
-const std::unordered_map<InterfaceType, std::vector<int32_t>> d_typeMap  = {
+const std::unordered_map<InterfaceType, std::vector<int32_t>> d_typeMap = {
     {InterfaceType::TYPE_INTERFACE,             {0, 0, 0}},
     {InterfaceType::TYPE_COMMUNICATION,         {2, -1, -1}},
     {InterfaceType::TYPE_FULL_SPEED_HUB,        {9, 0, 0}},
@@ -156,7 +156,7 @@ const std::unordered_map<InterfaceType, std::vector<int32_t>> d_typeMap  = {
     {InterfaceType::TYPE_VENDOR_SPECIFIC,       {255, -1, -1}}
 };
 
-const std::unordered_map<InterfaceType, std::vector<int32_t>> g_typeMap  = {
+const std::unordered_map<InterfaceType, std::vector<int32_t>> g_typeMap = {
     {InterfaceType::TYPE_AUDIO,                 {1, -1, -1}},
     {InterfaceType::TYPE_COMMUNICATION,         {2, -1, -1}},
     {InterfaceType::TYPE_HID,                   {3, -1, -1}},
