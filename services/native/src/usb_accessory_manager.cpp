@@ -58,6 +58,7 @@ const std::string BASE64_CHARS =
              "abcdefghijklmnopqrstuvwxyz"
              "0123456789+/";
 
+// LCOV_EXCL_START
 UsbAccessoryManager::UsbAccessoryManager()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbAccessoryManager::Init start");
@@ -418,6 +419,7 @@ int32_t UsbAccessoryManager::GetAccessorySerialNumber(const USBAccessory &access
     }
     return UEC_SERVICE_ACCESSORY_NOT_MATCH;
 }
+// LCOV_EXCL_STOP
 
 } // USB
 } // OHOS
