@@ -44,7 +44,6 @@ struct IndexHapComponent {
               let accessoryInfo: usbMgr.USBAccessory = JSON.parse(globalThis.want.parameters['accessory']);
               console.info('USB accessory right allowed: ' + globalThis.want.parameters['accessory']);
               usbMgr.addAccessoryRight(parseInt(globalThis.want.parameters['tokenId']), accessoryInfo)
-              let res = usbMgr.addAccessoryRight(parseInt(globalThis.want.parameters['tokenId']), accessoryInfo);
             }
           } catch {
             console.error('USBRight ConfirmDialog onClick error!');
