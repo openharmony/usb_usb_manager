@@ -40,7 +40,8 @@ export default class UsbFunctionSwitchAbility extends UIExtensionAbility {
     } catch (error) {
       console.error(TAG + 'UsbFunctionSwitchAbility onSessionCreate error: ' + error?.code);
       (session as UIExtensionContentSession)?.terminateSelf();
-    return;
+      return;
+    }
   }
 
   onSessionDestroy(session): void {
