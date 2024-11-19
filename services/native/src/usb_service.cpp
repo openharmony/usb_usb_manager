@@ -22,7 +22,6 @@
 #include <string>
 #include <unistd.h>
 #include <unordered_map>
-
 #include "parameters.h"
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
@@ -1244,6 +1243,10 @@ int32_t UsbService::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &de
 // LCOV_EXCL_START
 int32_t UsbService::GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGlobalDisabled)
 {
+    if (remote == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Remote is nullpter.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -1251,10 +1254,6 @@ int32_t UsbService::GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGloba
     data.WriteInt32(WITHOUT_USERID);
     data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
-    if (remote == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Remote is nullpter.");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
     uint32_t funcCode = (1 << EMD_MASK_CODE) | DISABLE_USB;
     int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
@@ -1273,6 +1272,10 @@ int32_t UsbService::GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGloba
 // LCOV_EXCL_START
 int32_t UsbService::GetEdmStroageTypePolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceType> &disableType)
 {
+    if (remote == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Remote is nullpter.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     int32_t stroageDisableType = 0;
     MessageParcel data;
     MessageParcel reply;
@@ -1281,10 +1284,6 @@ int32_t UsbService::GetEdmStroageTypePolicy(sptr<IRemoteObject> remote, std::vec
     data.WriteInt32(WITHOUT_USERID);
     data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
-    if (remote == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Remote is nullpter.");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
     uint32_t funcCode = (1 << EMD_MASK_CODE) | USB_STORAGE_DEVICE_ACCESS_POLICY;
     int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
@@ -1309,6 +1308,10 @@ int32_t UsbService::GetEdmStroageTypePolicy(sptr<IRemoteObject> remote, std::vec
 // LCOV_EXCL_START
 int32_t UsbService::GetEdmTypePolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceType> &disableType)
 {
+    if (remote == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Remote is nullpter.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -1316,10 +1319,6 @@ int32_t UsbService::GetEdmTypePolicy(sptr<IRemoteObject> remote, std::vector<Usb
     data.WriteInt32(WITHOUT_USERID);
     data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
-    if (remote == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Remote is nullpter.");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
     uint32_t funcCode = (1 << EMD_MASK_CODE) | USB_DEVICE_ACCESS_POLICY;
     int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
@@ -1351,6 +1350,10 @@ int32_t UsbService::GetEdmTypePolicy(sptr<IRemoteObject> remote, std::vector<Usb
 // LCOV_EXCL_START
 int32_t UsbService::GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceId> &trustUsbDeviceIds)
 {
+    if (remote == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Remote is nullpter.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -1358,10 +1361,6 @@ int32_t UsbService::GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::vecto
     data.WriteInt32(WITHOUT_USERID);
     data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
-    if (remote == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Remote is nullpter.");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
     uint32_t funcCode = (1 << EMD_MASK_CODE) | ALLOWED_USB_DEVICES;
     int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
@@ -1601,6 +1600,7 @@ void UsbService::ExecuteStrategy(UsbDevice *devInfo)
         }
         return;
     }
+    ret = ExecuteManageInterfaceType(disableType, true);
 
     if (trustUsbDeviceIds.empty()) {
         USB_HILOGI(MODULE_USB_SERVICE, "trustUsbDeviceIds is empty, no devices disable");
@@ -1953,7 +1953,6 @@ int32_t UsbService::AddRight(const std::string &bundleName, const std::string &d
     USB_HILOGI(MODULE_USB_SERVICE, "AddRight done");
     return UEC_OK;
 }
-
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
@@ -1990,6 +1989,11 @@ int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
         return UEC_SERVICE_INVALID_VALUE;
     }
 
+    if (usbHostManager_ == nullptr || usbDeviceManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr or usbDeviceManager_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+
     std::vector<std::string> argList;
     std::transform(args.begin(), args.end(), std::back_inserter(argList), [](const std::u16string &arg) {
         return Str16ToStr8(arg);
@@ -1998,10 +2002,6 @@ int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
     if (argList.empty()) {
         USB_HILOGE(MODULE_USB_SERVICE, "argList is empty");
         DumpHelp(fd);
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    if (usbHostManager_ == nullptr || usbDeviceManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr or usbDeviceManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
     if (argList[0] == USB_HOST) {
@@ -2023,15 +2023,15 @@ int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
 // LCOV_EXCL_START
 void UsbService::DumpHelp(int32_t fd)
 {
+    if (usbDeviceManager_ == nullptr || usbPortManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbDeviceManager_ is nullptr or usbPortManager_ is nullptr");
+        return;
+    }
     dprintf(fd, "Refer to the following usage:\n");
     dprintf(fd, "-h: dump help\n");
     dprintf(fd, "============= dump the all device ==============\n");
     dprintf(fd, "usb_host -a: dump the all device list info\n");
     dprintf(fd, "------------------------------------------------\n");
-    if (usbDeviceManager_ == nullptr || usbPortManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "usbDeviceManager_ is nullptr or usbPortManager_ is nullptr");
-        return;
-    }
     usbDeviceManager_->GetDumpHelp(fd);
     usbPortManager_->GetDumpHelp(fd);
 }
@@ -2228,7 +2228,7 @@ int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool d
             uint8_t configIndex = 0;
             int32_t ret = usbd_->OpenDevice(dev);
             if (ret != UEC_OK) {
-                USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl open fail ret = %{public}d", ret);
+                USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceImpl open fail ret = %{public}d", ret);
                 return ret;
             }
             if (usbd_->GetConfig(dev, configIndex)) {
@@ -2259,13 +2259,12 @@ int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool d
 // LCOV_EXCL_START
 int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable)
 {
+    if (CheckUecValue() != UEC_OK) {
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     auto iterInterface = g_typeMap.find(interfaceType);
     if (iterInterface == g_typeMap.end()) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::not find interface type");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-
-    if (CheckUecValue() != UEC_OK) {
         return UEC_SERVICE_INVALID_VALUE;
     }
     std::map<std::string, UsbDevice *> devices;
@@ -2378,14 +2377,10 @@ int32_t UsbService::ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t interface
 // LCOV_EXCL_START
 int32_t UsbService::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated)
 {
-    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
-        return UEC_SERVICE_PERMISSION_DENIED;
-    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
-
     const UsbDev dev = {busNum, devAddr};
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -2402,9 +2397,6 @@ int32_t UsbService::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, ui
 // LCOV_EXCL_START
 int32_t UsbService::GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed)
 {
-    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
-        return UEC_SERVICE_PERMISSION_DENIED;
-    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
