@@ -1918,7 +1918,7 @@ int32_t UsbService::BulkCancel(const UsbDev &devInfo, const UsbPipe &pipe)
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    
+
     int32_t ret = usbd_->BulkCancel(devInfo, pipe);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkCancel error ret:%{public}d", ret);
