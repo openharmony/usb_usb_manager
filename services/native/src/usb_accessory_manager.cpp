@@ -190,7 +190,7 @@ int32_t UsbAccessoryManager::ProcessAccessoryStop(int32_t curFunc, int32_t curAc
     return UEC_OK;
 }
 
-int32_t UsbAccessoryManager::ProcessAccessoryStop()
+int32_t UsbAccessoryManager::ProcessAccessorySend()
 {
     this->accStatus_ = ACC_SEND;
     std::vector<std::string> accessorys;
@@ -311,7 +311,7 @@ void UsbAccessoryManager::ProcessHandle(int32_t curAccStatus)
             return;
         }
     } else if (curAccStatus == ACC_SEND) {
-        ProcessAccessoryStop();
+        ProcessAccessorySend();
     }
     return;
 }
