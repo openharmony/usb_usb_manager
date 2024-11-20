@@ -187,8 +187,9 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
         USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr is too long");
         return false;
     }
+    uint32_t tokenId = 0;
     try {
-        uint32_t tokenId = stoul(tokenIdStr);
+        tokenId = stoul(tokenIdStr);
     } catch (const std::out_of_range& oor) {
         USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr out of range");
         return false;
