@@ -58,14 +58,12 @@ static void ParseUsbDevicePipe(const napi_env env, const napi_value &obj, USBDev
 {
     napi_valuetype valueType;
     napi_typeof(env, obj, &valueType);
-    if (valueType != napi_object) {
-        USB_ASSERT_RETURN_VOID(env, false, OHEC_COMMON_PARAM_ERROR, "The type of pipe is not USBDevicePipe.");
-    }
+    USB_ASSERT_RETURN_VOID(
+        env, valueType == napi_object, OHEC_COMMON_PARAM_ERROR, "The type of pipe must be USBDevicePipe.");
 
     int32_t busNum = 0;
     NapiUtil::JsObjectToInt(env, obj, "busNum", busNum);
     pipe.SetBusNum(static_cast<uint8_t>(busNum));
-
     int32_t devAddr = 0;
     NapiUtil::JsObjectToInt(env, obj, "devAddress", devAddr);
     pipe.SetDevAddr(static_cast<uint8_t>(devAddr));
