@@ -1033,6 +1033,7 @@ int32_t UsbService::RequestCancel(uint8_t busNum, uint8_t devAddr, uint8_t inter
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
     return usbd_->RequestCancel(dev, pipe);
 }
 // LCOV_EXCL_STOP
@@ -1845,6 +1846,7 @@ int32_t UsbService::UnRegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
     std::lock_guard<std::mutex> guard(hdiCbMutex_);
     hdiCb_ = nullptr;
     int32_t ret = usbd_->UnRegBulkCallback(devInfo, pipe);
@@ -1871,6 +1873,7 @@ int32_t UsbService::BulkRead(const UsbDev &devInfo, const UsbPipe &pipe, sptr<As
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
     int32_t ret = usbd_->BulkRead(devInfo, pipe, ashmem);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkRead error ret:%{public}d", ret);
@@ -1895,6 +1898,7 @@ int32_t UsbService::BulkWrite(const UsbDev &devInfo, const UsbPipe &pipe, sptr<A
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
     int32_t ret = usbd_->BulkWrite(devInfo, pipe, ashmem);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkWrite error ret:%{public}d", ret);
@@ -1914,6 +1918,7 @@ int32_t UsbService::BulkCancel(const UsbDev &devInfo, const UsbPipe &pipe)
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
     int32_t ret = usbd_->BulkCancel(devInfo, pipe);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkCancel error ret:%{public}d", ret);

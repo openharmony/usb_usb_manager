@@ -1179,8 +1179,8 @@ int32_t UsbServerStub::DoManageInterfaceType(MessageParcel &data, MessageParcel 
 {
     int32_t count;
     READ_PARCEL_WITH_RET(data, Int32, count, UEC_SERVICE_READ_PARCEL_ERROR);
-    if (count > MAX_EDM_LIST_SIZE) {
-        USB_HILOGE(MODULE_USBD, "count:%{public}d", count);
+    if (count > MAX_EDM_LIST_SIZE || count < 0) {
+        USB_HILOGE(MODULE_USBD, "EDM list size count:%{public}d", count);
         return UEC_SERVICE_READ_PARCEL_ERROR;
     }
     bool disable = false;
