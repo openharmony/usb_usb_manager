@@ -183,23 +183,7 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
         return false;
     }
     /* already checked system app/hap when call */
-    if (tokenIdStr.length() > 10) {
-        USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr is too long");
-        return false;
-    }
-    uint32_t tokenId = 0;
-    try {
-        tokenId = stoul(tokenIdStr);
-    } catch (const std::out_of_range& oor) {
-        USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr out of range");
-        return false;
-    } catch (const std::invalid_argument& ia) {
-        USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr is invalid");
-        return false;
-    } catch (const std::exception& e) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Error converting tokenIdStr: %{public}s", e.what());
-        return false;
-    }
+    uint32_t tokenId = stoul(tokenIdStr);
     HapTokenInfo hapTokenInfoRes;
     int32_t ret = AccessTokenKit::GetHapTokenInfo((AccessTokenID) tokenId, hapTokenInfoRes);
     if (ret != UEC_OK) {
