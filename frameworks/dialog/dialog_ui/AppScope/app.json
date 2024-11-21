@@ -9,6 +9,7 @@
     "minAPIVersion": 9,
     "targetAPIVersion": 12,
     "distributedNotificationEnabled": true,
+    "configuration": "$profile:configuration",
     "apiReleaseType": "Beta3"
   }
 }
