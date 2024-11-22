@@ -41,7 +41,7 @@ UsbDescriptorParser::~UsbDescriptorParser() {}
 int32_t UsbDescriptorParser::ParseDeviceDescriptor(const uint8_t *buffer, uint32_t length, UsbDevice &dev)
 {
     if (buffer == nullptr || length == 0) {
-        USB_HILOGE(MODULE_USB_SERVICE, "buffer is null");
+        USB_HILOGE(MODULE_USB_SERVICE, "buffer is null or length is zero");
         return UEC_SERVICE_INVALID_VALUE;
     }
 

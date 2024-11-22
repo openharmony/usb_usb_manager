@@ -191,14 +191,14 @@ int32_t UsbAccessoryManager::ProcessAccessoryStop(int32_t curFunc, int32_t curAc
     return UEC_OK;
 }
 
-int32_t UsbAccessoryManager::ProcessAccessoryStop()
+int32_t UsbAccessoryManager::ProcessAccessorySend()
 {
     this->accStatus_ = ACC_SEND;
     std::vector<std::string> accessorys;
     usbdImpl_->GetAccessoryInfo(accessorys);
     this->accessory.SetAccessory(accessorys);
     std::string extraInfo;
-    if (accessorys.size() >= ACCESSORY_INFO_SIZE && !accessorys[ACCESSORY_EXTRA_INDEX].empty()) {
+    if (accessorys.size() > ACCESSORY_INFO_SIZE && !accessorys[ACCESSORY_EXTRA_INDEX].empty()) {
         if (base64Map_.empty()) {
             InitBase64Map();
         }
@@ -312,7 +312,7 @@ void UsbAccessoryManager::ProcessHandle(int32_t curAccStatus)
             return;
         }
     } else if (curAccStatus == ACC_SEND) {
-        ProcessAccessoryStop();
+        ProcessAccessorySend();
     }
     return;
 }

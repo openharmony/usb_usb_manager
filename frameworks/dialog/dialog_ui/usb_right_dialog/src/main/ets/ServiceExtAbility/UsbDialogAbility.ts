@@ -129,6 +129,10 @@ export default class UsbDialogAbility extends extension {
 
   private checkPermission(tokenID: number, permissionName: Permissions): boolean {
     let aac = abilityAccessCtrl.createAtManager();
+    if (!aac) {
+      console.error('createAtManager returned null');
+      return false;
+    }
     try {
       let grantStatus = aac.verifyAccessTokenSync(tokenID, permissionName);
       if (grantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_DENIED) {

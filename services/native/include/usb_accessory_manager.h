@@ -53,7 +53,7 @@ private:
     void ProcessHandle(int32_t curAccStatus);
     int32_t ProcessAccessoryStart(int32_t curFunc, int32_t curAccStatus);
     int32_t ProcessAccessoryStop(int32_t curFunc, int32_t curAccStatus);
-    int32_t ProcessAccessoryStop();
+    int32_t ProcessAccessorySend();
     void InitBase64Map();
     std::vector<uint8_t> Base64Decode(const std::string& encoded_string);
     std::string SerialValueHash(const std::string &serialValue);
