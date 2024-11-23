@@ -31,7 +31,7 @@ static constexpr int32_t DEFAULT_ROLE_DEVICE = 2;
 static constexpr int32_t MIN_ARG_NUM = 3;
 static constexpr uint32_t CMD_INDEX = 1;
 static constexpr uint32_t PARAM_INDEX = 2;
-
+static constexpr int32_t DECIMAL_BASE = 10;
 static constexpr int32_t HOST_MODE = 2;
 
 static UsbSrvClient &g_usbClient = UsbSrvClient::GetInstance();
@@ -286,7 +286,7 @@ int32_t main(int32_t argc, char *argv[])
     char *endptr = nullptr;
     errno = 0;
     std::string paramStr = argv[PARAM_INDEX];
-    int64_t number = std::strtol(paramStr.c_str, &endptr, DECIMAL_BASE);
+    int64_t number = std::strtol(paramStr.c_str(), &endptr, DECIMAL_BASE);
     if (errno != 0 || number < INT32_MIN || number > INT32_MAX) {
         printf("number is out of range\n");
         return false;
