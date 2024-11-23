@@ -47,7 +47,7 @@ public:
     void GetDumpHelp(int32_t fd);
     void Dump(int32_t fd, const std::vector<std::string> &args);
     bool IsGadgetConnected(void);
-
+    int32_t UserChangeProcess();
 private:
     void ProcessFunctionSwitchWindow(bool connected);
     void DumpGetSupportFunc(int32_t fd);

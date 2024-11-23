@@ -94,6 +94,12 @@ public:
             int32_t uid = data.GetCode();
             int32_t ret = UsbRightManager::CleanUpRightUserStopped(uid);
             USB_HILOGD(MODULE_USB_SERVICE, "on user %{public}d stopped, ret=%{public}d", uid, ret);
+        } else if (wantAction == CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
+            USB_HILOGI(MODULE_USB_SERVICE, "recv user switched.");
+            auto usbService = UsbService::GetGlobalInstance();
+            if (usbService != nullptr) {
+                usbService->UserChangeProcess();
+            }
         }
     }
 };
@@ -110,6 +116,8 @@ int32_t UsbRightManager::Init()
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_UID_REMOVED);
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_REMOVED);
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_STOPPED);
+
+    matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
     CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     std::shared_ptr<RightSubscriber> subscriber = std::make_shared<RightSubscriber>(subscriberInfo);
     bool ret = CommonEventManager::SubscribeCommonEvent(subscriber);

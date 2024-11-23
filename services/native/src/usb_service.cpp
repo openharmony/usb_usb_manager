@@ -2430,6 +2430,15 @@ bool UsbService::GetDeviceProductName(const std::string &deviceName, std::string
     return usbHostManager_->GetProductName(deviceName, productName);
 }
 
+int32_t UsbService::UserChangeProcess()
+{
+    if (usbDeviceManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbDeviceManager_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    return usbDeviceManager_->UserChangeProcess();
+}
+
 int32_t UsbService::GetAccessoryList(std::vector<USBAccessory> &accessList)
 {
     if (usbAccessoryManager_ == nullptr) {

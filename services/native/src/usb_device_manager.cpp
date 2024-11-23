@@ -213,6 +213,17 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     }
 }
 
+int32_t UsbDeviceManager::UserChangeProcess()
+{
+    if ((currentFunctions_ & USB_FUNCTION_MTP) != 0 || (currentFunctions_ & USB_FUNCTION_PTP) != 0) {
+        currentFunctions_ = currentFunctions_ & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
+        currentFunctions_ = currentFunctions_ == 0 ? USB_FUNCTION_STORAGE : currentFunctions_;
+        USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
+        return usbd_->SetCurrentFunctions(currentFunctions_);
+    }
+    return UEC_OK;
+}
+
 void UsbDeviceManager::BroadcastFuncChange(bool connected, int32_t currentFunc)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Current Connect %{public}d,bconnected: %{public}d", connected, currentFunc);
