@@ -81,7 +81,7 @@ int32_t UsbDeviceManager::SetUsbd(const sptr<IUsbInterface> &usbd)
     return UEC_OK;
 }
 
-bool UsbDeviceManager::AreSettableFunctions(int32_t funcs)
+bool UsbDeviceManager::IsSettableFunctions(int32_t funcs)
 {
     return static_cast<uint32_t>(funcs) == UsbSrvSupport::FUNCTION_NONE ||
         ((~functionSettable_ & static_cast<uint32_t>(funcs)) == 0);
@@ -128,8 +128,7 @@ std::string UsbDeviceManager::ConvertToString(uint32_t function)
 {
     std::string stream;
     if (function <= UsbSrvSupport::FUNCTION_NONE || function > functionSettable_) {
-        stream = std::string {UsbSrvSupport::FUNCTION_NAME_NONE};
-        return stream;
+        return UsbSrvSupport::FUNCTION_NAME_NONE;
     }
     bool flag = false;
     for (auto it = FUNCTION_MAPPING_N2C.begin(); it != FUNCTION_MAPPING_N2C.end(); ++it) {
@@ -191,15 +190,16 @@ void UsbDeviceManager::HandleEvent(int32_t status)
         usbd_->GetCurrentFunctions(currentFunctions_);
         ProcessFuncChange(connected_, currentFunctions_);
     } else if (!curConnect && (connected_ != curConnect)) {
-        auto task = [&]() {
+        int32_t originalCurrentFunctions = currentFunctions;
+        auto task = [&originalCurrentFunctions]() {
             connected_ = false;
-            if ((currentFunctions_ & USB_FUNCTION_MTP) != 0 || (currentFunctions_ & USB_FUNCTION_PTP) != 0) {
-                currentFunctions_ = currentFunctions_ & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
-                USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
-                currentFunctions_ = currentFunctions_ == 0 ? USB_FUNCTION_STORAGE : currentFunctions_;
-                usbd_->SetCurrentFunctions(currentFunctions_);
+            if ((originalCurrentFunctions & USB_FUNCTION_MTP) != 0 || (originalCurrentFunctions & USB_FUNCTION_PTP) != 0) {
+                originalCurrentFunctions = originalCurrentFunctions & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
+                USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", originalCurrentFunctions);
+                originalCurrentFunctions = originalCurrentFunctions == 0 ? USB_FUNCTION_STORAGE : originalCurrentFunctions;
+                usbd_->SetCurrentFunctions(originalCurrentFunctions);
             }
-            ProcessFuncChange(connected_, currentFunctions_);
+            ProcessFuncChange(connected_, originalCurrentFunctions);
             return;
         };
         auto ret = delayDisconn_.Setup();
@@ -293,6 +293,23 @@ void UsbDeviceManager::DumpGetSupportFunc(int32_t fd)
     dprintf(fd, "supported functions list: %s\n", ConvertToString(functionSettable_).c_str());
 }
 
+bool StringToInteger(const std::string &str, int32_t &result)
+{
+    char *endptr;
+    errno = 0;
+    long long llval = std::strtol(str.c_str, &endptr, 10);
+    if (endptr == str.c_str() || *endptr != '\0') {
+        USB_HILOGE(MODULE_USB_SERVICE, "conversion failed");
+        return false;
+    }
+    if (errno = ERANGE || llval < INT32_MIN || llval > INT32_MAX) {
+        USB_HILOGE(MODULE_USB_SERVICE, "number is out of range");
+        return false;
+    }
+    result = static_cast<int32_t>(llval);
+    return true;
+}
+
 void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
 {
     int32_t currentFunction;
@@ -304,7 +321,7 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
     if (args.compare("Q") == 0) {
         ret = usbd_->GetCurrentFunctions(currentFunction);
         if (ret != UEC_OK) {
-            dprintf(fd, "GetCurrentFunctions failed: %d\n", __LINE__);
+            dprintf(fd, "GetCurrentFunctions failed: %d\n", ret);
             return;
         }
         dprintf(fd, "current function: %s\n", ConvertToString(currentFunction).c_str());
@@ -315,7 +332,12 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
         GetDumpHelp(fd);
         return;
     }
-    int32_t mode = stoi(args);
+    int32_t mode;
+    if(!StringToInteger(args, mode)) {
+        dprintf(fd, "Invalid input, the number is out of range\n");
+        GetDumpHelp(fd);
+        return;
+    }
     ret = usbd_->SetCurrentFunctions(mode);
     if (ret != UEC_OK) {
         dprintf(fd, "SetCurrentFunctions failed");
