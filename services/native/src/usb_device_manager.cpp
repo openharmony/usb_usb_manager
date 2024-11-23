@@ -129,7 +129,7 @@ std::string UsbDeviceManager::ConvertToString(uint32_t function)
 {
     std::string stream;
     if (function <= UsbSrvSupport::FUNCTION_NONE || function > functionSettable_) {
-        return UsbSrvSupport::FUNCTION_NAME_NONE;
+        return std::string {UsbSrvSupport::FUNCTION_NAME_NONE};
     }
     bool flag = false;
     for (auto it = FUNCTION_MAPPING_N2C.begin(); it != FUNCTION_MAPPING_N2C.end(); ++it) {
@@ -297,7 +297,7 @@ bool StringToInteger(const std::string &str, int32_t &result)
 {
     char *endptr = nullptr;
     errno = 0;
-    int64_t number = std::strtol(str.c_str, &endptr, DECIMAL_BASE);
+    int64_t number = std::strtol(str.c_str(), &endptr, DECIMAL_BASE);
     if (errno != 0 || number < INT32_MIN || number > INT32_MAX) {
         USB_HILOGE(MODULE_USB_SERVICE, "number is out of range");
         return false;
