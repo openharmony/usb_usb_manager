@@ -49,7 +49,7 @@ constexpr int32_t PARAM_BUF_LEN = 128;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 constexpr int32_t USB_RIGHT_USERID_DEFAULT = 100;
 constexpr int32_t USB_RIGHT_USERID_CONSOLE = 0;
-constexpr int32_t MIN_TOKEN_LENGHT = 10;
+constexpr int32_t MIN_TOKEN_LENGTH = 10;
 const std::string USB_MANAGE_ACCESS_USB_DEVICE = "ohos.permission.MANAGE_USB_CONFIG";
 const std::string DEVELOPERMODE_STATE = "const.security.developermode.state";
 enum UsbRightTightUpChoose : uint32_t {
@@ -192,7 +192,7 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
         return false;
     }
     /* already checked system app/hap when call */
-    if (tokenIdStr.length() > MIN_TOKEN_LENGHT) {
+    if (tokenIdStr.length() > MIN_TOKEN_LENGTH) {
         USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr is too long"); 
         return false;
     }
