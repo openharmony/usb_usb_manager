@@ -283,17 +283,27 @@ int32_t main(int32_t argc, char *argv[])
     }
 
     uint32_t mode;
+    char *endptr = nullptr;
+    errno = 0;
+    std::string paramStr = argv[PARAM_INDEX];
+    int64_t number = std::strtol(paramStr.c_str, &endptr, DECIMAL_BASE);
+    if (errno != 0 || number < INT32_MIN || number > INT32_MAX) {
+        printf("number is out of range\n");
+        return false;
+    }
+    if (endptr == nullptr || endptr == str.c_str() || *endptr != '\0') {
+        printf("conversion failed\n");
+        return false;
+    }
+    mode = static_cast<int32_t>(number);
+
     if ((!strcmp(argv[CMD_INDEX], "-f"))) {
-        mode = stoi(argv[PARAM_INDEX]);
         FunctionSwitch(g_usbClient, mode);
     } else if (!strcmp(argv[CMD_INDEX], "-p")) {
-        mode = stoi(argv[PARAM_INDEX]);
         PortSwitch(g_usbClient, mode);
     } else if (!strcmp(argv[CMD_INDEX], "-s")) {
-        mode = stoi(argv[PARAM_INDEX]);
         DeviceStatus(g_usbClient, mode);
     } else if (!strcmp(argv[CMD_INDEX], "-r")) {
-        mode = stoi(argv[PARAM_INDEX]);
         SetProxy(g_usbClient, mode);
     } else if (!strcmp(argv[CMD_INDEX], "-c")) {
         AddCommonEvent();

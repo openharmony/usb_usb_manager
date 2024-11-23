@@ -33,6 +33,7 @@ namespace OHOS {
 namespace USB {
 constexpr int32_t PARAM_COUNT_TWO = 2;
 constexpr int32_t PARAM_COUNT_THR = 3;
+constexpr int32_t DECIMAL_BASE = 10;
 constexpr uint32_t CMD_INDEX = 1;
 constexpr uint32_t PARAM_INDEX = 2;
 constexpr uint32_t DELAY_DISCONN_INTERVAL = 2 * 1000;
@@ -190,16 +191,15 @@ void UsbDeviceManager::HandleEvent(int32_t status)
         usbd_->GetCurrentFunctions(currentFunctions_);
         ProcessFuncChange(connected_, currentFunctions_);
     } else if (!curConnect && (connected_ != curConnect)) {
-        int32_t originalCurrentFunctions = currentFunctions;
-        auto task = [&originalCurrentFunctions]() {
+        auto task = [&]() {
             connected_ = false;
-            if ((originalCurrentFunctions & USB_FUNCTION_MTP) != 0 || (originalCurrentFunctions & USB_FUNCTION_PTP) != 0) {
-                originalCurrentFunctions = originalCurrentFunctions & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
-                USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", originalCurrentFunctions);
-                originalCurrentFunctions = originalCurrentFunctions == 0 ? USB_FUNCTION_STORAGE : originalCurrentFunctions;
-                usbd_->SetCurrentFunctions(originalCurrentFunctions);
+            if ((currentFunctions & USB_FUNCTION_MTP) != 0 || (currentFunctions & USB_FUNCTION_PTP) != 0) {
+                currentFunctions = currentFunctions & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
+                USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions);
+                currentFunctions = currentFunctions == 0 ? USB_FUNCTION_STORAGE : currentFunctions;
+                usbd_->SetCurrentFunctions(currentFunctions);
             }
-            ProcessFuncChange(connected_, originalCurrentFunctions);
+            ProcessFuncChange(connected_, currentFunctions);
             return;
         };
         auto ret = delayDisconn_.Setup();
@@ -295,18 +295,18 @@ void UsbDeviceManager::DumpGetSupportFunc(int32_t fd)
 
 bool StringToInteger(const std::string &str, int32_t &result)
 {
-    char *endptr;
+    char *endptr = nullptr;
     errno = 0;
-    long long llval = std::strtol(str.c_str, &endptr, 10);
-    if (endptr == str.c_str() || *endptr != '\0') {
-        USB_HILOGE(MODULE_USB_SERVICE, "conversion failed");
-        return false;
-    }
-    if (errno = ERANGE || llval < INT32_MIN || llval > INT32_MAX) {
+    int64_t number = std::strtol(str.c_str, &endptr, DECIMAL_BASE);
+    if (errno != 0 || number < INT32_MIN || number > INT32_MAX) {
         USB_HILOGE(MODULE_USB_SERVICE, "number is out of range");
         return false;
     }
-    result = static_cast<int32_t>(llval);
+    if (endptr == nullptr || endptr == str.c_str() || *endptr != '\0') {
+        USB_HILOGE(MODULE_USB_SERVICE, "conversion failed");
+        return false;
+    }
+    result = static_cast<int32_t>(number);
     return true;
 }
 
