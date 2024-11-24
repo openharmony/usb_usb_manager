@@ -272,7 +272,6 @@ int32_t UsbDescriptorParser::ParseInterfaceDescriptor(
     }
 
     if (length - cursor < sizeof(UsbdInterfaceDescriptor)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "insufficient length to parse interface descriptor");
         return UEC_SERVICE_INVALID_VALUE;
     }
     UsbdInterfaceDescriptor interfaceDescriptor = *(reinterpret_cast<const UsbdInterfaceDescriptor *>(buffer + cursor));
