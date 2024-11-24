@@ -163,7 +163,7 @@ int32_t UsbDeviceManager::GetCurrentFunctions()
 void UsbDeviceManager::HandleEvent(int32_t status)
 {
     if (usbd_ == nullptr) {
-        return ;
+        return;
     }
     bool curConnect = false;
     switch (status) {

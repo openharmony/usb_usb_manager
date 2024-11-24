@@ -48,7 +48,6 @@ public:
     void Dump(int32_t fd, const std::vector<std::string> &args);
     bool IsGadgetConnected(void);
     int32_t UserChangeProcess();
-    uint64_t GetCurrentTimestamp();
     void UpdateSetFuncTimestamp();
 private:
     void ProcessFunctionSwitchWindow(bool connected);
