@@ -33,39 +33,6 @@ struct IndexHapComponent {
   private currentChoice: number = 2;
   private content: string = ''
   private thisWant: string = ''
-  private supportMtp: boolean = false
-  private contentWithMtp:Array<SheetInfo> = [
-    {
-      title: $r('app.string.USB_func_mtp'),
-      action: () => {
-        let tmpChooseNumber:number = USBSERVICESWITCH_ID_XFER_FILE;
-        this.setUsbFunction(tmpChooseNumber);
-      }
-    },
-    {
-      title: $r('app.string.USB_func_ptp'),
-      action: () => {
-        let tmpChooseNumber:number = USBSERVICESWITCH_ID_XFER_PIC;
-        this.setUsbFunction(tmpChooseNumber);
-      }
-    },
-    {
-      title: $r('app.string.USB_func_charge'),
-      action: () => {
-        let tmpChooseNumber:number = USBSERVICESWITCH_ID_CHARGE_ONLY;
-        this.setUsbFunction(tmpChooseNumber);
-      }
-    },
-  ];
-  private contentEmptyMtp:Array<SheetInfo> = [
-    {
-      title: $r('app.string.USB_func_charge'),
-      action: () => {
-        let tmpChooseNumber:number = USBSERVICESWITCH_ID_CHARGE_ONLY;
-        this.setUsbFunction(tmpChooseNumber);
-      }
-    },
-  ];
   dialogControllerList: CustomDialogController = new CustomDialogController({
     builder: SelectDialog({
       title: $r('app.string.USB_hint'),
@@ -79,7 +46,29 @@ struct IndexHapComponent {
           }
         },
       },
-      radioContent: this.supportMtp ? this.contentWithMtp : this.contentEmptyMtp,
+      radioContent: [
+        {
+          title: $r('app.string.USB_func_mtp'),
+          action: () => {
+            let tmpChooseNumber:number = USBSERVICESWITCH_ID_XFER_FILE;
+            this.setUsbFunction(tmpChooseNumber);
+          }
+        },
+        {
+          title: $r('app.string.USB_func_ptp'),
+          action: () => {
+            let tmpChooseNumber:number = USBSERVICESWITCH_ID_XFER_PIC;
+            this.setUsbFunction(tmpChooseNumber);
+          }
+        },
+        {
+          title: $r('app.string.USB_func_charge'),
+          action: () => {
+            let tmpChooseNumber:number = USBSERVICESWITCH_ID_CHARGE_ONLY;
+            this.setUsbFunction(tmpChooseNumber);
+          }
+        },
+      ]
     }),
     alignment: DialogAlignment.Center,
     autoCancel: true,
@@ -98,16 +87,6 @@ struct IndexHapComponent {
 
   async aboutToAppear() {
     setTimeout(() => {
-      if (!globalThis.want || !globalThis.want.parameters) {
-        console.error(TAG + 'get globalThis.want error ');
-      } else {
-        if (!globalThis.want.parameters['SupportMtp']) {
-          this.supportMtp = false;
-          console.warn(TAG + 'The device may not support mtp');
-        } else {
-          this.supportMtp = true;
-        }
-      }
       this.dialogControllerList.open();
     });
   }
