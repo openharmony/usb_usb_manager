@@ -333,7 +333,7 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
         return;
     }
     int32_t mode;
-    if(!StringToInteger(args, mode)) {
+    if (!StringToInteger(args, mode)) {
         dprintf(fd, "Invalid input, the number is out of range\n");
         GetDumpHelp(fd);
         return;
