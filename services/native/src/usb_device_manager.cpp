@@ -35,7 +35,7 @@ constexpr int32_t PARAM_COUNT_TWO = 2;
 constexpr int32_t PARAM_COUNT_THR = 3;
 constexpr uint32_t CMD_INDEX = 1;
 constexpr uint32_t PARAM_INDEX = 2;
-constexpr uint32_t DELAY_DISCONN_INTERVAL = 2 * 1000;
+constexpr uint32_t DELAY_DISCONN_INTERVAL = 2 * 700;
 const std::map<std::string_view, uint32_t> UsbDeviceManager::FUNCTION_MAPPING_N2C = {
     {UsbSrvSupport::FUNCTION_NAME_NONE, UsbSrvSupport::FUNCTION_NONE},
     {UsbSrvSupport::FUNCTION_NAME_ACM, UsbSrvSupport::FUNCTION_ACM},
@@ -165,15 +165,20 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     if (usbd_ == nullptr) {
         return;
     }
+    uint64_t curEventTimestamp = 0;
     bool curConnect = false;
     switch (status) {
         case ACT_UPDEVICE:
             curConnect = true;
             gadgetConnected_ = true;
+            curEventTimestamp = GetCurrentTimestamp();
+            USB_HILOGE(MODULE_USB_SERVICE, "qjh_test:ACT_UPDEVICE");
             break;
         case ACT_DOWNDEVICE:
             curConnect = false;
             gadgetConnected_ = false;
+            curEventTimestamp = GetCurrentTimestamp();
+            USB_HILOGE(MODULE_USB_SERVICE, "qjh_test:ACT_DOWNDEVICE");
             break;
         case ACT_ACCESSORYUP:
         case ACT_ACCESSORYDOWN:
@@ -184,14 +189,14 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             USB_HILOGE(MODULE_USB_SERVICE, "invalid status %{public}d", status);
             return;
     }
-    delayDisconn_.Unregister(delayDisconnTimerId_);
-    delayDisconn_.Shutdown();
-    if (curConnect && (connected_ != curConnect)) {
-        connected_ = curConnect;
-        usbd_->GetCurrentFunctions(currentFunctions_);
-        ProcessFuncChange(connected_, currentFunctions_);
-    } else if (!curConnect && (connected_ != curConnect)) {
-        auto task = [&]() {
+    USB_HILOGE(MODULE_USB_SERVICE, "qjh_test:setFuncTimestamp_ = %{public}llu, curEventTimestamp = %{public}llu", setFuncTimestamp_, curEventTimestamp);
+    if ((curEventTimestamp < setFuncTimestamp_ && (curEventTimestamp - setFuncTimestamp_) > DELAY_DISCONN_INTERVAL) || setFuncTimestamp_ == 0) {
+        if (curConnect && (connected_ != curConnect)) {
+          connected_ = curConnect;
+          usbd_->GetCurrentFunctions(currentFunctions_);
+          ProcessFuncChange(connected_, currentFunctions_);
+          USB_HILOGE(MODULE_USB_SERVICE, "qjh_test:if case");
+        } else if (!curConnect && (connected_ != curConnect)) {
             connected_ = false;
             if ((currentFunctions_ & USB_FUNCTION_MTP) != 0 || (currentFunctions_ & USB_FUNCTION_PTP) != 0) {
                 currentFunctions_ = currentFunctions_ & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
@@ -222,6 +227,19 @@ int32_t UsbDeviceManager::UserChangeProcess()
         return usbd_->SetCurrentFunctions(currentFunctions_);
     }
     return UEC_OK;
+}
+
+uint64_t UsbDeviceManager::GetCurrentTimestamp()
+{
+    uint64_t timestamp = 0;
+    if (!connected_) {
+        auto now = std::chrono::system_clock::now();
+        auto duration = now.time_since_epoch();
+        auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+        timestamp = static_cast<uint64_t>(millis);
+    }
+    USB_HILOGE(MODULE_USB_SERVICE, "qjh_test:timestamp = %{public}llu", timestamp);
+    return timestamp;
 }
 
 void UsbDeviceManager::BroadcastFuncChange(bool connected, int32_t currentFunc)

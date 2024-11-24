@@ -590,6 +590,7 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
         return ret;
     }
     usbDeviceManager_->UpdateFunctions(functions);
+    usbDeviceManager_->setFuncTimestamp_ = usbDeviceManager_->GetCurrentTimestamp();
     return UEC_OK;
 }
 // LCOV_EXCL_STOP

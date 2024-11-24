@@ -48,6 +48,8 @@ public:
     void Dump(int32_t fd, const std::vector<std::string> &args);
     bool IsGadgetConnected(void);
     int32_t UserChangeProcess();
+    uint64_t GetCurrentTimestamp();
+    uint64_t setFuncTimestamp_ = 0;
 private:
     void ProcessFunctionSwitchWindow(bool connected);
     void DumpGetSupportFunc(int32_t fd);
@@ -64,8 +66,6 @@ private:
     bool connected_ {false};
     bool gadgetConnected_ {false};
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
-    Utils::Timer delayDisconn_ {"delayDisconnTimer"};
-    uint32_t delayDisconnTimerId_ {UINT32_MAX};
 };
 } // namespace USB
 } // namespace OHOS
