@@ -193,7 +193,6 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
     }
     /* already checked system app/hap when call */
     if (tokenIdStr.length() > DECIMAL_BASE) {
-        USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr is too long"); 
         return false;
     }
     uint32_t tokenId = 0;
