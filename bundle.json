@@ -60,7 +60,8 @@
                 "fwk_group": [
                     "//base/usb/usb_manager/interfaces/innerkits:usbsrv_client",
                     "//base/usb/usb_manager/interfaces/kits/js/napi:usbmanager",
-                    "//base/usb/usb_manager/interfaces/kits/js/napi:usb"
+                    "//base/usb/usb_manager/interfaces/kits/js/napi:usb",
+                    "//base/usb/usb_manager/frameworks/dialog/dialog_ui/usb_right_dialog:dialog_hap"
                 ],
                 "service_group": [
                     "//base/usb/usb_manager/sa_profile:usbmgr_sa_profile",
