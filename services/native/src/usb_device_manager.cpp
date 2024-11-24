@@ -202,7 +202,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
                 currentFunctions_ = currentFunctions_ & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
                 USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
                 currentFunctions_ = currentFunctions_ == 0 ? USB_FUNCTION_STORAGE : currentFunctions_;
-                usbd_->SetCurrentFunctions(currentFunctions_);
+                SetCurrentFunctions(currentFunctions_);
             }
             ProcessFuncChange(connected_, currentFunctions_);
             return;
@@ -224,9 +224,19 @@ int32_t UsbDeviceManager::UserChangeProcess()
         currentFunctions_ = currentFunctions_ & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
         currentFunctions_ = currentFunctions_ == 0 ? USB_FUNCTION_STORAGE : currentFunctions_;
         USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
-        return usbd_->SetCurrentFunctions(currentFunctions_);
+        return SetCurrentFunctions(currentFunctions_);
     }
     return UEC_OK;
+}
+
+int32_t UsbDeviceManager::SetCurrentFunctions(int32_t functions)
+{
+    if (usbd_ == nullptr) {
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    int32_t ret = usbd_->SetCurrentFunctions(functions);
+    setFuncTimestamp_ = GetCurrentTimestamp();
+    return ret;
 }
 
 uint64_t UsbDeviceManager::GetCurrentTimestamp()
@@ -345,7 +355,7 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
         return;
     }
     int32_t mode = stoi(args);
-    ret = usbd_->SetCurrentFunctions(mode);
+    ret = SetCurrentFunctions(mode);
     if (ret != UEC_OK) {
         dprintf(fd, "SetCurrentFunctions failed");
         return;

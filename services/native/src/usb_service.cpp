@@ -584,13 +584,12 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
         USB_HILOGI(MODULE_USB_SERVICE, "UsbService::no change in functionality");
         return UEC_OK;
     }
-    ret = usbd_->SetCurrentFunctions(functions);
+    ret = usbDeviceManager_->SetCurrentFunctions(functions);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ set function error");
         return ret;
     }
     usbDeviceManager_->UpdateFunctions(functions);
-    usbDeviceManager_->setFuncTimestamp_ = usbDeviceManager_->GetCurrentTimestamp();
     return UEC_OK;
 }
 // LCOV_EXCL_STOP

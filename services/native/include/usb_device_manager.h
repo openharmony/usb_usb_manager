@@ -49,6 +49,7 @@ public:
     bool IsGadgetConnected(void);
     int32_t UserChangeProcess();
     uint64_t GetCurrentTimestamp();
+    int32_t SetCurrentFunctions(int32_t functions);
     uint64_t setFuncTimestamp_ = 0;
 private:
     void ProcessFunctionSwitchWindow(bool connected);
