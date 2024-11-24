@@ -49,8 +49,7 @@ public:
     bool IsGadgetConnected(void);
     int32_t UserChangeProcess();
     uint64_t GetCurrentTimestamp();
-    int32_t SetCurrentFunctions(int32_t functions);
-    uint64_t setFuncTimestamp_ = 0;
+    void UpdateSetFuncTimestamp();
 private:
     void ProcessFunctionSwitchWindow(bool connected);
     void DumpGetSupportFunc(int32_t fd);
@@ -59,6 +58,8 @@ private:
     void ReportDevicePlugSysEvent(int32_t currentFunctions, bool connected);
     void ProcessFuncChange(bool connected, int32_t currentFunc);
     void BroadcastFuncChange(bool connected, int32_t currentFunc);
+    uint64_t UpdateEventTimestamp();
+    uint64_t setFuncTimestamp_ = 0;
     static constexpr uint32_t functionSettable_ = UsbSrvSupport::FUNCTION_HDC | UsbSrvSupport::FUNCTION_ACM |
         UsbSrvSupport::FUNCTION_ECM | UsbSrvSupport::FUNCTION_MTP | UsbSrvSupport::FUNCTION_PTP |
         UsbSrvSupport::FUNCTION_RNDIS | UsbSrvSupport::FUNCTION_STORAGE;

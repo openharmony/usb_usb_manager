@@ -584,7 +584,8 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
         USB_HILOGI(MODULE_USB_SERVICE, "UsbService::no change in functionality");
         return UEC_OK;
     }
-    ret = usbDeviceManager_->SetCurrentFunctions(functions);
+    usbDeviceManager_->UpdateSetFuncTimestamp();
+    ret = usbd->->SetCurrentFunctions(functions);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ set function error");
         return ret;
