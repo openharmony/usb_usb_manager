@@ -19,5 +19,4 @@ utils_path = "${usb_manager_path}/utils"
 
 declare_args() {
   usb_manager_feature_pop_up_func_switch_model = true
-  usb_manager_feature_support_mtp = true
 }

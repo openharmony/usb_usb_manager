@@ -143,10 +143,6 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     data.WriteString16(u"UsbFunctionSwitchExtAbility");
     data.WriteString16(u"parameters");
     cJSON* paramJson = cJSON_CreateObject();
-#ifdef USB_FUNC_SUPPORT_MTP
-    USB_HILOGI(MODULE_USB_SERVICE, "SupportMtp is true");
-    cJSON_AddStringToObject(paramJson, "SupportMtp", "true");
-#endif // USB_FUNC_SUPPORT_MTP
     std::string uiExtensionTypeStr = "sysDialog/common";
     cJSON_AddStringToObject(paramJson, "ability.want.params.uiExtensionType", uiExtensionTypeStr.c_str());
     char *pParamJson = cJSON_PrintUnformatted(paramJson);
