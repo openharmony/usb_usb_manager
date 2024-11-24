@@ -57,7 +57,7 @@ private:
     void ReportDevicePlugSysEvent(int32_t currentFunctions, bool connected);
     void ProcessFuncChange(bool connected, int32_t currentFunc);
     void BroadcastFuncChange(bool connected, int32_t currentFunc);
-    uint64_t UpdateEventTimestamp();
+    uint64_t GetEventTimestamp();
     uint64_t setFuncTimestamp_ = 0;
     static constexpr uint32_t functionSettable_ = UsbSrvSupport::FUNCTION_HDC | UsbSrvSupport::FUNCTION_ACM |
         UsbSrvSupport::FUNCTION_ECM | UsbSrvSupport::FUNCTION_MTP | UsbSrvSupport::FUNCTION_PTP |
