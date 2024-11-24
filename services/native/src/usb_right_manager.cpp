@@ -191,8 +191,7 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
         return false;
     }
     /* already checked system app/hap when call */
-    uint64_t tokenId = 0;
-    uint32_t tokenId = stoul(tokenIdStr, nullptr, 10);
+    uint64_t tokenId = stoul(tokenIdStr, nullptr, 10);
     if (errno == ERANGE) {
         USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr is out of range");
         return false;
