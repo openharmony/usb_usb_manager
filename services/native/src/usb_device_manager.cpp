@@ -221,7 +221,7 @@ int32_t UsbDeviceManager::UserChangeProcess()
         currentFunctions_ = currentFunctions_ & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
         currentFunctions_ = currentFunctions_ == 0 ? USB_FUNCTION_STORAGE : currentFunctions_;
         USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
-        return usbd->SetCurrentFunctions(currentFunctions_);
+        return usbd_->SetCurrentFunctions(currentFunctions_);
     }
     return UEC_OK;
 }
@@ -347,7 +347,7 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
         return;
     }
     int32_t mode = stoi(args);
-    ret = usbd->SetCurrentFunctions(mode);
+    ret = usbd_->SetCurrentFunctions(mode);
     if (ret != UEC_OK) {
         dprintf(fd, "SetCurrentFunctions failed");
         return;
