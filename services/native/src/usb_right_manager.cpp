@@ -49,7 +49,6 @@ constexpr int32_t PARAM_BUF_LEN = 128;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 constexpr int32_t USB_RIGHT_USERID_DEFAULT = 100;
 constexpr int32_t USB_RIGHT_USERID_CONSOLE = 0;
-constexpr int32_t DECIMAL_BASE = 10;
 const std::string USB_MANAGE_ACCESS_USB_DEVICE = "ohos.permission.MANAGE_USB_CONFIG";
 const std::string DEVELOPERMODE_STATE = "const.security.developermode.state";
 enum UsbRightTightUpChoose : uint32_t {
@@ -192,15 +191,13 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
         return false;
     }
     /* already checked system app/hap when call */
-    if (tokenIdStr.length() > DECIMAL_BASE) {
-        return false;
-    }
-    uint32_t tokenId = 0;
-    try {
-        tokenId = stoul(tokenIdStr);
-    } catch (const std::out_of_range& oor) {
-        USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr out of range");
-        return false;
+    uint64_t tokenId = 0;
+    uint64_t maxUint64 = std::numeric_limits<uint64_t>::max();
+    std::istringstream ss(tokenIdStr);
+    ss >> std::hex >> tokenId;
+    if(ss.fail() || tokenId > maxUint64) {
+         USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr is not a valid uint64_t");
+         return false;
     }
     HapTokenInfo hapTokenInfoRes;
     int32_t ret = AccessTokenKit::GetHapTokenInfo((AccessTokenID) tokenId, hapTokenInfoRes);
