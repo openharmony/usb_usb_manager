@@ -192,12 +192,8 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
     }
     /* already checked system app/hap when call */
     uint64_t tokenId = 0;
-    uint64_t maxUint64 = std::numeric_limits<uint64_t>::max();
-    std::istringstream ss(tokenIdStr);
-    ss >> std::hex >> tokenId;
-    if(ss.fail() || tokenId > maxUint64) {
-         USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr is not a valid uint64_t");
-         return false;
+    if (errno == ERANGE) {
+        USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr is out of range");
     }
     HapTokenInfo hapTokenInfoRes;
     int32_t ret = AccessTokenKit::GetHapTokenInfo((AccessTokenID) tokenId, hapTokenInfoRes);
