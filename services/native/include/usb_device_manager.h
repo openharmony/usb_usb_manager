@@ -36,7 +36,7 @@ class UsbDeviceManager {
 public:
     UsbDeviceManager();
     int32_t Init();
-    static bool AreSettableFunctions(int32_t funcs);
+    static bool IsSettableFunctions(int32_t funcs);
 
     int32_t SetUsbd(const sptr<HDI::Usb::V1_0::IUsbInterface> &usbd);
     static uint32_t ConvertFromString(std::string_view funcs);

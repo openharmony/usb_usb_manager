@@ -33,6 +33,7 @@ namespace OHOS {
 namespace USB {
 constexpr int32_t PARAM_COUNT_TWO = 2;
 constexpr int32_t PARAM_COUNT_THR = 3;
+constexpr int32_t DECIMAL_BASE = 10;
 constexpr uint32_t CMD_INDEX = 1;
 constexpr uint32_t PARAM_INDEX = 2;
 constexpr uint32_t DELAY_DISCONN_INTERVAL = 2 * 1000;
@@ -81,7 +82,7 @@ int32_t UsbDeviceManager::SetUsbd(const sptr<IUsbInterface> &usbd)
     return UEC_OK;
 }
 
-bool UsbDeviceManager::AreSettableFunctions(int32_t funcs)
+bool UsbDeviceManager::IsSettableFunctions(int32_t funcs)
 {
     return static_cast<uint32_t>(funcs) == UsbSrvSupport::FUNCTION_NONE ||
         ((~functionSettable_ & static_cast<uint32_t>(funcs)) == 0);
@@ -128,8 +129,7 @@ std::string UsbDeviceManager::ConvertToString(uint32_t function)
 {
     std::string stream;
     if (function <= UsbSrvSupport::FUNCTION_NONE || function > functionSettable_) {
-        stream = std::string {UsbSrvSupport::FUNCTION_NAME_NONE};
-        return stream;
+        return std::string {UsbSrvSupport::FUNCTION_NAME_NONE};
     }
     bool flag = false;
     for (auto it = FUNCTION_MAPPING_N2C.begin(); it != FUNCTION_MAPPING_N2C.end(); ++it) {
@@ -304,6 +304,23 @@ void UsbDeviceManager::DumpGetSupportFunc(int32_t fd)
     dprintf(fd, "supported functions list: %s\n", ConvertToString(functionSettable_).c_str());
 }
 
+bool StringToInteger(const std::string &str, int32_t &result)
+{
+    char *endptr = nullptr;
+    errno = 0;
+    int64_t number = std::strtol(str.c_str(), &endptr, DECIMAL_BASE);
+    if (errno != 0 || number < INT32_MIN || number > INT32_MAX) {
+        USB_HILOGE(MODULE_USB_SERVICE, "number is out of range");
+        return false;
+    }
+    if (endptr == nullptr || endptr == str.c_str() || *endptr != '\0') {
+        USB_HILOGE(MODULE_USB_SERVICE, "conversion failed");
+        return false;
+    }
+    result = static_cast<int32_t>(number);
+    return true;
+}
+
 void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
 {
     int32_t currentFunction;
@@ -315,7 +332,7 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
     if (args.compare("Q") == 0) {
         ret = usbd_->GetCurrentFunctions(currentFunction);
         if (ret != UEC_OK) {
-            dprintf(fd, "GetCurrentFunctions failed: %d\n", __LINE__);
+            dprintf(fd, "GetCurrentFunctions failed: %d\n", ret);
             return;
         }
         dprintf(fd, "current function: %s\n", ConvertToString(currentFunction).c_str());
@@ -326,7 +343,12 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
         GetDumpHelp(fd);
         return;
     }
-    int32_t mode = stoi(args);
+    int32_t mode;
+    if (!StringToInteger(args, mode)) {
+        dprintf(fd, "Invalid input, the number is out of range\n");
+        GetDumpHelp(fd);
+        return;
+    }
     ret = usbd_->SetCurrentFunctions(mode);
     if (ret != UEC_OK) {
         dprintf(fd, "SetCurrentFunctions failed");
