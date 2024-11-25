@@ -98,7 +98,7 @@ public:
             USB_HILOGI(MODULE_USB_SERVICE, "recv user switched.");
             auto usbService = UsbService::GetGlobalInstance();
             if (usbService != nullptr) {
-                usbService->UserChangeProcess();
+                usbService->RemoveMtp();
             }
         }
     }

@@ -192,7 +192,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             ProcessFuncChange(connected_, currentFunctions_);
         } else {
             connected_ = false;
-            UserChangeProcess();
+            RemoveMtp();
             ProcessFuncChange(connected_, currentFunctions_);
         }
         return;
@@ -200,7 +200,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     connected_ = curConnect;
 }
 
-int32_t UsbDeviceManager::UserChangeProcess()
+int32_t UsbDeviceManager::RemoveMtp()
 {
     if ((currentFunctions_ & USB_FUNCTION_MTP) != 0 || (currentFunctions_ & USB_FUNCTION_PTP) != 0) {
         currentFunctions_ = currentFunctions_ & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
@@ -214,14 +214,11 @@ int32_t UsbDeviceManager::UserChangeProcess()
 void UsbDeviceManager::UpdateSetFuncTimestamp()
 {
     if (connected_) {
-        auto now = std::chrono::system_clock::now();
-        auto duration = now.time_since_epoch();
-        auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-        setFuncTimestamp_ = static_cast<uint64_t>(millis);
+        setFuncTimestamp_ = GetCurrentTimestamp();
     }
 }
 
-uint64_t UsbDeviceManager::GetEventTimestamp()
+uint64_t UsbDeviceManager::GetCurrentTimestamp()
 {
     auto now = std::chrono::system_clock::now();
     auto duration = now.time_since_epoch();
