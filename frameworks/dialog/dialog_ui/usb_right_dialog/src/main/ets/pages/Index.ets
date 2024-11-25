@@ -15,6 +15,7 @@
 
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession'
 import { usbServiceSwitch } from '../util/UsbServiceSwitch';
+import { terminateDialog } from '../util/DialogUtil';
 import {GlobalThisProxy} from '../util/GlobalThisProxy';
 import { BusinessError } from '@ohos.base';
 import window from '@ohos.window';
@@ -40,10 +41,7 @@ struct IndexHapComponent {
       confirm: {
         value: $r('app.string.USB_hint_cancel'),
         action: () => {
-          let session = AppStorage.get<UIExtensionContentSession>('session');
-          if (session) {
-            session.terminateSelf();
-          }
+          terminateDialog();
         },
       },
       radioContent: [
@@ -77,12 +75,7 @@ struct IndexHapComponent {
 
   setUsbFunction(choose: number) {
     usbServiceSwitch.serviceChoose(choose);
-    let session = AppStorage.get<UIExtensionContentSession>('session');
-    if (session) {
-      session.terminateSelf();
-    } else {
-      console.log(TAG + 'get session fail.');
-    }
+    terminateDialog();
   }
 
   async aboutToAppear() {
@@ -104,10 +97,7 @@ struct IndexHapComponent {
   }
   async onCancel() {
     console.log(TAG + 'onCancel');
-    let session = AppStorage.get<UIExtensionContentSession>('session');
-    if (session) {
-      session.terminateSelf();
-    }
+    terminateDialog();
   }
   build() { }
 }
