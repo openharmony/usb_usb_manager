@@ -184,14 +184,14 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             USB_HILOGE(MODULE_USB_SERVICE, "invalid status %{public}d", status);
             return;
     }
-    uint64_t curEventTimestamp = GetEventTimestamp();
+    uint64_t curEventTimestamp = GetCurrentTimestamp();
     if ((curEventTimestamp >= setFuncTimestamp_ && (curEventTimestamp - setFuncTimestamp_) >= DELAY_DISCONN_INTERVAL)) {
         if (curConnect) {
             connected_ = curConnect;
             usbd_->GetCurrentFunctions(currentFunctions_);
             ProcessFuncChange(connected_, currentFunctions_);
         } else {
-            connected_ = false;
+            connected_ = curConnect;
             RemoveMtp();
             ProcessFuncChange(connected_, currentFunctions_);
         }
