@@ -160,7 +160,11 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     const uint32_t cmdCode = 1;
     int32_t ret = remoteObject->SendRequest(cmdCode, data, reply, option);
     if (ret != ERR_OK) {
-        USB_HILOGI(MODULE_USB_SERVICE, "show dialog is failed: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "send request failed: %{public}d", ret);
+        return;
+    }
+    if (!reply.ReadInt32(ret) || ret != ERR_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "show dialog failed: %{public}d", ret);
         return;
     }
     remoteObject_ = remoteObject;

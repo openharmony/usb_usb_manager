@@ -15,6 +15,7 @@
 import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility';
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
 import rpc from '@ohos.rpc';
+import { terminateDialog } from '../util/DialogUtil';
 
 let TAG: string = 'UsbService';
 const ACCESS_TYPE_MASK = 0b11;
@@ -32,16 +33,20 @@ export default class UsbFunctionSwitchAbility extends UIExtensionAbility {
       console.error('check permission fail');
       return;
     }
-    AppStorage.setOrCreate('session', session);
-    (session as UIExtensionContentSession)?.loadContent('pages/Index');
+    if (!session) {
+      console.error('invalid session');
+      return;
+    }
+
     try {
+      AppStorage.setOrCreate('session', session);
+      (session as UIExtensionContentSession)?.loadContent('pages/Index');
       (session as UIExtensionContentSession)?.setWindowBackgroundColor(BG_COLOR);
       this.context?.getApplicationContext()?.setColorMode(COLOR_MODE_NOT_SET);
     } catch (error) {
       console.error(TAG + 'UsbFunctionSwitchAbility onSessionCreate error: ' + error?.code);
-      (session as UIExtensionContentSession)?.terminateSelf();
+      terminateDialog();
     }
-    return;
   }
 
   onSessionDestroy(session): void {
