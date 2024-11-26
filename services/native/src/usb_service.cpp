@@ -584,7 +584,6 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
         USB_HILOGI(MODULE_USB_SERVICE, "UsbService::no change in functionality");
         return UEC_OK;
     }
-    usbDeviceManager_->UpdateSetFuncTimestamp();
     ret = usbd_->SetCurrentFunctions(functions);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ set function error");
@@ -2431,13 +2430,13 @@ bool UsbService::GetDeviceProductName(const std::string &deviceName, std::string
     return usbHostManager_->GetProductName(deviceName, productName);
 }
 
-int32_t UsbService::RemoveMtp()
+int32_t UsbService::UserChangeProcess()
 {
     if (usbDeviceManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "usbDeviceManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    return usbDeviceManager_->RemoveMtp();
+    return usbDeviceManager_->UserChangeProcess();
 }
 
 int32_t UsbService::GetAccessoryList(std::vector<USBAccessory> &accessList)
