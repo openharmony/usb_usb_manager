@@ -31,29 +31,26 @@ public:
     {
         stop();
         exit_ = true;
-        cv_.notify_one(); // Wake up the thread if it's waiting
+        cv_.notify_one();
         workerThread_.join();
     }
 
-    // 设置定时时间（单位：毫秒）
     void setInterval(unsigned int interval)
     {
         std::lock_guard<std::mutex> lock(cv_mutex_);
         interval_ = interval;
     }
 
-    // 启动计时器
     void start()
     {
         std::lock_guard<std::mutex> lock(cv_mutex_);
         if (!running_) {
             running_ = true;
             last_start_time_ = std::chrono::steady_clock::now();
-            cv_.notify_one(); // Wake up the thread if it's waiting
+            cv_.notify_one();
         }
     }
 
-    // 停止计时器
     void stop()
     {
         std::lock_guard<std::mutex> lock(cv_mutex_);
@@ -62,7 +59,6 @@ public:
         }
     }
 
-    // 设置回调函数
     void setCallback(std::function<void()> callback)
     {
         std::lock_guard<std::mutex> lock(cv_mutex_);
@@ -70,7 +66,6 @@ public:
     }
 
 private:
-    // 计时器等待和执行周期的函数
     void waitCycle()
     {
         while (!exit_) {
@@ -80,10 +75,10 @@ private:
                     std::chrono::milliseconds(interval_));
             });
             if (running_) {
-                running_ = false; // Reset running state for the next cycle
-                lock.unlock(); // Unlock before calling the callback
+                running_ = false;
+                lock.unlock();
                 if (callback_) {
-                    callback_(); // Execute the callback function
+                    callback_();
                 }
             } else {
                 // Reset last start time to ensure the timer is not skipped when started again
@@ -92,14 +87,14 @@ private:
         }
     }
 
-    std::atomic<bool> running_;       // 控制定时器运行状态的原子变量
-    std::atomic<bool> exit_;          // 控制是否退出循环的原子变量
-    std::thread workerThread_;        // 用于执行定时任务的线程
-    unsigned int interval_;          // 定时器间隔时间（毫秒）
-    std::function<void()> callback_; // 定时器回调函数
-    std::chrono::steady_clock::time_point last_start_time_; // 上次启动的时间戳
-    std::condition_variable cv_;     // 条件变量，用于线程同步
-    std::mutex cv_mutex_;           // 互斥锁，用于保护条件变量
+    std::atomic<bool> running_;
+    std::atomic<bool> exit_;
+    std::thread workerThread_;
+    unsigned int interval_;
+    std::function<void()> callback_;
+    std::chrono::steady_clock::time_point last_start_time_;
+    std::condition_variable cv_;
+    std::mutex cv_mutex_;
 };
 
-#endif // USB_TIMER_H
+#endif
