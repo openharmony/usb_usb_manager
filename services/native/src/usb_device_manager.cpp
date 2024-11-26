@@ -188,18 +188,20 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     delayDisconn_.Shutdown();
     if (curConnect && (connected_ != curConnect)) {
         connected_ = curConnect;
-        usbd_->GetCurrentFunctions(currentFunctions_);
+        usbd_->GetCurrentFunctions(functions);
         ProcessFuncChange(connected_, currentFunctions_);
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             connected_ = false;
-            if ((currentFunctions_ & USB_FUNCTION_MTP) != 0 || (currentFunctions_ & USB_FUNCTION_PTP) != 0) {
-                currentFunctions_ = currentFunctions_ & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
-                USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
-                currentFunctions_ = currentFunctions_ == 0 ? USB_FUNCTION_STORAGE : currentFunctions_;
-                usbd_->SetCurrentFunctions(currentFunctions_);
+            uint32_t functions = static_cast<uint32_t>(currentFunctions_);
+            if ((functions & USB_FUNCTION_MTP) != 0 || (functions & USB_FUNCTION_PTP) != 0) {
+                functions = functions & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
+                USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}u", functions);
+                functions = functions == 0 ? USB_FUNCTION_STORAGE : functions;
+                usbd_->SetCurrentFunctions(functions);
             }
-            ProcessFuncChange(connected_, currentFunctions_);
+            ProcessFuncChange(connected_, functions);
+            currentFunctions_ = static_cast<int32_t>(functions);
             return;
         };
         auto ret = delayDisconn_.Setup();
