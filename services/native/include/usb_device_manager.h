@@ -64,6 +64,7 @@ private:
     bool connected_ {false};
     bool gadgetConnected_ {false};
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
+    Timer timer_;
 };
 } // namespace USB
 } // namespace OHOS

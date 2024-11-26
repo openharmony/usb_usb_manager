@@ -184,8 +184,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             USB_HILOGE(MODULE_USB_SERVICE, "invalid status %{public}d", status);
             return;
     }
-    delayDisconn_.Unregister(delayDisconnTimerId_);
-    delayDisconn_.Shutdown();
+    timer_.stop();
     if (curConnect && (connected_ != curConnect)) {
         connected_ = curConnect;
         usbd_->GetCurrentFunctions(currentFunctions_);
@@ -202,12 +201,9 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             ProcessFuncChange(connected_, currentFunctions_);
             return;
         };
-        auto ret = delayDisconn_.Setup();
-        if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "set up timer failed %{public}u", ret);
-            return;
-        }
-        delayDisconnTimerId_ = delayDisconn_.Register(task, DELAY_DISCONN_INTERVAL, true);
+        timer_.setInterval(DELAY_DISCONN_INTERVAL);
+        timer_.setCallback(task);
+        timer_.start();
     } else {
         USB_HILOGI(MODULE_USB_SERVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
     }
