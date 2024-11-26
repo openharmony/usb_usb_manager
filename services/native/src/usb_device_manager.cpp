@@ -199,6 +199,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
                 currentFunctions_ = currentFunctions_ == 0 ? USB_FUNCTION_STORAGE : currentFunctions_;
                 usbd_->SetCurrentFunctions(currentFunctions_);
             }
+            ProcessFuncChange(connected_, currentFunctions_);
             return;
         };
         auto ret = delayDisconn_.Setup();
@@ -221,21 +222,6 @@ int32_t UsbDeviceManager::UserChangeProcess()
         return usbd_->SetCurrentFunctions(currentFunctions_);
     }
     return UEC_OK;
-}
-
-void UsbDeviceManager::UpdateSetFuncTimestamp()
-{
-    if (connected_) {
-        setFuncTimestamp_ = GetCurrentTimestamp();
-    }
-}
-
-uint64_t UsbDeviceManager::GetCurrentTimestamp()
-{
-    auto now = std::chrono::system_clock::now();
-    auto duration = now.time_since_epoch();
-    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-    return static_cast<uint64_t>(millis);
 }
 
 void UsbDeviceManager::BroadcastFuncChange(bool connected, int32_t currentFunc)
