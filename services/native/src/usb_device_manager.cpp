@@ -36,7 +36,7 @@ constexpr int32_t PARAM_COUNT_THR = 3;
 constexpr int32_t DECIMAL_BASE = 10;
 constexpr uint32_t CMD_INDEX = 1;
 constexpr uint32_t PARAM_INDEX = 2;
-constexpr uint32_t DELAY_DISCONN_INTERVAL = 2 * 1000;
+constexpr uint32_t DELAY_DISCONN_INTERVAL = 1700;
 const std::map<std::string_view, uint32_t> UsbDeviceManager::FUNCTION_MAPPING_N2C = {
     {UsbSrvSupport::FUNCTION_NAME_NONE, UsbSrvSupport::FUNCTION_NONE},
     {UsbSrvSupport::FUNCTION_NAME_ACM, UsbSrvSupport::FUNCTION_ACM},
@@ -184,8 +184,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             USB_HILOGE(MODULE_USB_SERVICE, "invalid status %{public}d", status);
             return;
     }
-    delayDisconn_.Unregister(delayDisconnTimerId_);
-    delayDisconn_.Shutdown();
+    timer_.stop();
     if (curConnect && (connected_ != curConnect)) {
         connected_ = curConnect;
         usbd_->GetCurrentFunctions(currentFunctions_);
@@ -202,12 +201,9 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             ProcessFuncChange(connected_, currentFunctions_);
             return;
         };
-        auto ret = delayDisconn_.Setup();
-        if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "set up timer failed %{public}u", ret);
-            return;
-        }
-        delayDisconnTimerId_ = delayDisconn_.Register(task, DELAY_DISCONN_INTERVAL, true);
+        timer_.setInterval(DELAY_DISCONN_INTERVAL);
+        timer_.setCallback(task);
+        timer_.start();
     } else {
         USB_HILOGI(MODULE_USB_SERVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
     }
