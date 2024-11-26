@@ -188,7 +188,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     delayDisconn_.Shutdown();
     if (curConnect && (connected_ != curConnect)) {
         connected_ = curConnect;
-        usbd_->GetCurrentFunctions(functions);
+        usbd_->GetCurrentFunctions(currentFunctions_);
         ProcessFuncChange(connected_, currentFunctions_);
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
