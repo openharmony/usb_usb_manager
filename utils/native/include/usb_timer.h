@@ -75,8 +75,7 @@ private:
     {
         while (!exit_) {
             std::unique_lock<std::mutex> lock(cv_mutex_);
-            cv_.wait_for(lock, std::chrono::milliseconds(interval_),
-            [this]{
+            cv_.wait_for(lock, std::chrono::milliseconds(interval_), [this] {
                 return !running_ || (std::chrono::steady_clock::now() - last_start_time_ >=
                     std::chrono::milliseconds(interval_));
             });
