@@ -90,6 +90,14 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+          "name": "USB_func_mtp_tip",
+          "value": "Only transfer file in 'File Manager'"
+        },
+        {
+          "name": "USB_func_ptp_tip",
+          "value": "Only transfer images and videos in 'Gallery'"
         }
     ]
 }
