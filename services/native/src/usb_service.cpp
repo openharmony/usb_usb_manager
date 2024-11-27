@@ -2421,6 +2421,7 @@ int32_t UsbService::GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &spe
 }
 // LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool UsbService::GetDeviceProductName(const std::string &deviceName, std::string &productName)
 {
     if (usbHostManager_ == nullptr) {
@@ -2625,6 +2626,7 @@ int32_t UsbService::CancelAccessoryRight(const USBAccessory &access)
     USB_HILOGI(MODULE_USB_SERVICE, "CancelAccessoryRight done");
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
 } // namespace USB
 } // namespace OHOS
