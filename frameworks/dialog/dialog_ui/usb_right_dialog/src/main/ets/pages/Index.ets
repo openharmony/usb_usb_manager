@@ -21,7 +21,7 @@ import { BusinessError } from '@ohos.base';
 import window from '@ohos.window';
 import common from '@ohos.app.ability.common'
 import Want from '@ohos.app.ability.Want';
-import { SelectDialog } from '@ohos.arkui.advanced.Dialog'
+import { SelectDialog } from '../components/dialog';
 let TAG: string = 'UsbService';
 let USBSERVICESWITCH_ID_DEFAULT : number = -1;
 let USBSERVICESWITCH_ID_CHARGE_ONLY : number = -1;
@@ -47,6 +47,7 @@ struct IndexHapComponent {
       radioContent: [
         {
           title: $r('app.string.USB_func_mtp'),
+          subTitle: $r('app.string.USB_func_mtp_tip'),
           action: () => {
             let tmpChooseNumber:number = USBSERVICESWITCH_ID_XFER_FILE;
             this.setUsbFunction(tmpChooseNumber);
@@ -54,6 +55,7 @@ struct IndexHapComponent {
         },
         {
           title: $r('app.string.USB_func_ptp'),
+          subTitle: $r('app.string.USB_func_ptp_tip'),
           action: () => {
             let tmpChooseNumber:number = USBSERVICESWITCH_ID_XFER_PIC;
             this.setUsbFunction(tmpChooseNumber);

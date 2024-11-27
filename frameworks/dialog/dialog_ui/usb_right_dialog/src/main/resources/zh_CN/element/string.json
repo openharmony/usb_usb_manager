@@ -62,6 +62,14 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+          "name": "USB_func_mtp_tip",
+          "value": "只显示文件管理器中“我的手机”的内容"
+        },
+        {
+          "name": "USB_func_ptp_tip",
+          "value": "只显示图库中的图片和视频"
         }
     ]
 }
