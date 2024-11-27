@@ -154,8 +154,7 @@ int32_t UsbAccessoryManager::ProcessAccessoryStart(int32_t curFunc, int32_t curA
             }
             return;
         };
-        uint32_t rc;
-        rc = accDelayTimer_.Setup();
+        uint32_t rc = accDelayTimer_.Setup();
         if (ret != UEC_OK) {
             USB_HILOGE(MODULE_USB_SERVICE, "set up accDelayTimer_ failed %{public}u", rc);
             return ret;
@@ -163,14 +162,15 @@ int32_t UsbAccessoryManager::ProcessAccessoryStart(int32_t curFunc, int32_t curA
         accDelayTimerId_ = accDelayTimer_.Register(task, DELAY_ACC_INTERVAL, true);
         this->accStatus_ = ACC_CONFIGURING;
     } else {
-        USB_HILOGD(MODULE_SERVICE, "curFunc %{public}u curAccStatus:%{public}d not necessary", curFuncUint, curAccStatus);
+        USB_HILOGD(MODULE_SERVICE, "curFunc %{public}u curAccStatus:%{public}d not necessary",
+            curFuncUint, curAccStatus);
     }
     return UEC_OK;
 }
 
 int32_t UsbAccessoryManager::ProcessAccessoryStop(int32_t curFunc, int32_t curAccStatus)
 {
-     uint32_t curFuncUint = static_cast<uint32_t>(curFunc);
+    uint32_t curFuncUint = static_cast<uint32_t>(curFunc);
     if ((curFuncUint & FUN_ACCESSORY) != 0 && accStatus_ == ACC_START) {
         accStatus_ = ACC_STOP;
         int32_t ret = usbdImpl_ ->SetCurrentFunctions(lastDeviceFunc_);
