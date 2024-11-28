@@ -38,7 +38,7 @@ using namespace OHOS::HDI::Usb::V1_1;
 namespace OHOS {
 namespace USB {
 constexpr int32_t ACCESSORY_INFO_SIZE = 5;
-constexpr int32_t ACCESSORY_EXTRA_INDEX = 5;
+constexpr uint32_t ACCESSORY_EXTRA_INDEX = 5;
 constexpr int32_t FUN_ACCESSORY = 1 << 11;
 constexpr int32_t NUM_OF_SERAIL_BIT = 16;
 constexpr uint32_t DELAY_ACC_INTERVAL = 10 * 1000;
@@ -122,7 +122,8 @@ int32_t UsbAccessoryManager::CloseAccessory(int32_t fd)
 
 int32_t UsbAccessoryManager::ProcessAccessoryStart(int32_t curFunc, int32_t curAccStatus)
 {
-    if ((curFunc & FUN_ACCESSORY) != 0 && accStatus_ != ACC_START) {
+    uint32_t curFuncUint = static_cast<uint32_t>(curFunc);
+    if ((curFuncUint & FUN_ACCESSORY) != 0 && accStatus_ != ACC_START) {
         this->accStatus_ = ACC_START;
         std::vector<std::string> accessorys;
         usbdImpl_->GetAccessoryInfo(accessorys);
@@ -137,14 +138,14 @@ int32_t UsbAccessoryManager::ProcessAccessoryStart(int32_t curFunc, int32_t curA
         USB_HILOGI(MODULE_SERVICE, "send accessory attached broadcast device:%{public}s",
             this->accessory.GetJsonString().c_str());
         return CommonEventManager::PublishCommonEvent(data, publishInfo);
-    } else if ((curFunc & FUN_ACCESSORY) == 0 && curAccStatus == ACC_CONFIGURING) {
+    } else if ((curFuncUint & FUN_ACCESSORY) == 0 && curAccStatus == ACC_CONFIGURING) {
         int32_t ret = usbdImpl_->SetCurrentFunctions(FUN_ACCESSORY);
         if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_SERVICE, "curFunc %{public}d curAccStatus:%{public}d, set func ret: %{public}d",
-                curFunc, curAccStatus, ret);
+            USB_HILOGE(MODULE_SERVICE, "curFunc %{public}d curAccStatus:%{public}u, set func ret: %{public}d",
+                curFuncUint, curAccStatus, ret);
             return ret;
         }
-        lastDeviceFunc_ = curFunc;
+        lastDeviceFunc_ = static_cast<uint32_t>(curFuncUint);
         auto task = [&]() {
             this->accStatus_ = ACC_STOP;
             int32_t ret = usbdImpl_ ->SetCurrentFunctions(this->lastDeviceFunc_);
@@ -153,22 +154,24 @@ int32_t UsbAccessoryManager::ProcessAccessoryStart(int32_t curFunc, int32_t curA
             }
             return;
         };
-        ret = accDelayTimer_.Setup();
+        uint32_t rc = accDelayTimer_.Setup();
         if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "set up accDelayTimer_ failed %{public}u", ret);
+            USB_HILOGE(MODULE_USB_SERVICE, "set up accDelayTimer_ failed %{public}u", rc);
             return ret;
         }
         accDelayTimerId_ = accDelayTimer_.Register(task, DELAY_ACC_INTERVAL, true);
         this->accStatus_ = ACC_CONFIGURING;
     } else {
-        USB_HILOGD(MODULE_SERVICE, "curFunc %{public}d curAccStatus:%{public}d not necessary", curFunc, curAccStatus);
+        USB_HILOGD(MODULE_SERVICE, "curFunc %{public}u curAccStatus:%{public}d not necessary",
+            curFuncUint, curAccStatus);
     }
     return UEC_OK;
 }
 
 int32_t UsbAccessoryManager::ProcessAccessoryStop(int32_t curFunc, int32_t curAccStatus)
 {
-    if ((curFunc & FUN_ACCESSORY) != 0 && accStatus_ == ACC_START) {
+    uint32_t curFuncUint = static_cast<uint32_t>(curFunc);
+    if ((curFuncUint & FUN_ACCESSORY) != 0 && accStatus_ == ACC_START) {
         accStatus_ = ACC_STOP;
         int32_t ret = usbdImpl_ ->SetCurrentFunctions(lastDeviceFunc_);
         if (ret != UEC_OK) {
@@ -185,8 +188,8 @@ int32_t UsbAccessoryManager::ProcessAccessoryStop(int32_t curFunc, int32_t curAc
             this->accessory.GetJsonString().c_str());
         return CommonEventManager::PublishCommonEvent(data, publishInfo);
     } else {
-        USB_HILOGD(MODULE_SERVICE, "curFunc %{public}d curAccStatus:%{public}d not necessary",
-            curFunc, curAccStatus);
+        USB_HILOGD(MODULE_SERVICE, "curFunc %{public}u curAccStatus:%{public}d not necessary",
+            curFuncUint, curAccStatus);
     }
     return UEC_OK;
 }
@@ -251,7 +254,7 @@ void UsbAccessoryManager::HandleEvent(int32_t status, bool delayProcess)
             this->HandleEvent(this->eventStatus_, false);
             return;
         };
-        int32_t ret = antiShakeDelayTimer_.Setup();
+        uint32_t ret = antiShakeDelayTimer_.Setup();
         if (ret != UEC_OK) {
             USB_HILOGE(MODULE_USB_SERVICE, "set up antiShakeDelayTimer_ failed %{public}u", ret);
             return;
@@ -337,7 +340,7 @@ std::string UsbAccessoryManager::SerialValueHash(const std::string&serialValue)
 
 void UsbAccessoryManager::InitBase64Map()
 {
-    for (size_t i = 0; i < BASE64_CHARS.size(); ++i) {
+    for (int i = 0; i < BASE64_CHARS.size(); ++i) {
         base64Map_[BASE64_CHARS[i]] = i;
     }
 }
@@ -345,7 +348,7 @@ void UsbAccessoryManager::InitBase64Map()
 std::vector<uint8_t> UsbAccessoryManager::Base64Decode(const std::string& encoded_string)
 {
     std::vector<uint8_t> decoded_data;
-    long in_len = encoded_string.size();
+    size_t in_len = encoded_string.size();
     int i = 0;
     int j = 0;
     int in_ = 0;
