@@ -36,7 +36,8 @@ constexpr int32_t PARAM_COUNT_THR = 3;
 constexpr int32_t DECIMAL_BASE = 10;
 constexpr uint32_t CMD_INDEX = 1;
 constexpr uint32_t PARAM_INDEX = 2;
-constexpr uint32_t DELAY_DISCONN_INTERVAL = 1700;
+constexpr uint32_t DELAY_CONNECT_INTERVAL = 300;
+constexpr uint32_t DELAY_DISCONN_INTERVAL = 1400;
 const std::map<std::string_view, uint32_t> UsbDeviceManager::FUNCTION_MAPPING_N2C = {
     {UsbSrvSupport::FUNCTION_NAME_NONE, UsbSrvSupport::FUNCTION_NONE},
     {UsbSrvSupport::FUNCTION_NAME_ACM, UsbSrvSupport::FUNCTION_ACM},
@@ -55,6 +56,15 @@ UsbDeviceManager::UsbDeviceManager()
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::Get inteface failed");
     }
+    auto ret = delayDisconn_.Setup();
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "set up timer failed %{public}u", ret);
+    }
+}
+
+UsbDeviceManager::~UsbDeviceManager()
+{
+    delayDisconn_.Shutdown();
 }
 
 int32_t UsbDeviceManager::Init()
@@ -184,11 +194,14 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             USB_HILOGE(MODULE_USB_SERVICE, "invalid status %{public}d", status);
             return;
     }
-    timer_.stop();
+    delayDisconn_.Unregister(delayDisconnTimerId_);
     if (curConnect && (connected_ != curConnect)) {
-        connected_ = curConnect;
-        usbd_->GetCurrentFunctions(currentFunctions_);
-        ProcessFuncChange(connected_, currentFunctions_);
+        auto task = [&]() {
+            connected_ = true;
+            usbd_->GetCurrentFunctions(currentFunctions_);
+            ProcessFuncChange(connected_, currentFunctions_);
+        };
+        delayDisconnTimerId_ = delayDisconn_.Register(task, DELAY_CONNECT_INTERVAL, true);
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             connected_ = false;
@@ -203,9 +216,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             currentFunctions_ = static_cast<int32_t>(functions);
             return;
         };
-        timer_.setInterval(DELAY_DISCONN_INTERVAL);
-        timer_.setCallback(task);
-        timer_.start();
+        delayDisconnTimerId_ = delayDisconn_.Register(task, DELAY_DISCONN_INTERVAL, true);
     } else {
         USB_HILOGI(MODULE_USB_SERVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
     }

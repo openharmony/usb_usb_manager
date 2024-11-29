@@ -19,7 +19,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "usb_timer.h"
+#include "timer.h"
 
 #include "usb_common.h"
 #include "usb_function_switch_window.h"
@@ -35,6 +35,7 @@ namespace USB {
 class UsbDeviceManager {
 public:
     UsbDeviceManager();
+    ~UsbDeviceManager();
     int32_t Init();
     static bool IsSettableFunctions(int32_t funcs);
 
@@ -64,7 +65,8 @@ private:
     bool connected_ {false};
     bool gadgetConnected_ {false};
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
-    Timer timer_;
+    Utils::Timer delayDisconn_ {"delayDisconnTimer"};
+    uint32_t delayDisconnTimerId_ {UINT32_MAX};
 };
 } // namespace USB
 } // namespace OHOS
