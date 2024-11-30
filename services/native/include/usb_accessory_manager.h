@@ -42,6 +42,7 @@ enum ACCESSORYMODE : int32_t {
 class UsbAccessoryManager {
 public:
     UsbAccessoryManager();
+    ~UsbAccessoryManager();
     void HandleEvent(int32_t status, bool delayProcess = true);
     int32_t SetUsbd(const sptr<OHOS::HDI::Usb::V1_1::IUsbInterface> usbd);
     void GetAccessoryList(const std::string &bundleName, std::vector<USBAccessory> &accessoryList);
