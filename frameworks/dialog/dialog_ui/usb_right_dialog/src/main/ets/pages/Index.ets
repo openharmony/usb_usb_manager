@@ -21,6 +21,7 @@ import { BusinessError } from '@ohos.base';
 import window from '@ohos.window';
 import common from '@ohos.app.ability.common'
 import Want from '@ohos.app.ability.Want';
+import deviceInfo from '@ohos.deviceInfo';
 import { SelectDialog } from '../components/dialog';
 let TAG: string = 'UsbService';
 let USBSERVICESWITCH_ID_DEFAULT : number = -1;
@@ -34,6 +35,7 @@ struct IndexHapComponent {
   private currentChoice: number = 2;
   private content: string = ''
   private thisWant: string = ''
+  @State mtpTip: ResourceStr = $r('app.string.USB_func_mtp_tip');
   dialogControllerList: CustomDialogController = new CustomDialogController({
     builder: SelectDialog({
       title: $r('app.string.USB_hint'),
@@ -47,7 +49,7 @@ struct IndexHapComponent {
       radioContent: [
         {
           title: $r('app.string.USB_func_mtp'),
-          subTitle: $r('app.string.USB_func_mtp_tip'),
+          subTitle: this.mtpTip,
           action: () => {
             let tmpChooseNumber:number = USBSERVICESWITCH_ID_XFER_FILE;
             this.setUsbFunction(tmpChooseNumber);
@@ -81,6 +83,10 @@ struct IndexHapComponent {
   }
 
   async aboutToAppear() {
+    if (deviceInfo.deviceType !== 'default' && deviceInfo.deviceType !== 'phone') {
+      this.mtpTip = $r('app.string.USB_func_mtp_tip2', 'user');
+    }
+
     setTimeout(() => {
       this.dialogControllerList.open();
     });
