@@ -39,7 +39,7 @@ namespace OHOS {
 namespace USB {
 constexpr int32_t ACCESSORY_INFO_SIZE = 5;
 constexpr uint32_t ACCESSORY_EXTRA_INDEX = 5;
-constexpr int32_t FUN_ACCESSORY = 1 << 11;
+constexpr uint32_t FUN_ACCESSORY = 1 << 11;
 constexpr int32_t NUM_OF_SERAIL_BIT = 16;
 constexpr uint32_t DELAY_ACC_INTERVAL = 10 * 1000;
 constexpr uint32_t ANTI_SHAKE_INTERVAL = 1 * 1000;
@@ -140,6 +140,7 @@ int32_t UsbAccessoryManager::ProcessAccessoryStart(int32_t curFunc, int32_t curA
 {
     uint32_t curFuncUint = static_cast<uint32_t>(curFunc);
     if ((curFuncUint & FUN_ACCESSORY) != 0 && accStatus_ != ACC_START) {
+        curFunc = static_cast<int32_t>(curFuncUint);
         this->accStatus_ = ACC_START;
         std::vector<std::string> accessorys;
         usbdImpl_->GetAccessoryInfo(accessorys);
@@ -155,13 +156,13 @@ int32_t UsbAccessoryManager::ProcessAccessoryStart(int32_t curFunc, int32_t curA
             this->accessory.GetJsonString().c_str());
         return CommonEventManager::PublishCommonEvent(data, publishInfo);
     } else if ((curFuncUint & FUN_ACCESSORY) == 0 && curAccStatus == ACC_CONFIGURING) {
+        curFunc = static_cast<int32_t>(curFuncUint);
         int32_t ret = usbdImpl_->SetCurrentFunctions(FUN_ACCESSORY);
         if (ret != UEC_OK) {
             USB_HILOGE(MODULE_SERVICE, "curFunc %{public}d curAccStatus:%{public}u, set func ret: %{public}d",
                 curFuncUint, curAccStatus, ret);
             return ret;
         }
-        lastDeviceFunc_ = static_cast<uint32_t>(curFuncUint);
         auto task = [&]() {
             this->accStatus_ = ACC_STOP;
             int32_t ret = usbdImpl_ ->SetCurrentFunctions(this->lastDeviceFunc_);
@@ -345,7 +346,7 @@ std::string UsbAccessoryManager::SerialValueHash(const std::string&serialValue)
 void UsbAccessoryManager::InitBase64Map()
 {
     for (int i = 0; i < BASE64_CHARS.size(); ++i) {
-        base64Map_[BASE64_CHARS[i]] = i;
+        base64Map_[BASE64_CHARS[i]] = static_cast<int>(i);
     }
 }
 
