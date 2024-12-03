@@ -345,7 +345,7 @@ std::string UsbAccessoryManager::SerialValueHash(const std::string&serialValue)
 
 void UsbAccessoryManager::InitBase64Map()
 {
-    for (int i = 0; i < BASE64_CHARS.size(); ++i) {
+    for (size_t i = 0; i < BASE64_CHARS.size(); ++i) {
         base64Map_[BASE64_CHARS[i]] = static_cast<int>(i);
     }
 }
