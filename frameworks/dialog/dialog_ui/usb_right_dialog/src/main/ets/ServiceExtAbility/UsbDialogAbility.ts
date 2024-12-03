@@ -30,7 +30,6 @@ class UsbDialogStub extends rpc.RemoteObject {
 }
 
 const BG_COLOR = '#00000000';
-const ENTERPRISE_MANAGE_USB = 'ohos.permission.ENTERPRISE_MANAGE_USB';
 const ACCESS_TYPE_MASK = 0b11;
 const SHIFT_DIGIT = 27;
 const TOKEN_NATIVE = 1;
@@ -55,7 +54,7 @@ export default class UsbDialogAbility extends extension {
   onConnect(want): rpc.RemoteObject {
     console.log('onConnect want: ' + JSON.stringify(want));
     let callingTokenId: number = rpc.IPCSkeleton.getCallingTokenId();
-    if (!this.isSystemAbility(callingTokenId) && !this.checkPermission(callingTokenId, ENTERPRISE_MANAGE_USB)) {
+    if (!this.isSystemAbility(callingTokenId)) {
       console.error('check Permission fail');
       return new UsbDialogStub('UsbRightDialog');
     }
@@ -125,24 +124,6 @@ export default class UsbDialogAbility extends extension {
     let type: number = ACCESS_TYPE_MASK & (callingTokenId >> SHIFT_DIGIT);
     console.info('isSystemAbility, type:' + type);
     return type === TOKEN_NATIVE;
-  }
-
-  private checkPermission(tokenID: number, permissionName: Permissions): boolean {
-    let aac = abilityAccessCtrl.createAtManager();
-    if (!aac) {
-      console.error('createAtManager returned null');
-      return false;
-    }
-    try {
-      let grantStatus = aac.verifyAccessTokenSync(tokenID, permissionName);
-      if (grantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_DENIED) {
-        console.error(`verify ${permissionName} fail`);
-      }
-    } catch (error) {
-      console.error(`verify ${permissionName}, ${error}`);
-    }
-    console.info(`verify ${permissionName}, success`);
-    return true;
   }
 };
 
