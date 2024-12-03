@@ -365,7 +365,7 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
     }
     ret = usbd_->GetCurrentFunctions(currentFunction);
     if (ret != UEC_OK) {
-        dprintf(fd, "GetCurrentFunctions failed: %d\n", __LINE__);
+        dprintf(fd, "GetCurrentFunctions failed: %d\n", ret);
         return;
     }
 

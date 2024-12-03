@@ -347,7 +347,7 @@ bool UsbRightManager::ShowUsbDialog(
 
     sptr<UsbAbilityConn> usbAbilityConn_ = new (std::nothrow) UsbAbilityConn();
     if (usbAbilityConn_ == nullptr) {
-        USB_HILOGE(MODULE_SERVICE, "new (std::nothrow) UsbAbilityConn() failed");
+        USB_HILOGE(MODULE_SERVICE, "the UsbAbilityConn() construct failed");
         return false;
     }
     sem_init(&waitDialogDisappear_, 1, 0);
@@ -397,7 +397,7 @@ bool UsbRightManager::ShowUsbDialog(const USBAccessory &access, const std::strin
 
     sptr<UsbAbilityConn> usbAbilityConn_ = new (std::nothrow) UsbAbilityConn();
     if (usbAbilityConn_ == nullptr) {
-        USB_HILOGE(MODULE_SERVICE, "new (std::nothrow) UsbAbilityConn() failed");
+        USB_HILOGE(MODULE_SERVICE, "the UsbAbilityConn() construct failed");
         return false;
     }
     sem_init(&waitDialogDisappear_, 1, 0);
