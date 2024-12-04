@@ -30,9 +30,6 @@ class UsbDialogStub extends rpc.RemoteObject {
 }
 
 const BG_COLOR = '#00000000';
-const ACCESS_TYPE_MASK = 0b11;
-const SHIFT_DIGIT = 27;
-const TOKEN_NATIVE = 1;
 const COLOR_MODE_NOT_SET = -1;
 
 export default class UsbDialogAbility extends extension {
@@ -53,11 +50,6 @@ export default class UsbDialogAbility extends extension {
 
   onConnect(want): rpc.RemoteObject {
     console.log('onConnect want: ' + JSON.stringify(want));
-    let callingTokenId: number = rpc.IPCSkeleton.getCallingTokenId();
-    if (!this.isSystemAbility(callingTokenId)) {
-      console.error('check Permission fail');
-      return new UsbDialogStub('UsbRightDialog');
-    }
     if (!want.parameters.bundleName || !want.parameters.deviceName || !want.parameters.tokenId) {
       console.error('onConnect code:1 failed. bundleName|deviceName|tokenId');
       return new UsbDialogStub('UsbRightDialog');
@@ -118,12 +110,6 @@ export default class UsbDialogAbility extends extension {
     } catch {
       console.info('UsbDialogAbility window create failed');
     }
-  }
-
-  private isSystemAbility(callingTokenId: number): boolean {
-    let type: number = ACCESS_TYPE_MASK & (callingTokenId >> SHIFT_DIGIT);
-    console.info('isSystemAbility, type:' + type);
-    return type === TOKEN_NATIVE;
   }
 };
 
