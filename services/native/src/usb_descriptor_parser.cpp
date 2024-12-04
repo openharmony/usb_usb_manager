@@ -100,10 +100,7 @@ static int32_t AddInterface(std::vector<USBConfig> &configs, const UsbdInterface
         USB_HILOGE(MODULE_USB_SERVICE, "config descriptor not found");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    if (configs.back().GetInterfaces().empty()) {
-        USB_HILOGE(MODULE_USB_SERVICE, "interface list is empty for the last USBConfig");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
+
     UsbInterface interface;
     interface.SetId(interfaceDescriptor->bInterfaceNumber);
     interface.SetProtocol(interfaceDescriptor->bInterfaceProtocol);
