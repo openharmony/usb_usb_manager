@@ -1046,6 +1046,9 @@ static auto g_setCurrentFunctionComplete = [](napi_env env, napi_status status, 
     } else if (asyncContext->errCode == UEC_SERVICE_PERMISSION_CHECK_HDC) {
         asyncContext->status = napi_generic_failure;
         queryResult = CreateBusinessError((env), UEC_COMMON_HDC_NOT_ALLOWED, "");
+    } else if (asyncContext->errCode == UEC_SERVICE_FUNCTION_NOT_SUPPORT) {
+        asyncContext->status = napi_generic_failure;
+        queryResult = CreateBusinessError((env), UEC_COMMON_FUNCTION_NOT_SUPPORT, "");
     } else {
         asyncContext->status = napi_generic_failure;
         napi_get_boolean(env, false, &queryResult);
