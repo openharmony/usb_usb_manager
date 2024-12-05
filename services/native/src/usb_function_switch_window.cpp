@@ -75,7 +75,8 @@ int32_t UsbFunctionSwitchWindow::Init()
     auto task = [this]() {
         CheckDialogInstallStatus();
         checkDialogTimer_.Unregister(checkDialogTimerId_);
-        checkDialogTimer_.Shutdown();
+        checkDialogTimer_.Shutdown(false);
+        USB_HILOGI(MODULE_USB_SERVICE, "dialog check end");
     };
     auto ret = checkDialogTimer_.Setup();
     if (ret != UEC_OK) {
