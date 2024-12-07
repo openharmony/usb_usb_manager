@@ -38,6 +38,7 @@
         "icon": "$media:icon",
         "label": "$string:UsbDialogAbility_label",
         "visible": true,
+        "exported": false,
         "type": "service"
       },
       {
