@@ -587,6 +587,9 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
     ret = usbd_->SetCurrentFunctions(functions);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ set function error");
+        if (ret == HDF_ERR_NOT_SUPPORT) {
+            return UEC_SERVICE_FUNCTION_NOT_SUPPORT;
+        }
         return ret;
     }
     usbDeviceManager_->UpdateFunctions(functions);
