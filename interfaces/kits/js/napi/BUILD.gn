@@ -64,8 +64,8 @@ ohos_shared_library("usbmanager") {
     "bounds_checking_function:libsec_shared",
     "drivers_interface_usb:usb_idl_headers_1.1",
     "hilog:libhilog",
-    "napi:ace_napi",
     "ipc:ipc_single",
+    "napi:ace_napi",
   ]
 
   relative_install_dir = "module"
