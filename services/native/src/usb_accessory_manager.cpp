@@ -39,21 +39,20 @@ namespace OHOS {
 namespace USB {
 constexpr int32_t ACCESSORY_INFO_SIZE = 5;
 constexpr uint32_t ACCESSORY_EXTRA_INDEX = 5;
-constexpr uint32_t FUN_ACCESSORY = 1 << 11;
+constexpr int32_t FUN_ACCESSORY = 1 << 11;
 constexpr int32_t NUM_OF_SERAIL_BIT = 16;
 constexpr uint32_t DELAY_ACC_INTERVAL = 10 * 1000;
 constexpr uint32_t ANTI_SHAKE_INTERVAL = 1 * 1000;
 constexpr int32_t ACCESSORY_IS_BUSY = -16;
-constexpr int32_t BASE64_CHAR_INDEX0 = 0;
-constexpr int32_t BASE64_CHAR_INDEX1 = 1;
-constexpr int32_t BASE64_CHAR_INDEX2 = 2;
-constexpr int32_t BASE64_CHAR_INDEX3 = 3;
-constexpr int32_t BASE64_CHAR_INDEX4 = 4;
-constexpr int32_t BASE64_CHAR_INDEX6 = 6;
-constexpr uint8_t BASE64_CHAR_MASK30 = 0x30;
-constexpr uint8_t BASE64_CHAR_MASKF  = 0xf;
-constexpr uint8_t BASE64_CHAR_MASK3C = 0x3c;
-const std::string BASE64_CHARS =
+const int INDEX_FIRST = 0;
+const int INDEX_SECOND = 1;
+const int INDEX_THIRD = 2;
+const int INDEX_FORTH = 3;
+const int INDEX_FIFTH = 4;
+const uint32_t OFFSET2 = 2;
+const uint32_t OFFSET4 = 4;
+const uint32_t OFFSET6 = 6;
+const std::string BASE_64_CHARS =
              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
              "abcdefghijklmnopqrstuvwxyz"
              "0123456789+/";
@@ -163,6 +162,7 @@ int32_t UsbAccessoryManager::ProcessAccessoryStart(int32_t curFunc, int32_t curA
                 curFuncUint, curAccStatus, ret);
             return ret;
         }
+        lastDeviceFunc_ = static_cast<uint32_t>(curFuncUint);
         auto task = [&]() {
             this->accStatus_ = ACC_STOP;
             int32_t ret = usbdImpl_ ->SetCurrentFunctions(this->lastDeviceFunc_);
@@ -345,59 +345,68 @@ std::string UsbAccessoryManager::SerialValueHash(const std::string&serialValue)
 
 void UsbAccessoryManager::InitBase64Map()
 {
-    for (size_t i = 0; i < BASE64_CHARS.size(); ++i) {
-        base64Map_[BASE64_CHARS[i]] = static_cast<int>(i);
+    for (size_t i = 0; i < BASE_64_CHARS.size(); ++i) {
+        base64Map_[BASE_64_CHARS[i]] = static_cast<int>(i);
     }
 }
 
-std::vector<uint8_t> UsbAccessoryManager::Base64Decode(const std::string& encoded_string)
+bool IsBase64(unsigned char c)
 {
-    std::vector<uint8_t> decoded_data;
-    size_t in_len = encoded_string.size();
-    int i = 0;
-    int j = 0;
-    int in_ = 0;
-    uint8_t char_array_4[BASE64_CHAR_INDEX4];
-    uint8_t char_array_3[BASE64_CHAR_INDEX3];
-    while (in_len-- && (encoded_string[in_] != '=') && base64Map_.find(encoded_string[in_]) != base64Map_.end()) {
-        char_array_4[i++] = encoded_string[in_];
-        in_++;
-        if (i == BASE64_CHAR_INDEX4) {
-            for (i = 0; i < BASE64_CHAR_INDEX4; i++)
-                char_array_4[i] = base64Map_[char_array_4[i]];
-            char_array_3[BASE64_CHAR_INDEX0] = (char_array_4[BASE64_CHAR_INDEX0] << BASE64_CHAR_INDEX2) +
-                ((char_array_4[BASE64_CHAR_INDEX1] & BASE64_CHAR_MASK30) >> BASE64_CHAR_INDEX4);
-            char_array_3[BASE64_CHAR_INDEX1] = ((char_array_4[BASE64_CHAR_INDEX1] & BASE64_CHAR_MASKF) <<
-                BASE64_CHAR_INDEX4) + ((char_array_4[BASE64_CHAR_INDEX2] & BASE64_CHAR_MASK3C) >> BASE64_CHAR_INDEX2);
-            char_array_3[BASE64_CHAR_INDEX2] = ((char_array_4[BASE64_CHAR_INDEX2] & BASE64_CHAR_INDEX3) <<
-                BASE64_CHAR_INDEX6) + char_array_4[BASE64_CHAR_INDEX3];
+    return (isalnum(c) || (c == '+') || (c == '/'));
+}
 
-            for (i = 0; (i < BASE64_CHAR_INDEX3); i++) {
-                decoded_data.push_back(char_array_3[i]);
+std::vector<uint8_t> UsbAccessoryManager::Base64Decode(const std::string& basicString)
+{
+    std::string decoded_data;
+    uint32_t i = 0;
+    int index = 0;
+    int len = static_cast<int>(basicString.size());
+    unsigned char charArray3[INDEX_FORTH];
+    unsigned char charArray4[INDEX_FIFTH];
+
+    while (len-- && (basicString[index] != '=') && IsBase64(basicString[index])) {
+        charArray4[i++] = basicString[index];
+        index++;
+        if (i == sizeof(charArray4)) {
+            for (i = 0; i < sizeof(charArray4); i++) {
+                charArray4[i] = BASE_64_CHARS.find(charArray4[i]);
             }
-            i = BASE64_CHAR_INDEX0;
+            charArray3[INDEX_FIRST] = (charArray4[INDEX_FIRST] << OFFSET2) +
+                ((charArray4[INDEX_SECOND] & 0x30) >> OFFSET4);
+            charArray3[INDEX_SECOND] = ((charArray4[INDEX_SECOND] & 0xf) << OFFSET4) +
+                ((charArray4[INDEX_THIRD] & 0x3c) >> OFFSET2);
+            charArray3[INDEX_THIRD] = ((charArray4[INDEX_THIRD] & 0x3) << OFFSET6) + charArray4[INDEX_FORTH];
+            for (i = 0; i < sizeof(charArray3); i++) {
+                decoded_data += charArray3[i];
+            }
+            i = 0;
         }
     }
 
     if (i) {
-        for (j = i; j < BASE64_CHAR_INDEX4; j++)
-            char_array_4[j] = BASE64_CHAR_INDEX0;
-
-        for (j = 0; j < BASE64_CHAR_INDEX4; j++)
-            char_array_4[j] = base64Map_[char_array_4[j]];
-
-        char_array_3[BASE64_CHAR_INDEX0] = (char_array_4[BASE64_CHAR_INDEX0] << BASE64_CHAR_INDEX2) +
-            ((char_array_4[BASE64_CHAR_INDEX1] & BASE64_CHAR_MASK30) >> BASE64_CHAR_INDEX4);
-        char_array_3[BASE64_CHAR_INDEX1] = ((char_array_4[BASE64_CHAR_INDEX1] & BASE64_CHAR_MASKF) <<
-            BASE64_CHAR_INDEX4) + ((char_array_4[BASE64_CHAR_INDEX2] & BASE64_CHAR_MASK3C) >> BASE64_CHAR_INDEX2);
-        char_array_3[BASE64_CHAR_INDEX2] = ((char_array_4[BASE64_CHAR_INDEX2] & BASE64_CHAR_INDEX3) <<
-            BASE64_CHAR_INDEX6) + char_array_4[BASE64_CHAR_INDEX3];
-
-        for (j = 0; (j < i - 1); j++) {
-            decoded_data.push_back(char_array_3[j]);
+        uint32_t j = 0;
+        for (j = i; j < sizeof(charArray4); j++) {
+            charArray4[j] = 0;
+        }
+        for (j = 0; j < sizeof(charArray4); j++) {
+            charArray4[j] = BASE_64_CHARS.find(charArray4[j]);
+        }
+        charArray3[INDEX_FIRST] = (charArray4[INDEX_FIRST] << OFFSET2) +
+            ((charArray4[INDEX_SECOND] & 0x30) >> OFFSET4);
+        charArray3[INDEX_SECOND] = ((charArray4[INDEX_SECOND] & 0xf) << OFFSET4) +
+            ((charArray4[INDEX_THIRD] & 0x3c) >> OFFSET2);
+        charArray3[INDEX_THIRD] = ((charArray4[INDEX_THIRD] & 0x3) << OFFSET6) + charArray4[INDEX_FORTH];
+        for (j = 0; j < i - 1; j++) {
+            decoded_data += charArray3[j];
         }
     }
-    return decoded_data;
+
+    std::vector<uint8_t> ret;
+    for (char c : decoded_data) {
+        ret.push_back(static_cast<uint8_t>(c));
+    }
+
+    return ret;
 }
 
 bool UsbAccessoryManager::compare(const std::string &s1, const std::string &s2)
