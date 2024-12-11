@@ -36,9 +36,9 @@ public:
     int32_t GetDevices(std::vector<UsbDevice> &deviceList) override;
     int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) override;
     int32_t ResetDevice(uint8_t busNum, uint8_t devAddr) override;
-    bool HasRight(std::string deviceName) override;
-    int32_t RequestRight(std::string deviceName) override;
-    int32_t RemoveRight(std::string deviceName) override;
+    bool HasRight(const std::string deviceName) override;
+    int32_t RequestRight(const std::string deviceName) override;
+    int32_t RemoveRight(const std::string deviceName) override;
     int32_t GetCurrentFunctions(int32_t &funcs) override;
     int32_t SetCurrentFunctions(int32_t funcs) override;
     int32_t UsbFunctionsFromString(std::string_view funcs) override;

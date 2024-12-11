@@ -69,9 +69,9 @@ public:
     int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) override;
     int32_t ResetDevice(uint8_t busNum, uint8_t devAddr) override;
     bool CheckDevicePermission(uint8_t busNum, uint8_t devAddr);
-    bool HasRight(std::string deviceName) override;
-    int32_t RequestRight(std::string deviceName) override;
-    int32_t RemoveRight(std::string deviceName) override;
+    bool HasRight(const std::string deviceName) override;
+    int32_t RequestRight(const std::string deviceName) override;
+    int32_t RemoveRight(const std::string deviceName) override;
     int32_t GetDevices(std::vector<UsbDevice> &deviceList) override;
     int32_t GetCurrentFunctions(int32_t &funcs) override;
     int32_t SetCurrentFunctions(int32_t funcs) override;
@@ -199,6 +199,7 @@ private:
     std::mutex mutex_;
     std::mutex hdiCbMutex_;
     std::mutex functionMutex_;
+    std::mutex transferMutex_;
     std::shared_ptr<UsbHostManager> usbHostManager_;
     std::shared_ptr<UsbRightManager> usbRightManager_;
     std::shared_ptr<UsbPortManager> usbPortManager_;
