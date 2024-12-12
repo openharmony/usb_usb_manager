@@ -81,27 +81,33 @@
             "name":"USB_func_mtp",
             "value":"Transfer files",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp",
             "value":"Transfer images",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
-          "name": "USB_func_mtp_tip",
-          "value": "Only transfer file in 'File Manager'"
+            "name":"USB_func_mtp_tip",
+            "value":"For items under \"My phone\" in Files.",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
-          "name": "USB_func_ptp_tip",
-          "value": "Only transfer images and videos in 'Gallery'"
+            "name":"USB_func_ptp_tip",
+            "value":"For images and videos in Gallery.",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
-          "name": "USB_func_mtp_tip2",
-          "value": "For items under \"%s\" in Files."
+            "name":"USB_func_mtp_tip2",
+            "value":"For items under \"%s\" in Files."
         }
     ]
 }

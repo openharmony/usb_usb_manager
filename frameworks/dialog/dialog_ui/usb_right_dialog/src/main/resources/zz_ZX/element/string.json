@@ -63,6 +63,18 @@
         {
             "name":"USB_func_ptp",
             "value":"[TS_948509]_Transfer images"
+        },
+        {
+            "name":"USB_func_ptp_tip",
+            "value":"[TS_1000798]_For images and videos in Gallery."
+        },
+        {
+            "name":"USB_func_mtp_tip2",
+            "value":"[TS_1003330]_For items under \"%s\" in Files."
+        },
+        {
+            "name":"USB_func_mtp_tip",
+            "value":"[TS_1000797]_For items under \"My phone\" in Files."
         }
     ]
 }
