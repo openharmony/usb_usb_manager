@@ -53,14 +53,35 @@
             "name":"USB_func_mtp",
             "value":"ھۆججەت يوللاش",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp",
             "value":"رەسىم يوللاش",
             "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_ptp_tip",
+            "value":"پەقەت ئامباردىكى رەسىم ۋە سىنلار كۆرۈنىدۇ.",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip2",
+            "value":"پەقەت ھۆججەت باشقۇرغۇچنىڭ «%s» قىسقۇچىدىكى مەزمۇنلار كۆرۈنىدۇ.",
+            "attr":{
                 "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip",
+            "value":"پەقەت ھۆججەت باشقۇرغۇچنىڭ «يانفونۇم» قىسقۇچىدىكى مەزمۇنلار كۆرۈنىدۇ.",
+            "attr":{
+                "priority":"LT"
             }
         }
     ]

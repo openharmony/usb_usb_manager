@@ -53,14 +53,35 @@
             "name":"USB_func_mtp",
             "value":"傳輸檔案",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp",
             "value":"傳輸圖片",
             "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_ptp_tip",
+            "value":"只顯示圖片庫中的圖片和影片",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip2",
+            "value":"只顯示檔案管理員中「%s」的內容",
+            "attr":{
                 "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip",
+            "value":"只顯示檔案管理員中「我的手機」的內容",
+            "attr":{
+                "priority":"LT"
             }
         }
     ]
