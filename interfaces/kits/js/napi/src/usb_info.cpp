@@ -22,7 +22,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <napi.h>
 
 #include "hilog_wrapper.h"
 #include "napi/native_api.h"
@@ -272,12 +271,6 @@ static bool ParsePipeControlParam(const napi_env env, const napi_value jsObj, Pi
     USB_ASSERT_RETURN_FALSE(
         env, hasProperty == true, OHEC_COMMON_PARAM_ERROR, "The controlParam should have the data property.");
 
-    napi_valuetype type;
-    Napi::GetApiVersion(env);
-    Napi::InstanceType instanceType;
-    if (Napi::InstanceType::kArrayBuffer != (instanceType = Napi::InstanceType(dataValue))) {
-        throw std::runtime_error("The 'data' property should be a Uint8Array.");
-    }
     uint8_t *data = nullptr;
     size_t dataLength = 0;
     size_t offset = 0;
