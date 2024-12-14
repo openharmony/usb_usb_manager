@@ -22,6 +22,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <napi.h>
 
 #include "hilog_wrapper.h"
 #include "napi/native_api.h"
