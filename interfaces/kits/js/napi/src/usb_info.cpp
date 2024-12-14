@@ -484,13 +484,12 @@ static napi_value CoreGetDevices(napi_env env, napi_callback_info info)
     std::vector<UsbDevice> deviceList;
     int32_t ret = g_usbClient.GetDevices(deviceList);
     napi_value result;
+    napi_create_array(env, &result);
     if (ret != UEC_OK) {
-        napi_get_undefined(env, &result);
         USB_HILOGE(MODULE_JS_NAPI, "end call get device failed ret : %{public}d", ret);
         return result;
     }
 
-    napi_create_array(env, &result);
     int32_t i = 0;
     for (const auto &ent1 : deviceList) {
         napi_value element;
