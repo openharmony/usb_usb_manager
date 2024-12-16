@@ -405,7 +405,7 @@ bool UsbService::CheckDevicePermission(uint8_t busNum, uint8_t devAddr)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
-bool UsbService::HasRight(std::string deviceName)
+bool UsbService::HasRight(const std::string deviceName)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbRightManager HasRight");
     if (usbRightManager_ == nullptr) {
@@ -442,7 +442,7 @@ bool UsbService::HasRight(std::string deviceName)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
-int32_t UsbService::RequestRight(std::string deviceName)
+int32_t UsbService::RequestRight(const std::string deviceName)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbRightManager RequestRight");
     if (usbRightManager_ == nullptr) {
@@ -473,7 +473,7 @@ int32_t UsbService::RequestRight(std::string deviceName)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
-int32_t UsbService::RemoveRight(std::string deviceName)
+int32_t UsbService::RemoveRight(const std::string deviceName)
 {
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
@@ -804,7 +804,6 @@ int32_t UsbService::BulkTransferReadwithLength(const UsbDev &devInfo, const UsbP
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-
     int32_t ret = usbd_->BulkTransferReadwithLength(devInfo, pipe, timeOut, length, bufferData);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkTransferRead error ret:%{public}d", ret);
@@ -838,13 +837,13 @@ int32_t UsbService::ControlTransfer(const UsbDev &dev, const UsbCtrlTransfer &ct
     if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
-    std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
 
     int32_t ret = UEC_SERVICE_INNER_ERR;
+    std::lock_guard<std::mutex> guard(transferMutex_);
     if (((uint32_t)ctrl.requestType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
         ret = usbd_->ControlTransferWrite(dev, ctrl, bufferData);
         if (ret != UEC_OK) {
@@ -869,15 +868,15 @@ int32_t UsbService::UsbControlTransfer(
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
-    std::lock_guard<std::mutex> guard(mutex_);
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-
     int32_t ret = UEC_SERVICE_INNER_ERR;
     UsbCtrlTransfer ctrl = {
         ctrlParams.requestType, ctrlParams.requestCmd, ctrlParams.value, ctrlParams.index, ctrlParams.timeout};
+
+    std::lock_guard<std::mutex> guard(transferMutex_);
     if (((uint32_t)ctrlParams.requestType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
         ret = usbd_->ControlTransferWrite(dev, ctrl, bufferData);
         if (ret != UEC_OK) {
@@ -1259,12 +1258,12 @@ int32_t UsbService::GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGloba
     data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
     uint32_t funcCode = (1 << EMD_MASK_CODE) | DISABLE_USB;
-    int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
+    int32_t sendRet = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
     bool isSuccess = reply.ReadInt32(ret) && (ret == UEC_OK);
-    if (!isSuccess) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetGlobalPolicy failed. ErrCode =  %{public}d, ret = %{public}d",
-            ErrCode, ret);
+    if (!isSuccess || (sendRet != UEC_OK)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetGlobalPolicy failed. sendRet =  %{public}d, ret = %{public}d",
+            sendRet, ret);
         return UEC_SERVICE_EDM_SEND_REQUEST_FAILED;
     }
 
@@ -1289,12 +1288,12 @@ int32_t UsbService::GetEdmStroageTypePolicy(sptr<IRemoteObject> remote, std::vec
     data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
     uint32_t funcCode = (1 << EMD_MASK_CODE) | USB_STORAGE_DEVICE_ACCESS_POLICY;
-    int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
+    int32_t sendRet = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
     bool isSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!isSuccess) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmStroageTypePolicy failed. ErrCode =  %{public}d, ret = %{public}d",
-            ErrCode, ret);
+    if (!isSuccess || (sendRet != UEC_OK)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmStroageTypePolicy failed. sendRet =  %{public}d, ret = %{public}d",
+            sendRet, ret);
         return UEC_SERVICE_EDM_SEND_REQUEST_FAILED;
     }
 
@@ -1324,12 +1323,12 @@ int32_t UsbService::GetEdmTypePolicy(sptr<IRemoteObject> remote, std::vector<Usb
     data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
     uint32_t funcCode = (1 << EMD_MASK_CODE) | USB_DEVICE_ACCESS_POLICY;
-    int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
+    int32_t sendRet = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
     bool isSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!isSuccess) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmTypePolicy failed. ErrCode =  %{public}d, ret = %{public}d",
-            ErrCode, ret);
+    if (!isSuccess || (sendRet != UEC_OK)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmTypePolicy failed. sendRet =  %{public}d, ret = %{public}d",
+            sendRet, ret);
         return UEC_SERVICE_EDM_SEND_REQUEST_FAILED;
     }
 
@@ -1366,12 +1365,12 @@ int32_t UsbService::GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::vecto
     data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
     uint32_t funcCode = (1 << EMD_MASK_CODE) | ALLOWED_USB_DEVICES;
-    int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
+    int32_t sendRet = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
     bool IsSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!IsSuccess) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmWhiteListPolicy failed. ErrCode =  %{public}d, ret = %{public}d",
-            ErrCode, ret);
+    if (!IsSuccess || (sendRet != UEC_OK)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmWhiteListPolicy failed. sendRet =  %{public}d, ret = %{public}d",
+            sendRet, ret);
         return UEC_SERVICE_EDM_SEND_REQUEST_FAILED;
     }
 
@@ -1495,7 +1494,7 @@ void UsbService::ExecuteManageDeviceType(const std::vector<UsbDeviceType> &disab
         bool isMatch = false;
         for (auto& [interfaceTypeValues, typeValues] : map) {
             if ((typeValues[0] == dev.baseClass) &&
-                (typeValues[1] == -1 || typeValues[1] == dev.subClass)&&
+                (typeValues[1] == -1 || typeValues[1] == dev.subClass) &&
                 (typeValues[HALF] == -1 || typeValues[HALF] == dev.protocol)) {
                     isMatch = true;
                     interfaceTypes.emplace_back(interfaceTypeValues);
@@ -1621,6 +1620,10 @@ void UsbService::ExecuteStrategy(UsbDevice *devInfo)
 // LCOV_EXCL_START
 bool UsbService::AddDevice(uint8_t busNum, uint8_t devAddr)
 {
+    if (usbHostManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbHostManager_");
+        return false;
+    }
     UsbDevice *devInfo = new (std::nothrow) UsbDevice();
     if (devInfo == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "new failed");
@@ -1641,11 +1644,6 @@ bool UsbService::AddDevice(uint8_t busNum, uint8_t devAddr)
     {
         std::lock_guard<std::mutex> guard(mutex_);
         deviceVidPidMap_.insert(std::pair<std::string, std::string>(name, uniqueName));
-    }
-
-    if (usbHostManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbHostManager_");
-        return false;
     }
 
     usbHostManager_->AddDevice(devInfo);
@@ -2190,18 +2188,19 @@ int32_t UsbService::ManageGlobalInterfaceImpl(bool disable)
     for (auto it = devices.begin(); it != devices.end(); ++it) {
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         uint8_t configIndex = 0;
-        int32_t ret = usbd_->OpenDevice(dev);
-        if (ret != UEC_OK) {
-            USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl open fail ret = %{public}d", ret);
-            return ret;
+        if (usbd_->OpenDevice(dev) != UEC_OK) {
+            USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl OpenDevice failed");
+            continue;
         }
-        if (usbd_->GetConfig(dev, configIndex)) {
+        if (usbd_->GetConfig(dev, configIndex) || (configIndex < 1)) {
             USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
+            usbd_->CloseDevice(dev);
             continue;
         }
         USBConfig configs;
         if (it->second->GetConfig(static_cast<uint8_t>(configIndex) - 1, configs)) {
             USB_HILOGW(MODULE_USB_SERVICE, "get device config info failed.");
+            usbd_->CloseDevice(dev);
             continue;
         }
 
@@ -2210,10 +2209,8 @@ int32_t UsbService::ManageGlobalInterfaceImpl(bool disable)
             ManageInterface(dev, interfaces[i].GetId(), disable);
             std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
         }
-        ret = usbd_->CloseDevice(dev);
-        if (ret != UEC_OK) {
-            USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl Close fail ret = %{public}d", ret);
-            return ret;
+        if (usbd_->CloseDevice(dev) != UEC_OK) {
+            USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl CloseDevice fail");
         }
     }
     return UEC_OK;
@@ -2234,18 +2231,19 @@ int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool d
         if ((it->second->GetVendorId() == vendorId) && (it->second->GetProductId() == productId)) {
             UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
             uint8_t configIndex = 0;
-            int32_t ret = usbd_->OpenDevice(dev);
-            if (ret != UEC_OK) {
-                USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceImpl open fail ret = %{public}d", ret);
-                return ret;
+            if (usbd_->OpenDevice(dev) != UEC_OK) {
+                USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceImpl open fail");
+                continue;
             }
-            if (usbd_->GetConfig(dev, configIndex)) {
+            if (usbd_->GetConfig(dev, configIndex) || (configIndex < 1)) {
                 USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
+                usbd_->CloseDevice(dev);
                 continue;
             }
             USBConfig configs;
             if (it->second->GetConfig(static_cast<uint8_t>(configIndex) - 1, configs)) {
                 USB_HILOGW(MODULE_USB_SERVICE, "get device config info failed.");
+                usbd_->CloseDevice(dev);
                 continue;
             }
             std::vector<UsbInterface> interfaces = configs.GetInterfaces();
@@ -2253,10 +2251,8 @@ int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool d
                 ManageInterface(dev, interfaces[i].GetId(), disable);
                 std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
             }
-            ret = usbd_->CloseDevice(dev);
-            if (ret != UEC_OK) {
-                USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceImpl Close fail ret = %{public}d", ret);
-                return ret;
+            if (usbd_->CloseDevice(dev) != UEC_OK) {
+                USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceImpl Close fail");
             }
         }
     }
@@ -2280,7 +2276,7 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
     for (auto it = devices.begin(); it != devices.end(); ++it) {
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         uint8_t configIndex = 0;
-        if (usbd_->GetConfig(dev, configIndex)) {
+        if (usbd_->GetConfig(dev, configIndex) || (configIndex < 1)) {
             USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
             continue;
         }
