@@ -28,6 +28,7 @@ const COLOR_MODE_NOT_SET = -1;
 export default class UsbFunctionSwitchAbility extends UIExtensionAbility {
   onSessionCreate(want, session): void {
     console.log(TAG + 'UsbFunctionSwitchAbility onSessionCreate');
+    globalThis.want = want;
     let callingTokenId: number = rpc.IPCSkeleton.getCallingTokenId();
     if (!this.isSystemAbility(callingTokenId)) {
       console.error('check permission fail');

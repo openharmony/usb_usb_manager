@@ -22,7 +22,7 @@ import window from '@ohos.window';
 import common from '@ohos.app.ability.common'
 import Want from '@ohos.app.ability.Want';
 import deviceInfo from '@ohos.deviceInfo';
-import { SelectDialog } from '../components/dialog';
+import { SelectDialog, SheetInfoEx } from '../components/dialog';
 let TAG: string = 'UsbService';
 let USBSERVICESWITCH_ID_DEFAULT : number = -1;
 let USBSERVICESWITCH_ID_CHARGE_ONLY : number = -1;
@@ -32,10 +32,35 @@ let USBSERVICESWITCH_ID_XFER_PIC : number = 16;
 @Entry
 @Component
 struct IndexHapComponent {
-  private currentChoice: number = 2;
+  private currentChoice: number = 0;
   private content: string = ''
   private thisWant: string = ''
   @State mtpTip: ResourceStr = $r('app.string.USB_func_mtp_tip');
+  @State radioContent: SheetInfoEx[] = [];
+  private radioMtp: SheetInfoEx = {
+    title: $r('app.string.USB_func_mtp'),
+    subTitle: this.mtpTip,
+    action: () => {
+      let tmpChooseNumber: number = USBSERVICESWITCH_ID_XFER_FILE;
+      this.setUsbFunction(tmpChooseNumber);
+    }
+  };
+  private radioPtp: SheetInfoEx = {
+    title: $r('app.string.USB_func_ptp'),
+    subTitle: $r('app.string.USB_func_ptp_tip'),
+    action: () => {
+      let tmpChooseNumber: number = USBSERVICESWITCH_ID_XFER_PIC;
+      this.setUsbFunction(tmpChooseNumber);
+    }
+  };
+  private radioCharge: SheetInfoEx = {
+    title: $r('app.string.USB_func_charge'),
+    action: () => {
+      let tmpChooseNumber: number = USBSERVICESWITCH_ID_CHARGE_ONLY;
+      this.setUsbFunction(tmpChooseNumber);
+    }
+  };
+
   dialogControllerList: CustomDialogController = new CustomDialogController({
     builder: SelectDialog({
       title: $r('app.string.USB_hint'),
@@ -46,31 +71,7 @@ struct IndexHapComponent {
           terminateDialog();
         },
       },
-      radioContent: [
-        {
-          title: $r('app.string.USB_func_mtp'),
-          subTitle: this.mtpTip,
-          action: () => {
-            let tmpChooseNumber:number = USBSERVICESWITCH_ID_XFER_FILE;
-            this.setUsbFunction(tmpChooseNumber);
-          }
-        },
-        {
-          title: $r('app.string.USB_func_ptp'),
-          subTitle: $r('app.string.USB_func_ptp_tip'),
-          action: () => {
-            let tmpChooseNumber:number = USBSERVICESWITCH_ID_XFER_PIC;
-            this.setUsbFunction(tmpChooseNumber);
-          }
-        },
-        {
-          title: $r('app.string.USB_func_charge'),
-          action: () => {
-            let tmpChooseNumber:number = USBSERVICESWITCH_ID_CHARGE_ONLY;
-            this.setUsbFunction(tmpChooseNumber);
-          }
-        },
-      ]
+      radioContent: this.radioContent,
     }),
     alignment: DialogAlignment.Center,
     autoCancel: true,
@@ -86,6 +87,23 @@ struct IndexHapComponent {
     if (deviceInfo.deviceType === 'tablet') {
       this.mtpTip = $r('app.string.USB_func_mtp_tip2', $r('app.string.USB_my_tablet'));
     }
+
+    let supportedFuncs: number = 0;
+    let tmpFuncs = Number.parseInt(globalThis.want?.parameters?.['supportedFuncs']);
+    if (Number.isInteger(tmpFuncs) && tmpFuncs >= 0) {
+      supportedFuncs = tmpFuncs;
+    }
+
+    this.currentChoice = 0;
+    if (supportedFuncs & USBSERVICESWITCH_ID_XFER_FILE) {
+      this.currentChoice += 1;
+      this.radioContent.push(this.radioMtp);
+    }
+    if (supportedFuncs & USBSERVICESWITCH_ID_XFER_PIC) {
+      this.currentChoice += 1;
+      this.radioContent.push(this.radioPtp);
+    }
+    this.radioContent.push(this.radioCharge);
 
     setTimeout(() => {
       this.dialogControllerList.open();
