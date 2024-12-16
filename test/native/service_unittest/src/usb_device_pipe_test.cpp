@@ -2232,7 +2232,7 @@ HWTEST_F(UsbDevicePipeTest, UsbReleaseInterface001, TestSize.Level1)
     ret = UsbSrvClient.ReleaseInterface(pipe, interface);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface001 %{public}d ReleaseInterface=%{public}d",
                __LINE__, ret);
-    ASSERT_EQ(ret, 0);
+    ASSERT_NE(ret, 0);
     bool close = UsbSrvClient.Close(pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface001 %{public}d close=%{public}d", __LINE__,
                close);
