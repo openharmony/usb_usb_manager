@@ -83,8 +83,8 @@ struct IndexHapComponent {
   }
 
   async aboutToAppear() {
-    if (deviceInfo.deviceType !== 'default' && deviceInfo.deviceType !== 'phone') {
-      this.mtpTip = $r('app.string.USB_func_mtp_tip2', 'user');
+    if (deviceInfo.deviceType === 'tablet') {
+      this.mtpTip = $r('app.string.USB_func_mtp_tip2', $r('app.string.USB_my_tablet'));
     }
 
     setTimeout(() => {
