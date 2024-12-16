@@ -2902,6 +2902,60 @@ HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer010, TestSize.Level1)
 }
 
 /**
+ * @tc.name: UsbBulkTransfer011
+ * @tc.desc: Test functions to BulkTransfer(const USBEndpoint &endpoint, uint8_t *buffer, uint32_t &length, int32_t
+ * timeout);
+ * @tc.type: FUNC
+ */
+HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer011, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbBulkTransfer011 : BulkTransfer");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    ASSERT_EQ(ret, 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer011 %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer011 %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer011 %{public}d OpenDevice=%{public}d", __LINE__,
+               ret);
+    ASSERT_EQ(ret, 0);
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer011 %{public}d OpenDevice again=%{public}d",
+    __LINE__, ret);
+    ASSERT_EQ(ret, 0);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
+    USBEndpoint point = interface.GetEndpoints().front();
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer011 %{public}d point=%{public}d", __LINE__,
+               point.GetInterfaceId());
+    ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer011 %{public}d ClaimInterface=%{public}d",
+               __LINE__, ret);
+    ASSERT_EQ(ret, 0);
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer011 %{public}d close=%{public}d", __LINE__,
+               close);
+    EXPECT_TRUE(close);
+    uint8_t buffer[BUFFER_SIZE] = "bulk read";
+    uint32_t len = BUFFER_SIZE;
+    std::vector<uint8_t> bulkbuffer = {buffer, buffer + len};
+    ret = UsbSrvClient.BulkTransfer(pipe, point, bulkbuffer, 500);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer011 %{public}d BulkTransfer=%{public}d", __LINE__,
+               ret);
+    ASSERT_EQ(ret, 0);
+    close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer011 %{public}d close=%{public}d", __LINE__,
+               close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbBulkTransfer011 : BulkTransfer");
+}
+
+/**
  * @tc.name: SetConfiguration001
  * @tc.desc: Test functions to  SetConfiguration(const USBConfig &config);
  * @tc.type: FUNC
