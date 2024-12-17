@@ -213,7 +213,8 @@ int32_t UsbAccessoryManager::ProcessAccessorySend()
     usbdImpl_->GetAccessoryInfo(accessorys);
     this->accessory.SetAccessory(accessorys);
     std::string extraInfo;
-    if (accessorys.size() > ACCESSORY_INFO_SIZE && !accessorys[ACCESSORY_EXTRA_INDEX].empty()) {
+    if (accessorys.size() > ACCESSORY_INFO_SIZE &&
+        ACCESSORY_EXTRA_INDEX < accessorys.size() && !accessorys[ACCESSORY_EXTRA_INDEX].empty()) {
         if (base64Map_.empty()) {
             InitBase64Map();
         }
