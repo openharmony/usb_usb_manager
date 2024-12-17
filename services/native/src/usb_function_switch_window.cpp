@@ -15,6 +15,7 @@
 
 #include "usb_function_switch_window.h"
 
+#include <parameters.h>
 #include <semaphore.h>
 #include <sys/types.h>
 #include <thread>
@@ -33,7 +34,6 @@ using namespace OHOS::EventFwk;
 
 namespace OHOS {
 namespace USB {
-constexpr int32_t PARAM_BUF_LEN = 128;
 constexpr int32_t INVALID_USERID = -1;
 constexpr int32_t MESSAGE_PARCEL_KEY_SIZE = 3;
 constexpr int32_t MAX_RETRY_TIMES = 30;
@@ -92,19 +92,19 @@ int32_t UsbFunctionSwitchWindow::Init()
 bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "pop up function switch window");
-    char paramValue[PARAM_BUF_LEN] = { 0 };
-    const char defaultValue[PARAM_BUF_LEN] = { 0 };
+    bool isPromptEnabeld = OHOS::system::GetBoolParameter("persist.usb.setting.gadget_conn_prompt", false);
+    if (!isPromptEnabeld) {
+        USB_HILOGE(MODULE_USB_SERVICE, "gadget_conn_prompt is false");
+        return false;
+    }
+
+    int32_t supportedFuncs = OHOS::system::GetIntParameter("persist.usb.setting.supported_functions", INT32_MAX);
+    if (supportedFuncs < 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "no supported functions: %{public}d", supportedFuncs);
+        return false;
+    }
+
     std::lock_guard<std::mutex> guard(opMutex_);
-    int32_t ret = GetParameter("persist.usb.setting.gadget_conn_prompt", defaultValue, paramValue, sizeof(paramValue));
-    if (ret < 0) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetParameter fail");
-        return false;
-    }
-    ret = strcmp(paramValue, "true");
-    if (ret != 0) {
-        USB_HILOGE(MODULE_USB_SERVICE, "not allow open");
-        return false;
-    }
     if (windowAction_ == UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_FORBID) {
         USB_HILOGI(MODULE_USB_SERVICE, "forbid: pop up function switch window");
         return false;
@@ -144,6 +144,8 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     data.WriteString16(u"UsbFunctionSwitchExtAbility");
     data.WriteString16(u"parameters");
     cJSON* paramJson = cJSON_CreateObject();
+    int32_t supportedFuncs = OHOS::system::GetIntParameter("persist.usb.setting.supported_functions", INT32_MAX);
+    cJSON_AddStringToObject(paramJson, "supportedFuncs", std::to_string(supportedFuncs).c_str());
     std::string uiExtensionTypeStr = "sysDialog/common";
     cJSON_AddStringToObject(paramJson, "ability.want.params.uiExtensionType", uiExtensionTypeStr.c_str());
     char *pParamJson = cJSON_PrintUnformatted(paramJson);
