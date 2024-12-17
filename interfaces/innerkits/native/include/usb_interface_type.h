@@ -15,10 +15,13 @@
 
 #ifndef USB_INTERFACE_TYPE_H
 #define USB_INTERFACE_TYPE_H
+#include "usb_common.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace USB {
 enum InterfaceType {
+    TYPE_INTERFACE,
     TYPE_STORAGE,
     TYPE_AUDIO,
     TYPE_HID,
@@ -125,6 +128,34 @@ struct UsbDeviceId {
     int32_t vendorId;
 };
 
+const std::unordered_map<InterfaceType, std::vector<int32_t>> d_typeMap = {
+    {InterfaceType::TYPE_INTERFACE,             {0, 0, 0}},
+    {InterfaceType::TYPE_COMMUNICATION,         {2, -1, -1}},
+    {InterfaceType::TYPE_FULL_SPEED_HUB,        {9, 0, 0}},
+    {InterfaceType::TYPE_FULL_SPEED_HUB_S,      {9, 0, 1}},
+    {InterfaceType::TYPE_FULL_SPEED_HUB_M,      {9, 0, 2}},
+    {InterfaceType::TYPE_BILLBOARD,             {17, 0, 0}},
+    {InterfaceType::TYPE_DIAGNOSTIC_1,          {220, 1, 1}},
+    {InterfaceType::TYPE_DIAGNOSTIC_2,          {220, 2, 0}},
+    {InterfaceType::TYPE_DIAGNOSTIC_3,          {220, 2, 1}},
+    {InterfaceType::TYPE_DIAGNOSTIC_4,          {220, 3, 0}},
+    {InterfaceType::TYPE_DIAGNOSTIC_5,          {220, 3, 1}},
+    {InterfaceType::TYPE_DIAGNOSTIC_6,          {220, 4, 0}},
+    {InterfaceType::TYPE_DIAGNOSTIC_7,          {220, 4, 1}},
+    {InterfaceType::TYPE_DIAGNOSTIC_8,          {220, 5, 0}},
+    {InterfaceType::TYPE_DIAGNOSTIC_9,          {220, 5, 1}},
+    {InterfaceType::TYPE_DIAGNOSTIC_10,         {220, 6, 0}},
+    {InterfaceType::TYPE_DIAGNOSTIC_11,         {220, 6, 1}},
+    {InterfaceType::TYPE_DIAGNOSTIC_12,         {220, 7, 0}},
+    {InterfaceType::TYPE_DIAGNOSTIC_13,         {220, 7, 1}},
+    {InterfaceType::TYPE_DIAGNOSTIC_14,         {220, 8, 0}},
+    {InterfaceType::TYPE_MISCELLANEOUS_1,       {239, 1, 1}},
+    {InterfaceType::TYPE_MISCELLANEOUS_2,       {239, 1, 2}},
+    {InterfaceType::TYPE_MISCELLANEOUS_3,       {239, 2, 1}},
+    {InterfaceType::TYPE_MISCELLANEOUS_4,       {239, 2, 2}},
+    {InterfaceType::TYPE_VENDOR_SPECIFIC,       {255, -1, -1}}
+};
+
 const std::unordered_map<InterfaceType, std::vector<int32_t>> g_typeMap = {
     {InterfaceType::TYPE_AUDIO,                 {1, -1, -1}},
     {InterfaceType::TYPE_COMMUNICATION,         {2, -1, -1}},
@@ -133,9 +164,6 @@ const std::unordered_map<InterfaceType, std::vector<int32_t>> g_typeMap = {
     {InterfaceType::TYPE_IMAGE,                 {6, 1, 1}},
     {InterfaceType::TYPE_PRINTER,               {7, -1, -1}},
     {InterfaceType::TYPE_STORAGE,               {8, -1, -1}},
-    {InterfaceType::TYPE_FULL_SPEED_HUB,        {9, 0, 0}},
-    {InterfaceType::TYPE_FULL_SPEED_HUB_S,      {9, 0, 1}},
-    {InterfaceType::TYPE_FULL_SPEED_HUB_M,      {9, 0, 2}},
     {InterfaceType::TYPE_CDC_DATA,              {10, -1, -1}},
     {InterfaceType::TYPE_SMART_CARD,            {11, -1, -1}},
     {InterfaceType::TYPE_CONTENT_SECURTIY,      {13, 0, 0}},
@@ -144,7 +172,6 @@ const std::unordered_map<InterfaceType, std::vector<int32_t>> g_typeMap = {
     {InterfaceType::TYPE_AVCONTROL,             {16, 1, 0}},
     {InterfaceType::TYPE_AVV_STREAMING,         {16, 2, 0}},
     {InterfaceType::TYPE_AVA_STREAMING,         {16, 3, 0}},
-    {InterfaceType::TYPE_BILLBOARD,             {17, 0, 0}},
     {InterfaceType::TYPE_TYPEC_BRIDGE,          {18, 0, 0}},
     {InterfaceType::TYPE_BDP,                   {19, 0, 0}},
     {InterfaceType::TYPE_MCTP_MANA_1,           {20, 0, 1}},
@@ -175,8 +202,6 @@ const std::unordered_map<InterfaceType, std::vector<int32_t>> g_typeMap = {
     {InterfaceType::TYPE_WIRLESS_CONTROLLER_7,  {224, 2, 3}},
     {InterfaceType::TYPE_MISCELLANEOUS_1,       {239, 1, 1}},
     {InterfaceType::TYPE_MISCELLANEOUS_2,       {239, 1, 2}},
-    {InterfaceType::TYPE_MISCELLANEOUS_3,       {239, 2, 1}},
-    {InterfaceType::TYPE_MISCELLANEOUS_4,       {239, 2, 2}},
     {InterfaceType::TYPE_MISCELLANEOUS_5,       {239, 3, 1}},
     {InterfaceType::TYPE_MISCELLANEOUS_6,       {239, 4, 1}},
     {InterfaceType::TYPE_MISCELLANEOUS_7,       {239, 4, 2}},
@@ -196,7 +221,6 @@ const std::unordered_map<InterfaceType, std::vector<int32_t>> g_typeMap = {
     {InterfaceType::TYPE_APPLICATION_SPE_2,     {254, 2, 0}},
     {InterfaceType::TYPE_APPLICATION_SPE_3,     {254, 3, 0}},
     {InterfaceType::TYPE_APPLICATION_SPE_4,     {254, 3, 1}},
-    {InterfaceType::TYPE_VENDOR_SPECIFIC,       {255, -1, -1}}
 };
 } // namespace USB
 } // namespace OHOS

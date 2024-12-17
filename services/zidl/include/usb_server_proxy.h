@@ -83,7 +83,6 @@ public:
     int32_t AddAccessRight(const std::string &tokenId, const std::string &deviceName) override;
     int32_t ManageGlobalInterface(bool disable) override;
     int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable) override;
-    int32_t ManageInterfaceStorage(InterfaceType interfaceType, bool disable) override;
     int32_t ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable) override;
     int32_t GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed) override;
     int32_t GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated) override;
