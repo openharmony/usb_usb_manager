@@ -586,9 +586,6 @@ int32_t UsbRightManager::IsOsAccountExists(int32_t id, bool &isAccountExists)
 
 int32_t UsbRightManager::HasSetFuncRight(int32_t functions)
 {
-    if (!(IsSystemAppOrSa() && VerifyPermission())) {
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
-    }
     if (!(static_cast<uint32_t>(functions) & UsbSrvSupport::FUNCTION_HDC)) {
         return UEC_OK;
     }

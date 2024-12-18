@@ -69,6 +69,7 @@ public:
     int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) override;
     int32_t ResetDevice(uint8_t busNum, uint8_t devAddr) override;
     bool CheckDevicePermission(uint8_t busNum, uint8_t devAddr);
+    int32_t CheckSysApiPermission();
     bool HasRight(std::string deviceName) override;
     int32_t RequestRight(std::string deviceName) override;
     int32_t RemoveRight(std::string deviceName) override;

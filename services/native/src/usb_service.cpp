@@ -539,8 +539,9 @@ int32_t UsbService::GetCurrentFunctions(int32_t &functions)
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    if (!(usbRightManager_->IsSystemAppOrSa() && usbRightManager_->VerifyPermission())) {
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    int32_t ret = CheckSysApiPermission();
+    if (ret != UEC_OK) {
+        return ret;
     }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -559,8 +560,11 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
-
-    int32_t ret = usbRightManager_->HasSetFuncRight(functions);
+    int32_t ret = CheckSysApiPermission();
+    if (ret != UEC_OK) {
+        return ret;
+    }
+    ret = usbRightManager_->HasSetFuncRight(functions);
     if (ret != 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "HasSetFuncRight fail");
         return ret;
@@ -604,8 +608,9 @@ int32_t UsbService::UsbFunctionsFromString(std::string_view funcs)
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    if (!(usbRightManager_->IsSystemAppOrSa() && usbRightManager_->VerifyPermission())) {
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    int32_t ret = CheckSysApiPermission();
+    if (ret != UEC_OK) {
+        return ret;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "calling UsbFunctionsFromString");
     return UsbDeviceManager::ConvertFromString(funcs);
@@ -635,8 +640,9 @@ int32_t UsbService::GetPorts(std::vector<UsbPort> &ports)
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    if (!(usbRightManager_->IsSystemAppOrSa() && usbRightManager_->VerifyPermission())) {
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    int32_t ret = CheckSysApiPermission();
+    if (ret != UEC_OK) {
+        return ret;
     }
     if (usbPortManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbPortManager_");
@@ -654,8 +660,9 @@ int32_t UsbService::GetSupportedModes(int32_t portId, int32_t &supportedModes)
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    if (!(usbRightManager_->IsSystemAppOrSa() && usbRightManager_->VerifyPermission())) {
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    int32_t ret = CheckSysApiPermission();
+    if (ret != UEC_OK) {
+        return ret;
     }
     if (usbPortManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbPortManager_");
@@ -673,8 +680,9 @@ int32_t UsbService::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataR
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    if (!(usbRightManager_->IsSystemAppOrSa() && usbRightManager_->VerifyPermission())) {
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    int32_t ret = CheckSysApiPermission();
+    if (ret != UEC_OK) {
+        return ret;
     }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
@@ -1943,8 +1951,9 @@ int32_t UsbService::AddRight(const std::string &bundleName, const std::string &d
         USB_HILOGE(MODULE_USB_SERVICE, "can not find deviceName.");
         return ret;
     }
-    if (!(usbRightManager_->IsSystemAppOrSa() && usbRightManager_->VerifyPermission())) {
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    int32_t ret = CheckSysApiPermission();
+    if (ret != UEC_OK) {
+        return ret;
     }
     std::string tokenId;
     int32_t userId = USB_RIGHT_USERID_INVALID;
@@ -1976,8 +1985,9 @@ int32_t UsbService::AddAccessRight(const std::string &tokenId, const std::string
         USB_HILOGE(MODULE_USB_SERVICE, "can not find deviceName.");
         return ret;
     }
-    if (!(usbRightManager_->IsSystemAppOrSa() && usbRightManager_->VerifyPermission())) {
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    int32_t ret = CheckSysApiPermission();
+    if (ret != UEC_OK) {
+        return ret;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "AddRight deviceName = %{public}s", deviceName.c_str());
     if (!usbRightManager_->AddDeviceRight(deviceVidPidSerialNum, tokenId)) {
@@ -2127,8 +2137,9 @@ int32_t UsbService::PreCallFunction()
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    if (!(usbRightManager_->IsSystemAppOrSa() && usbRightManager_->VerifyPermission())) {
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    int32_t ret = CheckSysApiPermission();
+    if (ret != UEC_OK) {
+        return ret;
     }
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbHostManager_");
@@ -2529,8 +2540,9 @@ int32_t UsbService::AddAccessoryRight(const uint32_t tokenId, const USBAccessory
         USB_HILOGE(MODULE_USB_SERVICE, "can not find accessory.");
         return ret;
     }
-    if (!(usbRightManager_->IsSystemAppOrSa() && usbRightManager_->VerifyPermission())) {
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    int32_t ret = CheckSysApiPermission();
+    if (ret != UEC_OK) {
+        return ret;
     }
 
     USB_HILOGI(MODULE_USB_SERVICE, "Add accessory Right, deviceName = %{public}s", serialNum.c_str());
@@ -2627,6 +2639,17 @@ int32_t UsbService::CancelAccessoryRight(const USBAccessory &access)
     }
 
     USB_HILOGI(MODULE_USB_SERVICE, "CancelAccessoryRight done");
+    return UEC_OK;
+}
+
+int32_t CheckSysApiPermission()
+{
+    if (!usbRightManager_->IsSystemAppOrSa()) {
+        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
+    }
+    if (!usbRightManager_->VerifyPermission()) {
+        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED;
+    }
     return UEC_OK;
 }
 // LCOV_EXCL_STOP
