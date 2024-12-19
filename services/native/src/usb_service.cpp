@@ -94,7 +94,7 @@ UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
     usbPortManager_ = std::make_shared<UsbPortManager>();
     usbDeviceManager_ = std::make_shared<UsbDeviceManager>();
     usbAccessoryManager_ = std::make_shared<UsbAccessoryManager>();
-    if ( usbd_ == nullptr ){
+    if (usbd_ == nullptr){
         usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
@@ -113,7 +113,7 @@ int32_t UsbService::SetUsbd(const sptr<OHOS::HDI::Usb::V1_1::IUsbInterface> &usb
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService usbd is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    if ( usbd_ == nullptr ){
+    if (usbd_ == nullptr){
         usbd_ = usbd;
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
@@ -261,7 +261,7 @@ bool UsbService::Init()
 // LCOV_EXCL_START
 bool UsbService::InitUsbd()
 {
-    if ( usbd_ == nullptr ){
+    if (usbd_ == nullptr){
         usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
@@ -2132,7 +2132,7 @@ sptr<UsbService> UsbService::GetGlobalInstance()
 // LCOV_EXCL_START
 int32_t UsbService::PreCallFunction()
 {
-    if ( usbd_ == nullptr ){
+    if (usbd_ == nullptr){
         usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
