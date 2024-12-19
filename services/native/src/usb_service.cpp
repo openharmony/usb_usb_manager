@@ -94,7 +94,11 @@ UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
     usbPortManager_ = std::make_shared<UsbPortManager>();
     usbDeviceManager_ = std::make_shared<UsbDeviceManager>();
     usbAccessoryManager_ = std::make_shared<UsbAccessoryManager>();
-    usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+    if (usbd_ == nullptr) {
+        usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+    } else {
+        USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
+    }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "IUsbInterface::Get inteface failed");
     }
@@ -109,7 +113,11 @@ int32_t UsbService::SetUsbd(const sptr<OHOS::HDI::Usb::V1_1::IUsbInterface> &usb
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService usbd is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    usbd_ = usbd;
+    if (usbd_ == nullptr) {
+        usbd_ = usbd;
+    } else {
+        USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
+    }
 
     if (usbPortManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbPortManager_");
@@ -253,7 +261,11 @@ bool UsbService::Init()
 // LCOV_EXCL_START
 bool UsbService::InitUsbd()
 {
-    usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+    if (usbd_ == nullptr) {
+        usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+    } else {
+        USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
+    }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, " get usbd_ is nullptr");
         return false;
@@ -2120,7 +2132,11 @@ sptr<UsbService> UsbService::GetGlobalInstance()
 // LCOV_EXCL_START
 int32_t UsbService::PreCallFunction()
 {
-    usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+    if (usbd_ == nullptr) {
+        usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+    } else {
+        USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
+    }
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
