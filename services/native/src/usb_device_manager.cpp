@@ -52,7 +52,7 @@ const std::map<std::string_view, uint32_t> UsbDeviceManager::FUNCTION_MAPPING_N2
 UsbDeviceManager::UsbDeviceManager()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceManager::Init start");
-    if ( usbd_ == nullptr ){
+    if (usbd_ == nullptr){
         usbd_ = IUsbInterface::Get();
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
