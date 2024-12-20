@@ -189,24 +189,21 @@ HWTEST_F(UsbManageInterfaceTest, ManageDevice003, TestSize.Level1)
  * @tc.desc: Test functions toManageInterfaceStorage(InterfaceType interfaceType, bool disable);
  * @tc.type: FUNC
  */
-HWTEST_F(UsbManageInterfaceTest, ManageInterfaceStorage001, TestSize.Level1)
+HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ManageInterfaceStorage001 : ManageInterfaceStorage");
     auto &client = UsbSrvClient::GetInstance();
     vector<UsbDevice> devi;
     auto ret = client.GetDevices(devi);
-    EXPECT_TRUE(ret == 0);
-    InterfaceType interfaceType = InterfaceType::TYPE_HID;
-    if (devi.size() > 0) {
-        for (auto iter = g_typeMap.begin(); iter != g_typeMap.end(); iter ++) {
-            if (devi.at(0).GetClass() == iter->second[0] &&
-            (devi.at(0).GetSubclass() == iter->second[1] || iter->second[1] == -1) &&
-            (devi.at(0).GetProtocol() == iter->second[2] || iter->second[2] == -1)) {
-                interfaceType = iter->first;
-            }
-        }
-    }
-    ret = client.ManageInterfaceStorage(interfaceType, true);
+    ASSERT_EQ(ret, 0);
+    vector<UsbDeviceType> disableType;
+    UsbDeviceType usbDeviceType;
+    usbDeviceType.baseClass = 3;
+    usbDeviceType.subClass = 1;
+    usbDeviceType.protocol = 2;
+    usbDeviceType.isDeviceType = 0;
+    disableType.emplace_back(usbDeviceType);
+    ret = client.ManageInterfaceType(disableType, true);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageInterfaceStorage001 : ManageInterfaceStorage");
 }
@@ -216,25 +213,22 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceStorage001, TestSize.Level1)
  * @tc.desc: Test functions to ManageInterfaceStorage(InterfaceType interfaceType, bool disable);
  * @tc.type: FUNC
  */
-HWTEST_F(UsbManageInterfaceTest, ManageInterfaceStorage002, TestSize.Level1)
+HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ManageInterfaceStorage002 : ManageInterfaceStorage");
     UsbCommonTest::GrantPermissionNormalNative();
     auto &client = UsbSrvClient::GetInstance();
     vector<UsbDevice> devi;
     auto ret = client.GetDevices(devi);
-    EXPECT_TRUE(ret == 0);
-    InterfaceType interfaceType = InterfaceType::TYPE_HID;
-    if (devi.size() > 0) {
-        for (auto iter = g_typeMap.begin(); iter != g_typeMap.end(); iter ++) {
-            if (devi.at(0).GetClass() == iter->second[0] &&
-            (devi.at(0).GetSubclass() == iter->second[1] || iter->second[1] == -1) &&
-            (devi.at(0).GetProtocol() == iter->second[2] || iter->second[2] == -1)) {
-                interfaceType = iter->first;
-            }
-        }
-    }
-    ret = client.ManageInterfaceStorage(interfaceType, true);
+    ASSERT_EQ(ret, 0);
+    vector<UsbDeviceType> disableType;
+    UsbDeviceType usbDeviceType;
+    usbDeviceType.baseClass = 8;
+    usbDeviceType.subClass = 6;
+    usbDeviceType.protocol = 80;
+    usbDeviceType.isDeviceType = 0;
+    disableType.emplace_back(usbDeviceType);
+    ret = client.ManageInterfaceType(disableType, true);
     ASSERT_NE(ret, 0);
     UsbCommonTest::GrantPermissionSysNative();
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageInterfaceStorage002 : ManageInterfaceStorage");
@@ -245,52 +239,13 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceStorage002, TestSize.Level1)
  * @tc.desc: Test functions to ManageInterfaceStorage(InterfaceType interfaceType, bool disable);
  * @tc.type: FUNC
  */
-HWTEST_F(UsbManageInterfaceTest, ManageInterfaceStorage003, TestSize.Level1)
+HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType003, TestSize.Level1)
 {
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ManageInterfaceType003 : ManageInterfaceType");
     auto &client = UsbSrvClient::GetInstance();
     vector<UsbDevice> devi;
     auto ret = client.GetDevices(devi);
-    EXPECT_TRUE(ret == 0);
-    InterfaceType interfaceType = InterfaceType::TYPE_HID;
-    if (devi.size() > 0) {
-        for (auto iter = g_typeMap.begin(); iter != g_typeMap.end(); iter ++) {
-            if (devi.at(0).GetClass() == iter->second[0] &&
-            (devi.at(0).GetSubclass() == iter->second[1] || iter->second[1] == -1) &&
-            (devi.at(0).GetProtocol() == iter->second[2] || iter->second[2] == -1)) {
-                interfaceType = iter->first;
-            }
-        }
-    }
-    ret = client.ManageInterfaceStorage(interfaceType, false);
     ASSERT_EQ(ret, 0);
-}
-
-HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType001, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ManageInterfaceType001 : ManageInterfaceType");
-    auto &client = UsbSrvClient::GetInstance();
-    vector<UsbDevice> devi;
-    auto ret = client.GetDevices(devi);
-    EXPECT_TRUE(ret == 0);
-    vector<UsbDeviceType> disableType;
-    UsbDeviceType usbDeviceType;
-    usbDeviceType.baseClass = 3;
-    usbDeviceType.subClass = 1;
-    usbDeviceType.protocol = 2;
-    usbDeviceType.isDeviceType = 0;
-    disableType.emplace_back(usbDeviceType);
-    ret = client.ManageInterfaceType(disableType, true);
-    ASSERT_EQ(ret, 0);
-    USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageInterfaceType001 : ManageInterfaceType");
-}
-
-HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType002, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ManageInterfaceType002 : ManageInterfaceType");
-    auto &client = UsbSrvClient::GetInstance();
-    vector<UsbDevice> devi;
-    auto ret = client.GetDevices(devi);
-    EXPECT_TRUE(ret == 0);
     vector<UsbDeviceType> disableType;
     UsbDeviceType usbDeviceType;
     usbDeviceType.baseClass = 3;
@@ -300,7 +255,48 @@ HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType002, TestSize.Level1)
     disableType.emplace_back(usbDeviceType);
     ret = client.ManageInterfaceType(disableType, false);
     ASSERT_EQ(ret, 0);
-    USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageInterfaceType002 : ManageInterfaceType");
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageInterfaceType003 : ManageInterfaceType");
+}
+
+HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType004, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ManageInterfaceType004 : ManageInterfaceType");
+    auto &client = UsbSrvClient::GetInstance();
+    vector<UsbDevice> devi;
+    auto ret = client.GetDevices(devi);
+    ASSERT_EQ(ret, 0);
+    vector<UsbDeviceType> disableType;
+    UsbDeviceType usbDeviceType;
+    usbDeviceType.baseClass = 8;
+    usbDeviceType.subClass = 6;
+    usbDeviceType.protocol = 80;
+    usbDeviceType.isDeviceType = 0;
+    disableType.emplace_back(usbDeviceType);
+    ret = client.ManageInterfaceType(disableType, false);
+    ASSERT_EQ(ret, 0);
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageInterfaceType004 : ManageInterfaceType");
+}
+
+
+HWTEST_F(UsbManageInterfaceTest, ManageInterfaceType005, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ManageInterfaceType005 : ManageDevice");
+    UsbCommonTest::GrantPermissionNormalNative();
+    auto &client = UsbSrvClient::GetInstance();
+    vector<UsbDevice> devi;
+    auto ret = client.GetDevices(devi);
+    ASSERT_EQ(ret, 0);
+    vector<UsbDeviceType> disableType;
+    UsbDeviceType usbDeviceType;
+    usbDeviceType.baseClass = 8;
+    usbDeviceType.subClass = 6;
+    usbDeviceType.protocol = 80;
+    usbDeviceType.isDeviceType = 0;
+    disableType.emplace_back(usbDeviceType);
+    ret = client.ManageInterfaceType(disableType, false);
+    ASSERT_NE(ret, 0);
+    UsbCommonTest::GrantPermissionSysNative();
+    USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageInterfaceType005 : ManageDevice");
 }
 } // ManagerInterface
 } // USB

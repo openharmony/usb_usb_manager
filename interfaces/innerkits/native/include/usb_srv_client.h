@@ -91,7 +91,6 @@ public:
     int32_t AddAccessRight(const std::string &tokenId, const std::string &deviceName);
     int32_t ManageGlobalInterface(bool disable);
     int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable);
-    int32_t ManageInterfaceStorage(InterfaceType interfaceType, bool disable);
     int32_t ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable);
     int32_t AddAccessoryRight(const uint32_t tokenId, const USBAccessory &access);
     int32_t HasAccessoryRight(const USBAccessory &access, bool &result);

@@ -76,7 +76,6 @@ public:
     virtual int32_t AddAccessRight(const std::string &tokenId, const std::string &deviceName) = 0;
     virtual int32_t ManageGlobalInterface(bool disable) = 0;
     virtual int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable) = 0;
-    virtual int32_t ManageInterfaceStorage(InterfaceType interfaceType, bool disable) = 0;
     virtual int32_t ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable) = 0;
     virtual int32_t GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed)  = 0;
     virtual int32_t GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid,

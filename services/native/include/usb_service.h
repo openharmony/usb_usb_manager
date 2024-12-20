@@ -125,7 +125,6 @@ public:
     void UnLoadSelf(UnLoadSaType type);
     int32_t ManageGlobalInterface(bool disable) override;
     int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable) override;
-    int32_t ManageInterfaceStorage(InterfaceType interfaceType, bool disable) override;
     int32_t ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable) override;
     int32_t GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated) override;
     int32_t GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed) override;
@@ -173,18 +172,22 @@ private:
     bool IsEdmEnabled();
     int32_t ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whiteList);
     int32_t ExecuteManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable);
-    int32_t GetEdmPolicy(bool &IsGlobalDisabled, std::unordered_map<InterfaceType, bool> &typeDisableMap,
+    int32_t GetEdmPolicy(bool &IsGlobalDisabled, std::vector<UsbDeviceType> &disableType,
         std::vector<UsbDeviceId> &trustUsbDeviceId);
-    int32_t GetUsbPolicy(bool &IsGlobalDisabled, std::unordered_map<InterfaceType, bool> &typeDisableMap,
+    int32_t GetUsbPolicy(bool &IsGlobalDisabled, std::vector<UsbDeviceType> &disableType,
         std::vector<UsbDeviceId> &trustUsbDeviceId);
     void ExecuteStrategy(UsbDevice *devInfo);
-    int32_t GetEdmTypePolicy(sptr<IRemoteObject> remote, std::unordered_map<InterfaceType, bool> &typeDisableMap);
+    int32_t GetEdmTypePolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceType> &disableType);
     int32_t GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGlobalDisabled);
+    int32_t GetEdmStroageTypePolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceType> &disableType);
     int32_t GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceId> &trustUsbDeviceId);
     int32_t ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t interfaceId, bool disable);
+    void ExecuteManageDeviceType(const std::vector<UsbDeviceType> &disableType, bool disable,
+        const std::unordered_map<InterfaceType, std::vector<int32_t>> &map, bool isDev);
     int32_t ManageGlobalInterfaceImpl(bool disable);
     int32_t ManageDeviceImpl(int32_t vendorId, int32_t productId, bool disable);
     int32_t ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable);
+    int32_t ManageDeviceTypeImpl(InterfaceType interfaceType, bool disable);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     bool ready_ = false;
     int32_t commEventRetryTimes_ = 0;
