@@ -44,9 +44,8 @@ enum UsbFunctionSwitchWindowAction : int32_t {
 enum SUPPORTED_FUNC : int32_t {
     SUPPORTED_FUNC_NONE = -1,
     SUPPORTED_FUNC_CHARGE = 0,
-    SUPPORTED_FUNC_CHARGE_MTP = 8,
-    SUPPORTED_FUNC_CHARGE_PTP = 16,
-    SUPPORTED_FUNC_CHARGE_MTP_PTP = 24,
+    SUPPORTED_FUNC_MTP = 8,
+    SUPPORTED_FUNC_PTP = 16,
 };
 
 class UsbFunctionSwitchWindow {

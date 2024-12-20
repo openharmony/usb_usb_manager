@@ -134,27 +134,14 @@ int32_t UsbFunctionSwitchWindow::ParseSupposeFuncs(std::string &value)
     }
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: value %{public}s", __func__, value.c_str());
 
-    bool charge = value.find("charge") != std::string::npos;
-    bool mtp = value.find("mtp") != std::string::npos;
-    bool ptp = value.find("ptp") != std::string::npos;
-    bool none = value == "none";
-
-    if (none) {
+    if (value == "none") {
         return SUPPORTED_FUNC_NONE;
     }
-    if (charge && !mtp && !ptp) {
-        return SUPPORTED_FUNC_CHARGE;
-    }
-    if (charge && mtp && !ptp) {
-        return SUPPORTED_FUNC_CHARGE_MTP;
-    }
-    if (charge && !mtp && ptp) {
-        return SUPPORTED_FUNC_CHARGE_PTP;
-    }
-    if (charge && mtp && ptp) {
-        return SUPPORTED_FUNC_CHARGE_MTP_PTP;
-    }
-    return SUPPORTED_FUNC_CHARGE_MTP_PTP;
+    bool charge = value.find("charge") != std::string::npos ? SUPPORTED_FUNC_CHARGE : 0;
+    bool mtp = value.find("mtp") != std::string::npos ? SUPPORTED_FUNC_MTP : 0;
+    bool ptp = value.find("ptp") != std::string::npos ? SUPPORTED_FUNC_PTP : 0;
+
+    return charge|mtp|ptp;
 }
 
 void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
@@ -180,6 +167,9 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     (void)OHOS::system::GetStringParameter("const.usb.support_functions", supportedFuncStr, DEFAULT_PARAM_VALUE);
     int32_t supportedFuncs = ParseSupposeFuncs(supportedFuncStr);
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: supportedFuncs %{public}d", __func__, supportedFuncs);
+    if (supportedFuncs == SUPPORTED_FUNC_NONE) {
+        return;
+    }
     cJSON_AddStringToObject(paramJson, "supportedFuncs", std::to_string(supportedFuncs).c_str());
     std::string uiExtensionTypeStr = "sysDialog/common";
     cJSON_AddStringToObject(paramJson, "ability.want.params.uiExtensionType", uiExtensionTypeStr.c_str());
