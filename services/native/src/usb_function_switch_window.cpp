@@ -16,6 +16,7 @@
 #include "usb_function_switch_window.h"
 
 #include <parameters.h>
+#include <param_wrapper.h>
 #include <semaphore.h>
 #include <sys/types.h>
 #include <thread>
@@ -39,6 +40,7 @@ constexpr int32_t MESSAGE_PARCEL_KEY_SIZE = 3;
 constexpr int32_t MAX_RETRY_TIMES = 30;
 constexpr int32_t RETRY_INTERVAL_SECONDS = 1;
 constexpr uint32_t DELAY_CHECK_DIALOG = 1;
+constexpr std::string DEFAULT_PARAM_VALUE = "charge,mtp,ptp";
 
 std::shared_ptr<UsbFunctionSwitchWindow> UsbFunctionSwitchWindow::instance_;
 std::mutex UsbFunctionSwitchWindow::insMutex_;
@@ -125,6 +127,32 @@ bool UsbFunctionSwitchWindow::DismissFunctionSwitchWindow()
     return UnShowFunctionSwitchWindow();
 }
 
+int32_t UsbFunctionSwitchWindow::ParseSupposeFuncs(std::string &value)
+{
+    if (value == NULL) {
+        return SUPPORTED_FUNC_CHARGE_MTP_PTP;
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: value %{public}s", __func__, value.c_str());
+    DEFAULT_PARAM_VALUE = "charge,mtp,ptp";
+    bool charge = value.find("charge") != std::string::npos;
+    bool mtp = value.find("mtp") != std::string::npos;
+    bool ptp = value.find("ptp") != std::string::npos;
+
+    if (charge && !mtp && !ptp) {
+        return SUPPORTED_FUNC_CHARGE;
+    }
+    if (charge && mtp && !ptp) {
+        return SUPPORTED_FUNC_CHARGE_MTP;
+    }
+    if (charge && !mtp && ptp) {
+        return SUPPORTED_FUNC_CHARGE_PTP;
+    }
+    if (charge && mtp && ptp) {
+        return SUPPORTED_FUNC_CHARGE_MTP_PTP;
+    }
+    return SUPPORTED_FUNC_NONE;
+}
+
 void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
 {
@@ -144,7 +172,9 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     data.WriteString16(u"UsbFunctionSwitchExtAbility");
     data.WriteString16(u"parameters");
     cJSON* paramJson = cJSON_CreateObject();
-    int32_t supportedFuncs = OHOS::system::GetIntParameter("persist.usb.setting.supported_functions", INT32_MAX);
+    std::string supportedFuncStr = "";
+    (void)OHOS::system::GetStringParameter("const.usb.support_functions", supportedFuncStr, DEFAULT_PARAM_VALUE);
+    int32_t supportedFuncs = ParseSupposeFuncs(supportedFuncStr);
     cJSON_AddStringToObject(paramJson, "supportedFuncs", std::to_string(supportedFuncs).c_str());
     std::string uiExtensionTypeStr = "sysDialog/common";
     cJSON_AddStringToObject(paramJson, "ability.want.params.uiExtensionType", uiExtensionTypeStr.c_str());

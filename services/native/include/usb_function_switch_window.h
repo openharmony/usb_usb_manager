@@ -41,6 +41,14 @@ enum UsbFunctionSwitchWindowAction : int32_t {
     FUNCTION_SWITCH_WINDOW_ACTION_FORBID,
 };
 
+enum SUPPORTED_FUNC : int32_t {
+    SUPPORTED_FUNC_NONE = -1,
+    SUPPORTED_FUNC_CHARGE = 0,
+    SUPPORTED_FUNC_CHARGE_MTP = 8,
+    SUPPORTED_FUNC_CHARGE_PTP = 16,
+    SUPPORTED_FUNC_CHARGE_MTP_PTP = 24,
+};
+
 class UsbFunctionSwitchWindow {
 public:
     static std::shared_ptr<UsbFunctionSwitchWindow> GetInstance();
@@ -66,6 +74,7 @@ private:
     bool UnShowFunctionSwitchWindow();
     bool CheckDialogInstallStatus();
     static std::shared_ptr<UsbFunctionSwitchWindow> instance_;
+    int32_t ParseSupposeFuncs(std::string &value);
     sptr<UsbFuncAbilityConn> usbFuncAbilityConn = nullptr;
     int32_t windowAction_ = UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_DEFAULT;
     static std::mutex insMutex_;
