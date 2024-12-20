@@ -133,7 +133,7 @@ int32_t UsbFunctionSwitchWindow::ParseSupposeFuncs(std::string &value)
         return SUPPORTED_FUNC_CHARGE_MTP_PTP;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: value %{public}s", __func__, value.c_str());
-    DEFAULT_PARAM_VALUE = "charge,mtp,ptp";
+
     bool charge = value.find("charge") != std::string::npos;
     bool mtp = value.find("mtp") != std::string::npos;
     bool ptp = value.find("ptp") != std::string::npos;
