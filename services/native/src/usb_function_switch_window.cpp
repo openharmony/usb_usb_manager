@@ -169,9 +169,6 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     (void)OHOS::system::GetStringParameter("const.usb.support_functions", supportedFuncStr, DEFAULT_PARAM_VALUE);
     int32_t supportedFuncs = ParseSupposeFuncs(supportedFuncStr);
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: supportedFuncs %{public}d", __func__, supportedFuncs);
-    if (supportedFuncs == SUPPORTED_FUNC_NONE) {
-        return;
-    }
     cJSON_AddStringToObject(paramJson, "supportedFuncs", std::to_string(supportedFuncs).c_str());
     std::string uiExtensionTypeStr = "sysDialog/common";
     cJSON_AddStringToObject(paramJson, "ability.want.params.uiExtensionType", uiExtensionTypeStr.c_str());
