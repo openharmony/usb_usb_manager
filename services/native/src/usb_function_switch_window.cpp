@@ -99,8 +99,11 @@ bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
         USB_HILOGE(MODULE_USB_SERVICE, "gadget_conn_prompt is false");
         return false;
     }
+    std::string supportedFuncStr = "";
+    (void)OHOS::system::GetStringParameter("const.usb.support_functions", supportedFuncStr, DEFAULT_PARAM_VALUE);
+    int32_t supportedFuncs = ParseSupposeFuncs(supportedFuncStr);
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: supportedFuncs %{public}d", __func__, supportedFuncs);
 
-    int32_t supportedFuncs = OHOS::system::GetIntParameter("persist.usb.setting.supported_functions", INT32_MAX);
     if (supportedFuncs < 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "no supported functions: %{public}d", supportedFuncs);
         return false;
@@ -130,18 +133,17 @@ bool UsbFunctionSwitchWindow::DismissFunctionSwitchWindow()
 int32_t UsbFunctionSwitchWindow::ParseSupposeFuncs(std::string &value)
 {
     if (value == NULL) {
-        return SUPPORTED_FUNC_CHARGE_MTP_PTP;
+        return SUPPORTED_FUNC_CHARGE;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: value %{public}s", __func__, value.c_str());
 
     if (value == "none") {
         return SUPPORTED_FUNC_NONE;
     }
-    bool charge = value.find("charge") != std::string::npos ? SUPPORTED_FUNC_CHARGE : 0;
-    bool mtp = value.find("mtp") != std::string::npos ? SUPPORTED_FUNC_MTP : 0;
-    bool ptp = value.find("ptp") != std::string::npos ? SUPPORTED_FUNC_PTP : 0;
+    int32_t mtp = value.find("mtp") != std::string::npos ? SUPPORTED_FUNC_MTP : 0;
+    int32_t ptp = value.find("ptp") != std::string::npos ? SUPPORTED_FUNC_PTP : 0;
 
-    return charge|mtp|ptp;
+    return mtp|ptp;
 }
 
 void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
