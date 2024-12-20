@@ -103,7 +103,6 @@ bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
     (void)OHOS::system::GetStringParameter("const.usb.support_functions", supportedFuncStr, DEFAULT_PARAM_VALUE);
     int32_t supportedFuncs = ParseSupposeFuncs(supportedFuncStr);
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: supportedFuncs %{public}d", __func__, supportedFuncs);
-
     if (supportedFuncs < 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "no supported functions: %{public}d", supportedFuncs);
         return false;
@@ -130,11 +129,8 @@ bool UsbFunctionSwitchWindow::DismissFunctionSwitchWindow()
     return UnShowFunctionSwitchWindow();
 }
 
-int32_t UsbFunctionSwitchWindow::ParseSupposeFuncs(std::string &value)
+int32_t UsbFunctionSwitchWindow::ParseSupposeFuncs(const std::string &value)
 {
-    if (value == NULL) {
-        return SUPPORTED_FUNC_CHARGE;
-    }
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: value %{public}s", __func__, value.c_str());
 
     if (value == "none") {

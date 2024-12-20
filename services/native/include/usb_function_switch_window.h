@@ -73,7 +73,7 @@ private:
     bool UnShowFunctionSwitchWindow();
     bool CheckDialogInstallStatus();
     static std::shared_ptr<UsbFunctionSwitchWindow> instance_;
-    int32_t ParseSupposeFuncs(std::string &value);
+    static int32_t ParseSupposeFuncs(const std::string &value);
     sptr<UsbFuncAbilityConn> usbFuncAbilityConn = nullptr;
     int32_t windowAction_ = UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_DEFAULT;
     static std::mutex insMutex_;
