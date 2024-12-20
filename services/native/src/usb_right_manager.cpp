@@ -157,6 +157,25 @@ int32_t UsbRightManager::RequestRight(const std::string &busDev, const std::stri
     return UEC_OK;
 }
 
+int32_t UsbRightManager::RequestRight(const USBAccessory &access, const std::string &seriaValue,
+    const std::string &bundleName, const std::string &tokenId, const int32_t &userId, bool &result)
+{
+    USB_HILOGD(MODULE_USB_SERVICE, "RequestAccessoryRight:  seriaValue=%{public}s app=%{public}s",
+        seriaValue.c_str(), bundleName.c_str());
+    if (HasRight(seriaValue, bundleName, tokenId, userId)) {
+        USB_HILOGW(MODULE_USB_SERVICE, "device has Right ");
+        result = true;
+        return UEC_OK;
+    }
+    if (!GetUserAgreementByDiag(access, seriaValue, bundleName, tokenId, userId)) {
+        USB_HILOGW(MODULE_USB_SERVICE, "user don't agree");
+        result = false;
+        return UEC_OK;
+    }
+    result = true;
+    return UEC_OK;
+}
+
 bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::string &tokenIdStr)
 {
     if (!IsAllDigits(tokenIdStr)) {
@@ -258,6 +277,27 @@ bool UsbRightManager::RemoveDeviceRight(const std::string &deviceName, const std
     return true;
 }
 
+int32_t UsbRightManager::CancelDeviceRight(const std::string &deviceName, const std::string &bundleName,
+    const std::string &tokenId, const int32_t &userId)
+{
+    if (userId == USB_RIGHT_USERID_CONSOLE) {
+        USB_HILOGW(MODULE_USB_SERVICE, "console called, bypass");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "helper is nullptr, false");
+        return UEC_SERVICE_INNER_ERR;
+    }
+    int32_t ret = helper->DeleteRightRecord(userId, deviceName, bundleName, tokenId);
+    if (ret < 0) {
+        USB_HILOGW(MODULE_USB_SERVICE, "delete failed: %{public}s/%{public}s/%{public}d", deviceName.c_str(),
+            bundleName.c_str(), userId);
+        return UEC_OK;
+    }
+    return UEC_OK;
+}
+
 bool UsbRightManager::RemoveDeviceAllRight(const std::string &deviceName)
 {
     USB_HILOGD(MODULE_USB_SERVICE, "device %{private}s detached, process right", deviceName.c_str());
@@ -309,6 +349,56 @@ bool UsbRightManager::ShowUsbDialog(
     return true;
 }
 
+bool UsbRightManager::GetAccessoryName(const USBAccessory &access, std::string &accessName)
+{
+    accessName = access.GetProduct();
+    return true;
+}
+
+bool UsbRightManager::ShowUsbDialog(const USBAccessory &access, const std::string &seriaValue,
+    const std::string &bundleName, const std::string &tokenId)
+{
+    auto abmc = AAFwk::AbilityManagerClient::GetInstance();
+    if (abmc == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetInstance failed");
+        return false;
+    }
+
+    std::string appName;
+    if (!GetAppName(bundleName, appName)) {
+        appName = bundleName;
+    }
+
+    std::string accessoryName;
+    if (!GetAccessoryName(access, accessoryName)) {
+        accessoryName = seriaValue;
+    }
+
+    AAFwk::Want want;
+    want.SetElementName("com.usb.right", "UsbServiceExtAbility");
+    want.SetParam("bundleName", bundleName);
+    want.SetParam("deviceName", seriaValue);
+    want.SetParam("tokenId", tokenId);
+    want.SetParam("appName", appName);
+    want.SetParam("productName", accessoryName);
+    want.SetParam("accessory", access.GetJsonString());
+
+    sptr<UsbAbilityConn> usbAbilityConn_ = new (std::nothrow) UsbAbilityConn();
+    if (usbAbilityConn_ == nullptr) {
+        USB_HILOGE(MODULE_SERVICE, "new (std::nothrow) UsbAbilityConn() failed");
+        return false;
+    }
+    sem_init(&waitDialogDisappear_, 1, 0);
+    auto ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
+        return false;
+    }
+    /* Waiting for the user to click */
+    sem_wait(&waitDialogDisappear_);
+    return true;
+}
+
 bool UsbRightManager::GetUserAgreementByDiag(const std::string &busDev, const std::string &deviceName,
     const std::string &bundleName, const std::string &tokenId, const int32_t &userId)
 {
@@ -323,6 +413,19 @@ bool UsbRightManager::GetUserAgreementByDiag(const std::string &busDev, const st
     }
 
     return HasRight(deviceName, bundleName, tokenId, userId);
+}
+
+bool UsbRightManager::GetUserAgreementByDiag(const USBAccessory &access, const std::string &seriaValue,
+    const std::string &bundleName, const std::string &tokenId, const int32_t &userId)
+{
+    /* There can only be one dialog at a time */
+    std::lock_guard<std::mutex> guard(dialogRunning_);
+    if (!ShowUsbDialog(access, seriaValue, bundleName, tokenId)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "ShowUsbDialog failed");
+        return false;
+    }
+
+    return HasRight(seriaValue, bundleName, tokenId, userId);
 }
 
 sptr<IBundleMgr> UsbRightManager::GetBundleMgr()

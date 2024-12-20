@@ -70,7 +70,7 @@ bool UsbRightDbHelper::IsRecordExpired(const struct UsbRightAppInfo &info, uint6
     } else if (info.validPeriod == USB_RIGHT_VALID_PERIOD_MAX) {
         USB_HILOGD(MODULE_USB_SERVICE, "allow forever");
         return false;
-    } else if (info.requestTime + info.validPeriod > expiredTime) {
+    } else if (expiredTime - info.requestTime < info.validPeriod) {
         USB_HILOGD(MODULE_USB_SERVICE, "allow based on request time");
         return false;
     } else if ((info.installTime > info.updateTime) || (info.installTime > info.requestTime)) {

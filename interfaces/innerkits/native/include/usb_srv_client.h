@@ -93,6 +93,13 @@ public:
     int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable);
     int32_t ManageInterfaceStorage(InterfaceType interfaceType, bool disable);
     int32_t ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable);
+    int32_t AddAccessoryRight(const uint32_t tokenId, const USBAccessory &access);
+    int32_t HasAccessoryRight(const USBAccessory &access, bool &result);
+    int32_t RequestAccessoryRight(const USBAccessory &access, bool &result);
+    int32_t CancelAccessoryRight(const USBAccessory &access);
+    int32_t GetAccessoryList(std::vector<USBAccessory> &accessList);
+    int32_t OpenAccessory(const USBAccessory &access, int32_t &fd);
+    int32_t CloseAccessory(const int32_t fd);
 private:
     UsbSrvClient();
     ~UsbSrvClient();

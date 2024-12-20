@@ -22,6 +22,7 @@
 #include "usb_request.h"
 #include "usb_server_proxy.h"
 #include "v1_1/iusb_interface.h"
+#include "usb_accessory.h"
 
 using namespace OHOS::HDI::Usb::V1_1;
 namespace OHOS {
@@ -176,6 +177,43 @@ int32_t UsbServerProxy::GetDeviceMessageParcel(MessageParcel &data, UsbDevice &d
     std::vector<USBConfig> configs;
     GetDeviceConfigsMessageParcel(data, configs);
     devInfo.SetConfigs(configs);
+    return UEC_OK;
+}
+
+int32_t UsbServerProxy::GetAccessoryListMessageParcel(MessageParcel &data, std::vector<USBAccessory> &accessoryList)
+{
+    int32_t count;
+    READ_PARCEL_WITH_RET(data, Int32, count, UEC_SERVICE_READ_PARCEL_ERROR);
+    if (count > MAX_DEVICE_NUM || count < 0) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "the number of accessory is out of range!");
+        return ERR_INVALID_VALUE;
+    }
+
+    for (int32_t i = 0; i < count; ++i) {
+        USBAccessory accInfo;
+        GetAccessoryMessageParcel(data, accInfo);
+        accessoryList.push_back(accInfo);
+    }
+    return UEC_OK;
+}
+
+int32_t UsbServerProxy::GetAccessoryMessageParcel(MessageParcel &data, USBAccessory &accessoryInfo)
+{
+    std::string tmp;
+    READ_PARCEL_WITH_RET(data, String, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
+    accessoryInfo.SetManufacturer(tmp);
+
+    READ_PARCEL_WITH_RET(data, String, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
+    accessoryInfo.SetProduct(tmp);
+
+    READ_PARCEL_WITH_RET(data, String, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
+    accessoryInfo.SetDescription(tmp);
+
+    READ_PARCEL_WITH_RET(data, String, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
+    accessoryInfo.SetVersion(tmp);
+
+    READ_PARCEL_WITH_RET(data, String, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
+    accessoryInfo.SetSerialNumber(tmp);
     return UEC_OK;
 }
 
@@ -1368,5 +1406,200 @@ bool UsbServerProxy::ReadFileDescriptor(MessageParcel &data, int &fd)
     }
     return true;
 }
+
+int32_t UsbServerProxy::GetAccessoryList(std::vector<USBAccessory> &accessList)
+{
+    int32_t ret;
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "remote is failed");
+        return ERR_INVALID_VALUE;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        return ERR_INVALID_VALUE;
+    }
+
+    ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_GET_ACCESSORY_LIST), data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "failed code: %{public}d", ret);
+        return ret;
+    }
+    ret = GetAccessoryListMessageParcel(reply, accessList);
+    return ret;
+}
+
+int32_t UsbServerProxy::SetAccessoryMessageParcel(const USBAccessory &accessoryInfo, MessageParcel &data)
+{
+    USB_HILOGD(MODULE_USB_INNERKIT, "%{public}s, proxy parse: %{public}s.",
+        __func__, accessoryInfo.GetJsonString().c_str());
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetManufacturer(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetProduct(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetDescription(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetVersion(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetSerialNumber(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
+}
+
+int32_t UsbServerProxy::OpenAccessory(const USBAccessory &access, int32_t &fd)
+{
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_SERVICE_INNER_ERR);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    if (SetAccessoryMessageParcel(access, data) != UEC_OK) {
+        USB_HILOGE(MODULE_INNERKIT, "write accessory info failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_OPEN_ACCESSORY),
+        data, reply, option);
+    if (ret == UEC_OK) {
+        fd = -1;
+        if (!ReadFileDescriptor(reply, fd)) {
+            USB_HILOGW(MODULE_USB_SERVICE, "%{public}s: read fd failed!", __func__);
+            return UEC_INTERFACE_READ_PARCEL_ERROR;
+        }
+    }
+    return ret;
+}
+
+int32_t UsbServerProxy::AddAccessoryRight(const uint32_t tokenId, const USBAccessory &access)
+{
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_SERVICE_INNER_ERR);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    WRITE_PARCEL_WITH_RET(data, Uint32, tokenId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    if (SetAccessoryMessageParcel(access, data) != UEC_OK) {
+        USB_HILOGE(MODULE_INNERKIT, "write accessory info failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_ADD_ACCESSORY_RIGHT),
+        data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "SendRequest add accessory right is failed, error code: %{public}d", ret);
+    }
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
+    return ret;
+}
+
+int32_t UsbServerProxy::HasAccessoryRight(const USBAccessory &access, bool &result)
+{
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_SERVICE_INNER_ERR);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        return ERR_ENOUGH_DATA;
+    }
+
+    if (SetAccessoryMessageParcel(access, data) != UEC_OK) {
+        USB_HILOGE(MODULE_INNERKIT, "write accessory info failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_HAS_ACCESSORY_RIGHT),
+        data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest has accessory right is failed, error code: %{public}d", ret);
+        return false;
+    }
+
+    READ_PARCEL_WITH_RET(reply, Bool, result, false);
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
+    return ret;
+}
+
+int32_t UsbServerProxy::RequestAccessoryRight(const USBAccessory &access, bool &result)
+{
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_INTERFACE_INVALID_VALUE);
+    MessageParcel reply;
+    MessageOption option;
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        return UEC_INTERFACE_WRITE_PARCEL_ERROR;
+    }
+    if (SetAccessoryMessageParcel(access, data) != UEC_OK) {
+        USB_HILOGE(MODULE_INNERKIT, "write accessory info failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_REQUEST_ACCESSORY_RIGHT),
+        data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest request accessory right is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    READ_PARCEL_WITH_RET(reply, Bool, result, false);
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
+    return ret;
+}
+
+int32_t UsbServerProxy::CancelAccessoryRight(const USBAccessory &access)
+{
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_INTERFACE_INVALID_VALUE);
+    MessageParcel reply;
+    MessageOption option;
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        return UEC_INTERFACE_WRITE_PARCEL_ERROR;
+    }
+    if (SetAccessoryMessageParcel(access, data) != UEC_OK) {
+        USB_HILOGE(MODULE_INNERKIT, "write accessory info failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_REMOVE_ACCESSORY_RIGHT),
+        data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest remove accessory right is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
+    return ret;
+}
+
+int32_t UsbServerProxy::CloseAccessory(int32_t fd)
+{
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_INTERFACE_INVALID_VALUE);
+    MessageParcel reply;
+    MessageOption option;
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        return UEC_INTERFACE_WRITE_PARCEL_ERROR;
+    }
+
+    WRITE_PARCEL_WITH_RET(data, Uint32, fd, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_CLOSE_ACCESSORY),
+        data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest close accessory is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
+    return ret;
+}
+
 } // namespace USB
 } // namespace OHOS
