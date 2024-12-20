@@ -137,7 +137,11 @@ int32_t UsbFunctionSwitchWindow::ParseSupposeFuncs(std::string &value)
     bool charge = value.find("charge") != std::string::npos;
     bool mtp = value.find("mtp") != std::string::npos;
     bool ptp = value.find("ptp") != std::string::npos;
+    bool none = value == "none";
 
+    if (none) {
+        return SUPPORTED_FUNC_NONE;
+    }
     if (charge && !mtp && !ptp) {
         return SUPPORTED_FUNC_CHARGE;
     }
@@ -150,7 +154,7 @@ int32_t UsbFunctionSwitchWindow::ParseSupposeFuncs(std::string &value)
     if (charge && mtp && ptp) {
         return SUPPORTED_FUNC_CHARGE_MTP_PTP;
     }
-    return SUPPORTED_FUNC_NONE;
+    return SUPPORTED_FUNC_CHARGE_MTP_PTP;
 }
 
 void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
