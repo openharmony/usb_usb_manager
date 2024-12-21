@@ -99,9 +99,7 @@ bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
         USB_HILOGE(MODULE_USB_SERVICE, "gadget_conn_prompt is false");
         return false;
     }
-    std::string supportedFuncStr = "";
-    (void)OHOS::system::GetStringParameter("const.usb.support_functions", supportedFuncStr, DEFAULT_PARAM_VALUE);
-    int32_t supportedFuncs = ParseSupposeFuncs(supportedFuncStr);
+    int32_t supportedFuncs = GetSupportedFunctions();
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: supportedFuncs %{public}d", __func__, supportedFuncs);
     if (supportedFuncs < 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "no supported functions: %{public}d", supportedFuncs);
@@ -129,15 +127,17 @@ bool UsbFunctionSwitchWindow::DismissFunctionSwitchWindow()
     return UnShowFunctionSwitchWindow();
 }
 
-int32_t UsbFunctionSwitchWindow::ParseSupposeFuncs(const std::string &value)
+int32_t UsbFunctionSwitchWindow::GetSupportedFunctions()
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: value %{public}s", __func__, value.c_str());
+    std::string supportedFuncStr = "";
+    (void)OHOS::system::GetStringParameter("const.usb.support_functions", supportedFuncStr, DEFAULT_PARAM_VALUE);
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: supportedFuncStr %{public}s", __func__, supportedFuncStr.c_str());
 
-    if (value == "none") {
+    if (supportedFuncStr.find("none") != std::string::npos) {
         return SUPPORTED_FUNC_NONE;
     }
-    int32_t mtp = value.find("mtp") != std::string::npos ? SUPPORTED_FUNC_MTP : 0;
-    int32_t ptp = value.find("ptp") != std::string::npos ? SUPPORTED_FUNC_PTP : 0;
+    int32_t mtp = supportedFuncStr.find("mtp") != std::string::npos ? SUPPORTED_FUNC_MTP : 0;
+    int32_t ptp = supportedFuncStr.find("ptp") != std::string::npos ? SUPPORTED_FUNC_PTP : 0;
 
     return mtp|ptp;
 }
@@ -161,9 +161,7 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     data.WriteString16(u"UsbFunctionSwitchExtAbility");
     data.WriteString16(u"parameters");
     cJSON* paramJson = cJSON_CreateObject();
-    std::string supportedFuncStr = "";
-    (void)OHOS::system::GetStringParameter("const.usb.support_functions", supportedFuncStr, DEFAULT_PARAM_VALUE);
-    int32_t supportedFuncs = ParseSupposeFuncs(supportedFuncStr);
+    int32_t supportedFuncs = GetSupportedFunctions();
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: supportedFuncs %{public}d", __func__, supportedFuncs);
     cJSON_AddStringToObject(paramJson, "supportedFuncs", std::to_string(supportedFuncs).c_str());
     std::string uiExtensionTypeStr = "sysDialog/common";
