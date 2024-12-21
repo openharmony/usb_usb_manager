@@ -130,7 +130,8 @@ bool UsbFunctionSwitchWindow::DismissFunctionSwitchWindow()
 int32_t UsbFunctionSwitchWindow::GetSupportedFunctions()
 {
     std::string supportedFuncStr = "";
-    (void)OHOS::system::GetStringParameter("const.usb_manager.supported_functions", supportedFuncStr, DEFAULT_PARAM_VALUE);
+    (void)OHOS::system::GetStringParameter("const.usb_manager.supported_functions",
+        supportedFuncStr, DEFAULT_PARAM_VALUE);
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: supportedFuncStr %{public}s", __func__, supportedFuncStr.c_str());
 
     if (supportedFuncStr.find("none") != std::string::npos) {
