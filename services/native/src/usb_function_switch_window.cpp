@@ -30,6 +30,7 @@
 #include "common_event_support.h"
 #include "usb_errors.h"
 
+#define DEFAULT_PARAM_VALUE "charge,mtp,ptp"
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::EventFwk;
 
@@ -40,7 +41,6 @@ constexpr int32_t MESSAGE_PARCEL_KEY_SIZE = 3;
 constexpr int32_t MAX_RETRY_TIMES = 30;
 constexpr int32_t RETRY_INTERVAL_SECONDS = 1;
 constexpr uint32_t DELAY_CHECK_DIALOG = 1;
-constexpr std::string DEFAULT_PARAM_VALUE = "charge,mtp,ptp";
 
 std::shared_ptr<UsbFunctionSwitchWindow> UsbFunctionSwitchWindow::instance_;
 std::mutex UsbFunctionSwitchWindow::insMutex_;
