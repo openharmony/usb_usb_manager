@@ -36,16 +36,17 @@
 #include "usb_common.h"
 #include "usb_descriptor_parser.h"
 #include "usb_errors.h"
+#include "usb_napi_errors.h"
 #include "usb_port_manager.h"
 #include "usb_right_manager.h"
-#include "usbd_bulkcallback_impl.h"
 #include "tokenid_kit.h"
 #include "accesstoken_kit.h"
 #include "mem_mgr_proxy.h"
 #include "mem_mgr_client.h"
 #include "usb_function_switch_window.h"
+
 using OHOS::sptr;
-using namespace OHOS::HDI::Usb::V1_1;
+using namespace OHOS::HDI::Usb::V1_2;
 using namespace OHOS::Security::AccessToken;
 namespace OHOS {
 namespace USB {
@@ -89,25 +90,23 @@ const bool G_REGISTER_RESULT =
 
 UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
 {
+    callbackImpl_ = new (std::nothrow) UsbdTransferCallbackImpl();
     usbHostManager_ = std::make_shared<UsbHostManager>(nullptr);
     usbRightManager_ = std::make_shared<UsbRightManager>();
     usbPortManager_ = std::make_shared<UsbPortManager>();
     usbDeviceManager_ = std::make_shared<UsbDeviceManager>();
     usbAccessoryManager_ = std::make_shared<UsbAccessoryManager>();
     if (usbd_ == nullptr) {
-        usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+        usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
-    }
-    if (usbd_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "IUsbInterface::Get inteface failed");
     }
 }
 
 UsbService::~UsbService() {}
 
 // LCOV_EXCL_START
-int32_t UsbService::SetUsbd(const sptr<OHOS::HDI::Usb::V1_1::IUsbInterface> &usbd)
+int32_t UsbService::SetUsbd(const sptr<OHOS::HDI::Usb::V1_2::IUsbInterface> &usbd)
 {
     if (usbd == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService usbd is nullptr");
@@ -162,7 +161,7 @@ void UsbService::SystemAbilityStatusChangeListener::OnRemoveSystemAbility(
 {
     USB_HILOGI(MODULE_USB_SERVICE, "OnRemoveSystemAbility ID = %{public}d", systemAbilityId);
     if (systemAbilityId == USB_SYSTEM_ABILITY_ID) {
-        sptr<OHOS::HDI::Usb::V1_1::IUsbInterface> usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+        sptr<OHOS::HDI::Usb::V1_2::IUsbInterface> usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
         if (usbd_ != nullptr) {
             usbd_->UnbindUsbdSubscriber(usbdSubscriber_);
         }
@@ -262,7 +261,7 @@ bool UsbService::Init()
 bool UsbService::InitUsbd()
 {
     if (usbd_ == nullptr) {
-        usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+        usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
     }
@@ -270,7 +269,6 @@ bool UsbService::InitUsbd()
         USB_HILOGE(MODULE_USB_SERVICE, " get usbd_ is nullptr");
         return false;
     }
-
     usbdSubscriber_ = new (std::nothrow) UsbServiceSubscriber();
     if (usbdSubscriber_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "Init failed");
@@ -1821,6 +1819,76 @@ bool UsbService::GetBundleInfo(std::string &tokenId, int32_t &userId)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
+int32_t UsbService::UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, HDI::Usb::V1_2::USBTransferInfo &info,
+    const sptr<IRemoteObject> &cb, sptr<Ashmem> &ashmem)
+{
+    USB_HILOGI(MODULE_USBD, "UsbService UsbSubmitTransfer enter");
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+    if (cb == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService UsbSubmitTransfer cb is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (ashmem == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService UsbSubmitTransfer error ashmem");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    callbackImpl_->SetTransferCallback(cb);
+    int32_t ret = usbd_->UsbSubmitTransfer(devInfo, info, callbackImpl_, ashmem);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService UsbSubmitTransfer error ret:%{public}d", ret);
+        ErrorCode(ret);
+    }
+    return ret;
+}
+// LCOV_EXCL_STOP
+
+// LCOV_EXCL_START
+int32_t UsbService::ErrorCode(int32_t error)
+{
+    switch (error) {
+        case ERRCODE_NEGATIVE_ONE:
+            return USB_SUBMIT_TRANSFER_IO_ERROR;
+        case ERRCODE_NEGATIVE_TWO:
+            return USB_SUBMIT_TRANSFER_INVALID_PARAM_ERROR;
+        case ERRCODE_NEGATIVE_FOUR:
+            return USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR;
+        case ERRCODE_NEGATIVE_ELEVEN:
+            return USB_SUBMIT_TRANSFER_NO_MEM_ERROR;
+        case ERRCODE_NEGATIVE_TWELVE:
+            return USB_SUBMIT_TRANSFER_NOT_SUPPORT;
+        default:
+            return USB_SUBMIT_TRANSFER_OTHER_ERROR;
+    }
+}
+// LCOV_EXCL_STOP
+
+// LCOV_EXCL_START
+int32_t UsbService::UsbCancelTransfer(const UsbDev &devInfo, const int32_t &endpoint)
+{
+    USB_HILOGI(MODULE_USBD, "UsbService UsbCancelTransfer enter");
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
+
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    int32_t ret = usbd_->UsbCancelTransfer(devInfo, endpoint);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbCancelTransfer error ret:%{public}d", ret);
+    }
+    return ret;
+}
+// LCOV_EXCL_STOP
+
+// LCOV_EXCL_START
 int32_t UsbService::RegBulkCallback(const UsbDev &devInfo, const UsbPipe &pipe, const sptr<IRemoteObject> &cb)
 {
     if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
@@ -2133,7 +2201,7 @@ sptr<UsbService> UsbService::GetGlobalInstance()
 int32_t UsbService::PreCallFunction()
 {
     if (usbd_ == nullptr) {
-        usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+        usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
     }

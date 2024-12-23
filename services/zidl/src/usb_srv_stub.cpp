@@ -20,12 +20,12 @@
 #include "usb_errors.h"
 #include "usb_server_stub.h"
 #include "usb_interface_type.h"
-#include "v1_1/iusb_interface.h"
+#include "v1_2/iusb_interface.h"
 #include "usb_report_sys_event.h"
 #include "hitrace_meter.h"
 #include "usb_accessory.h"
 
-using namespace OHOS::HDI::Usb::V1_1;
+using namespace OHOS::HDI::Usb::V1_2;
 namespace OHOS {
 namespace USB {
 constexpr int32_t MAX_EDM_LIST_SIZE = 200;
@@ -248,6 +248,12 @@ bool UsbServerStub::StubHostTransfer(uint32_t code, int32_t &result,
             return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_USB_CONTROL_TRANSFER):
             result = DoUsbControlTransfer(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_SUBMIT_TRANSFER):
+            result = DoUsbSubmitTransfer(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_CANCEL_TRANSFER):
+            result = DoUsbCancelTransfer(data, reply, option);
             return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_ACCESSORY_LIST):
             result = DoGetAccessoryList(data, reply, option);
@@ -1032,6 +1038,53 @@ int32_t UsbServerStub::DoRegBulkCallback(MessageParcel &data, MessageParcel &rep
     int32_t ret = RegBulkCallback(tmpDev, tmpPipe, cb);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        return ret;
+    }
+    return ret;
+}
+
+int32_t UsbServerStub::DoUsbSubmitTransfer(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbServerStub DoUsbSubmitTransfer enter");
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "UsbSubmitTransfer");
+    uint8_t busNum = 0;
+    uint8_t devAddr = 0;
+    HDI::Usb::V1_2::USBTransferInfo info;
+    READ_PARCEL_WITH_RET(data, Uint8, busNum, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, info.endpoint, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, info.type, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, info.length, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, info.timeOut, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint64, info.userData, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint32, info.numIsoPackets, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    const sptr<IRemoteObject> cb = data.ReadRemoteObject();
+    sptr<Ashmem> ashmem = data.ReadAshmem();
+    const UsbDev tmpDev = {busNum, devAddr};
+    int32_t ret = UsbSubmitTransfer(tmpDev, info, cb, ashmem);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "UsbSubmitTransfer failed ret:%{public}d", ret);
+        return ret;
+    }
+    WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return ret;
+}
+
+int32_t UsbServerStub::DoUsbCancelTransfer(MessageParcel& data, MessageParcel& reply, MessageOption& option)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbServerStub DoUsbCancelTransfer enter");
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "DoUsbCancelTransfer");
+    uint8_t busNum = 0;
+    uint8_t devAddr = 0;
+    int32_t endpoint = 0;
+    READ_PARCEL_WITH_RET(data, Uint8, busNum, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, devAddr, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, endpoint, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    const UsbDev tmpDev = {busNum, devAddr};
+
+    int32_t ret = UsbCancelTransfer(tmpDev, endpoint);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "UsbCancelTransfer faild, ret:%{public}d", ret);
         return ret;
     }
     return ret;

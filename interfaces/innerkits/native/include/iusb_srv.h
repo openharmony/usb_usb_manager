@@ -20,12 +20,22 @@
 #include "iremote_object.h"
 #include "usb_device.h"
 #include "usb_port.h"
-#include "v1_1/usb_types.h"
+#include "v1_2/usb_types.h"
 #include "usb_interface_type.h"
 #include "usb_accessory.h"
 
 namespace OHOS {
 namespace USB {
+
+class TransferCallbackInfo {
+public:
+    int32_t status;
+    int32_t actualLength;
+};
+
+using TransferCallback = std::function<void(const TransferCallbackInfo &,
+    const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &, uint64_t)>;
+
 class IUsbSrv : public IRemoteBroker {
 public:
     virtual int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) = 0;
@@ -54,7 +64,7 @@ public:
     virtual int32_t ControlTransfer(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbCtrlTransfer &ctrl,
         std::vector<uint8_t> &bufferData) = 0;
     virtual int32_t UsbControlTransfer(const HDI::Usb::V1_0::UsbDev &dev,
-        const HDI::Usb::V1_1::UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData) = 0;
+        const HDI::Usb::V1_2::UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData) = 0;
     virtual int32_t SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configId) = 0;
     virtual int32_t GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &configId) = 0;
     virtual int32_t SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t altIndex) = 0;
@@ -67,6 +77,10 @@ public:
     virtual int32_t RequestCancel(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t endpointId) = 0;
     virtual int32_t Close(uint8_t busNum, uint8_t devAddr) = 0;
 
+    virtual int32_t UsbCancelTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, const int32_t &endpoint) = 0;
+    virtual int32_t UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, HDI::Usb::V1_2::USBTransferInfo &info,
+        const sptr<IRemoteObject> &cb, sptr<Ashmem> &ashmem) = 0;
+	
     virtual int32_t RegBulkCallback(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe,
         const sptr<IRemoteObject> &cb) = 0;
     virtual int32_t UnRegBulkCallback(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe) = 0;

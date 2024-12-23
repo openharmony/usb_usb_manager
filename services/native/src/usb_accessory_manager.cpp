@@ -33,7 +33,7 @@ using namespace OHOS::AAFwk;
 using namespace OHOS::EventFwk;
 using namespace OHOS::HiviewDFX;
 using namespace OHOS::HDI::Usb::V1_0;
-using namespace OHOS::HDI::Usb::V1_1;
+using namespace OHOS::HDI::Usb::V1_2;
 
 namespace OHOS {
 namespace USB {
@@ -61,7 +61,7 @@ const std::string BASE_64_CHARS =
 UsbAccessoryManager::UsbAccessoryManager()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbAccessoryManager::Init start");
-    usbdImpl_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+    usbdImpl_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
     if (usbdImpl_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::Get inteface failed");
     }
@@ -83,7 +83,7 @@ UsbAccessoryManager::~UsbAccessoryManager()
     antiShakeDelayTimer_.Shutdown();
 }
 
-int32_t UsbAccessoryManager::SetUsbd(const sptr<OHOS::HDI::Usb::V1_1::IUsbInterface> usbd)
+int32_t UsbAccessoryManager::SetUsbd(const sptr<OHOS::HDI::Usb::V1_2::IUsbInterface> usbd)
 {
     if (usbd == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager usbd is nullptr");

@@ -18,11 +18,14 @@
 #include <sys/time.h>
 
 #include <cstdio>
+#include <cstdint>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <string>
-
+#include <uv.h>
+#include "v1_2/usb_types.h"
+#include "ashmem.h"
 #include "hilog_wrapper.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
@@ -39,12 +42,15 @@
 using namespace OHOS;
 using namespace OHOS::USB;
 using namespace OHOS::HDI::Usb::V1_0;
-using namespace OHOS::HDI::Usb::V1_1;
+using namespace OHOS::HDI::Usb::V1_2;
 
 static constexpr int32_t INDEX_0 = 0;
 static constexpr int32_t INDEX_1 = 1;
 static constexpr int32_t INDEX_2 = 2;
 static constexpr int32_t INDEX_3 = 3;
+static constexpr int32_t INDEX_4 = 4;
+static constexpr int32_t INDEX_5 = 5;
+static constexpr int32_t INDEX_6 = 6;
 static constexpr int32_t PARAM_COUNT_0 = 0;
 static constexpr int32_t PARAM_COUNT_1 = 1;
 static constexpr int32_t PARAM_COUNT_2 = 2;
@@ -1910,6 +1916,333 @@ static napi_value PipeBulkTransfer(napi_env env, napi_callback_info info)
     return result;
 }
 
+static bool ParseTransferParams(const napi_env &env, const napi_value &object,
+    USBTransferAsyncContext *asyncContext)
+{
+    napi_value valuePipe = nullptr;
+    USBDevicePipe pipe;
+    napi_valuetype valueType;
+    napi_get_named_property(env, object, "devPipe", &valuePipe);
+    napi_typeof(env, valuePipe, &valueType);
+    USB_ASSERT_RETURN_FALSE(env, valueType == napi_object, false, "The valueType of pipe must be USBDevicePipe.");
+    ParseUsbDevicePipe(env, valuePipe, pipe);
+    asyncContext->pipe = pipe;
+
+    int32_t flags = static_cast<int32_t>(TransferFlagsJs::TRANSFER_FLAGS_UNKNOWN);
+    NapiUtil::JsObjectToInt(env, object, "flags", flags);
+    if (flags == static_cast<int32_t>(TransferFlagsJs::TRANSFER_FLAGS_UNKNOWN)) {
+        USB_HILOGE(MODULE_JS_NAPI, "TRANSFER_FLAGS_UNKNOWN, flags: %{public}d", flags);
+        return false;
+    }
+    asyncContext->flags = flags;
+
+    NapiUtil::JsObjectToInt(env, object, "endpoint", asyncContext->endpoint);
+
+    int32_t tranferType = static_cast<int32_t>(EndpointTransferTypeJs::TRANSFER_TYPE_UNKNOWN);
+    NapiUtil::JsObjectToInt(env, object, "type", tranferType);
+    if (tranferType == static_cast<int32_t>(EndpointTransferTypeJs::TRANSFER_TYPE_UNKNOWN)) {
+        USB_HILOGE(MODULE_JS_NAPI, "TRANSFER_TYPE_UNKNOWN, tranferType: %{public}d", tranferType);
+        return false;
+    }
+    asyncContext->type = tranferType;
+
+    NapiUtil::JsObjectToInt(env, object, "timeout", asyncContext->timeOut);
+
+    NapiUtil::JsObjectToInt(env, object, "length", asyncContext->length);
+
+    napi_value valueCallBack;
+    NapiUtil::JsObjectGetProperty(env, object, "callback", valueCallBack);
+    napi_typeof(env, valueCallBack, &valueType);
+    USB_ASSERT_RETURN_FALSE(env, valueType == napi_function, false, "The type of endpoint must be function.");
+    napi_create_reference(env, valueCallBack, 1, &asyncContext->callbackRef);
+
+    napi_value valueUint8Array;
+    NapiUtil::JsObjectGetProperty(env, object, "buffer", valueUint8Array);
+
+    size_t offset = 0;
+    bool hasBuffer = NapiUtil::JsUint8ArrayParse(env, valueUint8Array, &asyncContext->buffer,
+        asyncContext->bufferLength, offset);
+    if (!hasBuffer) {
+        USB_HILOGE(MODULE_JS_NAPI, "Transfer wrong argument, buffer is null");
+        return false;
+    }
+
+    NapiUtil::JsObjectToUint(env, object, "numIsoPackets", asyncContext->numIsoPackets);
+    return true;
+}
+
+static bool GetTransferParamsFromJsObj(const napi_env &env, const napi_callback_info &info,
+    USBTransferAsyncContext *asyncContext)
+{
+    size_t argc = PARAM_COUNT_1;
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT_RETURN_FALSE(env, (argc >= PARAM_COUNT_1), OHEC_COMMON_PARAM_ERROR,
+        "The function at least takes one arguments.");
+
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, argv[INDEX_0], &valueType);
+    USB_ASSERT_RETURN_FALSE(
+        env, valueType == napi_object, OHEC_COMMON_PARAM_ERROR, "The type of pipe must be USBDataTransfer type.");
+
+    bool parseResult = ParseTransferParams(env, argv[INDEX_0], asyncContext);
+    if (!parseResult) {
+        USB_HILOGE(MODULE_JS_NAPI, "Transfer wrong params, ParseTransferParams faied");
+        return false;
+    }
+
+    return true;
+}
+
+static napi_value ErrorCodeInput(napi_env env, int32_t status)
+{
+    napi_value error = nullptr;
+    switch (status) {
+        case INDEX_0:
+            napi_create_int32(env, USB_SUBMIT_TRANSFER_OPERATION_SUCCESSFUL, &error);
+            return error;
+        case INDEX_1:
+            napi_create_int32(env, USB_SUBMIT_TRANSFER_IO_ERROR, &error);
+            return error;
+        case INDEX_2:
+            napi_create_int32(env, USB_SUBMIT_TRANSFER_TIMEOUT_ERROR, &error);
+            return error;
+        case INDEX_3:
+            napi_create_int32(env, USB_SUBMIT_TRANSFER_IO_ERROR, &error);
+            return error;
+        case INDEX_4:
+        case INDEX_5:
+            napi_create_int32(env, USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR, &error);
+            return error;
+        case INDEX_6:
+            napi_create_int32(env, USB_SUBMIT_TRANSFER_OVERFLOW_ERROR, &error);
+            return error;
+        default:
+            napi_create_int32(env, USB_SUBMIT_TRANSFER_OTHER_ERROR, &error);
+            return error;
+    }
+}
+
+static napi_value ParmsInput(napi_env env, AsyncCallBackContext &asyncCBWork)
+{
+    napi_value res = nullptr;
+    napi_create_object(env, &res);
+
+    napi_value target = nullptr;
+    napi_create_object(env, &target);
+    napi_value status = nullptr;
+    napi_create_int32(env, asyncCBWork.status, &status);
+
+    napi_value actualLength = nullptr;
+    napi_create_int32(env, asyncCBWork.actualLength, &actualLength);
+
+    napi_set_named_property(env, res, "status", status);
+    napi_set_named_property(env, res, "actualLength", actualLength);
+
+    napi_value isoObjArray = nullptr;
+    if (!asyncCBWork.isoInfo.empty()) {
+        napi_create_array(env, &isoObjArray);
+        const int32_t isoCount = asyncCBWork.isoInfo.size();
+        for (int32_t i = 0; i < isoCount; i++) {
+            napi_value iso = nullptr;
+            napi_create_object(env, &iso);
+            napi_value isoLength = nullptr;
+            napi_value isoActualLength = nullptr;
+            napi_value isoStatus = nullptr;
+            napi_create_int32(env, asyncCBWork.isoInfo[i].isoLength, &isoLength);
+            napi_create_int32(env, asyncCBWork.isoInfo[i].isoActualLength, &isoActualLength);
+            napi_create_int32(env, asyncCBWork.isoInfo[i].isoStatus, &isoStatus);
+            napi_set_named_property(env, iso, "isoLength", isoLength);
+            napi_set_named_property(env, iso, "isoActualLength", isoActualLength);
+            napi_set_named_property(env, iso, "isoStatus", isoStatus);
+
+            napi_set_element(env, isoObjArray, i, iso);
+        }
+    }
+    napi_set_named_property(env, res, "isoPacketDesc", isoObjArray);
+    return res;
+}
+
+static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCallbackInfo &info,
+    const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo)
+{
+    if ((asyncContext->endpoint & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_IN) {
+        asyncContext->ashmem->MapReadAndWriteAshmem();
+        auto ashmemBuffer = asyncContext->ashmem->ReadFromAshmem(info.actualLength, 0);
+        if (ashmemBuffer == nullptr) {
+            asyncContext->ashmem->UnmapAshmem();
+            asyncContext->ashmem->CloseAshmem();
+            USB_HILOGE(MODULE_JS_NAPI, "JsCallBack ReadFromAshmem failed");
+            return;
+        }
+        int32_t ret = memcpy_s(asyncContext->buffer, asyncContext->bufferLength, ashmemBuffer, info.actualLength);
+        if (ret != EOK) {
+            USB_HILOGE(MODULE_JS_NAPI, "memcpy_s fatal failed error: %{public}d", ret);
+        }
+    }
+    asyncContext->ashmem->UnmapAshmem();
+    asyncContext->ashmem->CloseAshmem();
+
+    uv_loop_s *loop = nullptr;
+    napi_get_uv_event_loop(asyncContext->env, &loop);
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    AsyncCallBackContext *asyncCBWork = new (std::nothrow) AsyncCallBackContext;
+    asyncCBWork->env = asyncContext->env;
+    asyncCBWork->actualLength = info.actualLength;
+    asyncCBWork->status = info.status;
+    asyncCBWork->isoInfo = isoInfo;
+    asyncCBWork->callbackRef = asyncContext->callbackRef;
+    work->data = asyncCBWork;
+    uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {}, [](uv_work_t *work, int status) {
+        AsyncCallBackContext *asyncCBWork = (AsyncCallBackContext *)work->data;
+        if (asyncCBWork) {
+            napi_handle_scope scope;
+            napi_open_handle_scope(asyncCBWork->env, &scope);
+            napi_status res = napi_ok;
+            napi_value resultJsCb;
+            res = napi_get_reference_value(asyncCBWork->env, asyncCBWork->callbackRef, &resultJsCb);
+            napi_value argv[2] = {nullptr};
+            argv[0] = ErrorCodeInput(asyncCBWork->env, asyncCBWork->status);
+            argv[1] = ParmsInput(asyncCBWork->env, *asyncCBWork);
+            napi_value result;
+            res = napi_call_function(asyncCBWork->env, nullptr, resultJsCb, PARAM_COUNT_2, argv, &result);
+            if (res != napi_ok) {
+                USB_HILOGE(MODULE_JS_NAPI, "napi call function failed, res: %{public}d", res);
+            }
+            napi_close_handle_scope(asyncCBWork->env, scope);
+            delete asyncCBWork;
+        }
+        delete work;
+    }, uv_qos_default);
+}
+
+static void GetUSBTransferInfo(USBTransferInfo &obj, USBTransferAsyncContext *asyncContext)
+{
+    obj.endpoint = asyncContext->endpoint;
+    obj.type = asyncContext->type;
+    obj.timeOut = asyncContext->timeOut;
+    obj.length = asyncContext->length;
+    obj.numIsoPackets = asyncContext->numIsoPackets;
+    std::uintptr_t ptrValue = reinterpret_cast<std::uintptr_t>(asyncContext);
+    obj.userData = static_cast<uint64_t>(ptrValue);
+}
+
+static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
+{
+    auto timesUse = std::make_shared<TimesUse>();
+    timesUse->beginTime = std::chrono::steady_clock::now();
+    auto asyncContext = new (std::nothrow) USBTransferAsyncContext();
+    if (asyncContext == nullptr) {
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    if (!GetTransferParamsFromJsObj(env, info, asyncContext)) {
+        USB_HILOGE(MODULE_JS_NAPI, "end call invalid arg");
+        asyncContext->status = napi_invalid_arg;
+        napi_create_int32(env, USB_SUBMIT_TRANSFER_GET_PARAMS_ERROR, &result);
+        return result;
+    }
+    asyncContext->env = env;
+    HDI::Usb::V1_2::USBTransferInfo obj;
+    GetUSBTransferInfo(obj, asyncContext);
+    asyncContext->ashmem = Ashmem::CreateAshmem(asyncContext->name.c_str(), asyncContext->length);
+    if (asyncContext->ashmem == nullptr) {
+        USB_HILOGE(MODULE_JS_NAPI, "Ashmem::CreateAshmem failed");
+        return nullptr;
+    }
+    if ((asyncContext->endpoint & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
+        std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
+        obj.length = bufferData.size();
+        asyncContext->ashmem->MapReadAndWriteAshmem();
+        bool isWrite = asyncContext->ashmem->WriteToAshmem(asyncContext->buffer, bufferData.size(), 0);
+        if (!isWrite) {
+            asyncContext->ashmem->CloseAshmem();
+            USB_HILOGE(MODULE_JS_NAPI, "napi UsbSubmitTransfer Failed to UsbSubmitTransfer to ashmem.");
+        }
+    }
+    static auto func = [] (const TransferCallbackInfo &info,
+        const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo, uint64_t userData) -> void {
+        USBTransferAsyncContext *asyncContext = reinterpret_cast<USBTransferAsyncContext *>(userData);
+        return JsCallBack(asyncContext, info, isoInfo);
+    };
+    int32_t ret = asyncContext->pipe.UsbSubmitTransfer(obj, func, asyncContext->ashmem);
+    if (ret != napi_ok) {
+        napi_create_int32(env, ret, &result);
+        return result;
+    }
+    timesUse->endTime = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(timesUse->endTime - timesUse->beginTime);
+    USB_HILOGE(MODULE_JS_NAPI, "UsbSubmitTransfer usedTime:%{public}lld ms", duration.count());
+    return nullptr;
+}
+
+static bool ParseCancelParams(const napi_env &env, const napi_value &object,
+    std::shared_ptr<USBTransferAsyncContext> asyncContext)
+{
+    auto timesUse = std::make_shared<TimesUse>();
+    timesUse->beginTime = std::chrono::steady_clock::now();
+    napi_value valuePipe = nullptr;
+    USBDevicePipe pipe;
+    napi_valuetype valueType;
+    napi_get_named_property(env, object, "devPipe", &valuePipe);
+    napi_typeof(env, valuePipe, &valueType);
+    USB_ASSERT_RETURN_FALSE(env, valueType == napi_object, false, "The valueType of pipe must be USBDevicePipe.");
+    ParseUsbDevicePipe(env, valuePipe, pipe);
+    asyncContext->pipe = pipe;
+
+    NapiUtil::JsObjectToInt(env, object, "endpoint", asyncContext->endpoint);
+    timesUse->endTime = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(timesUse->endTime - timesUse->beginTime);
+    USB_HILOGE(MODULE_JS_NAPI, "UsbCancelTransfer usedTime:%{public}lld ms", duration.count());
+    return true;
+}
+
+static bool GetCancelParamsFromJsObj(const napi_env &env, const napi_callback_info &info,
+    std::shared_ptr<USBTransferAsyncContext> asyncContext)
+{
+    size_t argc = PARAM_COUNT_1;
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT_RETURN_FALSE(env, (argc >= PARAM_COUNT_1), OHEC_COMMON_PARAM_ERROR,
+        "The function at least takes one arguments.");
+
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, argv[INDEX_0], &valueType);
+    USB_ASSERT_RETURN_FALSE(
+        env, valueType == napi_object, OHEC_COMMON_PARAM_ERROR, "The type of pipe must be USBDataTransfer type.");
+
+    bool parseResult = ParseCancelParams(env, argv[INDEX_0], asyncContext);
+    if (!parseResult) {
+        USB_HILOGE(MODULE_JS_NAPI, "Transfer wrong params, ParseCancelParams faied");
+        return false;
+    }
+
+    return true;
+}
+
+static napi_value UsbCancelTransfer(napi_env env, napi_callback_info info)
+{
+    auto asyncContext = std::make_shared<USBTransferAsyncContext>();
+    if (asyncContext == nullptr) {
+        USB_HILOGE(MODULE_JS_NAPI, "Create USBTransferAsyncContext failed.");
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    if (!GetCancelParamsFromJsObj(env, info, asyncContext)) {
+        USB_HILOGE(MODULE_JS_NAPI, "end call invalid arg");
+        asyncContext->status = napi_invalid_arg;
+        napi_create_int32(env, USB_SUBMIT_TRANSFER_GET_PARAMS_ERROR, &result);
+        return result;
+    }
+
+    int32_t ret = asyncContext->pipe.UsbCancelTransfer(asyncContext->endpoint);
+    if (ret != napi_ok) {
+        napi_create_int32(env, USB_SUBMIT_TRANSFER_IO_ERROR, &result);
+        return result;
+    }
+    return nullptr;
+}
+
 static napi_value PipeClose(napi_env env, napi_callback_info info)
 {
     size_t argc = PARAM_COUNT_1;
@@ -2039,6 +2372,9 @@ napi_value UsbInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getRawDescriptor", PipeGetRawDescriptors),
         DECLARE_NAPI_FUNCTION("getFileDescriptor", PipeGetFileDescriptor),
         DECLARE_NAPI_FUNCTION("closePipe", PipeClose),
+
+        DECLARE_NAPI_FUNCTION("usbCancelTransfer", UsbCancelTransfer),
+        DECLARE_NAPI_FUNCTION("usbSubmitTransfer", UsbSubmitTransfer),
 
         /* fort test get usb service version */
         DECLARE_NAPI_FUNCTION("getVersion", GetVersion),
