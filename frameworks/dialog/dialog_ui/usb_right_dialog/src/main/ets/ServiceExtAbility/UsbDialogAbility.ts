@@ -24,7 +24,7 @@ class UsbDialogStub extends rpc.RemoteObject {
   constructor(des) {
     super(des);
   }
-  onRemoteRequest(code, data, reply, option): boolean { 
+  onRemoteRequest(code, data, reply, option): boolean {
     return true;
   }
 }

@@ -130,6 +130,7 @@ public:
     int32_t GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed) override;
 
     bool GetDeviceProductName(const std::string &deviceName, std::string &productName);
+    int32_t UserChangeProcess();
 
     int32_t GetAccessoryList(std::vector<USBAccessory> &accessList) override;
     int32_t OpenAccessory(const USBAccessory &access, int32_t &fd) override;
@@ -193,6 +194,7 @@ private:
     int32_t commEventRetryTimes_ = 0;
     std::mutex mutex_;
     std::mutex hdiCbMutex_;
+    std::mutex functionMutex_;
     std::shared_ptr<UsbHostManager> usbHostManager_;
     std::shared_ptr<UsbRightManager> usbRightManager_;
     std::shared_ptr<UsbPortManager> usbPortManager_;

@@ -27,11 +27,15 @@
 #include "v1_0/iusb_interface.h"
 #include "v1_0/iusbd_subscriber.h"
 
+#define USB_FUNCTION_MTP     (1 << 3)
+#define USB_FUNCTION_PTP     (1 << 4)
+#define USB_FUNCTION_STORAGE     (1 << 9)
 namespace OHOS {
 namespace USB {
 class UsbDeviceManager {
 public:
     UsbDeviceManager();
+    ~UsbDeviceManager();
     int32_t Init();
     static bool AreSettableFunctions(int32_t funcs);
 
@@ -44,7 +48,7 @@ public:
     void GetDumpHelp(int32_t fd);
     void Dump(int32_t fd, const std::vector<std::string> &args);
     bool IsGadgetConnected(void);
-
+    int32_t UserChangeProcess();
 private:
     void ProcessFunctionSwitchWindow(bool connected);
     void DumpGetSupportFunc(int32_t fd);
@@ -52,6 +56,7 @@ private:
     void ReportFuncChangeSysEvent(int32_t currentFunctions, int32_t updateFunctions);
     void ReportDevicePlugSysEvent(int32_t currentFunctions, bool connected);
     void ProcessFuncChange(bool connected, int32_t currentFunc);
+    void BroadcastFuncChange(bool connected, int32_t currentFunc);
     static constexpr uint32_t functionSettable_ = UsbSrvSupport::FUNCTION_HDC | UsbSrvSupport::FUNCTION_ACM |
         UsbSrvSupport::FUNCTION_ECM | UsbSrvSupport::FUNCTION_MTP | UsbSrvSupport::FUNCTION_PTP |
         UsbSrvSupport::FUNCTION_RNDIS | UsbSrvSupport::FUNCTION_STORAGE;
