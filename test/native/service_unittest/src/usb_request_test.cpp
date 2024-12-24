@@ -1549,7 +1549,7 @@ HWTEST_F(UsbRequestTest, PipeRequestWait006, TestSize.Level1)
 /**
  * @tc.name: UsbHasRight001
  * @tc.desc: Test functions of HasRight
- * @tc.desc: bool HasRight(std::string deviceName)
+ * @tc.desc: bool HasRight(const std::string deviceName)
  * @tc.desc: Setup case as system hap: Before RequestRight, HasRight return true.
  * @tc.type: FUNC
  */
@@ -1572,7 +1572,7 @@ HWTEST_F(UsbRequestTest, UsbHasRight001, TestSize.Level1)
 /**
  * @tc.name: UsbHasRight002
  * @tc.desc: Test functions of HasRight
- * @tc.desc: bool HasRight(std::string deviceName)
+ * @tc.desc: bool HasRight(const std::string deviceName)
  * @tc.desc: Setup case as system hap: After RequestRight, HasRight return true.
  * @tc.type: FUNC
  */
@@ -1601,7 +1601,7 @@ HWTEST_F(UsbRequestTest, UsbHasRight002, TestSize.Level1)
 /**
  * @tc.name: UsbHasRight003
  * @tc.desc: Test functions of HasRight
- * @tc.desc: bool HasRight(std::string deviceName)
+ * @tc.desc: bool HasRight(const std::string deviceName)
  * @tc.desc: Setup case as system hap: After RemoveRight, HasRight return true.
  * @tc.type: FUNC
  */
@@ -1631,7 +1631,7 @@ HWTEST_F(UsbRequestTest, UsbHasRight003, TestSize.Level1)
 /**
  * @tc.name: UsbHasRight004
  * @tc.desc: Test functions of HasRight
- * @tc.desc: bool HasRight(std::string deviceName)
+ * @tc.desc: bool HasRight(const std::string deviceName)
  * @tc.desc: Setup case as system hap: RequestRight then RemoveRight
  * @tc.type: FUNC
  */
@@ -1663,7 +1663,7 @@ HWTEST_F(UsbRequestTest, UsbHasRight004, TestSize.Level1)
 /**
  * @tc.name: UsbHasRight005
  * @tc.desc: Test functions of HasRight
- * @tc.desc: bool HasRight(std::string deviceName)
+ * @tc.desc: bool HasRight(const std::string deviceName)
  * @tc.desc: Setup case as system hap: deviceName not in delist.
  * @tc.type: FUNC
  */
@@ -1690,7 +1690,7 @@ HWTEST_F(UsbRequestTest, UsbHasRight005, TestSize.Level1)
 /**
  * @tc.name: UsbHasRight006
  * @tc.desc: Test functions of right with diff userid, instIndex
- * @tc.desc: bool HasRight(std::string deviceName)
+ * @tc.desc: bool HasRight(const std::string deviceName)
  * @tc.desc: Setup case as system hap: deviceName not in delist.
  * @tc.type: FUNC
  */
@@ -1743,7 +1743,7 @@ HWTEST_F(UsbRequestTest, UsbHasRight006, TestSize.Level1)
 /**
  * @tc.name: Usbrequestright001
  * @tc.desc: Test functions of requestright
- * @tc.desc: int32_t requestright(std::string deviceName)
+ * @tc.desc: int32_t requestRight(const std::string deviceName)
  * @tc.desc: Setup case as system hap: RequestRight then RemoveRight
  * @tc.type: FUNC
  */
@@ -1772,7 +1772,7 @@ HWTEST_F(UsbRequestTest, Usbrequestright001, TestSize.Level1)
 /**
  * @tc.name: Usbrequestright003
  * @tc.desc: Test functions of requestright
- * @tc.desc: int32_t requestright(std::string deviceName)
+ * @tc.desc: int32_t requestRight(const std::string deviceName)
  * @tc.type: FUNC
  */
 HWTEST_F(UsbRequestTest, Usbrequestright003, TestSize.Level1)
@@ -1804,7 +1804,7 @@ HWTEST_F(UsbRequestTest, Usbrequestright003, TestSize.Level1)
 /**
  * @tc.name: Usbrequestright004
  * @tc.desc: Test functions of requestright
- * @tc.desc: int32_t requestright(std::string deviceName)
+ * @tc.desc: int32_t requestRight(const std::string deviceName)
  * @tc.type: FUNC
  */
 HWTEST_F(UsbRequestTest, Usbrequestright004, TestSize.Level1)

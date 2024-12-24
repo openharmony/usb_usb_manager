@@ -106,18 +106,18 @@ int32_t UsbRightDbHelper::AddRightRecord(
     values.PutString("deviceName", deviceName);
     values.PutString("bundleName", bundleName);
     int32_t ret = rightDatabase_->BeginTransaction();
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error: %{public}d", ret);
         return ret;
     }
     ret = rightDatabase_->Insert(values);
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "Insert error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
         return ret;
     }
     ret = rightDatabase_->Commit();
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
         return ret;
@@ -137,7 +137,7 @@ int32_t UsbRightDbHelper::QueryAndGetResult(const RdbPredicates &rdbPredicates, 
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     int32_t ret = rightDatabase_->BeginTransaction();
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error: %{public}d", ret);
         return ret;
     }
@@ -148,7 +148,7 @@ int32_t UsbRightDbHelper::QueryAndGetResult(const RdbPredicates &rdbPredicates, 
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     ret = rightDatabase_->Commit();
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
         return ret;
@@ -233,7 +233,7 @@ int32_t UsbRightDbHelper::QueryAndGetResultColumnValues(const RdbPredicates &rdb
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     int32_t ret = rightDatabase_->BeginTransaction();
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error: %{public}d", ret);
         return ret;
     }
@@ -244,7 +244,7 @@ int32_t UsbRightDbHelper::QueryAndGetResultColumnValues(const RdbPredicates &rdb
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     ret = rightDatabase_->Commit();
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
         return ret;
@@ -293,20 +293,20 @@ int32_t UsbRightDbHelper::UpdateRightRecord(
     values.PutString("deviceName", deviceName);
     values.PutString("bundleName", bundleName);
     int32_t ret = rightDatabase_->BeginTransaction();
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error: %{public}d", ret);
         return ret;
     }
     int32_t changedRows = 0;
     ret = rightDatabase_->Update(changedRows, values, "uid = ? AND deviceName = ? AND bundleName = ?",
         std::vector<std::string> {std::to_string(info.uid), deviceName, bundleName});
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "Update error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
         return ret;
     }
     ret = rightDatabase_->Commit();
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
     }
@@ -321,19 +321,19 @@ int32_t UsbRightDbHelper::DeleteAndNoOtherOperation(
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     int32_t ret = rightDatabase_->BeginTransaction();
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error: %{public}d", ret);
         return ret;
     }
     int32_t changedRows = 0;
     ret = rightDatabase_->Delete(changedRows, whereClause, whereArgs);
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "Delete error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
         return ret;
     }
     ret = rightDatabase_->Commit();
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
     }
@@ -352,18 +352,18 @@ int32_t UsbRightDbHelper::DeleteAndNoOtherOperation(const OHOS::NativeRdb::RdbPr
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     int32_t ret = rightDatabase_->BeginTransaction();
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error: %{public}d", ret);
         return ret;
     }
     ret = rightDatabase_->Delete(rdbPredicates);
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "Delete error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
         return ret;
     }
     ret = rightDatabase_->Commit();
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
     }
@@ -518,7 +518,7 @@ int32_t UsbRightDbHelper::GetResultRightRecordEx(
 {
     struct UsbRightTableInfo table;
     int32_t ret = GetResultSetTableInfo(resultSet, table);
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetResultSetTableInfo failed");
         return ret;
     }
@@ -566,23 +566,23 @@ int32_t UsbRightDbHelper::AddOrUpdateRightRecord(int32_t uid, const std::string 
     }
     std::lock_guard<std::mutex> guard(databaseMutex_);
     int32_t ret = rightDatabase_->BeginTransaction();
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error: %{public}d", ret);
         return ret;
     }
     bool isUpdate = false;
     ret = CheckIfNeedUpdateEx(isUpdate, uid, deviceName, bundleName, tokenId);
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "check if need update error: %{public}d", ret);
         return ret;
     }
     ret = AddOrUpdateRightRecordEx(isUpdate, uid, deviceName, bundleName, tokenId, info);
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "add or update error: %{public}d", ret);
         return ret;
     }
     ret = rightDatabase_->Commit();
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
     }
@@ -650,7 +650,7 @@ int32_t UsbRightDbHelper::AddOrUpdateRightRecordEx(bool isUpdate, int32_t uid, c
     } else {
         ret = rightDatabase_->Insert(values);
     }
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "Insert or Update error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
     }
@@ -664,7 +664,7 @@ int32_t UsbRightDbHelper::QueryRightRecordCount()
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     int32_t ret = rightDatabase_->BeginTransaction();
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error :%{public}d", ret);
         return ret;
     }
@@ -677,7 +677,7 @@ int32_t UsbRightDbHelper::QueryRightRecordCount()
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     ret = rightDatabase_->Commit();
-    if (ret != USB_RIGHT_OK) {
+    if (ret < USB_RIGHT_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
         return ret;
