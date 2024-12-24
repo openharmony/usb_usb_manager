@@ -403,7 +403,7 @@ HWTEST_F(UsbCoreMockTest, UsbFunctionsToString005, TestSize.Level1)
 
 /**
  * @tc.name: UsbHasRight001
- * @tc.desc: bool HasRight(std::string deviceName)
+ * @tc.desc: bool HasRight(const std::string deviceName)
  * @tc.desc: Negative test: first AddRight ,second HasRight
  * @tc.type: FUNC
  */
@@ -417,7 +417,7 @@ HWTEST_F(UsbCoreMockTest, UsbHasRight001, TestSize.Level1)
 
 /**
  * @tc.name: UsbHasRight002
- * @tc.desc: bool HasRight(std::string deviceName)
+ * @tc.desc: bool HasRight(const std::string deviceName)
  * @tc.desc: Positive test: program correctly
  * @tc.type: FUNC
  */
@@ -439,7 +439,7 @@ HWTEST_F(UsbCoreMockTest, UsbHasRight002, TestSize.Level1)
 
 /**
  * @tc.name: UsbHasRight003
- * @tc.desc: bool HasRight(std::string deviceName)
+ * @tc.desc: bool HasRight(const std::string deviceName)
  * @tc.desc: Negative test: first AddRight ,second HasRight
  * @tc.type: FUNC
  */
@@ -460,7 +460,7 @@ HWTEST_F(UsbCoreMockTest, UsbHasRight003, TestSize.Level1)
 
 /**
  * @tc.name: UsbHasRight004
- * @tc.desc: bool HasRight(std::string deviceName)
+ * @tc.desc: bool HasRight(const std::string deviceName)
  * @tc.desc: Positive test: program correctly
  * @tc.type: FUNC
  */
@@ -486,7 +486,7 @@ HWTEST_F(UsbCoreMockTest, UsbHasRight004, TestSize.Level1)
 /**
  * @tc.name: UsbAddRight001
  * @tc.desc: Test functions of requestright
- * @tc.desc: int32_t requestright(std::string deviceName)
+ * @tc.desc: int32_t requestRight(const std::string deviceName)
  * @tc.desc: RequestRight then RemoveRight
  * @tc.type: FUNC
  */
@@ -509,7 +509,7 @@ HWTEST_F(UsbCoreMockTest, UsbAddRight001, TestSize.Level1)
 /**
  * @tc.name: UsbAddRight002
  * @tc.desc: Test functions of requestright
- * @tc.desc: int32_t requestright(std::string deviceName)
+ * @tc.desc: int32_t requestRight(const std::string deviceName)
  * @tc.type: FUNC
  */
 HWTEST_F(UsbCoreMockTest, UsbAddRight002, TestSize.Level1)

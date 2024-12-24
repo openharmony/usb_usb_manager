@@ -52,8 +52,8 @@ base/usb/usb_manager
 | int32_t PipeRequestWait(USBDevicePipe &pip, int64_t timeout, UsbRequest &req); | 等待RequestQueue异步请求的操作结果 |
 | int32_t RequestAbort(UsbRequest &request); | 取消待处理的数据请求 |
 | int32_t RequestFree(UsbRequest &request); | 释放数据请求 |
-| bool HasRight(std::string deviceName); | 判断设备是否有权限 |
-| int32_t RequestRight(std::string deviceName); | 给指定设备申请权限 |
+| bool HasRight(const std::string deviceName); | 判断设备是否有权限 |
+| int32_t RequestRight(const std::string deviceName); | 给指定设备申请权限 |
 
 #### Device 功能接口
 | **内部接口申明** | **接口描述** |
