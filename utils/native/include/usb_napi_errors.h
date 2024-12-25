@@ -42,7 +42,9 @@ enum UsbJsErrCode : int32_t {
 };
 
 const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
-    {OHEC_COMMON_PERMISSION_NOT_ALLOWED, "BusinessError 201:The permission check failed."},
+    {OHEC_COMMON_PERMISSION_NOT_ALLOWED,
+        "BusinessError 201:Permission verification failed. "
+        "The application does not have the permission required to call the API."},
     {OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "BusinessError 202:Permission denied. Normal application uses system api."   },
     {OHEC_COMMON_PARAM_ERROR,       "BusinessError 401:Parameter error."                                         },
     {UEC_COMMON_HAS_NO_RIGHT, "BusinessError 14400001:Permission denied."                                  },

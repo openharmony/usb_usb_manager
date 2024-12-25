@@ -656,6 +656,8 @@ static napi_value DeviceAddRight(napi_env env, napi_callback_info info)
     } else {
         USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI),
             OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "");
+        USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED),
+            OHEC_COMMON_PERMISSION_NOT_ALLOWED, "");
         napi_get_boolean(env, false, &result);
     }
     return result;
@@ -726,6 +728,8 @@ static napi_value DeviceAddAccessRight(napi_env env, napi_callback_info info)
     } else {
         USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI),
             OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "");
+        USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED),
+            OHEC_COMMON_PERMISSION_NOT_ALLOWED, "");
         napi_get_boolean(env, false, &result);
     }
     return result;
@@ -999,7 +1003,8 @@ static napi_value CoreUsbFunctionsFromString(napi_env env, napi_callback_info in
     USB_HILOGI(MODULE_JS_NAPI, "usb functions from string failed ret = %{public}d", numFuncs);
     USB_ASSERT_RETURN_UNDEF(env, (numFuncs != UEC_SERVICE_PERMISSION_DENIED_SYSAPI),
         OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "");
-
+    USB_ASSERT_RETURN_UNDEF(env, (numFuncs != UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED),
+        OHEC_COMMON_PERMISSION_NOT_ALLOWED, "");
     napi_value result;
     napi_create_int32(env, numFuncs, &result);
 
@@ -1022,6 +1027,8 @@ static napi_value CoreUsbFunctionsToString(napi_env env, napi_callback_info info
     napi_get_value_int32(env, argv[INDEX_0], &funcs);
     std::string strFuncs = g_usbClient.UsbFunctionsToString(funcs);
     USB_ASSERT_RETURN_UNDEF(env, (strFuncs != PERMISSION_DENIED_SYSAPI), OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "");
+    USB_ASSERT_RETURN_UNDEF(env, (strFuncs != SYS_APP_PERMISSION_DENIED_SYSAPI),
+        OHEC_COMMON_PERMISSION_NOT_ALLOWED, "");
     napi_value result;
     napi_create_string_utf8(env, strFuncs.c_str(), NAPI_AUTO_LENGTH, &result);
 
@@ -1044,6 +1051,9 @@ static auto g_setCurrentFunctionComplete = [](napi_env env, napi_status status, 
     } else if (asyncContext->errCode == UEC_SERVICE_PERMISSION_DENIED_SYSAPI) {
         asyncContext->status = napi_generic_failure;
         queryResult = CreateBusinessError((env), OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "");
+    } else if (asyncContext->errCode == UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED) {
+        asyncContext->status = napi_generic_failure;
+        queryResult = CreateBusinessError((env), OHEC_COMMON_PERMISSION_NOT_ALLOWED, "");
     } else if (asyncContext->errCode == UEC_SERVICE_PERMISSION_CHECK_HDC) {
         asyncContext->status = napi_generic_failure;
         queryResult = CreateBusinessError((env), UEC_COMMON_HDC_NOT_ALLOWED, "");
@@ -1107,7 +1117,8 @@ static napi_value CoreGetCurrentFunctions(napi_env env, napi_callback_info info)
     napi_value result;
     USB_HILOGI(MODULE_JS_NAPI, "get current functions failed ret = %{public}d", ret);
     USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI), OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "");
-
+    USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED),
+        OHEC_COMMON_PERMISSION_NOT_ALLOWED, "");
     if (ret != UEC_OK) {
         napi_get_undefined(env, &result);
         USB_HILOGE(MODULE_JS_NAPI, "end call get ports failed ret : %{public}d", ret);
@@ -1130,7 +1141,8 @@ static napi_value CoreGetPorts(napi_env env, napi_callback_info info)
     napi_value result;
     USB_HILOGI(MODULE_JS_NAPI, "get ports failed ret : %{public}d", ret);
     USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI), OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "");
-
+    USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED),
+        OHEC_COMMON_PERMISSION_NOT_ALLOWED, "");
     if (ret != UEC_OK) {
         napi_get_undefined(env, &result);
         USB_HILOGE(MODULE_JS_NAPI, "end call get ports failed ret : %{public}d", ret);
@@ -1175,6 +1187,8 @@ static napi_value PortGetSupportedModes(napi_env env, napi_callback_info info)
     int32_t ret = g_usbClient.GetSupportedModes(id, result);
     USB_HILOGI(MODULE_JS_NAPI, "get supported modes failed ret = %{public}d", ret);
     USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI), OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "");
+    USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED),
+        OHEC_COMMON_PERMISSION_NOT_ALLOWED, "");
 
     if (ret) {
         USB_HILOGD(MODULE_JS_NAPI, "false ret = %{public}d", ret);
@@ -1201,6 +1215,9 @@ static auto g_setPortRoleComplete = [](napi_env env, napi_status status, void *d
     } else if (asyncContext->errCode == UEC_SERVICE_PERMISSION_DENIED_SYSAPI) {
         asyncContext->status = napi_generic_failure;
         queryResult = CreateBusinessError((env), OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "");
+    } else if (asyncContext->errCode == UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED) {
+        asyncContext->status = napi_generic_failure;
+        queryResult = CreateBusinessError((env), OHEC_COMMON_PERMISSION_NOT_ALLOWED, "");
     } else if (asyncContext->errCode == UEC_SERVICE_NOT_SUPPORT_SWITCH_PORT) {
         asyncContext->status = napi_generic_failure;
         queryResult = CreateBusinessError((env), UEC_COMMON_PORTROLE_SWITCH_NOT_ALLOWED, "");
