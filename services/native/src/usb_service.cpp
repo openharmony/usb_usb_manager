@@ -1710,6 +1710,7 @@ int32_t UsbService::InitUsbRight()
         return ret;
     }
     std::vector<std::string> devices;
+    std::lock_guard<std::mutex> guard(mutex_);
     for (auto it = deviceVidPidMap_.begin(); it != deviceVidPidMap_.end(); ++it) {
         devices.push_back(it->second);
     }
