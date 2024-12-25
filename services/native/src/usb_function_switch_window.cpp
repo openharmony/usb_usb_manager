@@ -94,7 +94,7 @@ int32_t UsbFunctionSwitchWindow::Init()
 bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "pop up function switch window");
-    bool isPromptEnabeld = OHOS::system::GetBoolParameter("persist.usb.setting.gadget_conn_prompt", false);
+    bool isPromptEnabeld = OHOS::system::GetBoolParameter("persist.usb.setting.gadget_conn_prompt", true);
     if (!isPromptEnabeld) {
         USB_HILOGE(MODULE_USB_SERVICE, "gadget_conn_prompt is false");
         return false;
