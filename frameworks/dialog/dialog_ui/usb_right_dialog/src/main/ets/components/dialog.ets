@@ -21,7 +21,6 @@ import { CustomColors, CustomTheme, Theme } from '@ohos.arkui.theme';
 import { LengthMetrics, LengthUnit } from '@ohos.arkui.node';
 import common from '@ohos.app.ability.common';
 
-//import { ButtonOptions } from '@ohos.arkui.advanced.Dialog';
 export declare class ButtonOptions {
   value: ResourceStr;
   action?: () => void;
