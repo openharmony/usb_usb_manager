@@ -2055,6 +2055,7 @@ int32_t UsbService::AddAccessRight(const std::string &tokenId, const std::string
 // LCOV_EXCL_START
 int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
 {
+    USB_HILOGE(MODULE_USB_SERVICE, "UsbService::Dump Start");
     if (fd < 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "fd is invalid fd:%{public}d", fd);
         return UEC_SERVICE_INVALID_VALUE;
@@ -2089,7 +2090,7 @@ int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
     } else if (argList[0] == USB_LIST) {
         usbSerialManager_->SerialPortListDump(fd, argList);
     } else if (argList[0] == USB_GETT) {
-        usbSerialManager_->SerialGetDump(fd, argList);
+        usbSerialManager_->SerialGetAttributeDump(fd, argList);
     } else {
         dprintf(fd, "Usb Dump service:invalid parameter.\n");
         DumpHelp(fd);
@@ -2708,7 +2709,7 @@ int32_t UsbService::CancelAccessoryRight(const USBAccessory &access)
 
 bool UsbService::InitSerial()
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::InitSerial Execute");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::InitSerial Start");
     seriald_ = OHOS::HDI::Usb::Serial::V1_0::ISerialInterface::Get("serial_interface_service", true);
     if (seriald_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::InitSerial seriald_ is null");
@@ -2720,7 +2721,7 @@ bool UsbService::InitSerial()
 
 int32_t UsbService::SerialOpen(int32_t portId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialOpen Execute");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialOpen Start");
 
     if (usbSerialManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::SerialOpen usbSerialManager_ is null");
@@ -2738,7 +2739,7 @@ int32_t UsbService::SerialOpen(int32_t portId)
 
 int32_t UsbService::SerialClose(int32_t portId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialClose Execute");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialClose Start");
     if (usbSerialManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::SerialClose usbSerialManager_ is null");
         return UEC_SERVICE_INVALID_VALUE;
@@ -2749,7 +2750,7 @@ int32_t UsbService::SerialClose(int32_t portId)
 
 int32_t UsbService::SerialRead(int32_t portId, std::vector<uint8_t>& data, uint32_t size)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialRead Execute");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialRead Start");
     if (usbSerialManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::SerialRead usbSerialManager_ is null");
         return UEC_SERVICE_INVALID_VALUE;
@@ -2760,7 +2761,7 @@ int32_t UsbService::SerialRead(int32_t portId, std::vector<uint8_t>& data, uint3
 
 int32_t UsbService::SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialWrite Execute");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialWrite Start");
     if (usbSerialManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::SerialWrite usbSerialManager_ is null");
         return UEC_SERVICE_INVALID_VALUE;
@@ -2771,7 +2772,7 @@ int32_t UsbService::SerialWrite(int32_t portId, const std::vector<uint8_t>& data
 
 int32_t UsbService::SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attributeInfo)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialGetAttribute Execute");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialGetAttribute Start");
     if (usbSerialManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::SerialGetAttribute usbSerialManager_ is null");
         return UEC_SERVICE_INVALID_VALUE;
@@ -2788,7 +2789,7 @@ int32_t UsbService::SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V
 
 int32_t UsbService::SerialSetAttribute(int32_t portId, const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attributeInfo)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialSetAttribute Execute");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialSetAttribute Start");
     if (usbSerialManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::SerialSetAttribute usbSerialManager_ is null");
         return UEC_SERVICE_INVALID_VALUE;
@@ -2805,7 +2806,7 @@ int32_t UsbService::SerialSetAttribute(int32_t portId, const OHOS::HDI::Usb::Ser
 
 int32_t UsbService::SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialGetPortList Execute");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialGetPortList Start");
     if (usbSerialManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::SerialGetPortList usbSerialManager_ is null");
         return UEC_SERVICE_INVALID_VALUE;
@@ -2823,7 +2824,7 @@ int32_t UsbService::SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::
 
 void UsbService::UpdateDeviceVidPidMap(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::UpdateDeviceVidPidMap Execute");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::UpdateDeviceVidPidMap Start");
     std::lock_guard<std::mutex> guard(mutex_);
     serialVidPidMap_.clear();
     for (auto ele: serialPortList) {
@@ -2840,7 +2841,7 @@ void UsbService::UpdateDeviceVidPidMap(std::vector<OHOS::HDI::Usb::Serial::V1_0:
 
 int32_t UsbService::RequestSerialRight(int32_t portId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialRequestRight Execute");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialRequestRight Start");
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::SerialRequestRight usbRightManager_ is null");
         return UEC_SERVICE_INVALID_VALUE;
@@ -2882,7 +2883,7 @@ int32_t UsbService::RequestSerialRight(int32_t portId)
 
 int32_t UsbService::CancelSerialRight(int32_t portId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialRemoveRight Execute");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialRemoveRight Start");
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::SerialRemoveRight usbRightManager_ is null");
         return UEC_SERVICE_INVALID_VALUE;
@@ -2926,7 +2927,7 @@ int32_t UsbService::CancelSerialRight(int32_t portId)
 
 bool UsbService::HasSerialRight(int32_t portId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialHasRight Execute");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialHasRight Start");
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::SerialHasRight usbRightManager_ is null");
         return false;
@@ -2970,7 +2971,7 @@ bool UsbService::HasSerialRight(int32_t portId)
 
 int32_t UsbService::AddSerialRight(uint32_t tokenId, int32_t portId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialAddRight Execute");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialAddRight Start");
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::SerialAddRight usbRightManager_ is null");
         return UEC_SERVICE_INVALID_VALUE;
@@ -2999,7 +3000,7 @@ int32_t UsbService::AddSerialRight(uint32_t tokenId, int32_t portId)
 
 int32_t UsbService::GetDeviceVidPidSerialNumber(int32_t portId, std::string& deviceName, std::string& strDesc)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::GetDeviceVidPidSerialNumber Execute");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::GetDeviceVidPidSerialNumber Start");
     int32_t isMatched = UEC_INTERFACE_INVALID_VALUE;
     std::lock_guard<std::mutex> guard(mutex_);
     for (auto it = serialVidPidMap_.begin(); it != serialVidPidMap_.end(); ++it) {

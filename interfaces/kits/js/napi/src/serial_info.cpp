@@ -78,11 +78,6 @@ static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
             return nullptr;
         }
     }
-    for (auto ele: g_portIds) {
-        USB_HILOGE(MODULE_JS_NAPI, "portId: %{public}d", ele.portId);
-        std::string deviceName = std::to_string(ele.deviceInfo.busNum) + "-" + std::to_string(ele.deviceInfo.devAddr);
-        USB_HILOGE(MODULE_JS_NAPI, "deviceName: %{public}s", deviceName.c_str());
-    }
     if (!SerialAssert(env, (ret == 0), SYSPARAM_INVALID_INPUT, "get portlist failed")) {
         return nullptr;
     }
@@ -94,6 +89,8 @@ static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
         NapiUtil::SetValueInt32(env, "portId", g_portIds[i].portId, portObj);
         std::string deviceName = std::to_string(g_portIds[i].deviceInfo.busNum) + "-" + std::to_string(g_portIds[i].deviceInfo.devAddr);
         NapiUtil::SetValueUtf8String(env, "deviceName", deviceName, portObj);
+        USB_HILOGE(MODULE_JS_NAPI, "portId: %{public}d", g_portIds[i].portId);
+        USB_HILOGE(MODULE_JS_NAPI, "deviceName: %{public}s", deviceName.c_str());
         napi_set_element(env, result, i, portObj);
     }
     return result;

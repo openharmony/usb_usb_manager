@@ -39,7 +39,7 @@ public:
     int32_t SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList);
     void SerialPortListDump(int32_t fd, const std::vector<std::string>& args);
     void ListGetDumpHelp(int32_t fd);
-    void SerialGetDump(int32_t fd, const std::vector<std::string>& args);
+    void SerialGetAttributeDump(int32_t fd, const std::vector<std::string>& args);
 private:
     bool IsPortStatus(int32_t portId);
     std::mutex mutex_;

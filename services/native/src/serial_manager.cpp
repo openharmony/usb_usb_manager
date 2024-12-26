@@ -227,7 +227,7 @@ void SerialManager::SerialPortListDump(int32_t fd, const std::vector<std::string
     }
 }
 
-void SerialManager::SerialGetDump(int32_t fd, const std::vector<std::string>& args)
+void SerialManager::SerialGetAttributeDump(int32_t fd, const std::vector<std::string>& args)
 {
     size_t size = args.size();
     OHOS::HDI::Usb::Serial::V1_0::SerialAttribute attribute;

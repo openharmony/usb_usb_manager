@@ -15,6 +15,7 @@
 
 import { AlertDialog } from '@ohos.arkui.advanced.Dialog'
 import usbMgr from '@ohos.usbManager'
+import serialMgr from '@ohos.usbManager.serial'
 
 @Entry
 @Component
@@ -36,10 +37,16 @@ struct IndexHapComponent {
         action: () => {
           try {
             if (globalThis.want.parameters['accessory'] === undefined) {
-              console.info('USBRight allowed');
-              let res = usbMgr.addDeviceAccessRight(globalThis.want.parameters['tokenId'],
-                globalThis.want.parameters['deviceName'])
-              console.info(`USBRight addDeviceAccessRight result:${res}`);
+              if (globalThis.want.parameters['portId'] === undefined) {
+                console.info('USBRight allowed');
+                let res = usbMgr.addDeviceAccessRight(globalThis.want.parameters['tokenId'],
+                  globalThis.want.parameters['deviceName'])
+                console.info(`USBRight addDeviceAccessRight result:${res}`);
+              } else {
+                console.info('SERIALRight allowed');
+                serialMgr.addSerialRight(globalThis.want.parameters['tokenId'],
+                  globalThis.want.parameters['portId']);
+	          }
             } else {
               let accessoryInfo: usbMgr.USBAccessory = JSON.parse(globalThis.want.parameters['accessory']);
               console.info('USB accessory right allowed: ' + globalThis.want.parameters['accessory']);
