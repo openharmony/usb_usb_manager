@@ -191,7 +191,7 @@ void UsbMassStorageNotification::PublishUsbNotification()
         std::make_shared<OHOS::Notification::NotificationContent>(normalContent);
     auto want = std::make_shared<OHOS::AAFwk::Want>();
     if (content == nullptr || want == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "notification content nullptr or want  nulllptr");
+        USB_HILOGE(MODULE_USB_SERVICE, "notification content nullptr or want nulllptr");
         want.reset();
         content.reset();
         return;
