@@ -114,6 +114,7 @@ private:
     int32_t GetAccessoryMessageParcel(MessageParcel &data, USBAccessory &accessoryInfo);
     bool WriteFileDescriptor(MessageParcel &data, int fd);
 
+    /*===================serial interface=====================*/
     int32_t DoSerialOpen(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoSerialClose(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoSerialRead(MessageParcel &data, MessageParcel &reply, MessageOption &option);
@@ -125,6 +126,7 @@ private:
     int32_t DoAddSerialRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoCancelSerialRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoRequestSerialRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    /*========================================================*/
 };
 } // namespace USB
 } // namespace OHOS

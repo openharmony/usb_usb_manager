@@ -51,12 +51,7 @@ const int32_t USLEEP_TIME = 500;
 
 std::mutex g_mutex;
 static std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort> g_portIds;
-
 static UsbSrvClient &g_usbClient = UsbSrvClient::GetInstance();
-
-static int32_t foo() {
-    return 10086;
-}
 
 static napi_value ToInt32Value(napi_env env, int32_t value)
 {
@@ -72,13 +67,10 @@ static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
     if (!NapiCheck(env, napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr), "Get call back info failed")) {
         return nullptr;
     }
-
     if (!SerialAssert(env, (argc == ARGC_0), SYSPARAM_INVALID_INPUT, "The function takes no arguments.")) {
         return nullptr;
     }
-
     int32_t ret = g_usbClient.SerialGetPortList(g_portIds);
-
     if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
         || ret == UEC_INTERFACE_GET_SERIAL_SERVICE_FAILED
         || ret == UEC_INTERFACE_DEAD_OBJECT) {
@@ -86,24 +78,21 @@ static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
             return nullptr;
         }
     }
-
     for (auto ele: g_portIds) {
         USB_HILOGE(MODULE_JS_NAPI, "portId: %{public}d", ele.portId);
-        std::string deviceName = std::string(1, ele.deviceInfo.busNum) + "-" + std::string(1, ele.deviceInfo.devAddr);
+        std::string deviceName = std::to_string(ele.deviceInfo.busNum) + "-" + std::to_string(ele.deviceInfo.devAddr);
         USB_HILOGE(MODULE_JS_NAPI, "deviceName: %{public}s", deviceName.c_str());
     }
-    
     if (!SerialAssert(env, (ret == 0), SYSPARAM_INVALID_INPUT, "get portlist failed")) {
         return nullptr;
     }
-
     napi_value result = nullptr;
     napi_create_array(env, &result);
     for (uint32_t i = 0; i < g_portIds.size(); ++i) {
         napi_value portObj;
         napi_create_object(env, &portObj);
         NapiUtil::SetValueInt32(env, "portId", g_portIds[i].portId, portObj);
-        std::string deviceName = std::string(1, g_portIds[i].deviceInfo.busNum) + "-" + std::string(1, g_portIds[i].deviceInfo.devAddr);
+        std::string deviceName = std::to_string(g_portIds[i].deviceInfo.busNum) + "-" + std::to_string(g_portIds[i].deviceInfo.devAddr);
         NapiUtil::SetValueUtf8String(env, "deviceName", deviceName, portObj);
         napi_set_element(env, result, i, portObj);
     }
@@ -128,34 +117,27 @@ static napi_value SerialGetAttributeNapi(napi_env env, napi_callback_info info)
     if (!NapiCheck(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
         return nullptr;
     }
-
     if (!SerialAssert(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
         return nullptr;
     }
-    
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
     if (!SerialAssert(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of arg0 must be int32_t.")) {
         return nullptr;
     }
-    
     int32_t portIdValue = -1;
     napi_get_value_int32(env, portId, &portIdValue);
     if (!SerialAssert(env, (portIdValue != -1), SYSPARAM_INVALID_INPUT, "Failed to get portId.")) {
         return nullptr;
     }
-    
     if (!IsPortIdExist(portIdValue)) {
         if (!SerialAssert(env, false, SERIAL_PORT_NOT_EXIST, "portid does not exist.")) {
             return nullptr;
         }
     }
-
     OHOS::HDI::Usb::Serial::V1_0::SerialAttribute serialAttribute;
-
     int32_t ret = g_usbClient.SerialGetAttribute(portIdValue, serialAttribute);
-
     if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
         || ret == UEC_INTERFACE_GET_SERIAL_SERVICE_FAILED
         || ret == UEC_INTERFACE_DEAD_OBJECT) {
@@ -163,15 +145,12 @@ static napi_value SerialGetAttributeNapi(napi_env env, napi_callback_info info)
             return nullptr;
         }
     }
-
     if (!SerialAssert(env, ret != UEC_MANAGER_PORT_NOT_OPEN, SERIAL_PORT_NOT_OPEN, "The port is not open.")) {
         return nullptr;
     }
-
     if (!SerialAssert(env, (ret == 0), SYSPARAM_INVALID_INPUT, "Failed to get attribute.")) {
         return nullptr;
     }
-
     napi_value result = nullptr;
     napi_create_object(env, &result);
     NapiUtil::SetValueUint32(env, "baudrate", serialAttribute.baudrate, result);
@@ -190,57 +169,46 @@ bool SetAttributeTransferParams(napi_env env, napi_callback_info info,
     if (!NapiCheck(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
         return false;
     }
-
     if (!SerialAssert(env, (argc == ARGC_2), SYSPARAM_INVALID_INPUT, "The function takes 2 arguments.")) {
         return false;
     }
-
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
     if (!SerialAssert(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of arg0 must be int32_t.")) {
         return false;
     }
-    
     napi_get_value_int32(env, portId, &portIdValue);
     if (!SerialAssert(env, (portIdValue != -1), SYSPARAM_INVALID_INPUT, "Failed to get portId.")) {
         return false;
     }
-
     if (!IsPortIdExist(portIdValue)) {
         if (!SerialAssert(env, false, SERIAL_PORT_NOT_EXIST, "portid does not exist.")) {
             return false;
         }
     }
-    
     napi_value obj = argv[1];
     napi_typeof(env, obj, &type);
     if (!SerialAssert(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of arg1 must be SerialAttribute.")) {
         return false;
     }
-
     NapiUtil::JsObjectToUint(env, obj, "baudrate", serialAttribute.baudrate);
     NapiUtil::JsObjectToUint(env, obj, "dataBits", serialAttribute.dataBits);
     NapiUtil::JsObjectToUint(env, obj, "parity", serialAttribute.parity);
     NapiUtil::JsObjectToUint(env, obj, "stopBits", serialAttribute.stopBits);
-
     return true;
 }
 
 static napi_value SerialSetAttributeNapi(napi_env env, napi_callback_info info)
 {
     USB_HILOGI(MODULE_JS_NAPI, "SerialSetAttributeNapi start");
-
     OHOS::HDI::Usb::Serial::V1_0::SerialAttribute serialAttribute;
     int32_t portIdValue = -1;
     if (!SetAttributeTransferParams(env, info, portIdValue, serialAttribute)) {
         return nullptr;
     }
-
     USB_HILOGI(MODULE_JS_NAPI, "SetAttributeNapi portIdValue: %{public}d", portIdValue);
-
     int ret = g_usbClient.SerialSetAttribute(portIdValue, serialAttribute);
-
     if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
         || ret == UEC_INTERFACE_GET_SERIAL_SERVICE_FAILED
         || ret == UEC_INTERFACE_DEAD_OBJECT) {
@@ -248,15 +216,12 @@ static napi_value SerialSetAttributeNapi(napi_env env, napi_callback_info info)
             return nullptr;
         }
     }
-
     if (!SerialAssert(env, ret != UEC_MANAGER_PORT_NOT_OPEN, SERIAL_PORT_NOT_OPEN, "The port is not open.")) {
         return nullptr;
     }
-
     if (!SerialAssert(env, (ret == 0), SYSPARAM_INVALID_INPUT, "Failed to set attribute.")) {
         return nullptr;
     }
-    
     return nullptr;
 }
 
@@ -264,40 +229,31 @@ bool SerialWriteTransferParams(napi_env env, napi_callback_info info,
     int32_t& portIdValue, napi_value* buffer, uint32_t& timeoutValue)
 {
     USB_HILOGI(MODULE_JS_NAPI, "SerialWriteTransferParams start");
-
     size_t argc = ARGC_3;
     napi_value argv[ARGC_3] = {nullptr};
     if (!NapiCheck(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
         return false;
     }
-
     if (!SerialAssert(env, (argc == ARGC_2 || argc == ARGC_3), SYSPARAM_INVALID_INPUT,
         "The function takes 2 or 3 arguments.")) {
         return false;
     }
-    
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
-
     if (!SerialAssert(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be int32_t.")) {
         return false;
     }
-    
     napi_get_value_int32(env, portId, &portIdValue);
-
     if (!SerialAssert(env, (portIdValue != -1), SYSPARAM_INVALID_INPUT, "Failed to get portId.")) {
         return false;
     }
-
     if (!IsPortIdExist(portIdValue)) {
         if (!SerialAssert(env, false, SERIAL_PORT_NOT_EXIST, "portid does not exist.")) {
             return false;
         }
     }
-
     *buffer = argv[1];
-
     if (argc == ARGC_3) {
         napi_value timeout = argv[2];
         napi_typeof(env, timeout, &type);
@@ -306,36 +262,30 @@ bool SerialWriteTransferParams(napi_env env, napi_callback_info info,
         }
         napi_get_value_uint32(env, timeout, &timeoutValue);
     }
-
     return true;
 }
 
 static napi_value SerialWriteSyncNapi(napi_env env, napi_callback_info info)
 {
     USB_HILOGI(MODULE_JS_NAPI, "SerialWriteSyncNapi start");
-
     int32_t portIdValue = -1;
     napi_value buffer;
     uint32_t timeoutValue = 0;
     if (!SerialWriteTransferParams(env, info, portIdValue, &buffer, timeoutValue)) {
         return nullptr;
     }
-
     napi_typedarray_type arrayType;
     size_t bufferLength;
     void* bufferValue = nullptr;
     NAPI_CALL(env, napi_get_typedarray_info(env, buffer, &arrayType, &bufferLength, &bufferValue, nullptr, nullptr));
-
     if (!SerialAssert(env, arrayType == napi_uint8_array, SYSPARAM_INVALID_INPUT,
         "The type of buffer must be an array of uint8_t.")) {
         return nullptr;
     }
     std::vector<uint8_t> bufferVector(static_cast<uint8_t*>(bufferValue),
         static_cast<uint8_t*>(bufferValue) + bufferLength);
-
     std::future<int32_t> resp = std::async(&UsbSrvClient::SerialWrite, &g_usbClient, portIdValue,
         std::cref(bufferVector), static_cast<uint32_t>(bufferLength));
-
     std::future_status status = std::future_status::deferred;
     if (timeoutValue == 0) {
         resp.wait();
@@ -345,7 +295,6 @@ static napi_value SerialWriteSyncNapi(napi_env env, napi_callback_info info)
             return nullptr;
         }
     }
-    
     napi_value result = nullptr;
     napi_create_int32(env, resp.get(), &result);
     return result;
@@ -353,15 +302,12 @@ static napi_value SerialWriteSyncNapi(napi_env env, napi_callback_info info)
 
 static auto g_serialWriteExecute = [](napi_env env, void* data) {
     SerialWriteAsyncContext *context = static_cast<SerialWriteAsyncContext *>(data);
-    
     if (context->contextErrno) {
         USB_HILOGE(MODULE_JS_NAPI, "ExecuteCallback failed, reason: napi_get_reference_value");
         return;
     }
-    
     size_t bufferLength = context->size;
     void* bufferValue = context->pData;
-    
     if (context->contextErrno) {
         USB_HILOGE(MODULE_JS_NAPI, "ExecuteCallback failed, reason: napi_get_typedarray_info");
         return;
@@ -373,10 +319,8 @@ static auto g_serialWriteExecute = [](napi_env env, void* data) {
     context->size = bufferLength;
     std::vector<uint8_t> bufferVector(static_cast<uint8_t*>(bufferValue),
         static_cast<uint8_t*>(bufferValue) + context->size);
-
     std::future<int32_t> resp = std::async(&UsbSrvClient::SerialWrite, &g_usbClient,
         context->portId, std::cref(bufferVector), context->size);
-        
     std::future_status status = std::future_status::deferred;
     if (context->timeout == 0) {
         resp.wait();
@@ -414,7 +358,6 @@ static napi_value SerialWriteNapi(napi_env env, napi_callback_info info)
     if (!SerialWriteTransferParams(env, info, portIdValue, &buffer, timeoutValue)) {
         return nullptr;
     }
-    
     napi_typedarray_type arrayType;
     size_t bufferLength;
     void* bufferValue = nullptr;
@@ -423,7 +366,6 @@ static napi_value SerialWriteNapi(napi_env env, napi_callback_info info)
         "The type of buffer must be an array of uint8_t.")) {
         return nullptr;
     }
-    
     SerialWriteAsyncContext *asyncContext = new (std::nothrow) SerialWriteAsyncContext;
     napi_value promise;
     NAPI_CALL(env, napi_create_promise(env, &asyncContext->deferred, &promise));
@@ -432,7 +374,6 @@ static napi_value SerialWriteNapi(napi_env env, napi_callback_info info)
     asyncContext->contextErrno = 0;
     asyncContext->size = bufferLength;
     asyncContext->pData = bufferValue;
-	
     napi_value resourceName;
     napi_create_string_utf8(env, "SerialWrite", NAPI_AUTO_LENGTH, &resourceName);
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, g_serialWriteExecute, g_serialWriteComplete,
@@ -444,14 +385,11 @@ static napi_value SerialWriteNapi(napi_env env, napi_callback_info info)
 int32_t SerialReadHelper(int32_t portId, uint8_t *data, uint32_t size)
 {
     std::vector<uint8_t> bufferVector;
-
     int ret = g_usbClient.SerialRead(portId, bufferVector, size);
-
     if (ret != 0) {
         USB_HILOGE(MODULE_JS_NAPI, "read error, ret = %{public}d", ret);
         return ret;
     }
-
     std::lock_guard<std::mutex> lock(g_mutex);
     size_t num = 0;
     for (size_t i = 0; i < bufferVector.size(); ++i) {
@@ -460,11 +398,9 @@ int32_t SerialReadHelper(int32_t portId, uint8_t *data, uint32_t size)
             num++;
             continue;
         }
-
         usleep(USLEEP_TIME);
         num = 0;
     }
-
     USB_HILOGI(MODULE_JS_NAPI, "data = %{public}s", data);
     return ret;
 }
@@ -481,25 +417,21 @@ bool ReadTransferParams(napi_env env, napi_callback_info info, int32_t& portIdVa
         "The function takes 2 or 3 arguments.")) {
         return false;
     }
-    
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
     if (!SerialAssert(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be int32_t.")) {
         return false;
     }
-    
     napi_get_value_int32(env, portId, &portIdValue);
     if (!SerialAssert(env, (portIdValue != -1), SYSPARAM_INVALID_INPUT, "Failed to get portId.")) {
         return false;
     }
-    
     if (!IsPortIdExist(portIdValue)) {
         if (!SerialAssert(env, false, SERIAL_PORT_NOT_EXIST, "portid does not exist.")) {
             return false;
         }
     }
-
     *buffer = argv[1];
     if (argc == ARGC_3) {
         napi_value timeout = argv[2];
@@ -509,21 +441,18 @@ bool ReadTransferParams(napi_env env, napi_callback_info info, int32_t& portIdVa
         }
         napi_get_value_uint32(env, timeout, &timeoutValue);
     }
-
     return true;
 }
 
 static napi_value SerialReadSyncNapi(napi_env env, napi_callback_info info)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "SerialReadSyncNapi start");
-    
+    USB_HILOGI(MODULE_JS_NAPI, "SerialReadSyncNapi start");  
     int32_t portIdValue = -1;
     napi_value buffer;
     uint32_t timeoutValue = 0;
     if (!ReadTransferParams(env, info, portIdValue, &buffer, timeoutValue)) {
         return nullptr;
     }
-
     napi_typedarray_type arrayType;
     size_t bufferLength;
     void* bufferValue = nullptr;
@@ -532,8 +461,8 @@ static napi_value SerialReadSyncNapi(napi_env env, napi_callback_info info)
         "The type of buffer must be an array of uint8_t.")) {
         return nullptr;
     }
-
-    std::future<int32_t> resp = std::async(&foo);
+    std::future<int32_t> resp = std::async(SerialReadHelper, portIdValue, static_cast<uint8_t*>(bufferValue),
+        static_cast<uint32_t>(bufferLength));
     std::future_status status = std::future_status::deferred;
     if (timeoutValue == 0) {
         resp.wait();
@@ -543,7 +472,6 @@ static napi_value SerialReadSyncNapi(napi_env env, napi_callback_info info)
             return nullptr;
         }
     }
-    
     napi_value result = nullptr;
     napi_create_int32(env, resp.get(), &result);
     return result;
@@ -551,7 +479,8 @@ static napi_value SerialReadSyncNapi(napi_env env, napi_callback_info info)
 
 static auto g_serialReadExecute = [](napi_env env, void* data) {
     SerialReadAsyncContext *context = static_cast<SerialReadAsyncContext *>(data);
-    std::future<int32_t> resp = std::async(&foo);
+    std::future<int32_t> resp = std::async(std::launch::async, SerialReadHelper,
+        context->portId, static_cast<uint8_t*>(context->pData), context->size);
     std::future_status status = std::future_status::deferred;
     if (context->timeout == 0) {
         resp.wait();
@@ -583,14 +512,12 @@ static auto g_serialReadComplete = [](napi_env env, napi_status status, void* da
 static napi_value SerialReadNapi(napi_env env, napi_callback_info info)
 {
     USB_HILOGI(MODULE_JS_NAPI, "SerialReadNapi start");
-
     int32_t portIdValue = -1;
     napi_value buffer;
     uint32_t timeoutValue = 0;
     if (!ReadTransferParams(env, info, portIdValue, &buffer, timeoutValue)) {
         return nullptr;
     }
-
     napi_typedarray_type arrayType;
     size_t bufferLength;
     void* bufferValue = nullptr;
@@ -599,7 +526,6 @@ static napi_value SerialReadNapi(napi_env env, napi_callback_info info)
         "The type of buffer must be an array of uint8_t.")) {
         return nullptr;
     }
-    
     SerialReadAsyncContext *asyncContext = new (std::nothrow) SerialReadAsyncContext;
     napi_value promise;
     NAPI_CALL(env, napi_create_promise(env, &asyncContext->deferred, &promise));
@@ -608,7 +534,6 @@ static napi_value SerialReadNapi(napi_env env, napi_callback_info info)
     asyncContext->contextErrno = 0;
     asyncContext->size = bufferLength;
     asyncContext->pData = bufferValue;
-    
     napi_value resourceName;
     napi_create_string_utf8(env, "SerialRead", NAPI_AUTO_LENGTH, &resourceName);
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, g_serialReadExecute, g_serialReadComplete,
@@ -628,30 +553,24 @@ static napi_value SerialOpenNapi(napi_env env, napi_callback_info info)
     if (!SerialAssert(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
         return nullptr;
     }
-    
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
     if (!SerialAssert(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be int32_t.")) {
         return nullptr;
     }
-    
     int32_t portIdValue = -1;
     napi_get_value_int32(env, portId, &portIdValue);
     if (!SerialAssert(env, (portIdValue != -1), SYSPARAM_INVALID_INPUT, "Failed to get portId.")) {
         return nullptr;
     }
-    
     if (!IsPortIdExist(portIdValue)) {
         if (!SerialAssert(env, false, SERIAL_PORT_NOT_EXIST, "portid does not exist.")) {
             return nullptr;
         }
     }
-
     USB_HILOGE(MODULE_JS_NAPI, "portIdValue: %{public}d", portIdValue);
- 
     int ret = g_usbClient.SerialOpen(portIdValue);
-
     if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
         || ret == UEC_INTERFACE_GET_SERIAL_SERVICE_FAILED
         || ret == UEC_INTERFACE_DEAD_OBJECT) {
@@ -659,20 +578,16 @@ static napi_value SerialOpenNapi(napi_env env, napi_callback_info info)
             return nullptr;
         }
     }
-
     if (!SerialAssert(env, ret != UEC_INTERFACE_PERMISSION_DENIED, SERIAL_INTERFACE_PERMISSION_DENIED,
         "The device doesn't have permissions.")) {
         return nullptr;
     }
-
     if (!SerialAssert(env, ret != UEC_MANAGER_PORT_REPEAT_OPEN, SERIAL_PORT_OCCUPIED, "The port is occupied.")) {
         return nullptr;
     }
-
     if (!SerialAssert(env, ret == 0, ret, "SerialOpen failed.")) {
         return nullptr;
     }
-    
     napi_value result = nullptr;
     return result;
 }
@@ -685,24 +600,20 @@ static napi_value SerialCloseNapi(napi_env env, napi_callback_info info)
     if (!NapiCheck(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
         return nullptr;
     }
-
     if (!SerialAssert(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
         return nullptr;
-    }
-    
+    }   
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
     if (!SerialAssert(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be int32_t.")) {
         return nullptr;
     }
-    
     int32_t portIdValue = -1;
     napi_get_value_int32(env, portId, &portIdValue);
     if (!SerialAssert(env, (portIdValue != -1), SYSPARAM_INVALID_INPUT, "Failed to get portId.")) {
         return nullptr;
     }
-
     if (!IsPortIdExist(portIdValue)) {
         if (!SerialAssert(env, false, SERIAL_PORT_NOT_EXIST, "portid does not exist.")) {
             return nullptr;
@@ -710,7 +621,6 @@ static napi_value SerialCloseNapi(napi_env env, napi_callback_info info)
     }
     
     int ret = g_usbClient.SerialClose(portIdValue);
-
     if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
         || ret == UEC_INTERFACE_GET_SERIAL_SERVICE_FAILED
         || ret == UEC_INTERFACE_DEAD_OBJECT) {
@@ -721,7 +631,6 @@ static napi_value SerialCloseNapi(napi_env env, napi_callback_info info)
     if (!SerialAssert(env, ret == 0, ret, "SerialClose failed.")) {
         return nullptr;
     }
-
     return nullptr;
 }
 
@@ -733,34 +642,27 @@ static napi_value SerialHasRightNapi(napi_env env, napi_callback_info info)
     if (!NapiCheck(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
         return nullptr;
     }
-
     if (!SerialAssert(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
         return nullptr;
     }
-    
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
     if (!SerialAssert(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be int32_t.")) {
         return nullptr;
     }
-    
     int32_t portIdValue = -1;
     napi_get_value_int32(env, portId, &portIdValue);
     if (!SerialAssert(env, (portIdValue != -1), SYSPARAM_INVALID_INPUT, "Failed to get portId.")) {
         return nullptr;
     }
-
     if (!IsPortIdExist(portIdValue)) {
         if (!SerialAssert(env, false, SERIAL_PORT_NOT_EXIST, "portid does not exist.")) {
             return nullptr;
         }
     }
-
-    napi_value result = nullptr;
-    
+    napi_value result = nullptr;    
     bool ret = g_usbClient.HasSerialRight(portIdValue);
-
     napi_get_boolean(env, ret, &result);
     return result;
 }
@@ -773,32 +675,26 @@ static napi_value CancelSerialRightNapi(napi_env env, napi_callback_info info)
     if (!NapiCheck(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
         return nullptr;
     }
-
     if (!SerialAssert(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
         return nullptr;
     }
-    
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
     if (!SerialAssert(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be int32_t.")) {
         return nullptr;
     }
-    
     int32_t portIdValue = -1;
     napi_get_value_int32(env, portId, &portIdValue);
     if (!SerialAssert(env, (portIdValue != -1), SYSPARAM_INVALID_INPUT, "Failed to get portId.")) {
         return nullptr;
     }
-
     if (!IsPortIdExist(portIdValue)) {
         if (!SerialAssert(env, false, SERIAL_PORT_NOT_EXIST, "portid does not exist.")) {
             return nullptr;
         }
     }
-    
     int32_t ret = g_usbClient.CancelSerialRight(portIdValue);
-
     if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
         || ret == UEC_INTERFACE_GET_SERIAL_SERVICE_FAILED
         || ret == UEC_INTERFACE_DEAD_OBJECT) {
@@ -809,7 +705,6 @@ static napi_value CancelSerialRightNapi(napi_env env, napi_callback_info info)
     if (!SerialAssert(env, ret == 0, ret, "SerialRemoveRight failed.")) {
         return nullptr;
     }
-
     return nullptr;
 }
 
@@ -821,39 +716,31 @@ static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
     if (!NapiCheck(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
         return nullptr;
     }
-
     if (!SerialAssert(env, (argc == ARGC_2), SYSPARAM_INVALID_INPUT, "The function takes 2 arguments.")) {
         return nullptr;
     }
-    
     napi_value tokenId = argv[0];
     napi_valuetype type;
     napi_typeof(env, tokenId, &type);
-
     if (!SerialAssert(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of tokenId must be uint32_t.")) {
         return nullptr;
     }
-
     uint32_t tokenIdValue = -1;
     napi_get_value_uint32(env, tokenId, &tokenIdValue);
     if (!SerialAssert(env, (tokenIdValue != -1), SYSPARAM_INVALID_INPUT, "Failed to get tokenId.")) {
         return nullptr;
     }
-
     napi_value portId = argv[1];
     napi_typeof(env, portId, &type);
     if (!SerialAssert(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be int32_t.")) {
         return nullptr;
     }
-
     int32_t portIdValue = -1;
     napi_get_value_int32(env, portId, &portIdValue);
     if (!SerialAssert(env, (portIdValue != -1), SYSPARAM_INVALID_INPUT, "Failed to get portId.")) {
         return nullptr;
     }
-
     int32_t ret = g_usbClient.AddSerialRight(tokenIdValue, portIdValue);
-
     if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
         || ret == UEC_INTERFACE_GET_SERIAL_SERVICE_FAILED
         || ret == UEC_INTERFACE_DEAD_OBJECT) {
@@ -866,26 +753,21 @@ static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
             return nullptr;
         }
     }
-
     if (!SerialAssert(env, ret == 0, ret, "SerialAddRight failed.")) {
         return nullptr;
     }
-
     return nullptr;
 }
 
 static auto g_serialRequestRightExecute = [](napi_env env, void* data) {
     SerialRequestRightAsyncContext *asyncContext = static_cast<SerialRequestRightAsyncContext *>(data);
-
     int32_t ret = g_usbClient.RequestSerialRight(asyncContext->portIdValue);
-
     if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
         || ret == UEC_INTERFACE_GET_SERIAL_SERVICE_FAILED
         || ret == UEC_INTERFACE_DEAD_OBJECT) {
         asyncContext->ret = SERIAL_SERVICE_ABNORMAL;
         return;
     }
-
     asyncContext->ret = ret;
 };
 
@@ -911,34 +793,28 @@ static napi_value SerialRequestRightNapi(napi_env env, napi_callback_info info)
     if (!NapiCheck(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
         return nullptr;
     }
-
     if (!SerialAssert(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
         return nullptr;
     }
-    
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
     if (!SerialAssert(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be int32_t.")) {
         return nullptr;
     }
-    
     int32_t portIdValue = -1;
     napi_get_value_int32(env, portId, &portIdValue);
     if (!SerialAssert(env, (portIdValue != -1), SYSPARAM_INVALID_INPUT, "Failed to get portId.")) {
         return nullptr;
     }
-
     if (!IsPortIdExist(portIdValue)) {
         if (!SerialAssert(env, false, SERIAL_PORT_NOT_EXIST, "portid does not exist.")) {
             return nullptr;
         }
     }
-    
     SerialRequestRightAsyncContext* asyncContext = new (std::nothrow) SerialRequestRightAsyncContext;
     asyncContext->portIdValue = portIdValue;
     asyncContext->contextErrno = 0;
-    
     napi_value result = nullptr;
     NAPI_CALL(env, napi_create_promise(env, &asyncContext->deferred, &result));
     napi_value resourceName;
@@ -1010,7 +886,6 @@ EXTERN_C_START
 napi_value SerialInit(napi_env env, napi_value exports)
 {
     USB_HILOGD(MODULE_JS_NAPI, "enter");
-
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("getPortList", SerialGetPortListNapi),
         DECLARE_NAPI_FUNCTION("open", SerialOpenNapi),
@@ -1027,11 +902,8 @@ napi_value SerialInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("cancelSerialRight", CancelSerialRightNapi),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
-
     DeclareEnum(env, exports);
-
     USB_HILOGD(MODULE_JS_NAPI, "return");
-
     return exports;
 }
 EXTERN_C_END
