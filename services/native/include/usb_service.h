@@ -43,6 +43,7 @@
 #include "v1_0/iusbd_subscriber.h"
 #include "v1_1/usb_types.h"
 #include "serial_manager.h"
+
 namespace OHOS {
 namespace USB {
 const std::string USB_HOST = "usb_host";

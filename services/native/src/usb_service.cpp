@@ -94,7 +94,7 @@ UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
     usbRightManager_ = std::make_shared<UsbRightManager>();
     usbPortManager_ = std::make_shared<UsbPortManager>();
     usbDeviceManager_ = std::make_shared<UsbDeviceManager>();
-    usbAccessoryManager_ = std::make_shared<UsbAccessoryManager>();   
+    usbAccessoryManager_ = std::make_shared<UsbAccessoryManager>();
     usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
 
     if (usbd_ == nullptr) {
