@@ -50,10 +50,12 @@ ohos_shared_library("usbsrv_client") {
   public_external_deps = [
     "cJSON:cjson",
     "drivers_interface_usb:usb_idl_headers_1.1",
+    "drivers_interface_usb:serial_idl_headers",
   ]
   external_deps = [
     "c_utils:utils",
     "drivers_interface_usb:usb_idl_headers_1.1",
+    "drivers_interface_usb:serial_idl_headers",
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",

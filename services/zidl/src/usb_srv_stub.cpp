@@ -225,6 +225,39 @@ bool UsbServerStub::StubHost(
         case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_DRIVER_ACTIVE_STATUS):
             result = DoGetInterfaceActiveStatus(data, reply, option);
             return true;
+        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_SERIAL_OPEN):
+            result = DoSerialOpen(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_SERIAL_CLOSE):
+            result = DoSerialClose(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_SERIAL_READ):
+            result = DoSerialRead(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_SERIAL_WRITE):
+            result = DoSerialWrite(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_SERIAL_GET_ATTRIBUTE):
+            result = DoSerialGetAttribute(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_SERIAL_SET_ATTRIBUTE):
+            result = DoSerialSetAttribute(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_SERIAL_GET_PORTLIST):
+            result = DoSerialGetPortList(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_HAS_SERIAL_RIGHT):
+            result = DoHasSerialRight(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_ADD_SERIAL_RIGHT):
+            result = DoAddSerialRight(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_CANCEL_SERIAL_RIGHT):
+            result = DoCancelSerialRight(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_REQUEST_SERIAL_RIGHT):
+            result = DoRequestSerialRight(data, reply, option);
+            return true;
         default:;
     }
     return false;
@@ -1388,6 +1421,200 @@ int32_t UsbServerStub::DoCancelAccessoryRight(MessageParcel &data, MessageParcel
         USB_HILOGE(MODULE_USBD, "%{public}s, ret:%{public}d", __func__, ret);
     }
     WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return ret;
+}
+
+int32_t UsbServerStub::DoSerialOpen(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "SerialOpen");
+    int32_t portId = 0;
+    READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = SerialOpen(portId);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        return ret;
+    }
+    return ret;
+}
+
+int32_t UsbServerStub::DoSerialClose(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "SerialClose");
+    int32_t portId = 0;
+    READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = SerialClose(portId);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        return ret;
+    }
+    return ret;
+}
+
+int32_t UsbServerStub::DoSerialRead(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "DoSerialRead");
+    int32_t portId = 0;
+    uint32_t size = 0;
+    std::vector<uint8_t> dataList;
+    READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint32, size, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = SerialRead(portId, dataList, size);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        return ret;
+    }
+    
+    size = dataList.size();
+    USB_HILOGI(MODULE_SERVICE, "UsbServerStub::GetPorts size %{public}d ", size);
+    WRITE_PARCEL_WITH_RET(reply, Int32, size, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    for (uint32_t i = 0; i < size; ++i) {
+        WRITE_PARCEL_WITH_RET(reply, Uint8, dataList.at(i), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    }
+
+    return ret;
+}
+
+int32_t UsbServerStub::DoSerialWrite(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "DoSerialWrite");
+    int32_t portId = 0;
+    uint32_t size = 0;
+    int32_t count = 0;
+    std::vector<uint8_t> dataList;
+    READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, count, UEC_SERVICE_READ_PARCEL_ERROR);
+    uint8_t tmp;
+    for (int32_t i = 0; i < count; i++) {
+        READ_PARCEL_WITH_RET(data, Uint8, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
+        dataList.emplace_back(tmp);
+    }
+
+    READ_PARCEL_WITH_RET(data, Uint32, size, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = SerialWrite(portId, dataList, size);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        return ret;
+    }
+
+    return ret;
+}
+
+int32_t UsbServerStub::DoSerialGetAttribute(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "DoSerialGetAttribute");
+    int32_t portId = 0;
+    OHOS::HDI::Usb::Serial::V1_0::SerialAttribute attribute;
+
+    READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
+
+    int32_t ret = SerialGetAttribute(portId, attribute);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        return ret;
+    }
+    
+    WRITE_PARCEL_WITH_RET(reply, Uint32, attribute.baudrate, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(reply, Uint8, attribute.dataBits, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(reply, Uint8, attribute.parity, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(reply, Uint8, attribute.stopBits, UEC_SERVICE_WRITE_PARCEL_ERROR);
+
+    return ret;
+}
+
+int32_t UsbServerStub::DoSerialSetAttribute(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "DoSerialSetAttribute");
+    int32_t portId = 0;
+    OHOS::HDI::Usb::Serial::V1_0::SerialAttribute attribute;
+
+    READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint32, attribute.baudrate, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, attribute.dataBits, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, attribute.parity, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Uint8, attribute.stopBits, UEC_SERVICE_READ_PARCEL_ERROR);
+
+    int32_t ret = SerialSetAttribute(portId, attribute);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        return ret;
+    }
+
+    return ret;
+}
+
+int32_t UsbServerStub::DoSerialGetPortList(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "DoSerialGetAttribute");
+    std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort> portIds;
+
+    int32_t ret = SerialGetPortList(portIds);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        return ret;
+    }
+
+    int size = portIds.size();
+    WRITE_PARCEL_WITH_RET(reply, Int32, size, UEC_SERVICE_WRITE_PARCEL_ERROR);
+
+    for (int i = 0; i < size; ++i) {
+        WRITE_PARCEL_WITH_RET(reply, Int32, portIds.at(i).portId, UEC_SERVICE_WRITE_PARCEL_ERROR);
+        WRITE_PARCEL_WITH_RET(reply, Uint8, portIds.at(i).deviceInfo.busNum, UEC_SERVICE_WRITE_PARCEL_ERROR);
+        WRITE_PARCEL_WITH_RET(reply, Uint8, portIds.at(i).deviceInfo.devAddr, UEC_SERVICE_WRITE_PARCEL_ERROR);
+        WRITE_PARCEL_WITH_RET(reply, Int32, portIds.at(i).deviceInfo.vid, UEC_SERVICE_WRITE_PARCEL_ERROR);
+        WRITE_PARCEL_WITH_RET(reply, Int32, portIds.at(i).deviceInfo.pid, UEC_SERVICE_WRITE_PARCEL_ERROR);
+        WRITE_PARCEL_WITH_RET(reply, String, portIds.at(i).deviceInfo.serialNum, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    }
+
+    return ret;
+}
+
+int32_t UsbServerStub::DoHasSerialRight(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    int32_t portId = 0;
+    READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(reply, Bool, HasSerialRight(portId), UEC_SERVICE_WRITE_PARCEL_ERROR);
+
+    return UEC_OK;
+}
+
+int32_t UsbServerStub::DoAddSerialRight(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "SerialOpen");
+    uint32_t tokenId = 0;
+    int32_t portId = 0;
+    READ_PARCEL_WITH_RET(data, Uint32, tokenId, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = AddSerialRight(tokenId, portId);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        return ret;
+    }
+    return ret;
+}
+
+int32_t UsbServerStub::DoCancelSerialRight(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "SerialOpen");
+    int32_t portId = 0;
+    READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = CancelSerialRight(portId);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        return ret;
+    }
+    return ret;
+}
+
+int32_t UsbServerStub::DoRequestSerialRight(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "SerialOpen");
+    int32_t portId = 0;
+    READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = RequestSerialRight(portId);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        return ret;
+    }
     return ret;
 }
 } // namespace USB

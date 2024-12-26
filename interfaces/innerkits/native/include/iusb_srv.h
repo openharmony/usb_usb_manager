@@ -21,6 +21,7 @@
 #include "usb_device.h"
 #include "usb_port.h"
 #include "v1_1/usb_types.h"
+#include "serial/v1_0/serial_types.h"
 #include "usb_interface_type.h"
 #include "usb_accessory.h"
 
@@ -91,6 +92,17 @@ public:
     virtual int32_t GetAccessoryList(std::vector<USBAccessory> &accessList) = 0;
     virtual int32_t OpenAccessory(const USBAccessory &access, int32_t &fd) = 0;
     virtual int32_t CloseAccessory(const int32_t fd) = 0;
+    virtual int32_t SerialOpen(int32_t portId) = 0;
+    virtual int32_t SerialClose(int32_t portId) = 0;
+    virtual int32_t SerialRead(int32_t portId, std::vector<uint8_t>& data, uint32_t size) = 0;
+    virtual int32_t SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size) = 0;
+    virtual int32_t SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute) = 0;
+    virtual int32_t SerialSetAttribute(int32_t portId, const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute) = 0;
+    virtual int32_t SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList) = 0;
+    virtual bool HasSerialRight(int32_t portId) = 0;
+    virtual int32_t AddSerialRight(uint32_t tokenId, int32_t portId) = 0;
+    virtual int32_t CancelSerialRight(int32_t portId) = 0;
+    virtual int32_t RequestSerialRight(int32_t portId) = 0;
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.usb.IUsbSrv");
 };

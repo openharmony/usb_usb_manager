@@ -12,8 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifndef SERIAL_NAPI
 #include "usb_napi_errors.h"
+#else
+#include "serial_napi_errors.h"
+#endif
 #include <optional>
 
 #include "hilog_wrapper.h"

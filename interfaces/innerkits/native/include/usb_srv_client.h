@@ -103,6 +103,18 @@ public:
     int32_t GetAccessoryList(std::vector<USBAccessory> &accessList);
     int32_t OpenAccessory(const USBAccessory &access, int32_t &fd);
     int32_t CloseAccessory(const int32_t fd);
+    
+    int32_t SerialOpen(int32_t portId);
+    int32_t SerialClose(int32_t portId);
+    int32_t SerialRead(int32_t portId, std::vector<uint8_t>& data, uint32_t size);
+    int32_t SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size);
+    int32_t SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute);
+    int32_t SerialSetAttribute(int32_t portId, const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute);
+    int32_t SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList);
+    bool HasSerialRight(int32_t portId);
+    int32_t AddSerialRight(uint32_t tokenId, int32_t portId);
+    int32_t CancelSerialRight(int32_t portId);
+    int32_t RequestSerialRight(int32_t portId);
 private:
     UsbSrvClient();
     ~UsbSrvClient();

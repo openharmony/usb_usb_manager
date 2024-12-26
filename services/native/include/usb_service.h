@@ -42,13 +42,15 @@
 #include "v1_0/iusbd_bulk_callback.h"
 #include "v1_0/iusbd_subscriber.h"
 #include "v1_1/usb_types.h"
-
+#include "serial_manager.h"
 namespace OHOS {
 namespace USB {
 const std::string USB_HOST = "usb_host";
 const std::string USB_DEVICE = "usb_device";
 const std::string USB_PORT = "usb_port";
 const std::string USB_HELP = "-h";
+const std::string USB_LIST = "-l";
+const std::string USB_GETT = "-g";
 class UsbService : public SystemAbility, public UsbServerStub {
     DECLARE_SYSTEM_ABILITY(UsbService)
     DECLARE_DELAYED_SP_SINGLETON(UsbService);
@@ -144,6 +146,18 @@ public:
     int32_t HasAccessoryRight(const USBAccessory &access, bool &result) override;
     int32_t RequestAccessoryRight(const USBAccessory &access, bool &result) override;
     int32_t CancelAccessoryRight(const USBAccessory &access) override;
+
+    int32_t SerialOpen(int32_t portId) override;
+    int32_t SerialClose(int32_t portId) override;
+    int32_t SerialRead(int32_t portId, std::vector<uint8_t>& data, uint32_t size) override;
+    int32_t SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size) override;
+    int32_t SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute) override;
+    int32_t SerialSetAttribute(int32_t portId, const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute) override;
+    int32_t SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList) override;
+    bool HasSerialRight(int32_t portId) override;
+    int32_t AddSerialRight(uint32_t tokenId, int32_t portId) override;
+    int32_t CancelSerialRight(int32_t portId) override;
+    int32_t RequestSerialRight(int32_t portId) override;
 private:
     class SystemAbilityStatusChangeListener : public SystemAbilityStatusChangeStub {
     public:

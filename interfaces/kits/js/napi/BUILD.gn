@@ -73,3 +73,83 @@ ohos_shared_library("usbmanager") {
   subsystem_name = "usb"
   part_name = "usb_manager"
 }
+
+ohos_shared_library("serialmanager") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    integer_overflow = true
+    boundary_sanitize = true
+    ubsan = true
+  }
+
+  defines = [ "SERIAL_NAPI" ]
+
+  sources = [
+    "${utils_path}/native/src/usb_napi_errors.cpp",
+    "src/napi_util.cpp",
+    "src/serial_info.cpp",
+    "src/serialmanager_middle.cpp",
+    "${usb_manager_path}/interfaces/innerkits/native/src/usb_srv_client.cpp",
+  ]
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "napi:ace_napi",
+    "cJSON:cjson",
+    "drivers_interface_usb:usb_idl_headers_1.1",
+    "drivers_interface_usb:serial_idl_headers",
+    "samgr:samgr_proxy",
+    "ipc:ipc_core",
+  ]
+
+  configs = [
+    "${utils_path}:utils_config",
+    ":usbnapi_private_config",
+  ]
+
+  relative_install_dir = "module/usbmanager"
+
+  subsystem_name = "usb"
+  part_name = "usb_manager"
+}
+
+ohos_shared_library("serial") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    integer_overflow = true
+    boundary_sanitize = true
+    ubsan = true
+  }
+
+  defines = [ "SERIAL_NAPI" ]
+
+  sources = [
+    "${utils_path}/native/src/usb_napi_errors.cpp",
+    "src/napi_util.cpp",
+    "src/serial_info.cpp",
+    "src/serial_middle.cpp",
+    "${usb_manager_path}/interfaces/innerkits/native/src/usb_srv_client.cpp",
+  ]
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "napi:ace_napi",
+    "cJSON:cjson",
+    "drivers_interface_usb:usb_idl_headers_1.1",
+    "drivers_interface_usb:serial_idl_headers",
+    "samgr:samgr_proxy",
+    "ipc:ipc_core",
+  ]
+
+  configs = [
+    "${utils_path}:utils_config",
+    ":usbnapi_private_config",
+  ]
+
+  relative_install_dir = "module/usbmanager"
+
+  subsystem_name = "usb"
+  part_name = "usb_manager"
+}

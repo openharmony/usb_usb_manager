@@ -97,6 +97,22 @@ public:
     int32_t GetAccessoryList(std::vector<USBAccessory> &accessList) override;
     int32_t OpenAccessory(const USBAccessory &access, int32_t &fd) override;
     int32_t CloseAccessory(int32_t fd) override;
+
+    int32_t SerialOpen(int32_t portId) override;
+    int32_t SerialClose(int32_t portId) override;
+    int32_t SerialRead(int32_t portId, std::vector<uint8_t>& data, uint32_t size) override;
+    int32_t SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size) override;
+    int32_t SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute) override;
+    int32_t SerialSetAttribute(int32_t portId, const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute) override;
+    int32_t SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList) override;
+    bool HasSerialRight(int32_t portId) override;
+    int32_t AddSerialRight(uint32_t tokenId, int32_t portId) override;
+    int32_t CancelSerialRight(int32_t portId) override;
+    int32_t RequestSerialRight(int32_t portId) override;
+    int32_t SerialReadData(MessageParcel &reply, std::vector<uint8_t> &data);
+    int32_t ParseSerialPort(MessageParcel &reply, 
+                            std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPorts);
+
 private:
     static inline BrokerDelegator<UsbServerProxy> delegator_;
     int32_t ParseUsbPort(MessageParcel &reply, std::vector<UsbPort> &result);
