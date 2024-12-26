@@ -211,6 +211,9 @@ private:
     int32_t ManageDeviceTypeImpl(InterfaceType interfaceType, bool disable);
     int32_t CheckUecValue();
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    bool InitSerial();
+    int32_t GetDeviceVidPidSerialNumber(int32_t portId, std::string& deviceName, std::string& strDesc);
+    void UpdateDeviceVidPidMap(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList);
     bool ready_ = false;
     int32_t commEventRetryTimes_ = 0;
     std::mutex mutex_;
@@ -222,10 +225,13 @@ private:
     std::shared_ptr<UsbPortManager> usbPortManager_;
     std::shared_ptr<UsbDeviceManager> usbDeviceManager_;
     std::shared_ptr<UsbAccessoryManager> usbAccessoryManager_;
+    std::shared_ptr<SERIAL::SerialManager> usbSerialManager_;
     sptr<UsbServiceSubscriber> usbdSubscriber_;
     sptr<HDI::Usb::V1_0::IUsbdBulkCallback> hdiCb_ = nullptr;
     sptr<HDI::Usb::V1_1::IUsbInterface> usbd_ = nullptr;
     std::map<std::string, std::string> deviceVidPidMap_;
+    std::map<int32_t, std::pair<std::string, std::string>> serialVidPidMap_;
+    sptr<OHOS::HDI::Usb::Serial::V1_0::ISerialInterface> seriald_ = nullptr;
     Utils::Timer unloadSelfTimer_ {"unLoadTimer"};
     uint32_t unloadSelfTimerId_ {UINT32_MAX};
     sptr<IRemoteObject::DeathRecipient> recipient_;
