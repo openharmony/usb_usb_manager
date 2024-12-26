@@ -86,21 +86,21 @@ ohos_shared_library("serialmanager") {
   defines = [ "SERIAL_NAPI" ]
 
   sources = [
+    "${usb_manager_path}/interfaces/innerkits/native/src/usb_srv_client.cpp",
     "${utils_path}/native/src/usb_napi_errors.cpp",
     "src/napi_util.cpp",
     "src/serial_info.cpp",
     "src/serialmanager_middle.cpp",
-    "${usb_manager_path}/interfaces/innerkits/native/src/usb_srv_client.cpp",
   ]
   external_deps = [
-    "c_utils:utils",
-    "hilog:libhilog",
-    "napi:ace_napi",
     "cJSON:cjson",
-    "drivers_interface_usb:usb_idl_headers_1.1",
+    "c_utils:utils",
     "drivers_interface_usb:serial_idl_headers",
-    "samgr:samgr_proxy",
+    "drivers_interface_usb:usb_idl_headers_1.1",
+    "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
+    "samgr:samgr_proxy",
   ]
 
   configs = [
@@ -126,21 +126,21 @@ ohos_shared_library("serial") {
   defines = [ "SERIAL_NAPI" ]
 
   sources = [
+    "${usb_manager_path}/interfaces/innerkits/native/src/usb_srv_client.cpp",
     "${utils_path}/native/src/usb_napi_errors.cpp",
     "src/napi_util.cpp",
     "src/serial_info.cpp",
     "src/serial_middle.cpp",
-    "${usb_manager_path}/interfaces/innerkits/native/src/usb_srv_client.cpp",
   ]
   external_deps = [
-    "c_utils:utils",
-    "hilog:libhilog",
-    "napi:ace_napi",
     "cJSON:cjson",
-    "drivers_interface_usb:usb_idl_headers_1.1",
+    "c_utils:utils",
     "drivers_interface_usb:serial_idl_headers",
-    "samgr:samgr_proxy",
+    "drivers_interface_usb:usb_idl_headers_1.1",
+    "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
+    "samgr:samgr_proxy",
   ]
 
   configs = [
