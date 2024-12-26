@@ -1893,7 +1893,7 @@ bool UsbServerProxy::HasSerialRight(int32_t portId)
     }
 
     WRITE_PARCEL_WITH_RET(data, Int32, portId, false);
-    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_HAS_RIGHT), data, reply, option);
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::SERIAL_FUN_HAS_SERIAL_RIGHT), data, reply, option);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %{public}d", ret);
         return false;

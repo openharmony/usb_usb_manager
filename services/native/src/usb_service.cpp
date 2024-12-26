@@ -2728,8 +2728,7 @@ int32_t UsbService::SerialOpen(int32_t portId)
         return UEC_SERVICE_INVALID_VALUE;
     }
 
-    int32_t ret = HasSerialRight(portId);
-    if (ret != 0) {
+    if (!HasSerialRight(portId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "There are no permissions");
         return UEC_INTERFACE_PERMISSION_DENIED;
     }
