@@ -2787,7 +2787,8 @@ int32_t UsbService::SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V
     return ret;
 }
 
-int32_t UsbService::SerialSetAttribute(int32_t portId, const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attributeInfo)
+int32_t UsbService::SerialSetAttribute(int32_t portId,
+    const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attributeInfo)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialSetAttribute Start");
     if (usbSerialManager_ == nullptr) {

@@ -87,7 +87,8 @@ static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
         napi_value portObj;
         napi_create_object(env, &portObj);
         NapiUtil::SetValueInt32(env, "portId", g_portIds[i].portId, portObj);
-        std::string deviceName = std::to_string(g_portIds[i].deviceInfo.busNum) + "-" + std::to_string(g_portIds[i].deviceInfo.devAddr);
+        std::string deviceName = std::to_string(g_portIds[i].deviceInfo.busNum) + "-" +
+            std::to_string(g_portIds[i].deviceInfo.devAddr);
         NapiUtil::SetValueUtf8String(env, "deviceName", deviceName, portObj);
         USB_HILOGE(MODULE_JS_NAPI, "portId: %{public}d", g_portIds[i].portId);
         USB_HILOGE(MODULE_JS_NAPI, "deviceName: %{public}s", deviceName.c_str());
@@ -443,7 +444,7 @@ bool ReadTransferParams(napi_env env, napi_callback_info info, int32_t& portIdVa
 
 static napi_value SerialReadSyncNapi(napi_env env, napi_callback_info info)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "SerialReadSyncNapi start");  
+    USB_HILOGI(MODULE_JS_NAPI, "SerialReadSyncNapi start");
     int32_t portIdValue = -1;
     napi_value buffer;
     uint32_t timeoutValue = 0;
@@ -599,7 +600,7 @@ static napi_value SerialCloseNapi(napi_env env, napi_callback_info info)
     }
     if (!SerialAssert(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
         return nullptr;
-    }   
+    }
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
@@ -658,7 +659,7 @@ static napi_value SerialHasRightNapi(napi_env env, napi_callback_info info)
             return nullptr;
         }
     }
-    napi_value result = nullptr;    
+    napi_value result = nullptr;
     bool ret = g_usbClient.HasSerialRight(portIdValue);
     napi_get_boolean(env, ret, &result);
     return result;
