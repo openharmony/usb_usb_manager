@@ -1671,7 +1671,6 @@ int32_t UsbServerProxy::CloseAccessory(int32_t fd)
     return ret;
 }
 
-/*===================serial interface=====================*/
 int32_t UsbServerProxy::SerialOpen(int32_t portId)
 {
     MessageParcel data;

@@ -61,7 +61,6 @@
                     "//base/usb/usb_manager/interfaces/kits/js/napi:usbmanager",
                     "//base/usb/usb_manager/interfaces/kits/js/napi:usb",
                     "//base/usb/usb_manager/frameworks/dialog/dialog_ui/usb_right_dialog:dialog_hap",
-                    "//base/usb/usb_manager/interfaces/kits/js/napi:serialmanager",
                     "//base/usb/usb_manager/interfaces/kits/js/napi:serial"
                 ],
                 "service_group": [

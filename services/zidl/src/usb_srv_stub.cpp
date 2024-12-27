@@ -1424,7 +1424,6 @@ int32_t UsbServerStub::DoCancelAccessoryRight(MessageParcel &data, MessageParcel
     return ret;
 }
 
-/*===================serial interface=====================*/
 int32_t UsbServerStub::DoSerialOpen(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     HITRACE_METER_NAME(HITRACE_TAG_USB, "SerialOpen");

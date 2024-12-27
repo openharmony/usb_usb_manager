@@ -33,9 +33,8 @@
 #include "napi_common.h"
 #include "napi_util.h"
 #include "serial_async_context.h"
-
-#include "serial_errors.h"
 #include "serial_napi_errors.h"
+#include "usb_errors.h"
 
 #include "usb_srv_client.h"
 #include "v1_0/iserial_interface.h"
@@ -72,7 +71,7 @@ static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
     }
     int32_t ret = g_usbClient.SerialGetPortList(g_portIds);
     if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
-        || ret == UEC_INTERFACE_GET_SERIAL_SERVICE_FAILED
+        || ret == UEC_INTERFACE_GET_USB_SERVICE_FAILED
         || ret == UEC_INTERFACE_DEAD_OBJECT) {
         if (!SerialAssert(env, false, SERIAL_SERVICE_ABNORMAL, "Failed to get portId.")) {
             return nullptr;
@@ -137,7 +136,7 @@ static napi_value SerialGetAttributeNapi(napi_env env, napi_callback_info info)
     OHOS::HDI::Usb::Serial::V1_0::SerialAttribute serialAttribute;
     int32_t ret = g_usbClient.SerialGetAttribute(portIdValue, serialAttribute);
     if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
-        || ret == UEC_INTERFACE_GET_SERIAL_SERVICE_FAILED
+        || ret == UEC_INTERFACE_GET_USB_SERVICE_FAILED
         || ret == UEC_INTERFACE_DEAD_OBJECT) {
         if (!SerialAssert(env, false, SERIAL_SERVICE_ABNORMAL, "Failed to get portId.")) {
             return nullptr;
@@ -208,7 +207,7 @@ static napi_value SerialSetAttributeNapi(napi_env env, napi_callback_info info)
     USB_HILOGI(MODULE_JS_NAPI, "SetAttributeNapi portIdValue: %{public}d", portIdValue);
     int ret = g_usbClient.SerialSetAttribute(portIdValue, serialAttribute);
     if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
-        || ret == UEC_INTERFACE_GET_SERIAL_SERVICE_FAILED
+        || ret == UEC_INTERFACE_GET_USB_SERVICE_FAILED
         || ret == UEC_INTERFACE_DEAD_OBJECT) {
         if (!SerialAssert(env, false, SERIAL_SERVICE_ABNORMAL, "Failed to get portId.")) {
             return nullptr;
@@ -570,7 +569,7 @@ static napi_value SerialOpenNapi(napi_env env, napi_callback_info info)
     USB_HILOGE(MODULE_JS_NAPI, "portIdValue: %{public}d", portIdValue);
     int ret = g_usbClient.SerialOpen(portIdValue);
     if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
-        || ret == UEC_INTERFACE_GET_SERIAL_SERVICE_FAILED
+        || ret == UEC_INTERFACE_GET_USB_SERVICE_FAILED
         || ret == UEC_INTERFACE_DEAD_OBJECT) {
         if (!SerialAssert(env, false, SERIAL_SERVICE_ABNORMAL, "Failed to get portId.")) {
             return nullptr;
@@ -620,7 +619,7 @@ static napi_value SerialCloseNapi(napi_env env, napi_callback_info info)
     
     int ret = g_usbClient.SerialClose(portIdValue);
     if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
-        || ret == UEC_INTERFACE_GET_SERIAL_SERVICE_FAILED
+        || ret == UEC_INTERFACE_GET_USB_SERVICE_FAILED
         || ret == UEC_INTERFACE_DEAD_OBJECT) {
         if (!SerialAssert(env, false, SERIAL_SERVICE_ABNORMAL, "Failed to get portId.")) {
             return nullptr;
@@ -694,7 +693,7 @@ static napi_value CancelSerialRightNapi(napi_env env, napi_callback_info info)
     }
     int32_t ret = g_usbClient.CancelSerialRight(portIdValue);
     if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
-        || ret == UEC_INTERFACE_GET_SERIAL_SERVICE_FAILED
+        || ret == UEC_INTERFACE_GET_USB_SERVICE_FAILED
         || ret == UEC_INTERFACE_DEAD_OBJECT) {
         if (!SerialAssert(env, false, SERIAL_SERVICE_ABNORMAL, "Failed to get portId.")) {
             return nullptr;
@@ -740,7 +739,7 @@ static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
     }
     int32_t ret = g_usbClient.AddSerialRight(tokenIdValue, portIdValue);
     if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
-        || ret == UEC_INTERFACE_GET_SERIAL_SERVICE_FAILED
+        || ret == UEC_INTERFACE_GET_USB_SERVICE_FAILED
         || ret == UEC_INTERFACE_DEAD_OBJECT) {
         if (!SerialAssert(env, false, SERIAL_SERVICE_ABNORMAL, "Failed to get portId.")) {
             return nullptr;
@@ -761,7 +760,7 @@ static auto g_serialRequestRightExecute = [](napi_env env, void* data) {
     SerialRequestRightAsyncContext *asyncContext = static_cast<SerialRequestRightAsyncContext *>(data);
     int32_t ret = g_usbClient.RequestSerialRight(asyncContext->portIdValue);
     if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
-        || ret == UEC_INTERFACE_GET_SERIAL_SERVICE_FAILED
+        || ret == UEC_INTERFACE_GET_USB_SERVICE_FAILED
         || ret == UEC_INTERFACE_DEAD_OBJECT) {
         asyncContext->ret = SERIAL_SERVICE_ABNORMAL;
         return;

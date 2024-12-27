@@ -16,7 +16,7 @@
 #include <regex>
 #include <unistd.h>
 #include "hisysevent.h"
-#include "serial_errors.h"
+#include "usb_errors.h"
 #include "securec.h"
 #include "serial_manager.h"
 #include "hilog_wrapper.h"
@@ -54,7 +54,7 @@ SerialManager::~SerialManager()
 
 int32_t SerialManager::SerialOpen(int32_t portId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "serialManager::SerialOpen Execute");
+    USB_HILOGI(MODULE_USB_SERVICE, "serialManager::SerialOpen start");
     std::lock_guard<std::mutex> guard(mutex_);
     if (serial_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialOpen serial_ is nullptr");
@@ -72,6 +72,7 @@ int32_t SerialManager::SerialOpen(int32_t portId)
     if (ret == UEC_OK) {
         portManageMap_[portId] = true;
     }
+
     return ret;
 }
 
@@ -95,6 +96,7 @@ int32_t SerialManager::SerialClose(int32_t portId)
     if (ret == UEC_OK) {
         portManageMap_[portId] = false;
     }
+
     return ret;
 }
 
@@ -110,7 +112,8 @@ int32_t SerialManager::SerialRead(int32_t portId, std::vector<uint8_t>& data, ui
         USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialRead The port is not open");
         return UEC_MANAGER_PORT_NOT_OPEN;
     }
-    #ifdef SERIAL_MOCK
+
+#ifdef SERIAL_MOCK
     data.clear();
     if (size > g_mockBuffer.size()) {
         return UEC_OK;
@@ -121,9 +124,9 @@ int32_t SerialManager::SerialRead(int32_t portId, std::vector<uint8_t>& data, ui
     auto it = g_mockBuffer.cbegin();
     g_mockBuffer.erase(it, it + size);
     return UEC_OK;
-    #else
+#else
     return serial_->SerialRead(portId, data, size);
-    #endif
+#endif
 }
 
 int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size)
@@ -138,17 +141,19 @@ int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& d
         USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialWrite The port is not open");
         return UEC_MANAGER_PORT_NOT_OPEN;
     }
-    #ifdef SERIAL_MOCK
+
+#ifdef SERIAL_MOCK
     for (size_t i = 0; i < size <= data.size() ? size : data.size(); ++i) {
         if (g_mockBuffer.size() == BUFFER_CAPACITY) {
             return UEC_OK;
         }
         g_mockBuffer.push_back(data[i]);
     }
+
     return UEC_OK;
-    #else
+#else
     return serial_->SerialWrite(portId, data, size);
-    #endif
+#endif
 }
 
 int32_t SerialManager::SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute)
