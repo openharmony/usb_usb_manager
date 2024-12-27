@@ -3014,7 +3014,5 @@ int32_t UsbService::GetDeviceVidPidSerialNumber(int32_t portId, std::string& dev
     }
     return isMatched;
 }
-
-/*=============================================================================================================*/
 } // namespace USB
 } // namespace OHOS

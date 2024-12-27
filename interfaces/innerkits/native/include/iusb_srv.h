@@ -93,7 +93,6 @@ public:
     virtual int32_t OpenAccessory(const USBAccessory &access, int32_t &fd) = 0;
     virtual int32_t CloseAccessory(const int32_t fd) = 0;
 
-    /*===================serial interface=====================*/
     virtual int32_t SerialOpen(int32_t portId) = 0;
     virtual int32_t SerialClose(int32_t portId) = 0;
     virtual int32_t SerialRead(int32_t portId, std::vector<uint8_t>& data, uint32_t size) = 0;
@@ -106,7 +105,6 @@ public:
     virtual int32_t AddSerialRight(uint32_t tokenId, int32_t portId) = 0;
     virtual int32_t CancelSerialRight(int32_t portId) = 0;
     virtual int32_t RequestSerialRight(int32_t portId) = 0;
-    /*========================================================*/
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.usb.IUsbSrv");
 };

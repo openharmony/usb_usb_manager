@@ -147,7 +147,7 @@ public:
     int32_t HasAccessoryRight(const USBAccessory &access, bool &result) override;
     int32_t RequestAccessoryRight(const USBAccessory &access, bool &result) override;
     int32_t CancelAccessoryRight(const USBAccessory &access) override;
-    /*============================serial interface=================================*/
+
     int32_t SerialOpen(int32_t portId) override;
     int32_t SerialClose(int32_t portId) override;
     int32_t SerialRead(int32_t portId, std::vector<uint8_t>& data, uint32_t size) override;
@@ -159,7 +159,6 @@ public:
     int32_t AddSerialRight(uint32_t tokenId, int32_t portId) override;
     int32_t CancelSerialRight(int32_t portId) override;
     int32_t RequestSerialRight(int32_t portId) override;
-    /*=============================================================================*/
 private:
     class SystemAbilityStatusChangeListener : public SystemAbilityStatusChangeStub {
     public:
