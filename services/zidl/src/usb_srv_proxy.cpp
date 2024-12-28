@@ -1871,10 +1871,7 @@ int32_t UsbServerProxy::SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1
     READ_PARCEL_WITH_RET(reply, Int32, size, UEC_INTERFACE_READ_PARCEL_ERROR);
 
     for (int32_t i = 0; i < size; ++i) {
-        ret = ParseSerialPort(reply, serialPortList);
-        if (ret) {
-            return ret;
-        }
+        ParseSerialPort(reply, serialPortList);
     }
     return ret;
 }
@@ -1978,7 +1975,7 @@ int32_t UsbServerProxy::SerialReadData(MessageParcel &reply, std::vector<uint8_t
     return UEC_OK;
 }
 
-int32_t UsbServerProxy::ParseSerialPort(MessageParcel &reply,
+void UsbServerProxy::ParseSerialPort(MessageParcel &reply,
     std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPorts)
 {
     int32_t intTmp;
@@ -2004,7 +2001,6 @@ int32_t UsbServerProxy::ParseSerialPort(MessageParcel &reply,
     port.deviceInfo.serialNum = strTmp;
 
     serialPorts.push_back(port);
-    return UEC_OK;
 }
 } // namespace USB
 } // namespace OHOS

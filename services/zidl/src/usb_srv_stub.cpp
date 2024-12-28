@@ -1431,7 +1431,7 @@ int32_t UsbServerStub::DoSerialOpen(MessageParcel &data, MessageParcel &reply, M
     READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
     int32_t ret = SerialOpen(portId);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        USB_HILOGE(MODULE_USBD, "DoSerialOpen failed. ret:%{public}d", ret);
         return ret;
     }
     return ret;
@@ -1444,7 +1444,7 @@ int32_t UsbServerStub::DoSerialClose(MessageParcel &data, MessageParcel &reply, 
     READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
     int32_t ret = SerialClose(portId);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        USB_HILOGE(MODULE_USBD, "DoSerialClose failed. ret:%{public}d", ret);
         return ret;
     }
     return ret;
@@ -1460,7 +1460,7 @@ int32_t UsbServerStub::DoSerialRead(MessageParcel &data, MessageParcel &reply, M
     READ_PARCEL_WITH_RET(data, Uint32, size, UEC_SERVICE_READ_PARCEL_ERROR);
     int32_t ret = SerialRead(portId, dataList, size);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        USB_HILOGE(MODULE_USBD, "DoSerialRead failed. ret:%{public}d", ret);
         return ret;
     }
     
@@ -1492,7 +1492,7 @@ int32_t UsbServerStub::DoSerialWrite(MessageParcel &data, MessageParcel &reply, 
     READ_PARCEL_WITH_RET(data, Uint32, size, UEC_SERVICE_READ_PARCEL_ERROR);
     int32_t ret = SerialWrite(portId, dataList, size);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        USB_HILOGE(MODULE_USBD, "DoSerialWrite failed. ret:%{public}d", ret);
         return ret;
     }
 
@@ -1509,7 +1509,7 @@ int32_t UsbServerStub::DoSerialGetAttribute(MessageParcel &data, MessageParcel &
 
     int32_t ret = SerialGetAttribute(portId, attribute);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        USB_HILOGE(MODULE_USBD, "DoSerialGetAttribute failed. ret:%{public}d", ret);
         return ret;
     }
     
@@ -1535,7 +1535,7 @@ int32_t UsbServerStub::DoSerialSetAttribute(MessageParcel &data, MessageParcel &
 
     int32_t ret = SerialSetAttribute(portId, attribute);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        USB_HILOGE(MODULE_USBD, "DoSerialSetAttribute failed. ret:%{public}d", ret);
         return ret;
     }
 
@@ -1549,7 +1549,7 @@ int32_t UsbServerStub::DoSerialGetPortList(MessageParcel &data, MessageParcel &r
 
     int32_t ret = SerialGetPortList(portIds);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        USB_HILOGE(MODULE_USBD, "DoSerialGetPortList failed. ret:%{public}d", ret);
         return ret;
     }
 
@@ -1586,7 +1586,7 @@ int32_t UsbServerStub::DoAddSerialRight(MessageParcel &data, MessageParcel &repl
     READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
     int32_t ret = AddSerialRight(tokenId, portId);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        USB_HILOGE(MODULE_USBD, "DoAddSerialRight failed. ret:%{public}d", ret);
         return ret;
     }
     return ret;
@@ -1599,7 +1599,7 @@ int32_t UsbServerStub::DoCancelSerialRight(MessageParcel &data, MessageParcel &r
     READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
     int32_t ret = CancelSerialRight(portId);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        USB_HILOGE(MODULE_USBD, "DoCancelSerialRight failed. ret:%{public}d", ret);
         return ret;
     }
     return ret;
@@ -1612,7 +1612,7 @@ int32_t UsbServerStub::DoRequestSerialRight(MessageParcel &data, MessageParcel &
     READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
     int32_t ret = RequestSerialRight(portId);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USBD, "ret:%{public}d", ret);
+        USB_HILOGE(MODULE_USBD, "DoRequestSerialRight failed. ret:%{public}d", ret);
         return ret;
     }
     return ret;
