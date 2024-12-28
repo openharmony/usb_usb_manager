@@ -1838,6 +1838,7 @@ bool UsbService::GetBundleName(std::string &bundleName)
 // LCOV_EXCL_START
 bool UsbService::GetCallingInfo(std::string &bundleName, std::string &tokenId, int32_t &userId)
 {
+#ifndef SERIAL_MOCK
     OHOS::Security::AccessToken::AccessTokenID token = IPCSkeleton::GetCallingTokenID();
     OHOS::Security::AccessToken::HapTokenInfo hapTokenInfoRes;
     int32_t ret = OHOS::Security::AccessToken::AccessTokenKit::GetHapTokenInfo(token, hapTokenInfoRes);
@@ -1851,6 +1852,11 @@ bool UsbService::GetCallingInfo(std::string &bundleName, std::string &tokenId, i
     userId = hapTokenInfoRes.userID;
     USB_HILOGD(MODULE_USB_SERVICE, "ret: %{public}d, app: %{public}s, user: %{public}d",
         ret, bundleName.c_str(), hapTokenInfoRes.userID);
+#else
+    bundleName = "com.example.serialdemo";
+    tokenId = "537077504";
+    userId = USB_RIGHT_USERID_DEFAULT;
+#endif
     return true;
 }
 // LCOV_EXCL_STOP
@@ -2883,7 +2889,7 @@ int32_t UsbService::RequestSerialRight(int32_t portId)
 
 int32_t UsbService::CancelSerialRight(int32_t portId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialRemoveRight Start");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbService::CancelSerialRight Start");
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::SerialRemoveRight usbRightManager_ is null");
         return UEC_SERVICE_INVALID_VALUE;
@@ -2956,17 +2962,13 @@ bool UsbService::HasSerialRight(int32_t portId)
 
     USB_HILOGI(MODULE_USB_SERVICE, "bundle=%{public}s, device=%{public}s",
         bundleName.c_str(), deviceName.c_str());
-    bool status = usbRightManager_->HasRight(deviceVidPidSerialNum, bundleName, tokenId, userId);
-    if (status) {
-        return false;
+    if (usbRightManager_->HasRight(deviceVidPidSerialNum, bundleName, tokenId, userId)) {
+        return true;
+    } else if (usbRightManager_->HasRight(deviceVidPidSerialNum, bundleName, USB_DEFAULT_TOKEN, userId)) {
+        return true;
     }
 
-    status = usbRightManager_->HasRight(deviceVidPidSerialNum, bundleName, USB_DEFAULT_TOKEN, userId);
-    if (!status) {
-        return false ;
-    }
-
-    return true;
+    return false;
 }
 
 int32_t UsbService::AddSerialRight(uint32_t tokenId, int32_t portId)

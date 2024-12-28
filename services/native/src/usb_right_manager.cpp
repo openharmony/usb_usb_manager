@@ -138,7 +138,9 @@ bool UsbRightManager::HasRight(const std::string &deviceName, const std::string 
         return true;
     }
     uint64_t nowTime = GetCurrentTimestamp();
+#ifndef SERIAL_MOCK
     (void)TidyUpRight(TIGHT_UP_USB_RIGHT_RECORD_EXPIRED);
+#endif
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     // no record or expired record: expired true, has right false, add right next time
     // valid record: expired false, has right true, no need add right
@@ -184,6 +186,7 @@ int32_t UsbRightManager::RequestRight(const USBAccessory &access, const std::str
     return UEC_OK;
 }
 
+#ifndef SERIAL_MOCK
 bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::string &tokenIdStr)
 {
     if (!IsAllDigits(tokenIdStr)) {
@@ -232,6 +235,38 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
     }
     return true;
 }
+#else
+bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::string &tokenIdStr)
+{
+    USB_HILOGD(MODULE_USB_SERVICE, "AddDeviceRight: deviceName=%{public}s apptokenIdStr=%{public}s",
+        deviceName.c_str(), tokenIdStr.c_str());
+    if (!IsAllDigits(tokenIdStr)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr invalid");
+        return false;
+    }
+    /* already checked system app/hap when call */
+    int32_t uid = 100;
+    struct UsbRightAppInfo info;
+    info.uid = uid;
+    info.installTime = GetCurrentTimestamp();
+    info.updateTime = GetCurrentTimestamp();
+    info.requestTime = GetCurrentTimestamp();
+    info.validPeriod = USB_RIGHT_VALID_PERIOD_MAX;
+
+    std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "helper is nullptr, false");
+        return false;
+    }
+    auto ret = helper->AddOrUpdateRightRecord(uid, deviceName, "com.example.serialdemo", tokenIdStr, info);
+    if (ret < 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "add or update failed: %{public}s/%{public}d, ret=%{public}d",
+            deviceName.c_str(), uid, ret);
+        return false;
+    }
+    return true;
+}
+#endif
 
 bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::string &bundleName,
     const std::string &tokenId, const int32_t &userId)
