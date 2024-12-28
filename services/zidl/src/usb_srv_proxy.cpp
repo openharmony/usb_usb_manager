@@ -2001,7 +2001,7 @@ int32_t UsbServerProxy::ParseSerialPort(MessageParcel &reply,
     port.deviceInfo.serialNum = strTmp;
 
     serialPorts.push_back(port);
-	return UEC_OK;
+    return UEC_OK;
 }
 } // namespace USB
 } // namespace OHOS
