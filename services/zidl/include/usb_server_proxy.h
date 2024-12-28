@@ -110,7 +110,7 @@ public:
     int32_t CancelSerialRight(int32_t portId) override;
     int32_t RequestSerialRight(int32_t portId) override;
     int32_t SerialReadData(MessageParcel &reply, std::vector<uint8_t> &data);
-    void ParseSerialPort(MessageParcel &reply,
+    int32_t ParseSerialPort(MessageParcel &reply,
                             std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPorts);
 
 private:

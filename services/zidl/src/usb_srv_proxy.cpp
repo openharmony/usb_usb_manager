@@ -1975,7 +1975,7 @@ int32_t UsbServerProxy::SerialReadData(MessageParcel &reply, std::vector<uint8_t
     return UEC_OK;
 }
 
-void UsbServerProxy::ParseSerialPort(MessageParcel &reply,
+int32_t UsbServerProxy::ParseSerialPort(MessageParcel &reply,
     std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPorts)
 {
     int32_t intTmp;
@@ -2001,6 +2001,7 @@ void UsbServerProxy::ParseSerialPort(MessageParcel &reply,
     port.deviceInfo.serialNum = strTmp;
 
     serialPorts.push_back(port);
+	return UEC_OK;
 }
 } // namespace USB
 } // namespace OHOS
