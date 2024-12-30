@@ -2030,14 +2030,15 @@ int32_t UsbService::AddAccessRight(const std::string &tokenId, const std::string
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    std::string deviceVidPidSerialNum = "";
-    int32_t ret = GetDeviceVidPidSerialNumber(deviceName, deviceVidPidSerialNum);
+    int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "can not find deviceName.");
+        USB_HILOGE(MODULE_USB_SERVICE, "CheckSysApiPermission failed:ret:%{public}d", ret);
         return ret;
     }
-    ret = CheckSysApiPermission();
+    std::string deviceVidPidSerialNum = "";
+    ret = GetDeviceVidPidSerialNumber(deviceName, deviceVidPidSerialNum);
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "can not find deviceName.");
         return ret;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "AddRight deviceName = %{public}s", deviceName.c_str());
@@ -2580,8 +2581,14 @@ int32_t UsbService::AddAccessoryRight(const uint32_t tokenId, const USBAccessory
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_ or usbAccessoryManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    int32_t ret = CheckSysApiPermission();
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "CheckSysApiPermission failed:ret:%{public}d", ret);
+        return ret;
+    }
+
     HapTokenInfo hapTokenInfoRes;
-    int32_t ret = AccessTokenKit::GetHapTokenInfo((AccessTokenID) tokenId, hapTokenInfoRes);
+    ret = AccessTokenKit::GetHapTokenInfo((AccessTokenID) tokenId, hapTokenInfoRes);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetHapTokenInfo failed:ret:%{public}d", ret);
         return UEC_SERVICE_GET_TOKEN_INFO_FAILED;
@@ -2591,10 +2598,6 @@ int32_t UsbService::AddAccessoryRight(const uint32_t tokenId, const USBAccessory
     ret = usbAccessoryManager_->GetAccessorySerialNumber(access, hapTokenInfoRes.bundleName, serialNum);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "can not find accessory.");
-        return ret;
-    }
-    ret = CheckSysApiPermission();
-    if (ret != UEC_OK) {
         return ret;
     }
 
