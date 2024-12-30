@@ -44,6 +44,8 @@
 #include "mem_mgr_proxy.h"
 #include "mem_mgr_client.h"
 #include "usb_function_switch_window.h"
+#include "hitrace_meter.h"
+
 using OHOS::sptr;
 using namespace OHOS::HDI::Usb::V1_1;
 using namespace OHOS::Security::AccessToken;
