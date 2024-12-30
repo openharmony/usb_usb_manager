@@ -36,6 +36,7 @@ enum SerialJsErrCode : int32_t {
     SERIAL_PORT_OCCUPIED = 31400004,
     SERIAL_PORT_NOT_OPEN = 31400005,
     SERIAL_TIMED_OUT = 31400006,
+    SERIAL_IO_EXCEPTION = 31400007
 };
 
 #ifndef USB_NAPI_ERRORS_H
@@ -49,6 +50,7 @@ const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
     {SERIAL_PORT_OCCUPIED, "BusinessError 31400004:device is using by other application."},
     {SERIAL_PORT_NOT_OPEN, "BusinessError 31400005:device is not open, call open first."},
     {SERIAL_TIMED_OUT, "BusinessError 31400006:transfer timeout."},
+    {SERIAL_IO_EXCEPTION, "BusinessError 31400007:io exception."},
 };
 #else
 #error

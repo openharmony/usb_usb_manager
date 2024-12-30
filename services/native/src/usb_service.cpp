@@ -393,7 +393,7 @@ std::string UsbService::GetDeviceVidPidSerialNumber(std::string deviceName)
 // LCOV_EXCL_START
 int32_t UsbService::GetDeviceVidPidSerialNumber(std::string deviceName, std::string& strDesc)
 {
-    int32_t isMatched = UEC_INTERFACE_INVALID_VALUE;
+    int32_t isMatched = UEC_SERVICE_PERMISSION_DENIED;
     std::lock_guard<std::mutex> guard(mutex_);
     for (auto it = deviceVidPidMap_.begin(); it != deviceVidPidMap_.end(); ++it) {
         USB_HILOGI(MODULE_USB_SERVICE, " it->first = %{public}s", it->first.c_str());
@@ -2736,7 +2736,7 @@ int32_t UsbService::SerialOpen(int32_t portId)
 
     if (!HasSerialRight(portId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "There are no permissions");
-        return UEC_INTERFACE_PERMISSION_DENIED;
+        return UEC_SERVICE_PERMISSION_DENIED;
     }
 
     return usbSerialManager_->SerialOpen(portId);
@@ -2756,6 +2756,7 @@ int32_t UsbService::SerialClose(int32_t portId)
 int32_t UsbService::SerialRead(int32_t portId, std::vector<uint8_t>& data, uint32_t size)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialRead Start");
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "SerialRead");
     if (usbSerialManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::SerialRead usbSerialManager_ is null");
         return UEC_SERVICE_INVALID_VALUE;
@@ -2767,6 +2768,7 @@ int32_t UsbService::SerialRead(int32_t portId, std::vector<uint8_t>& data, uint3
 int32_t UsbService::SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbService::SerialWrite Start");
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "SerialWrite");
     if (usbSerialManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::SerialWrite usbSerialManager_ is null");
         return UEC_SERVICE_INVALID_VALUE;
@@ -2924,7 +2926,7 @@ int32_t UsbService::CancelSerialRight(int32_t portId)
 
     if (!usbRightManager_->RemoveDeviceRight(deviceVidPidSerialNum, bundleName, USB_DEFAULT_TOKEN, userId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "RemoveDeviceRight failed");
-        return UEC_SERVICE_INNER_ERR;
+        return UEC_SERVICE_PERMISSION_DENIED;
     }
 
     USB_HILOGI(MODULE_USB_SERVICE, "RemoveRight done");

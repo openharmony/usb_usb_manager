@@ -38,6 +38,9 @@ using OHOS::USB::UEC_OK;
 namespace OHOS {
 namespace SERIAL {
 constexpr int32_t PARAM_COUNT_ONE = 1;
+constexpr int32_t ERR_CODE_TIMEOUT = -4;
+constexpr int32_t ERR_CODE_IOEXCEPTION = -5;
+constexpr int32_t ERR_CODE_DEVICENOTOPEN = -6;
 
 SerialManager::SerialManager()
 {
@@ -50,6 +53,19 @@ SerialManager::SerialManager()
 SerialManager::~SerialManager()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "SerialManager::~SerialManager start");
+}
+
+inline int32_t ErrorCodeWrap(int32_t errorCode)
+{
+    if (errorCode == ERR_CODE_TIMEOUT) {
+        return USB::UEC_INTERFACE_TIMED_OUT;
+    } else if (errorCode == ERR_CODE_IOEXCEPTION) {
+        return USB::UEC_MANAGER_IO_EXCEPTION;
+    } else if (errorCode == ERR_CODE_DEVICENOTOPEN) {
+        return USB::UEC_MANAGER_DEVICENOTOPEN;
+    } else {
+        return USB::UEC_SERIAL_INTERFACE_ERROR;
+    }
 }
 
 int32_t SerialManager::SerialOpen(int32_t portId)
@@ -71,9 +87,10 @@ int32_t SerialManager::SerialOpen(int32_t portId)
     int32_t ret = serial_->SerialOpen(portId);
     if (ret == UEC_OK) {
         portManageMap_[portId] = true;
+        return ret;
     }
 
-    return ret;
+    return ErrorCodeWrap(ret);
 }
 
 int32_t SerialManager::SerialClose(int32_t portId)
@@ -95,9 +112,10 @@ int32_t SerialManager::SerialClose(int32_t portId)
     int32_t ret = serial_->SerialClose(portId);
     if (ret == UEC_OK) {
         portManageMap_[portId] = false;
+        return ret;
     }
 
-    return ret;
+    return ErrorCodeWrap(ret);
 }
 
 int32_t SerialManager::SerialRead(int32_t portId, std::vector<uint8_t>& data, uint32_t size)
@@ -125,7 +143,11 @@ int32_t SerialManager::SerialRead(int32_t portId, std::vector<uint8_t>& data, ui
     g_mockBuffer.erase(it, it + size);
     return UEC_OK;
 #else
-    return serial_->SerialRead(portId, data, size);
+    int32_t ret = serial_->SerialRead(portId, data, size);
+    if (ret != UEC_OK) {
+        return ErrorCodeWrap(ret);
+    }
+    return ret;
 #endif
 }
 
@@ -152,7 +174,11 @@ int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& d
 
     return UEC_OK;
 #else
-    return serial_->SerialWrite(portId, data, size);
+    int32_t ret = serial_->SerialWrite(portId, data, size);
+    if (ret != UEC_OK) {
+        return ErrorCodeWrap(ret);
+    }
+    return ret;
 #endif
 }
 
@@ -167,7 +193,11 @@ int32_t SerialManager::SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial
         USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialGetAttribute The port is not open");
         return UEC_MANAGER_PORT_NOT_OPEN;
     }
-    return serial_->SerialGetAttribute(portId, attribute);
+    int32_t ret = serial_->SerialGetAttribute(portId, attribute);
+    if (ret != UEC_OK) {
+        return ErrorCodeWrap(ret);
+    }
+    return ret;
 }
 
 int32_t SerialManager::SerialSetAttribute(int32_t portId,
@@ -184,7 +214,11 @@ int32_t SerialManager::SerialSetAttribute(int32_t portId,
         USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialSetAttribute The port is not open");
         return UEC_MANAGER_PORT_NOT_OPEN;
     }
-    return serial_->SerialSetAttribute(portId, attribute);
+    int32_t ret = serial_->SerialSetAttribute(portId, attribute);
+    if (ret != UEC_OK) {
+        return ErrorCodeWrap(ret);
+    }
+    return ret;
 }
 
 int32_t SerialManager::SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList)

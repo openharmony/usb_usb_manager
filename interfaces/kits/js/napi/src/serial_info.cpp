@@ -59,6 +59,25 @@ static napi_value ToInt32Value(napi_env env, int32_t value)
     return staticValue;
 }
 
+int32_t ErrorCodeConversion(int32_t value)
+{
+    if (value == UEC_SERVICE_PERMISSION_DENIED_SYSAPI) {
+        return SERIAL_SYSAPI_PERMISSION_DENIED;
+    } else if (value == UEC_SERVICE_PERMISSION_DENIED) {
+        return SERIAL_INTERFACE_PERMISSION_DENIED;
+    } else if (value == UEC_MANAGER_PORT_REPEAT_OPEN) {
+        return SERIAL_PORT_OCCUPIED;
+    } else if (value == UEC_MANAGER_DEVICENOTOPEN || value == UEC_MANAGER_PORT_NOT_OPEN) {
+        return SERIAL_PORT_NOT_OPEN;
+    } else if (value == UEC_INTERFACE_TIMED_OUT) {
+        return SERIAL_TIMED_OUT;
+    } else if (value == UEC_MANAGER_IO_EXCEPTION) {
+        return SERIAL_IO_EXCEPTION;
+    } else {
+        return SERIAL_SERVICE_ABNORMAL;
+    }
+}
+
 static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
 {
     USB_HILOGI(MODULE_JS_NAPI, "SerialGetPortListNapi start");
@@ -70,14 +89,7 @@ static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
         return nullptr;
     }
     int32_t ret = g_usbClient.SerialGetPortList(g_portIds);
-    if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
-        || ret == UEC_INTERFACE_GET_USB_SERVICE_FAILED
-        || ret == UEC_INTERFACE_DEAD_OBJECT) {
-        if (!SerialAssert(env, false, SERIAL_SERVICE_ABNORMAL, "Failed to get portId.")) {
-            return nullptr;
-        }
-    }
-    if (!SerialAssert(env, (ret == 0), SYSPARAM_INVALID_INPUT, "get portlist failed")) {
+    if (!SerialAssert(env, (ret == 0), ErrorCodeConversion(ret), "get portlist failed")) {
         return nullptr;
     }
     napi_value result = nullptr;
@@ -135,17 +147,7 @@ static napi_value SerialGetAttributeNapi(napi_env env, napi_callback_info info)
     }
     OHOS::HDI::Usb::Serial::V1_0::SerialAttribute serialAttribute;
     int32_t ret = g_usbClient.SerialGetAttribute(portIdValue, serialAttribute);
-    if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
-        || ret == UEC_INTERFACE_GET_USB_SERVICE_FAILED
-        || ret == UEC_INTERFACE_DEAD_OBJECT) {
-        if (!SerialAssert(env, false, SERIAL_SERVICE_ABNORMAL, "Failed to get portId.")) {
-            return nullptr;
-        }
-    }
-    if (!SerialAssert(env, ret != UEC_MANAGER_PORT_NOT_OPEN, SERIAL_PORT_NOT_OPEN, "The port is not open.")) {
-        return nullptr;
-    }
-    if (!SerialAssert(env, (ret == 0), SYSPARAM_INVALID_INPUT, "Failed to get attribute.")) {
+    if (!SerialAssert(env, (ret == 0), ErrorCodeConversion(ret), "Failed to get attribute.")) {
         return nullptr;
     }
     napi_value result = nullptr;
@@ -206,17 +208,7 @@ static napi_value SerialSetAttributeNapi(napi_env env, napi_callback_info info)
     }
     USB_HILOGI(MODULE_JS_NAPI, "SetAttributeNapi portIdValue: %{public}d", portIdValue);
     int ret = g_usbClient.SerialSetAttribute(portIdValue, serialAttribute);
-    if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
-        || ret == UEC_INTERFACE_GET_USB_SERVICE_FAILED
-        || ret == UEC_INTERFACE_DEAD_OBJECT) {
-        if (!SerialAssert(env, false, SERIAL_SERVICE_ABNORMAL, "Failed to get portId.")) {
-            return nullptr;
-        }
-    }
-    if (!SerialAssert(env, ret != UEC_MANAGER_PORT_NOT_OPEN, SERIAL_PORT_NOT_OPEN, "The port is not open.")) {
-        return nullptr;
-    }
-    if (!SerialAssert(env, (ret == 0), SYSPARAM_INVALID_INPUT, "Failed to set attribute.")) {
+    if (!SerialAssert(env, (ret == 0), ErrorCodeConversion(ret), "Failed to set attribute.")) {
         return nullptr;
     }
     return nullptr;
@@ -293,6 +285,11 @@ static napi_value SerialWriteSyncNapi(napi_env env, napi_callback_info info)
         }
     }
     napi_value result = nullptr;
+    
+    if (!SerialAssert(env, (resp.get() == 0), ErrorCodeConversion(resp.get()), "SerialWrite Failed.")) {
+        return nullptr;
+    }
+
     napi_create_int32(env, resp.get(), &result);
     return result;
 }
@@ -329,6 +326,7 @@ static auto g_serialWriteExecute = [](napi_env env, void* data) {
             return;
         }
     }
+    context->contextErrno = ErrorCodeConversion(resp.get());
     context->ret = resp.get();
 };
 
@@ -470,6 +468,10 @@ static napi_value SerialReadSyncNapi(napi_env env, napi_callback_info info)
         }
     }
     napi_value result = nullptr;
+    if (!SerialAssert(env, (resp.get() == 0), ErrorCodeConversion(resp.get()), "SerialReadSync Failed.")) {
+        return nullptr;
+    }
+
     napi_create_int32(env, resp.get(), &result);
     return result;
 }
@@ -489,6 +491,7 @@ static auto g_serialReadExecute = [](napi_env env, void* data) {
             return;
         }
     }
+    context->contextErrno = ErrorCodeConversion(resp.get());
     context->ret = resp.get();
 };
 
@@ -568,25 +571,12 @@ static napi_value SerialOpenNapi(napi_env env, napi_callback_info info)
     }
     USB_HILOGE(MODULE_JS_NAPI, "portIdValue: %{public}d", portIdValue);
     int ret = g_usbClient.SerialOpen(portIdValue);
-    if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
-        || ret == UEC_INTERFACE_GET_USB_SERVICE_FAILED
-        || ret == UEC_INTERFACE_DEAD_OBJECT) {
-        if (!SerialAssert(env, false, SERIAL_SERVICE_ABNORMAL, "Failed to get portId.")) {
-            return nullptr;
-        }
-    }
-    if (!SerialAssert(env, ret != UEC_INTERFACE_PERMISSION_DENIED, SERIAL_INTERFACE_PERMISSION_DENIED,
-        "The device doesn't have permissions.")) {
+    
+    if (!SerialAssert(env, ret == 0, ErrorCodeConversion(ret), "SerialOpen failed.")) {
         return nullptr;
     }
-    if (!SerialAssert(env, ret != UEC_MANAGER_PORT_REPEAT_OPEN, SERIAL_PORT_OCCUPIED, "The port is occupied.")) {
-        return nullptr;
-    }
-    if (!SerialAssert(env, ret == 0, ret, "SerialOpen failed.")) {
-        return nullptr;
-    }
-    napi_value result = nullptr;
-    return result;
+
+    return nullptr;
 }
 
 static napi_value SerialCloseNapi(napi_env env, napi_callback_info info)
@@ -618,14 +608,7 @@ static napi_value SerialCloseNapi(napi_env env, napi_callback_info info)
     }
     
     int ret = g_usbClient.SerialClose(portIdValue);
-    if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
-        || ret == UEC_INTERFACE_GET_USB_SERVICE_FAILED
-        || ret == UEC_INTERFACE_DEAD_OBJECT) {
-        if (!SerialAssert(env, false, SERIAL_SERVICE_ABNORMAL, "Failed to get portId.")) {
-            return nullptr;
-        }
-    }
-    if (!SerialAssert(env, ret == 0, ret, "SerialClose failed.")) {
+    if (!SerialAssert(env, ret == 0, ErrorCodeConversion(ret), "SerialClose failed.")) {
         return nullptr;
     }
     return nullptr;
@@ -692,14 +675,7 @@ static napi_value CancelSerialRightNapi(napi_env env, napi_callback_info info)
         }
     }
     int32_t ret = g_usbClient.CancelSerialRight(portIdValue);
-    if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
-        || ret == UEC_INTERFACE_GET_USB_SERVICE_FAILED
-        || ret == UEC_INTERFACE_DEAD_OBJECT) {
-        if (!SerialAssert(env, false, SERIAL_SERVICE_ABNORMAL, "Failed to get portId.")) {
-            return nullptr;
-        }
-    }
-    if (!SerialAssert(env, ret == 0, ret, "SerialRemoveRight failed.")) {
+    if (!SerialAssert(env, ret == 0, ErrorCodeConversion(ret), "SerialRemoveRight failed.")) {
         return nullptr;
     }
     return nullptr;
@@ -738,19 +714,7 @@ static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
         return nullptr;
     }
     int32_t ret = g_usbClient.AddSerialRight(tokenIdValue, portIdValue);
-    if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
-        || ret == UEC_INTERFACE_GET_USB_SERVICE_FAILED
-        || ret == UEC_INTERFACE_DEAD_OBJECT) {
-        if (!SerialAssert(env, false, SERIAL_SERVICE_ABNORMAL, "Failed to get portId.")) {
-            return nullptr;
-        }
-    }
-    if (ret == UEC_SERVICE_PERMISSION_DENIED_SYSAPI) {
-        if (!SerialAssert(env, false, SERIAL_SYSAPI_PERMISSION_DENIED, "SerialAddRight failed.")) {
-            return nullptr;
-        }
-    }
-    if (!SerialAssert(env, ret == 0, ret, "SerialAddRight failed.")) {
+    if (!SerialAssert(env, ret == 0, ErrorCodeConversion(ret), "SerialAddRight failed.")) {
         return nullptr;
     }
     return nullptr;
@@ -759,13 +723,7 @@ static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
 static auto g_serialRequestRightExecute = [](napi_env env, void* data) {
     SerialRequestRightAsyncContext *asyncContext = static_cast<SerialRequestRightAsyncContext *>(data);
     int32_t ret = g_usbClient.RequestSerialRight(asyncContext->portIdValue);
-    if (ret == UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED
-        || ret == UEC_INTERFACE_GET_USB_SERVICE_FAILED
-        || ret == UEC_INTERFACE_DEAD_OBJECT) {
-        asyncContext->ret = SERIAL_SERVICE_ABNORMAL;
-        return;
-    }
-    asyncContext->ret = ret;
+    asyncContext->ret = ErrorCodeConversion(ret);
 };
 
 static auto g_serialRequestRightComplete = [](napi_env env, napi_status status, void* data) {
