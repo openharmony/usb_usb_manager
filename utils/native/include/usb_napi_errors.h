@@ -33,6 +33,7 @@ enum UsbJsErrCode : int32_t {
     UEC_COMMON_PORTROLE_SWITCH_NOT_ALLOWED = UEC_COMMON_BASE + 3,
     UEC_COMMON_SERVICE_EXCEPTION = UEC_COMMON_BASE + 4,
     UEC_COMMON_RIGHT_DATABASE_ERROR = UEC_COMMON_BASE + 5,
+    UEC_COMMON_FUNCTION_NOT_SUPPORT = UEC_COMMON_BASE + 6,
 
     UEC_ACCESSORY_BASE = UEC_COMMON_BASE + 1000,
     UEC_ACCESSORY_NOT_MATCH = UEC_ACCESSORY_BASE + 1,
@@ -51,6 +52,8 @@ const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
     {UEC_COMMON_SERVICE_EXCEPTION,
      "BusinessError 14400004:Service exception. Possible causes:No accessory is plugged in."},
     {UEC_COMMON_RIGHT_DATABASE_ERROR,    "BusinessError 14400005:Database operation exception."},
+    {UEC_COMMON_FUNCTION_NOT_SUPPORT,
+        "BusinessError 14400006:Unsupported operation. The function is not supported."},
     {UEC_ACCESSORY_NOT_MATCH,    "BusinessError 14401001:The target USBAccessory not matched."},
     {UEC_ACCESSORY_OPEN_FAILED, "BusinessError 14401002:Failed to open the native accessory node."},
     {UEC_ACCESSORY_CAN_NOT_REOPEN,    "BusinessError 14401003:Cannot reopen the accessory."},
