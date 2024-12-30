@@ -585,6 +585,7 @@ int32_t UsbService::GetCurrentFunctions(int32_t &functions)
     }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
     if (usbd_ == nullptr) {
@@ -606,6 +607,7 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
     }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
     ret = usbRightManager_->HasSetFuncRight(functions);
@@ -654,6 +656,7 @@ int32_t UsbService::UsbFunctionsFromString(std::string_view funcs)
     }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "calling UsbFunctionsFromString");
@@ -694,6 +697,7 @@ int32_t UsbService::GetPorts(std::vector<UsbPort> &ports)
     }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
     if (usbPortManager_ == nullptr) {
@@ -714,6 +718,7 @@ int32_t UsbService::GetSupportedModes(int32_t portId, int32_t &supportedModes)
     }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
     if (usbPortManager_ == nullptr) {
@@ -734,6 +739,7 @@ int32_t UsbService::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataR
     }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
     if (usbd_ == nullptr) {
@@ -2032,7 +2038,7 @@ int32_t UsbService::AddAccessRight(const std::string &tokenId, const std::string
     }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "CheckSysApiPermission failed:ret:%{public}d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
     std::string deviceVidPidSerialNum = "";
@@ -2195,6 +2201,7 @@ int32_t UsbService::PreCallFunction()
     }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
     if (usbHostManager_ == nullptr) {
@@ -2583,7 +2590,7 @@ int32_t UsbService::AddAccessoryRight(const uint32_t tokenId, const USBAccessory
     }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "CheckSysApiPermission failed:ret:%{public}d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
 
