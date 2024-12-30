@@ -571,7 +571,6 @@ static napi_value SerialOpenNapi(napi_env env, napi_callback_info info)
     }
     USB_HILOGE(MODULE_JS_NAPI, "portIdValue: %{public}d", portIdValue);
     int ret = g_usbClient.SerialOpen(portIdValue);
-    
     if (!SerialAssert(env, ret == 0, ErrorCodeConversion(ret), "SerialOpen failed.")) {
         return nullptr;
     }
