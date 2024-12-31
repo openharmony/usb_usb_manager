@@ -2072,7 +2072,6 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
         if (ashmemBuffer == nullptr) {
             asyncContext->ashmem->UnmapAshmem();
             asyncContext->ashmem->CloseAshmem();
-            USB_HILOGE(MODULE_JS_NAPI, "JsCallBack ReadFromAshmem failed");
             return;
         }
         int32_t ret = memcpy_s(asyncContext->buffer, asyncContext->bufferLength, ashmemBuffer, info.actualLength);
@@ -2082,7 +2081,6 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
     }
     asyncContext->ashmem->UnmapAshmem();
     asyncContext->ashmem->CloseAshmem();
-
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(asyncContext->env, &loop);
     uv_work_t *work = new (std::nothrow) uv_work_t;
@@ -2114,6 +2112,7 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
         }
         delete work;
     }, uv_qos_default);
+    delete asyncContext;
 }
 
 static void GetUSBTransferInfo(USBTransferInfo &obj, USBTransferAsyncContext *asyncContext)
@@ -2168,6 +2167,8 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
     int32_t ret = asyncContext->pipe.UsbSubmitTransfer(obj, func, asyncContext->ashmem);
     if (ret != napi_ok) {
         napi_create_int32(env, ret, &result);
+        asyncContext->ashmem->CloseAshmem();
+        delete asyncContext;
         return result;
     }
     timesUse->endTime = std::chrono::steady_clock::now();
