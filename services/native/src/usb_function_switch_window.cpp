@@ -137,10 +137,10 @@ int32_t UsbFunctionSwitchWindow::GetSupportedFunctions()
     if (supportedFuncStr.find("none") != std::string::npos) {
         return SUPPORTED_FUNC_NONE;
     }
-    int32_t mtp = supportedFuncStr.find("mtp") != std::string::npos ? SUPPORTED_FUNC_MTP : 0;
-    int32_t ptp = supportedFuncStr.find("ptp") != std::string::npos ? SUPPORTED_FUNC_PTP : 0;
+    uint32_t mtp = supportedFuncStr.find("mtp") != std::string::npos ? SUPPORTED_FUNC_MTP : 0;
+    uint32_t ptp = supportedFuncStr.find("ptp") != std::string::npos ? SUPPORTED_FUNC_PTP : 0;
 
-    return mtp|ptp;
+    return static_cast<int32_t>(mtp | ptp);
 }
 
 void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
