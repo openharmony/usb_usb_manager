@@ -85,6 +85,8 @@ constexpr int32_t RANDOM_VALUE_INDICATE = -1;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
 constexpr int32_t APIVERSION_16 = 16;
+constexpr const pid_t ROOT_UID = 0;
+constexpr const pid_t EDM_UID = 3057;
 } // namespace
 auto g_serviceInstance = DelayedSpSingleton<UsbService>::GetInstance();
 const bool G_REGISTER_RESULT =
@@ -589,6 +591,7 @@ int32_t UsbService::GetCurrentFunctions(int32_t &functions)
     }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
     if (usbd_ == nullptr) {
@@ -610,6 +613,7 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
     }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
     ret = usbRightManager_->HasSetFuncRight(functions);
@@ -658,6 +662,7 @@ int32_t UsbService::UsbFunctionsFromString(std::string_view funcs)
     }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "calling UsbFunctionsFromString");
@@ -698,6 +703,7 @@ int32_t UsbService::GetPorts(std::vector<UsbPort> &ports)
     }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
     if (usbPortManager_ == nullptr) {
@@ -718,6 +724,7 @@ int32_t UsbService::GetSupportedModes(int32_t portId, int32_t &supportedModes)
     }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
     if (usbPortManager_ == nullptr) {
@@ -738,6 +745,7 @@ int32_t UsbService::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataR
     }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
     if (usbd_ == nullptr) {
@@ -2040,14 +2048,15 @@ int32_t UsbService::AddAccessRight(const std::string &tokenId, const std::string
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    std::string deviceVidPidSerialNum = "";
-    int32_t ret = GetDeviceVidPidSerialNumber(deviceName, deviceVidPidSerialNum);
+    int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "can not find deviceName.");
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
-    ret = CheckSysApiPermission();
+    std::string deviceVidPidSerialNum = "";
+    ret = GetDeviceVidPidSerialNumber(deviceName, deviceVidPidSerialNum);
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "can not find deviceName.");
         return ret;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "AddRight deviceName = %{public}s", deviceName.c_str());
@@ -2213,6 +2222,7 @@ int32_t UsbService::PreCallFunction()
     }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
     if (usbHostManager_ == nullptr) {
@@ -2435,6 +2445,10 @@ int32_t UsbService::ManageDeviceTypeImpl(InterfaceType interfaceType, bool disab
 // LCOV_EXCL_START
 int32_t UsbService::ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t interfaceId, bool disable)
 {
+    if (!IsCallerValid()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
+        return UEC_SERVICE_INVALID_OPERATION;
+    }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -2599,8 +2613,14 @@ int32_t UsbService::AddAccessoryRight(const uint32_t tokenId, const USBAccessory
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_ or usbAccessoryManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    int32_t ret = CheckSysApiPermission();
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
+        return ret;
+    }
+
     HapTokenInfo hapTokenInfoRes;
-    int32_t ret = AccessTokenKit::GetHapTokenInfo((AccessTokenID) tokenId, hapTokenInfoRes);
+    ret = AccessTokenKit::GetHapTokenInfo((AccessTokenID) tokenId, hapTokenInfoRes);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetHapTokenInfo failed:ret:%{public}d", ret);
         return UEC_SERVICE_GET_TOKEN_INFO_FAILED;
@@ -2610,10 +2630,6 @@ int32_t UsbService::AddAccessoryRight(const uint32_t tokenId, const USBAccessory
     ret = usbAccessoryManager_->GetAccessorySerialNumber(access, hapTokenInfoRes.bundleName, serialNum);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "can not find accessory.");
-        return ret;
-    }
-    ret = CheckSysApiPermission();
-    if (ret != UEC_OK) {
         return ret;
     }
 
@@ -2712,6 +2728,17 @@ int32_t UsbService::CancelAccessoryRight(const USBAccessory &access)
 
     USB_HILOGI(MODULE_USB_SERVICE, "CancelAccessoryRight done");
     return UEC_OK;
+}
+
+bool UsbService::IsCallerValid()
+{
+    OHOS::Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+    auto callerTokenType = OHOS::Security::AccessToken::AccessTokenKit::GetTokenType(callerToken);
+    if (callerTokenType == OHOS::Security::AccessToken::TypeATokenTypeEnum::TOKEN_NATIVE) {
+        pid_t callerUid = IPCSkeleton::GetCallingUid();
+        return callerUid == ROOT_UID || callerUid == EDM_UID;
+    }
+    return false;
 }
 // LCOV_EXCL_STOP
 

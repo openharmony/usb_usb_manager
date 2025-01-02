@@ -215,6 +215,7 @@ private:
     int32_t GetDeviceVidPidSerialNumber(int32_t portId, std::string& deviceName, std::string& strDesc);
     void UpdateDeviceVidPidMap(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList);
 
+    bool IsCallerValid();
     bool ready_ = false;
     int32_t commEventRetryTimes_ = 0;
     std::mutex mutex_;
