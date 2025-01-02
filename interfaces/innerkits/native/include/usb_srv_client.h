@@ -103,7 +103,7 @@ public:
     int32_t GetAccessoryList(std::vector<USBAccessory> &accessList);
     int32_t OpenAccessory(const USBAccessory &access, int32_t &fd);
     int32_t CloseAccessory(const int32_t fd);
-    
+
     int32_t SerialOpen(int32_t portId);
     int32_t SerialClose(int32_t portId);
     int32_t SerialRead(int32_t portId, std::vector<uint8_t>& data, uint32_t size);
