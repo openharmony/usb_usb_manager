@@ -695,6 +695,10 @@ static napi_value DeviceAddAccessoryRight(napi_env env, napi_callback_info info)
         ThrowBusinessError(env, UEC_COMMON_RIGHT_DATABASE_ERROR,
             "Database request operation exception");
     } else {
+        USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI),
+            OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "");
+        USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED),
+            OHEC_COMMON_PERMISSION_NOT_ALLOWED, "");
         ThrowBusinessError(env, UEC_COMMON_SERVICE_EXCEPTION,
             "Service exception");
     }
