@@ -722,7 +722,11 @@ static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
 static auto g_serialRequestRightExecute = [](napi_env env, void* data) {
     SerialRequestRightAsyncContext *asyncContext = static_cast<SerialRequestRightAsyncContext *>(data);
     int32_t ret = g_usbClient.RequestSerialRight(asyncContext->portIdValue);
-    asyncContext->ret = ErrorCodeConversion(ret);
+    if (ret) {
+        asyncContext->ret = ErrorCodeConversion(ret);
+    } else {
+        asyncContext->ret = ret;
+    } 
 };
 
 static auto g_serialRequestRightComplete = [](napi_env env, napi_status status, void* data) {
