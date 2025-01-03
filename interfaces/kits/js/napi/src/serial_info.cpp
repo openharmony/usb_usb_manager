@@ -726,7 +726,7 @@ static auto g_serialRequestRightExecute = [](napi_env env, void* data) {
         asyncContext->ret = ErrorCodeConversion(ret);
     } else {
         asyncContext->ret = ret;
-    } 
+    }
 };
 
 static auto g_serialRequestRightComplete = [](napi_env env, napi_status status, void* data) {
