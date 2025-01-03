@@ -83,6 +83,7 @@ constexpr int32_t STORAGE_BASE_CLASS = 8;
 constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
+constexpr int32_t USB_RIGHT_USERID_DEFAULT = 100;
 constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
 constexpr int32_t APIVERSION_16 = 16;
 constexpr const pid_t ROOT_UID = 0;
@@ -2909,7 +2910,7 @@ int32_t UsbService::RequestSerialRight(int32_t portId)
     USB_HILOGI(MODULE_USB_SERVICE, "bundle=%{public}s, device=%{public}s, tokenId=%{public}s",
         bundleName.c_str(), deviceName.c_str(), tokenId.c_str());
     
-    ret = usbRightManager_->RequestRight(deviceName, deviceVidPidSerialNum, bundleName, tokenId, userId);
+    ret = usbRightManager_->RequestRight(portId, deviceVidPidSerialNum, bundleName, tokenId, userId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE,
             "UsbService::RequestSerialRight RequestRight failed. ret = %{public}d", ret);

@@ -43,6 +43,8 @@ public:
         const std::string &tokenId, const int32_t &userId);
     int32_t RequestRight(const USBAccessory &access, const std::string &seriaValue, const std::string &bundleName,
         const std::string &tokenId, const int32_t &userId, bool &result);
+    int32_t RequestRight(const int32_t portId, const std::string &serialValue, const std::string &bundleName,
+        const std::string &tokenId, const int32_t &userId);
     bool AddDeviceRight(const std::string &deviceName, const std::string &tokenIdStr);
     bool AddDeviceRight(const std::string &deviceName, const std::string &bundleName,
         const std::string &tokenId, const int32_t &userId);
@@ -65,10 +67,13 @@ private:
         const std::string &tokenId, const int32_t &userId);
     bool GetUserAgreementByDiag(const USBAccessory &access, const std::string &seriaValue,
         const std::string &bundleName, const std::string &tokenId, const int32_t &userId);
+    bool GetUserAgreementByDiag(const int32_t portId, const std::string &serialValue,
+        const std::string &bundleName, const std::string &tokenId, const int32_t &userId);
     bool ShowUsbDialog(const std::string &busDev, const std::string &deviceName,
         const std::string &bundleName, const std::string &tokenId);
     bool ShowUsbDialog(const USBAccessory &access, const std::string &seriaValue,
         const std::string &bundleName, const std::string &tokenId);
+    bool ShowUsbDialog(const int32_t portId, const uint32_t tokenId);
     bool IsAllDigits(const std::string &bundleName);
     sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
     sptr<AppExecFwk::IBundleResource> GetBundleResMgr();
