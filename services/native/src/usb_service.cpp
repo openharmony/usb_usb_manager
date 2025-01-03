@@ -83,7 +83,9 @@ constexpr int32_t STORAGE_BASE_CLASS = 8;
 constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
+#ifdef SERIAL_MOCK
 constexpr int32_t USB_RIGHT_USERID_DEFAULT = 100;
+#endif
 constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
 constexpr int32_t APIVERSION_16 = 16;
 constexpr const pid_t ROOT_UID = 0;
