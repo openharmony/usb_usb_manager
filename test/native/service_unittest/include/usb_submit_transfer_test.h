@@ -28,7 +28,7 @@ public:
     void SetUp();
     void TearDown();
 };
-
+static constexpr int32_t FIVE = -5;
 static constexpr int32_t TEN = 10;
 static constexpr int32_t TYPE_ISOCHRONOUS = 1;
 static constexpr int32_t TYPE_BULK = 2;

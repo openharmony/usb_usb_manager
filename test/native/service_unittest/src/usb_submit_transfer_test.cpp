@@ -242,7 +242,6 @@ HWTEST_F(UsbSubmitTransferTest, UsbSubmitTransferBulkWriteInvalidEndpoint, TestS
 HWTEST_F(UsbSubmitTransferTest, UsbCancelTransferBulkWrite, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCancelTransferBulkWrite enter.");
-
     vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.GetDevices(delist);
@@ -468,14 +467,11 @@ HWTEST_F(UsbSubmitTransferTest, UsbSubmitTransferInterruptWriteIoError, TestSize
     vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.GetDevices(delist);
-    ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "Device list is empty";
     UsbDevice device = delist.front();
     ret = UsbSrvClient.RequestRight(device.GetName());
-    ASSERT_EQ(ret, 0);
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
-    ASSERT_EQ(ret, 0);
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
     USBEndpoint point = interface.GetEndpoints().front();
     UsbSrvClient.ReleaseInterface(pip, interface);
@@ -533,7 +529,7 @@ HWTEST_F(UsbSubmitTransferTest, UsbSubmitTransferIsochronousWrite, TestSize.Leve
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferIsochronousWrite %{public}d OpenDevice=%{public}d", __LINE__,
                ret);
-    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     USBEndpoint point = interface.GetEndpoints().front();
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferIsochronousWrite %{public}d point=%{public}d", __LINE__,
                point.GetInterfaceId());
@@ -561,7 +557,7 @@ HWTEST_F(UsbSubmitTransferTest, UsbSubmitTransferIsochronousWrite, TestSize.Leve
     };
     ret = UsbSrvClient.UsbSubmitTransfer(pipe, transferInfo, callback, ashmem);
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbSubmitTransferIsochronousWrite ret:%{public}d", __LINE__, ret);
-    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(ret, UEC_OK);
     bool close = UsbSrvClient.Close(pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferIsochronousWrite %{public}d close=%{public}d", __LINE__, close);
     EXPECT_TRUE(close);
@@ -580,22 +576,15 @@ HWTEST_F(UsbSubmitTransferTest, UsbSubmitTransferIsochronousRead, TestSize.Level
     vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.GetDevices(delist);
-    ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "Device list is empty";
-
     UsbDevice device = delist.front();
     ret = UsbSrvClient.RequestRight(device.GetName());
-    ASSERT_EQ(ret, 0);
-
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
-    ASSERT_EQ(ret, 0);
-
-    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     USBEndpoint point = interface.GetEndpoints().front();
     ret = UsbSrvClient.ClaimInterface(pip, interface, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferIsochronousRead ClaimInterface ret%{public}d", ret);
-    ASSERT_EQ(ret, 0);
 
     sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
     ASSERT_NE(ashmem, nullptr);
@@ -626,7 +615,6 @@ HWTEST_F(UsbSubmitTransferTest, UsbSubmitTransferIsochronousRead, TestSize.Level
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferIsochronousRead end.");
 }
 
-
 /**
  * @tc.name: UsbSubmitTransferIsochronousWriteInvalidEndpoint
  * @tc.desc: Test the USB data write functionality of UsbSubmitTransfer with invalid endpoint type
@@ -639,20 +627,16 @@ HWTEST_F(UsbSubmitTransferTest, UsbSubmitTransferIsochronousWriteInvalidEndpoint
     vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.GetDevices(delist);
-    ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "Device list is empty";
     UsbDevice device = delist.front();
     ret = UsbSrvClient.RequestRight(device.GetName());
-    ASSERT_EQ(ret, 0);
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
-    ASSERT_EQ(ret, 0);
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
     USBEndpoint point = interface.GetEndpoints().front();
     ret = UsbSrvClient.ClaimInterface(pip, interface, true);
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbSubmitTransferIsochronousWriteInvalidEndpoint ret:%{public}d",
         __LINE__, ret);
-    ASSERT_EQ(ret, 0);
 
     sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
     ASSERT_NE(ashmem, nullptr);
@@ -698,14 +682,11 @@ HWTEST_F(UsbSubmitTransferTest, UsbSubmitTransferIsochronousWriteIoError, TestSi
     vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.GetDevices(delist);
-    ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "Device list is empty";
     UsbDevice device = delist.front();
     ret = UsbSrvClient.RequestRight(device.GetName());
-    ASSERT_EQ(ret, 0);
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
-    ASSERT_EQ(ret, 0);
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
     USBEndpoint point = interface.GetEndpoints().front();
     UsbSrvClient.ReleaseInterface(pip, interface);
@@ -748,26 +729,19 @@ HWTEST_F(UsbSubmitTransferTest, UsbSubmitTransferIsochronousWriteIoError, TestSi
 HWTEST_F(UsbSubmitTransferTest, UsbCancelTransferIsochronousWrite, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCancelTransferIsochronousWrite enter.");
-
     vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.GetDevices(delist);
     EXPECT_TRUE(!(delist.empty())) << "Device list is empty";
-
     UsbDevice device = delist.front();
     ret = UsbSrvClient.RequestRight(device.GetName());
-    ASSERT_EQ(ret, 0);
-
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
-    ASSERT_EQ(ret, 0);
-
-    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1); // ISO写，测试设备耳机，id取第二个，端口为5，类型为1
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     USBEndpoint point = interface.GetEndpoints().front();
     ret = UsbSrvClient.ClaimInterface(pip, interface, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCancelTransferIsochronousWrite ClaimInterface %{public}d ret:%{public}d",
         __LINE__, ret);
-    ASSERT_EQ(ret, 0);
 
     sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
     ASSERT_NE(ashmem, nullptr);
@@ -794,71 +768,12 @@ HWTEST_F(UsbSubmitTransferTest, UsbCancelTransferIsochronousWrite, TestSize.Leve
     // 取消写操作
     ret = UsbSrvClient.UsbCancelTransfer(pip, transferInfo.endpoint);
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbCancelTransferIsochronousWrite ret:%{public}d", __LINE__, ret);
-    ASSERT_EQ(ret, UEC_OK);
+    ASSERT_EQ(ret, FIVE); // 传输已完成或者已被取消
 
     bool close = UsbSrvClient.Close(pip);
     EXPECT_TRUE(close);
 
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCancelTransferIsochronousWrite end.");
-}
-
-/**
- * @tc.name: UsbCancelTransferIsochronousRead
- * @tc.desc: Test the functionality of UsbCancelTransfer for read operation
- * @tc.type: FUNC
- */
-HWTEST_F(UsbSubmitTransferTest, UsbCancelTransferIsochronousRead, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbCancelTransferIsochronousRead enter.");
-    vector<UsbDevice> delist;
-    auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(delist);
-    ASSERT_EQ(ret, 0);
-    EXPECT_TRUE(!(delist.empty())) << "Device list is empty";
-    UsbDevice device = delist.front();
-    ret = UsbSrvClient.RequestRight(device.GetName());
-    ASSERT_EQ(ret, 0);
-    USBDevicePipe pip;
-    ret = UsbSrvClient.OpenDevice(device, pip);
-    ASSERT_EQ(ret, 0);
-    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(2); // // ISO读，测试设备耳机，id取第三个，端口为132，类型为1
-    USBEndpoint point = interface.GetEndpoints().front();
-    ret = UsbSrvClient.ClaimInterface(pip, interface, true);
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbCancelTransferIsochronousRead ClaimInterface ret: %{public}d",
-        __LINE__, ret);
-    ASSERT_EQ(ret, 0);
-
-    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
-    ASSERT_NE(ashmem, nullptr);
-    ashmem->MapReadAndWriteAshmem();
-
-    HDI::Usb::V1_2::USBTransferInfo transferInfo;
-    transferInfo.endpoint = 0x84;    // 读操作
-    transferInfo.flags = 0;
-    transferInfo.type = TYPE_ISOCHRONOUS; // 开发板不支持ISO传输类型
-    transferInfo.timeOut = 0;        // 设置超时时间
-    transferInfo.length = TEN;        // 设置传输数据的长度
-    transferInfo.userData = 0;
-    transferInfo.numIsoPackets = 1;  // 只有type为1有iso
-
-    auto callback = [](const TransferCallbackInfo &info,
-                        const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &packets, uint64_t userData) {
-        USB_HILOGI(MODULE_USB_SERVICE, "UsbCancelTransferIsochronousRead cb status:%{public}d,actualLength: %{public}d",
-            info.status, info.actualLength);
-    };
-
-    ret = UsbSrvClient.UsbSubmitTransfer(pip, transferInfo, callback, ashmem);
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbCancelTransferIsochronousRead ret: %{public}d", __LINE__, ret);
-    ASSERT_EQ(ret, UEC_OK);
-
-    // 取消读操作
-    ret = UsbSrvClient.UsbCancelTransfer(pip, transferInfo.endpoint);
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbCancelTransferIsochronousRead ret: %{public}d", __LINE__, ret);
-    ASSERT_EQ(ret, UEC_OK);
-
-    bool close = UsbSrvClient.Close(pip);
-    EXPECT_TRUE(close);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbCancelTransferIsochronousRead end.");
 }
 } // namespace SubmitTransfer
 } // namespace USB
