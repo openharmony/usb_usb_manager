@@ -94,11 +94,11 @@
         },
         {
             "name":"USB_func_mtp_notifier",
-            "value":"USB 已连接(文件)"
+            "value":"USB 已连接 (文件)"
         },
         {
             "name":"USB_func_ptp_notifier",
-            "value":"USB 已连接(照片)"
+            "value":"USB 已连接 (照片)"
         },
         {
             "name":"USB_func_more_notifier",
