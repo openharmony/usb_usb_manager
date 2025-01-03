@@ -1671,7 +1671,6 @@ void UsbService::ExecuteStrategy(UsbDevice *devInfo)
         }
         return;
     }
-    ret = ExecuteManageInterfaceType(disableType, true);
 
     if (trustUsbDeviceIds.empty()) {
         USB_HILOGI(MODULE_USB_SERVICE, "trustUsbDeviceIds is empty, no devices disable");
