@@ -326,8 +326,13 @@ static auto g_serialWriteExecute = [](napi_env env, void* data) {
             return;
         }
     }
-    context->contextErrno = ErrorCodeConversion(resp.get());
-    context->ret = resp.get();
+
+    int32_t ret = resp.get();
+    if (ret != 0) {
+        context->contextErrno = ErrorCodeConversion(ret);
+    }
+    
+    context->ret = ret;
 };
 
 static auto g_serialWriteComplete = [](napi_env env, napi_status status, void *data) {
@@ -346,7 +351,7 @@ static auto g_serialWriteComplete = [](napi_env env, napi_status status, void *d
 
 static napi_value SerialWriteNapi(napi_env env, napi_callback_info info)
 {
-    USB_HILOGE(MODULE_JS_NAPI, "start write Napi");
+    USB_HILOGI(MODULE_JS_NAPI, "start write Napi");
     int32_t portIdValue = -1;
     napi_value buffer;
     uint32_t timeoutValue = 0;
@@ -491,8 +496,13 @@ static auto g_serialReadExecute = [](napi_env env, void* data) {
             return;
         }
     }
-    context->contextErrno = ErrorCodeConversion(resp.get());
-    context->ret = resp.get();
+
+    int32_t ret = resp.get();
+    if (ret != 0) {
+        context->contextErrno = ErrorCodeConversion(ret);
+    }
+
+    context->ret = ret;
 };
 
 static auto g_serialReadComplete = [](napi_env env, napi_status status, void* data) {
