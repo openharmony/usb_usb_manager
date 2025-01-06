@@ -287,12 +287,12 @@ static napi_value SerialWriteSyncNapi(napi_env env, napi_callback_info info)
         }
     }
     napi_value result = nullptr;
-    
-    if (!SerialAssert(env, (resp.get() == 0), ErrorCodeConversion(resp.get()), "SerialWrite Failed.")) {
+    int32_t ret = resp.get();
+    if (!SerialAssert(env, (ret == 0), ErrorCodeConversion(ret), "SerialWrite Failed.")) {
         return nullptr;
     }
 
-    napi_create_int32(env, resp.get(), &result);
+    napi_create_int32(env, ret, &result);
     return result;
 }
 
@@ -475,11 +475,12 @@ static napi_value SerialReadSyncNapi(napi_env env, napi_callback_info info)
         }
     }
     napi_value result = nullptr;
-    if (!SerialAssert(env, (resp.get() == 0), ErrorCodeConversion(resp.get()), "SerialReadSync Failed.")) {
+    int32_t ret = resp.get();
+    if (!SerialAssert(env, (ret == 0), ErrorCodeConversion(ret), "SerialReadSync Failed.")) {
         return nullptr;
     }
 
-    napi_create_int32(env, resp.get(), &result);
+    napi_create_int32(env, ret, &result);
     return result;
 }
 
