@@ -1842,14 +1842,14 @@ int32_t UsbService::UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, HDI
     int32_t ret = usbd_->UsbSubmitTransfer(devInfo, info, callbackImpl_, ashmem);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService UsbSubmitTransfer error ret:%{public}d", ret);
-        ErrorCode(ret);
+        return ErrorCode(ret);
     }
     return ret;
 }
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
-int32_t UsbService::ErrorCode(int32_t error)
+int32_t UsbService::ErrorCode(int32_t &error)
 {
     switch (error) {
         case ERRCODE_NEGATIVE_ONE:

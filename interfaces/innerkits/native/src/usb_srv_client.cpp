@@ -33,7 +33,7 @@ constexpr uint32_t WAIT_SERVICE_LOAD = 500;
 constexpr int32_t READ_BUF_SIZE = 8192;
 UsbSrvClient::UsbSrvClient()
 {
-    callBackService = new (std::nothrow) UsbdCallBackServer();
+    callBackService = new UsbdCallBackServer();
     Connect();
 }
 UsbSrvClient::~UsbSrvClient() {}
@@ -446,7 +446,6 @@ int32_t UsbSrvClient::UsbSubmitTransfer(USBDevicePipe &pip, HDI::Usb::V1_2::USBT
 {
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
     const UsbDev tdev = {pip.GetBusNum(), pip.GetDevAddr()};
-
     callBackService->SetTransferCallback(cb);
     int32_t ret = proxy_->UsbSubmitTransfer(tdev, info, callBackService, ashmem);
     if (ret != UEC_OK) {

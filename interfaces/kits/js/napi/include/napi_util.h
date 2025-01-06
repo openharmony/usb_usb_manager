@@ -41,7 +41,6 @@ public:
     static void SetValueUint32(
         const napi_env &env, const std::string &fieldStr, const uint32_t uintValue, napi_value &result);
     static void SetValueBool(const napi_env &env, std::string fieldStr, const bool boolValue, napi_value &result);
-    static std::vector<uint8_t> JsObjectToU8Vector(const napi_env &env, const napi_value &object, const char *fieldStr);
 };
 
 enum class TransferFlagsJs {

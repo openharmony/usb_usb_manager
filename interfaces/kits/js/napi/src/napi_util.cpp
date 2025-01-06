@@ -239,43 +239,5 @@ void NapiUtil::SetValueBool(const napi_env &env, std::string fieldStr, const boo
     napi_set_named_property(env, result, fieldStr.c_str(), value);
 }
 
-std::vector<uint8_t> NapiUtil::JsObjectToU8Vector(const napi_env &env, const napi_value &object, const char *fieldStr)
-{
-    bool hasProperty = false;
-    napi_has_named_property(env, object, fieldStr, &hasProperty);
-    napi_value fieldValue;
-    if (!hasProperty || napi_get_named_property(env, object, fieldStr, &fieldValue) != napi_ok) {
-        USB_HILOGE(MODULE_JS_NAPI, "JsObjectToU8Vector, Js to U8Vector no property: %{public}s", fieldStr);
-        return {};
-    }
-    bool isTypedArray = false;
-    if (napi_is_typedarray(env, fieldValue, &isTypedArray) != napi_ok || !isTypedArray) {
-        USB_HILOGE(MODULE_JS_NAPI, "JsObjectToU8Vector, property is not typedarray: %{public}s", fieldStr);
-        return {};
-    }
-    size_t length = 0;
-    size_t offset = 0;
-    napi_typedarray_type type;
-    napi_value buffer = nullptr;
-    napi_get_typedarray_info(env, fieldValue, &type, &length, nullptr, &buffer, &offset);
-    if (type != napi_uint8_array || buffer == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "JsObjectToU8Vector, %{public}s, buffer is nullptr: %{public}d",
-            fieldStr, (int)(buffer == nullptr));
-        return {};
-    }
-
-    size_t total = 0;
-    uint8_t *data = nullptr;
-    napi_get_arraybuffer_info(env, buffer, reinterpret_cast<void **>(&data), &total);
-    length = std::min<size_t>(length, total - offset);
-    std::vector<uint8_t> resultU8Vector(length);
-    int retCode = memcpy_s(resultU8Vector.data(), resultU8Vector.size(), &data[offset], length);
-    if (retCode != 0) {
-        USB_HILOGE(MODULE_JS_NAPI, "JsObjectToU8Vector, memcpy_s return fail: %{public}d", retCode);
-        return {};
-    }
-    return resultU8Vector;
-}
-
 } // namespace USB
 } // namespace OHOS

@@ -70,7 +70,7 @@ public:
     {
         return ready_;
     }
-    int32_t ErrorCode(int32_t error);
+    int32_t ErrorCode(int32_t &error);
     static sptr<UsbService> GetGlobalInstance();
     int32_t SetUsbd(const sptr<HDI::Usb::V1_2::IUsbInterface> &usbd);
     int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) override;

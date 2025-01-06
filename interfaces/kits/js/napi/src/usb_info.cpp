@@ -48,9 +48,13 @@ static constexpr int32_t INDEX_0 = 0;
 static constexpr int32_t INDEX_1 = 1;
 static constexpr int32_t INDEX_2 = 2;
 static constexpr int32_t INDEX_3 = 3;
-static constexpr int32_t INDEX_4 = 4;
-static constexpr int32_t INDEX_5 = 5;
-static constexpr int32_t INDEX_6 = 6;
+static constexpr int32_t STATUS_ZERO = 0;
+static constexpr int32_t STATUS_ONE = 1;
+static constexpr int32_t STATUS_TWO = 2;
+static constexpr int32_t STATUS_THREE = 3;
+static constexpr int32_t STATUS_FOUR = 4;
+static constexpr int32_t STATUS_FIVE = 5;
+static constexpr int32_t STATUS_SIX = 6;
 static constexpr int32_t PARAM_COUNT_0 = 0;
 static constexpr int32_t PARAM_COUNT_1 = 1;
 static constexpr int32_t PARAM_COUNT_2 = 2;
@@ -1998,23 +2002,23 @@ static napi_value ErrorCodeInput(napi_env env, int32_t status)
 {
     napi_value error = nullptr;
     switch (status) {
-        case INDEX_0:
+        case STATUS_ZERO:
             napi_create_int32(env, USB_SUBMIT_TRANSFER_OPERATION_SUCCESSFUL, &error);
             return error;
-        case INDEX_1:
+        case STATUS_ONE:
             napi_create_int32(env, USB_SUBMIT_TRANSFER_IO_ERROR, &error);
             return error;
-        case INDEX_2:
+        case STATUS_TWO:
             napi_create_int32(env, USB_SUBMIT_TRANSFER_TIMEOUT_ERROR, &error);
             return error;
-        case INDEX_3:
+        case STATUS_THREE:
             napi_create_int32(env, USB_SUBMIT_TRANSFER_IO_ERROR, &error);
             return error;
-        case INDEX_4:
-        case INDEX_5:
+        case STATUS_FOUR:
+        case STATUS_FIVE:
             napi_create_int32(env, USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR, &error);
             return error;
-        case INDEX_6:
+        case STATUS_SIX:
             napi_create_int32(env, USB_SUBMIT_TRANSFER_OVERFLOW_ERROR, &error);
             return error;
         default:
@@ -2039,32 +2043,31 @@ static napi_value ParmsInput(napi_env env, AsyncCallBackContext &asyncCBWork)
     napi_set_named_property(env, res, "status", status);
     napi_set_named_property(env, res, "actualLength", actualLength);
 
+    if (asyncCBWork.isoInfo.empty()) {
+        return res;
+    }
     napi_value isoObjArray = nullptr;
-    if (!asyncCBWork.isoInfo.empty()) {
-        napi_create_array(env, &isoObjArray);
-        const int32_t isoCount = asyncCBWork.isoInfo.size();
-        for (int32_t i = 0; i < isoCount; i++) {
-            napi_value iso = nullptr;
-            napi_create_object(env, &iso);
-            napi_value isoLength = nullptr;
-            napi_value isoActualLength = nullptr;
-            napi_value isoStatus = nullptr;
-            napi_create_int32(env, asyncCBWork.isoInfo[i].isoLength, &isoLength);
-            napi_create_int32(env, asyncCBWork.isoInfo[i].isoActualLength, &isoActualLength);
-            napi_create_int32(env, asyncCBWork.isoInfo[i].isoStatus, &isoStatus);
-            napi_set_named_property(env, iso, "isoLength", isoLength);
-            napi_set_named_property(env, iso, "isoActualLength", isoActualLength);
-            napi_set_named_property(env, iso, "isoStatus", isoStatus);
-
-            napi_set_element(env, isoObjArray, i, iso);
-        }
+    napi_create_array(env, &isoObjArray);
+    const int32_t isoCount = asyncCBWork.isoInfo.size();
+    for (int32_t i = 0; i < isoCount; i++) {
+        napi_value iso = nullptr;
+        napi_create_object(env, &iso);
+        napi_value isoLength = nullptr;
+        napi_value isoActualLength = nullptr;
+        napi_value isoStatus = nullptr;
+        napi_create_int32(env, asyncCBWork.isoInfo[i].isoLength, &isoLength);
+        napi_create_int32(env, asyncCBWork.isoInfo[i].isoActualLength, &isoActualLength);
+        napi_create_int32(env, asyncCBWork.isoInfo[i].isoStatus, &isoStatus);
+        napi_set_named_property(env, iso, "isoLength", isoLength);
+        napi_set_named_property(env, iso, "isoActualLength", isoActualLength);
+        napi_set_named_property(env, iso, "isoStatus", isoStatus);
+        napi_set_element(env, isoObjArray, i, iso);
     }
     napi_set_named_property(env, res, "isoPacketDesc", isoObjArray);
     return res;
 }
 
-static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCallbackInfo &info,
-    const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo)
+static void ReadDataToBuffer(USBTransferAsyncContext *asyncContext, const TransferCallbackInfo &info)
 {
     if ((asyncContext->endpoint & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_IN) {
         asyncContext->ashmem->MapReadAndWriteAshmem();
@@ -2081,10 +2084,22 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
     }
     asyncContext->ashmem->UnmapAshmem();
     asyncContext->ashmem->CloseAshmem();
+}
+
+static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCallbackInfo &info,
+    const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo)
+{
+    ReadDataToBuffer(asyncContext, info);
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(asyncContext->env, &loop);
     uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        return nullptr;
+    }
     AsyncCallBackContext *asyncCBWork = new (std::nothrow) AsyncCallBackContext;
+    if (asyncCBWork == nullptr) {
+        return nullptr;
+    }
     asyncCBWork->env = asyncContext->env;
     asyncCBWork->actualLength = info.actualLength;
     asyncCBWork->status = info.status;
