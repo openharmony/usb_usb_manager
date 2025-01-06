@@ -88,6 +88,8 @@ static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
     if (!SerialAssert(env, (argc == ARGC_0), SYSPARAM_INVALID_INPUT, "The function takes no arguments.")) {
         return nullptr;
     }
+    std::lock_guard<std::mutex> lock(g_mutex);
+    g_portIds.clear();
     int32_t ret = g_usbClient.SerialGetPortList(g_portIds);
     if (!SerialAssert(env, (ret == 0), ErrorCodeConversion(ret), "get portlist failed")) {
         return nullptr;
