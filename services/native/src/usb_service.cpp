@@ -1823,9 +1823,6 @@ int32_t UsbService::UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, HDI
     const sptr<IRemoteObject> &cb, sptr<Ashmem> &ashmem)
 {
     USB_HILOGI(MODULE_USBD, "UsbService UsbSubmitTransfer enter");
-    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
-        return UEC_SERVICE_PERMISSION_DENIED;
-    }
     if (cb == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService UsbSubmitTransfer cb is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
