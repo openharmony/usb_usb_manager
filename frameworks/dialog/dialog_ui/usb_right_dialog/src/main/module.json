@@ -28,6 +28,9 @@
     "requestPermissions": [
       {
         "name": "ohos.permission.MANAGE_USB_CONFIG"
+      },
+      {
+        "name": "ohos.permission.SYSTEM_FLOAT_WINDOW"
       }
     ],
     "extensionAbilities": [
