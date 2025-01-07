@@ -91,7 +91,6 @@ const bool G_REGISTER_RESULT =
 
 UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
 {
-    callbackImpl_ = new UsbdTransferCallbackImpl();
     usbHostManager_ = std::make_shared<UsbHostManager>(nullptr);
     usbRightManager_ = std::make_shared<UsbRightManager>();
     usbPortManager_ = std::make_shared<UsbPortManager>();
@@ -1838,7 +1837,7 @@ int32_t UsbService::UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, HDI
     }
     sptr<UsbdTransferCallbackImpl> callbackImpl_ = nullptr;
     if (cb != nullptr) {
-        callbackImpl_ = new UsbdCallBackServer(cb);
+        callbackImpl_ = new UsbdTransferCallbackImpl(cb);
     }
     if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;

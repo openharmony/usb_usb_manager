@@ -34,7 +34,6 @@ constexpr uint32_t WAIT_SERVICE_LOAD = 500;
 constexpr int32_t READ_BUF_SIZE = 8192;
 UsbSrvClient::UsbSrvClient()
 {
-    callBackService = new UsbdCallBackServer();
     Connect();
 }
 UsbSrvClient::~UsbSrvClient() {}
