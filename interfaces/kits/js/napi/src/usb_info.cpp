@@ -2094,11 +2094,11 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
     napi_get_uv_event_loop(asyncContext->env, &loop);
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        return nullptr;
+        return;
     }
     AsyncCallBackContext *asyncCBWork = new (std::nothrow) AsyncCallBackContext;
     if (asyncCBWork == nullptr) {
-        return nullptr;
+        return;
     }
     asyncCBWork->env = asyncContext->env;
     asyncCBWork->actualLength = info.actualLength;
