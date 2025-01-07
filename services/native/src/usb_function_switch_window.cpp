@@ -381,7 +381,7 @@ bool UsbFunctionSwitchWindow::ShouldRejectShowWindow()
         "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_SECURE_"
         + std::to_string(userId) + "?Proxy=true&key=is_ota_finished");
     bool resp_ota = datashareHelper->Query(uri_ota, "is_ota_finished", is_ota_finished);
-    if (!resp_ota && is_ota_finished == "0") {
+    if (resp_ota && is_ota_finished == "0") {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: is_ota_finished is = 0", __func__);
         return true;
     }
