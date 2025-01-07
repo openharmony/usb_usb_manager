@@ -226,9 +226,9 @@ HWTEST_F(UsbSubmitTransferTest, UsbSubmitTransferBulkWriteInvalidEndpoint, TestS
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbSubmitTransferBulkWriteInvalidEndpoint ret=%{public}d",
         __LINE__, ret);
     if (ret == -1) {
-        ret = INVALID_PARAM;
+        ret = IO_ERROR;
     }
-    ASSERT_EQ(ret, USB_SUBMIT_TRANSFER_INVALID_PARAM);
+    ASSERT_EQ(ret, USB_SUBMIT_TRANSFER_IO_ERROR);
     bool close = UsbSrvClient.Close(pip);
     EXPECT_TRUE(close);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferBulkWriteInvalidEndpoint end.");
@@ -401,13 +401,13 @@ HWTEST_F(UsbSubmitTransferTest, UsbSubmitTransferInterruptWrite, TestSize.Level1
 }
 
 /**
- * @tc.name: UsbSubmitTransferInterruptWriteInvalidEndpoint
+ * @tc.name: UsbSubmitTransferInterruptReadInvalidEndpoint
  * @tc.desc: Test the USB data write functionality of UsbSubmitTransfer with invalid endpoint type
  * @tc.type: FUNC
  */
-HWTEST_F(UsbSubmitTransferTest, UsbSubmitTransferInterruptWriteInvalidEndpoint, TestSize.Level1)
+HWTEST_F(UsbSubmitTransferTest, UsbSubmitTransferInterruptReadInvalidEndpoint, TestSize.Level1)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferInterruptWriteInvalidEndpoint begin.");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferInterruptReadInvalidEndpoint begin.");
 
     vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
@@ -420,7 +420,7 @@ HWTEST_F(UsbSubmitTransferTest, UsbSubmitTransferInterruptWriteInvalidEndpoint, 
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
     USBEndpoint point = interface.GetEndpoints().front();
     ret = UsbSrvClient.ClaimInterface(pip, interface, true);
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbSubmitTransferInterruptWriteInvalidEndpoint ret:%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbSubmitTransferInterruptReadInvalidEndpoint ret:%{public}d",
         __LINE__, ret);
 
     sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
@@ -441,19 +441,19 @@ HWTEST_F(UsbSubmitTransferTest, UsbSubmitTransferInterruptWriteInvalidEndpoint, 
     auto callback = [](const TransferCallbackInfo &info,
                         const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &packets, uint64_t userData) {
         USB_HILOGI(MODULE_USB_SERVICE,
-            "UsbSubmitTransferInterruptWriteInvalidEndpoint cb status: %{public}d, actualLength: %{public}d",
+            "UsbSubmitTransferInterruptReadInvalidEndpoint cb status: %{public}d, actualLength: %{public}d",
             info.status, info.actualLength);
     };
     ret = UsbSrvClient.UsbSubmitTransfer(pip, transferInfo, callback, ashmem);
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbSubmitTransferInterruptWriteInvalidEndpoint ret=%{public}d",
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbSubmitTransferInterruptReadInvalidEndpoint ret=%{public}d",
         __LINE__, ret);
     if (ret == -1) {
-        ret = INVALID_PARAM;
+        ret = IO_ERROR;
     }
-    ASSERT_EQ(ret, USB_SUBMIT_TRANSFER_INVALID_PARAM);
+    ASSERT_EQ(ret, USB_SUBMIT_TRANSFER_IO_ERROR);
     bool close = UsbSrvClient.Close(pip);
     EXPECT_TRUE(close);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferInterruptWriteInvalidEndpoint end.");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferInterruptReadInvalidEndpoint end.");
 }
 
 /**
