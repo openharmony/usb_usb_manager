@@ -43,7 +43,6 @@
 #include "v1_0/iusbd_subscriber.h"
 #include "v1_2/usb_types.h"
 #include "usbd_bulkcallback_impl.h"
-#include "usbd_transfer_callback_impl.h"
 
 namespace OHOS {
 namespace USB {
@@ -51,11 +50,11 @@ const std::string USB_HOST = "usb_host";
 const std::string USB_DEVICE = "usb_device";
 const std::string USB_PORT = "usb_port";
 const std::string USB_HELP = "-h";
-const int32_t ERRCODE_NEGATIVE_ONE = -1;
-const int32_t ERRCODE_NEGATIVE_TWO = -2;
-const int32_t ERRCODE_NEGATIVE_FOUR = -4;
-const int32_t ERRCODE_NEGATIVE_ELEVEN = -11;
-const int32_t ERRCODE_NEGATIVE_TWELVE = -12;
+const int32_t IO_ERROR = -1;
+const int32_t INVALID_PARAM = -2;
+const int32_t NO_DEVICE = -4;
+const int32_t NO_MEM = -11;
+const int32_t NOT_SUPPORT = -12;
 class UsbService : public SystemAbility, public UsbServerStub {
     DECLARE_SYSTEM_ABILITY(UsbService)
     DECLARE_DELAYED_SP_SINGLETON(UsbService);
@@ -70,7 +69,7 @@ public:
     {
         return ready_;
     }
-    int32_t ErrorCode(int32_t &error);
+    int32_t UsbSubmitTransferErrorCode(int32_t &error);
     static sptr<UsbService> GetGlobalInstance();
     int32_t SetUsbd(const sptr<HDI::Usb::V1_2::IUsbInterface> &usbd);
     int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) override;
@@ -218,7 +217,6 @@ private:
     std::shared_ptr<UsbAccessoryManager> usbAccessoryManager_;
     sptr<UsbServiceSubscriber> usbdSubscriber_;
     sptr<HDI::Usb::V1_0::IUsbdBulkCallback> hdiCb_ = nullptr;
-    sptr<UsbdTransferCallbackImpl> callbackImpl_ = nullptr;
     sptr<HDI::Usb::V1_2::IUsbInterface> usbd_ = nullptr;
     std::map<std::string, std::string> deviceVidPidMap_;
     Utils::Timer unloadSelfTimer_ {"unLoadTimer"};

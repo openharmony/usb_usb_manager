@@ -25,7 +25,9 @@ int32_t UsbdCallBackServer::OnTransferWriteCallback(int32_t status, int32_t actu
 {
     info.status = status;
     info.actualLength = actualLength;
-    this->isoInfo = isoInfo;
+    if (!isoInfo.empty()) {
+        this->isoInfo = isoInfo;
+    }
     callback_(info, isoInfo, userData);
     return UEC_OK;
 }
@@ -35,7 +37,9 @@ int32_t UsbdCallBackServer::OnTransferReadCallback(int32_t status, int32_t actua
 {
     info.status = status;
     info.actualLength = actualLength;
-    this->isoInfo = isoInfo;
+    if (!isoInfo.empty()) {
+        this->isoInfo = isoInfo;
+    }
     callback_(info, isoInfo, userData);
     return UEC_OK;
 }
