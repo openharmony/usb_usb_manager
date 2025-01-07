@@ -90,7 +90,7 @@ const bool G_REGISTER_RESULT =
 
 UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
 {
-    callbackImpl_ = new (std::nothrow) UsbdTransferCallbackImpl();
+    callbackImpl_ = new UsbdTransferCallbackImpl();
     usbHostManager_ = std::make_shared<UsbHostManager>(nullptr);
     usbRightManager_ = std::make_shared<UsbRightManager>();
     usbPortManager_ = std::make_shared<UsbPortManager>();
