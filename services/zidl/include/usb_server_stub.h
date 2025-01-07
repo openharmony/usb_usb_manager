@@ -85,6 +85,9 @@ private:
     int32_t SetDeviceInterfacesMessageParcel(std::vector<UsbInterface> &interfaces, MessageParcel &data);
     int32_t SetDeviceEndpointsMessageParcel(std::vector<USBEndpoint> &eps, MessageParcel &data);
 
+    int32_t DoUsbCancelTransfer(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoUsbSubmitTransfer(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+
     int32_t DoRegBulkCallback(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoUnRegBulkCallback(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoBulkRead(MessageParcel &data, MessageParcel &reply, MessageOption &option);

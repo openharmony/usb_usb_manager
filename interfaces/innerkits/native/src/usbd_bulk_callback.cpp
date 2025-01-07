@@ -34,7 +34,6 @@ int32_t UsbdBulkCallBack::OnRemoteRequest(uint32_t code, MessageParcel &data, Me
                 USB_HILOGE(MODULE_USB_INNERKIT, "get actLength error");
                 return UEC_SERVICE_WRITE_PARCEL_ERROR;
             }
-
             USB_HILOGI(MODULE_USB_INNERKIT, "status:%{public}d actLength:%{public}d", status, actLength);
             OnBulkWriteCallback(status, actLength);
             break;
@@ -50,7 +49,6 @@ int32_t UsbdBulkCallBack::OnRemoteRequest(uint32_t code, MessageParcel &data, Me
                 USB_HILOGE(MODULE_USB_INNERKIT, "get actLength error code=%{public}u", code);
                 return UEC_SERVICE_WRITE_PARCEL_ERROR;
             }
-
             USB_HILOGI(MODULE_USB_INNERKIT, "%{public}d status:%{public}d actLength:%{public}d", __LINE__, status,
                 actLength);
             OnBulkReadCallback(status, actLength);

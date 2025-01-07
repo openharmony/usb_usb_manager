@@ -19,6 +19,7 @@
 #include "usbd_bulk_callback.h"
 #include "usb_errors.h"
 #include "hilog_wrapper.h"
+#include "struct_parcel.h"
 
 namespace OHOS {
 namespace USB {

@@ -23,7 +23,7 @@
 #include "usb_accessory.h"
 #include "usb_common.h"
 #include "usb_srv_support.h"
-#include "v1_1/iusb_interface.h"
+#include "v1_2/iusb_interface.h"
 #include "v1_0/iusb_interface.h"
 #include "v1_0/iusbd_subscriber.h"
 #include "delayed_sp_singleton.h"
@@ -44,7 +44,7 @@ public:
     UsbAccessoryManager();
     ~UsbAccessoryManager();
     void HandleEvent(int32_t status, bool delayProcess = true);
-    int32_t SetUsbd(const sptr<OHOS::HDI::Usb::V1_1::IUsbInterface> usbd);
+    int32_t SetUsbd(const sptr<OHOS::HDI::Usb::V1_2::IUsbInterface> usbd);
     void GetAccessoryList(const std::string &bundleName, std::vector<USBAccessory> &accessoryList);
     int32_t GetAccessorySerialNumber(const USBAccessory &access, const std::string &bundleName,
         std::string &serialValue);
@@ -69,7 +69,7 @@ private:
     uint32_t accDelayTimerId_ {UINT32_MAX};
     Utils::Timer antiShakeDelayTimer_ {"antiShakeDelayTimer"};
     uint32_t antiShakeDelayTimerId_ {UINT32_MAX};
-    sptr<HDI::Usb::V1_1::IUsbInterface> usbdImpl_ = nullptr;
+    sptr<HDI::Usb::V1_2::IUsbInterface> usbdImpl_ = nullptr;
     std::map<char, int> base64Map_;
     std::mutex mutexHandleEvent_;
 };

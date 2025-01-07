@@ -19,6 +19,12 @@ config("usbsrv_private_config") {
 }
 
 ohos_executable("usb_function_test") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
   sources = [
     "${usb_manager_path}/test/native/service_unittest/src/usb_common_test.cpp",
     "usb_function_test.cpp",
