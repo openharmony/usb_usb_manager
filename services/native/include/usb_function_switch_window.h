@@ -72,6 +72,8 @@ private:
     bool ShowFunctionSwitchWindow();
     bool UnShowFunctionSwitchWindow();
     bool CheckDialogInstallStatus();
+    bool ShouldRejectShowWindow();
+    static void BootCompletedEventCallback(const char *key, const char *value, void *context);
     static std::shared_ptr<UsbFunctionSwitchWindow> instance_;
     static int32_t GetSupportedFunctions();
     sptr<UsbFuncAbilityConn> usbFuncAbilityConn = nullptr;
