@@ -14,7 +14,6 @@
  */
 
 #include "usb_device_pipe.h"
-#include "iusb_srv.h"
 #include "usb_common.h"
 #include "usb_device.h"
 #include "usb_errors.h"
@@ -55,13 +54,24 @@ int32_t USBDevicePipe::BulkTransfer(const USBEndpoint &endpoint, std::vector<uin
     return UsbSrvClient::GetInstance().BulkTransfer(*this, endpoint, bufferData, timeOut);
 }
 
+int32_t USBDevicePipe::UsbCancelTransfer(const int32_t &endpoint)
+{
+    return UsbSrvClient::GetInstance().UsbCancelTransfer(*this, endpoint);
+}
+
+int32_t USBDevicePipe::UsbSubmitTransfer(HDI::Usb::V1_2::USBTransferInfo &asyncContext,
+    const TransferCallback &cb, sptr<Ashmem> &ashmem)
+{
+    return UsbSrvClient::GetInstance().UsbSubmitTransfer(*this, asyncContext, cb, ashmem);
+}
+
 int32_t USBDevicePipe::ControlTransfer(const UsbCtrlTransfer &ctrl, std::vector<uint8_t> &bufferData)
 {
     return UsbSrvClient::GetInstance().ControlTransfer(*this, ctrl, bufferData);
 }
 
 int32_t USBDevicePipe::UsbControlTransfer(
-    const HDI::Usb::V1_1::UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData)
+    const HDI::Usb::V1_2::UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData)
 {
     return UsbSrvClient::GetInstance().UsbControlTransfer(*this, ctrlParams, bufferData);
 }

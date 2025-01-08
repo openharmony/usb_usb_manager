@@ -21,10 +21,10 @@
 #include "usb_errors.h"
 #include "usb_request.h"
 #include "usb_server_proxy.h"
-#include "v1_1/iusb_interface.h"
+#include "v1_2/iusb_interface.h"
 #include "usb_accessory.h"
 
-using namespace OHOS::HDI::Usb::V1_1;
+using namespace OHOS::HDI::Usb::V1_2;
 namespace OHOS {
 namespace USB {
 
@@ -1150,6 +1150,62 @@ int32_t UsbServerProxy::Close(uint8_t busNum, uint8_t devAddr)
         return ret;
     }
     READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
+    return ret;
+}
+
+int32_t UsbServerProxy::UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &dev, HDI::Usb::V1_2::USBTransferInfo &info,
+    const sptr<IRemoteObject> &cb, sptr<Ashmem> &ashmem)
+{
+    USB_HILOGI(MODULE_USBD, "UsbServerProxy UsbSubmitTransfer enter");
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_SERVICE_INNER_ERR);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    SetDeviceMessage(data, dev.busNum, dev.devAddr);
+	
+    WRITE_PARCEL_WITH_RET(data, Int32, info.endpoint, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Int32, info.type, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Int32, info.length, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Int32, info.timeOut, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Uint64, info.userData, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Uint32, info.numIsoPackets, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, RemoteObject, cb, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Ashmem, ashmem, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_SUBMIT_TRANSFER),
+        data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_INNERKIT, "SendRequest failed!, ret: %{public}d", ret);
+        return ret;
+    }
+    READ_PARCEL_WITH_RET(reply, Int32, ret, UEC_INTERFACE_READ_PARCEL_ERROR);
+    return ret;
+}
+
+int32_t UsbServerProxy::UsbCancelTransfer(const HDI::Usb::V1_0::UsbDev &dev, const int32_t &endpoint)
+{
+    USB_HILOGI(MODULE_USBD, "UsbServerProxy UsbCancelTransfer enter");
+    sptr<IRemoteObject> remote = Remote();
+    RETURN_IF_WITH_RET(remote == nullptr, UEC_SERVICE_INNER_ERR);
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+        USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
+        return ERR_ENOUGH_DATA;
+    }
+    SetDeviceMessage(data, dev.busNum, dev.devAddr);
+    WRITE_PARCEL_WITH_RET(data, Int32, endpoint, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    MessageOption option;
+    MessageParcel reply;
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_CANCEL_TRANSFER),
+        data, reply, option);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_INNERKIT, "SendRequest failed!");
+        return ret;
+    }
     return ret;
 }
 

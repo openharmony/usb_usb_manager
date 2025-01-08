@@ -19,7 +19,7 @@
 #include "usb_errors.h"
 
 using namespace OHOS::HDI::Usb::V1_0;
-using namespace OHOS::HDI::Usb::V1_1;
+using namespace OHOS::HDI::Usb::V1_2;
 namespace OHOS {
 const uint32_t OFFSET = 4;
 constexpr size_t THRESHOLD = 10;

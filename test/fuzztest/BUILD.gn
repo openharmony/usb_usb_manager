@@ -315,9 +315,9 @@ ohos_fuzztest("UsbMgrClearHaltFuzzTest") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "drivers_interface_usb:libusb_proxy_1.1",
-    "drivers_interface_usb:usb_idl_headers_1.1",
-    "drivers_peripheral_usb:libusb_interface_service_1.1",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "drivers_peripheral_usb:libusb_interface_service_1.2",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
@@ -350,9 +350,9 @@ ohos_fuzztest("UsbMgrAttachKernelDriverFuzzTest") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "drivers_interface_usb:libusb_proxy_1.1",
-    "drivers_interface_usb:usb_idl_headers_1.1",
-    "drivers_peripheral_usb:libusb_interface_service_1.1",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "drivers_peripheral_usb:libusb_interface_service_1.2",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
@@ -386,9 +386,9 @@ ohos_fuzztest("UsbMgrDetachKernelDriverFuzzTest") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "drivers_interface_usb:libusb_proxy_1.1",
-    "drivers_interface_usb:usb_idl_headers_1.1",
-    "drivers_peripheral_usb:libusb_interface_service_1.1",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "drivers_peripheral_usb:libusb_interface_service_1.2",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
@@ -850,9 +850,9 @@ ohos_fuzztest("UsbMgrFuzzTest") {
   external_deps = [
     "ability_runtime:ability_manager",
     "c_utils:utils",
-    "drivers_interface_usb:libusb_proxy_1.1",
-    "drivers_interface_usb:usb_idl_headers_1.1",
-    "drivers_peripheral_usb:libusb_interface_service_1.1",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "drivers_peripheral_usb:libusb_interface_service_1.2",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
@@ -881,9 +881,9 @@ ohos_fuzztest("UsbMgrExFuzzTest") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "drivers_interface_usb:libusb_proxy_1.1",
-    "drivers_interface_usb:usb_idl_headers_1.1",
-    "drivers_peripheral_usb:libusb_interface_service_1.1",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "drivers_peripheral_usb:libusb_interface_service_1.2",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
@@ -955,7 +955,7 @@ ohos_fuzztest("UsbMgrManageManageInterfaceTypeFuzzTest") {
 
   external_deps = [
     "c_utils:utils",
-    "drivers_interface_usb:libusb_proxy_1.1",
+    "drivers_interface_usb:libusb_proxy_1.2",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
@@ -979,7 +979,7 @@ ohos_fuzztest("UsbMgrGetDeviceSpeedFuzzTest") {
 
   external_deps = [
     "c_utils:utils",
-    "drivers_interface_usb:libusb_proxy_1.1",
+    "drivers_interface_usb:libusb_proxy_1.2",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
@@ -1034,6 +1034,84 @@ ohos_fuzztest("UsbMgrUsbControlTransferFuzzTest") {
       [ "usbmgrusbcontroltransfer_fuzzer/usbmgrusbcontroltransfer_fuzzer.cpp" ]
 }
 
+ohos_fuzztest("UsbMgrSubmitTransferFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrsubmittransfer_fuzzer"
+
+  configs = [
+    "${utils_path}:utils_config",
+    ":module_private_config",
+  ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  sources = [
+    "${usb_manager_path}/test/common/src/usb_callback_test.cpp",
+    "common/src/usb_common_fuzz.cpp",
+    "usbmgrsubmittransfer_fuzzer/usbmgrsubmittransfer_fuzzer.cpp",
+  ]
+}
+
+ohos_fuzztest("UsbMgrCancelTransferFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrcanceltransfer_fuzzer"
+
+  configs = [
+    "${utils_path}:utils_config",
+    ":module_private_config",
+  ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  sources = [
+    "${usb_manager_path}/test/common/src/usb_callback_test.cpp",
+    "common/src/usb_common_fuzz.cpp",
+    "usbmgrcanceltransfer_fuzzer/usbmgrcanceltransfer_fuzzer.cpp",
+  ]
+}
+
 group("fuzztest") {
   testonly = true
   deps = []
@@ -1043,6 +1121,7 @@ group("fuzztest") {
     ":UsbMgrBulkReadFuzzTest",
     ":UsbMgrBulkTransferFuzzTest",
     ":UsbMgrBulkWriteFuzzTest",
+    ":UsbMgrCancelTransferFuzzTest",
     ":UsbMgrClaimInterfaceFuzzTest",
     ":UsbMgrClearHaltFuzzTest",
     ":UsbMgrCloseFuzzTest",
@@ -1072,6 +1151,7 @@ group("fuzztest") {
     ":UsbMgrSetCurrentFunctionsFuzzTest",
     ":UsbMgrSetInterfaceFuzzTest",
     ":UsbMgrSetPortRoleFuzzTest",
+    ":UsbMgrSubmitTransferFuzzTest",
     ":UsbMgrUnRegBulkCallbackFuzzTest",
     ":UsbMgrUsbControlTransferFuzzTest",
     ":UsbMgrUsbFunctionsFromStringFuzzTest",

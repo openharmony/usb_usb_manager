@@ -40,6 +40,7 @@ ohos_shared_library("usbservice") {
   sources = [
     "${usb_manager_path}/services/zidl/src/usb_srv_stub.cpp",
     "${utils_path}/native/src/usb_settings_datashare.cpp",
+    "${utils_path}/native/src/struct_parcel.cpp",
     "native/src/usb_accessory_manager.cpp",
     "native/src/usb_descriptor_parser.cpp",
     "native/src/usb_device_manager.cpp",
@@ -54,6 +55,7 @@ ohos_shared_library("usbservice") {
     "native/src/usb_service.cpp",
     "native/src/usb_service_subscriber.cpp",
     "native/src/usbd_bulkcallback_impl.cpp",
+    "native/src/usbd_transfer_callback_impl.cpp",
   ]
 
   configs = [
@@ -82,6 +84,8 @@ ohos_shared_library("usbservice") {
     "data_share:datashare_consumer",
     "drivers_interface_usb:libusb_proxy_1.1",
     "drivers_peripheral_usb:libusb_interface_service_1.1",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_peripheral_usb:libusb_interface_service_1.2",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
