@@ -190,6 +190,7 @@ private:
     int32_t ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable);
     int32_t ManageDeviceTypeImpl(InterfaceType interfaceType, bool disable);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    bool IsCallerValid();
     bool ready_ = false;
     int32_t commEventRetryTimes_ = 0;
     std::mutex mutex_;

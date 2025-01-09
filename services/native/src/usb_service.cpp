@@ -83,6 +83,8 @@ constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
+constexpr const pid_t ROOT_UID = 0;
+constexpr const pid_t EDM_UID = 3057;
 } // namespace
 auto g_serviceInstance = DelayedSpSingleton<UsbService>::GetInstance();
 const bool G_REGISTER_RESULT =
@@ -2072,6 +2074,10 @@ int32_t UsbService::ManageDeviceTypeImpl(InterfaceType interfaceType, bool disab
 
 int32_t UsbService::ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t interfaceId, bool disable)
 {
+    if (!IsCallerValid()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
+        return UEC_SERVICE_INVALID_OPERATION;
+    }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -2321,6 +2327,17 @@ int32_t UsbService::CancelAccessoryRight(const USBAccessory &access)
 
     USB_HILOGI(MODULE_USB_SERVICE, "CancelAccessoryRight done");
     return UEC_OK;
+}
+
+bool UsbService::IsCallerValid()
+{
+    OHOS::Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+    auto callerTokenType = OHOS::Security::AccessToken::AccessTokenKit::GetTokenType(callerToken);
+    if (callerTokenType == OHOS::Security::AccessToken::TypeATokenTypeEnum::TOKEN_NATIVE) {
+        pid_t callerUid = IPCSkeleton::GetCallingUid();
+        return callerUid == ROOT_UID || callerUid == EDM_UID;
+    }
+    return false;
 }
 
 } // namespace USB
