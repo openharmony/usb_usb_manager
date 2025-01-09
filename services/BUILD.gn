@@ -88,7 +88,6 @@ ohos_shared_library("usbservice") {
     "drivers_interface_usb:libusb_proxy_1.2",
     "drivers_interface_usb:serial_idl_headers",
     "drivers_peripheral_usb:libserial_interface_service_1.0",
-    "drivers_peripheral_usb:libusb_interface_service_1.1",
     "drivers_peripheral_usb:libusb_interface_service_1.2",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
