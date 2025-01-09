@@ -45,6 +45,7 @@
 #include "mem_mgr_client.h"
 #include "usb_function_switch_window.h"
 #include "hitrace_meter.h"
+#include "usbd_transfer_callback_impl.h"
 
 using OHOS::sptr;
 using namespace OHOS::HDI::Usb::V1_2;
@@ -97,7 +98,6 @@ const bool G_REGISTER_RESULT =
 
 UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
 {
-    callbackImpl_ = new UsbdTransferCallbackImpl();
     usbHostManager_ = std::make_shared<UsbHostManager>(nullptr);
     usbRightManager_ = std::make_shared<UsbRightManager>();
     usbPortManager_ = std::make_shared<UsbPortManager>();
@@ -1903,29 +1903,35 @@ int32_t UsbService::UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, HDI
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    callbackImpl_->SetTransferCallback(cb);
+    sptr<UsbdTransferCallbackImpl> callbackImpl_ = nullptr;
+    if (cb != nullptr) {
+        callbackImpl_ = new UsbdTransferCallbackImpl(cb);
+    }
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     int32_t ret = usbd_->UsbSubmitTransfer(devInfo, info, callbackImpl_, ashmem);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService UsbSubmitTransfer error ret:%{public}d", ret);
-        return ErrorCode(ret);
+        return UsbSubmitTransferErrorCode(ret);
     }
     return ret;
 }
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
-int32_t UsbService::ErrorCode(int32_t &error)
+int32_t UsbService::UsbSubmitTransferErrorCode(int32_t &error)
 {
     switch (error) {
-        case ERRCODE_NEGATIVE_ONE:
+        case IO_ERROR:
             return USB_SUBMIT_TRANSFER_IO_ERROR;
-        case ERRCODE_NEGATIVE_TWO:
+        case INVALID_PARAM:
             return USB_SUBMIT_TRANSFER_INVALID_PARAM_ERROR;
-        case ERRCODE_NEGATIVE_FOUR:
+        case NO_DEVICE:
             return USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR;
-        case ERRCODE_NEGATIVE_ELEVEN:
+        case NO_MEM:
             return USB_SUBMIT_TRANSFER_NO_MEM_ERROR;
-        case ERRCODE_NEGATIVE_TWELVE:
+        case NOT_SUPPORT:
             return USB_SUBMIT_TRANSFER_NOT_SUPPORT;
         default:
             return USB_SUBMIT_TRANSFER_OTHER_ERROR;
@@ -1937,13 +1943,12 @@ int32_t UsbService::ErrorCode(int32_t &error)
 int32_t UsbService::UsbCancelTransfer(const UsbDev &devInfo, const int32_t &endpoint)
 {
     USB_HILOGI(MODULE_USBD, "UsbService UsbCancelTransfer enter");
-    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
-        return UEC_SERVICE_PERMISSION_DENIED;
-    }
-
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
+        return UEC_SERVICE_PERMISSION_DENIED;
     }
     int32_t ret = usbd_->UsbCancelTransfer(devInfo, endpoint);
     if (ret != UEC_OK) {
