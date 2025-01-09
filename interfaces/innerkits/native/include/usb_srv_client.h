@@ -29,7 +29,6 @@
 #include "usb_port.h"
 #include "usb_request.h"
 #include "usb_interface_type.h"
-#include "usbd_callback_server.h"
 
 namespace OHOS {
 namespace USB {
@@ -138,7 +137,6 @@ private:
     sptr<IUsbSrv> proxy_ = nullptr;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ = nullptr;
     std::mutex mutex_;
-    sptr<UsbdCallBackServer> callBackService = nullptr;
 };
 } // namespace USB
 } // namespace OHOS

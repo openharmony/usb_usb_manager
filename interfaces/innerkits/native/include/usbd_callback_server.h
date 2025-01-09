@@ -31,12 +31,6 @@ public:
         std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo, uint64_t userData) override;
     int32_t OnTransferReadCallback(int32_t status, int32_t actLength,
         std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo, uint64_t userData) override;
-
-    void SetTransferCallback(const TransferCallback &callback)
-    {
-        callback_ = callback;
-    }
-
 private:
     std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> isoInfo;
     TransferCallbackInfo info;

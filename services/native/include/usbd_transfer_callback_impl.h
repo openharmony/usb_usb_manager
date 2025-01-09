@@ -32,11 +32,6 @@ public:
         const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo, const uint64_t userData) override;
     int32_t OnTransferReadCallback(int32_t status, int32_t actLength,
         const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo, const uint64_t userData) override;
-
-    void SetTransferCallback(const OHOS::sptr<OHOS::IRemoteObject> &cb)
-    {
-        remote_ = cb;
-    }
 private:
     sptr<IRemoteObject> remote_ = nullptr;
 };
