@@ -24,15 +24,16 @@
 #include "usb_device.h"
 #include "usb_errors.h"
 #include "timer.h"
-#include "v1_1/iusb_interface.h"
+#include "v1_2/iusb_interface.h"
 
-using namespace OHOS::HDI::Usb::V1_1;
+using namespace OHOS::HDI::Usb::V1_2;
 namespace OHOS {
 namespace USB {
 constexpr uint32_t WAIT_SERVICE_LOAD = 500;
 constexpr int32_t READ_BUF_SIZE = 8192;
 UsbSrvClient::UsbSrvClient()
 {
+    callBackService = new UsbdCallBackServer();
     Connect();
 }
 UsbSrvClient::~UsbSrvClient() {}
@@ -323,7 +324,7 @@ int32_t UsbSrvClient::ControlTransfer(
     return ret;
 }
 
-int32_t UsbSrvClient::UsbControlTransfer(USBDevicePipe &pipe, const HDI::Usb::V1_1::UsbCtrlTransferParams &ctrlParams,
+int32_t UsbSrvClient::UsbControlTransfer(USBDevicePipe &pipe, const HDI::Usb::V1_2::UsbCtrlTransferParams &ctrlParams,
     std::vector<uint8_t> &bufferData)
 {
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
@@ -427,6 +428,30 @@ int32_t UsbSrvClient::RequestQueue(UsbRequest &request)
     const UsbDev tdev = {pipe.GetBusNum(), pipe.GetDevAddr()};
     const UsbPipe tpipe = {ep.GetInterfaceId(), ep.GetAddress()};
     return proxy_->RequestQueue(tdev, tpipe, request.GetClientData(), request.GetReqData());
+}
+
+int32_t UsbSrvClient::UsbCancelTransfer(USBDevicePipe &pip, const int32_t &endpoint)
+{
+    RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
+    const UsbDev tdev = {pip.GetBusNum(), pip.GetDevAddr()};
+    int32_t ret = proxy_->UsbCancelTransfer(tdev, endpoint);
+    if (ret!= UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbCancelTransfer failed with ret = %{public}d!", ret);
+    }
+    return ret;
+}
+
+int32_t UsbSrvClient::UsbSubmitTransfer(USBDevicePipe &pip, HDI::Usb::V1_2::USBTransferInfo &info,
+    const TransferCallback &cb, sptr<Ashmem> &ashmem)
+{
+    RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
+    const UsbDev tdev = {pip.GetBusNum(), pip.GetDevAddr()};
+    callBackService->SetTransferCallback(cb);
+    int32_t ret = proxy_->UsbSubmitTransfer(tdev, info, callBackService, ashmem);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbSubmitTransfer failed with ret = %{public}d", ret);
+    }
+    return ret;
 }
 
 int32_t UsbSrvClient::RegBulkCallback(USBDevicePipe &pip, const USBEndpoint &endpoint, const sptr<IRemoteObject> &cb)

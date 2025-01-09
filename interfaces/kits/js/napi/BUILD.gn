@@ -29,6 +29,7 @@ ohos_shared_library("usb") {
 
   sources = [ "src/usb_middle.cpp" ]
   external_deps = [
+    "c_utils:utils",
     "hilog:libhilog",
     "napi:ace_napi",
   ]
@@ -49,6 +50,7 @@ ohos_shared_library("usbmanager") {
   }
 
   sources = [
+    "${utils_path}/native/src/struct_parcel.cpp",
     "${utils_path}/native/src/usb_napi_errors.cpp",
     "src/napi_util.cpp",
     "src/usb_info.cpp",
@@ -62,7 +64,8 @@ ohos_shared_library("usbmanager") {
   public_external_deps = [ "cJSON:cjson" ]
   external_deps = [
     "bounds_checking_function:libsec_shared",
-    "drivers_interface_usb:usb_idl_headers_1.1",
+    "c_utils:utils",
+    "drivers_interface_usb:usb_idl_headers_1.2",
     "hilog:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",

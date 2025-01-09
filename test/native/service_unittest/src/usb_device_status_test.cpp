@@ -27,7 +27,7 @@
 #include "usb_common_test.h"
 #include "usb_srv_client.h"
 #include "usb_errors.h"
-#include "v1_1/iusb_interface.h"
+#include "v1_2/iusb_interface.h"
 #include "v1_0/usb_types.h"
 
 constexpr int SLEEP_TIME = 3;
@@ -38,7 +38,7 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::USB;
 using namespace OHOS::USB::Common;
-using namespace OHOS::HDI::Usb::V1_1;
+using namespace OHOS::HDI::Usb::V1_2;
 
 
 namespace OHOS {

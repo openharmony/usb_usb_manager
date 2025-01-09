@@ -112,6 +112,22 @@
         {
             "name":"USB_my_tablet",
             "value":"My tablet"
+        },
+        {
+            "name":"USB_func_charge_notifier",
+            "value":"Charging via USB"
+        },
+        {
+            "name":"USB_func_mtp_notifier",
+            "value":"USB connected (file transfer mode)"
+        },
+        {
+            "name":"USB_func_ptp_notifier",
+            "value":"USB connected (photo transfer mode)"
+        },
+        {
+            "name":"USB_func_more_notifier",
+            "value":"Touch for more options"
         }
     ]
 }

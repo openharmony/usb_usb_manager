@@ -33,11 +33,14 @@ ohos_shared_library("usbsrv_client") {
 
   sources = [
     "${usb_manager_path}/services/zidl/src/usb_srv_proxy.cpp",
+    "${utils_path}/native/src/struct_parcel.cpp",
     "native/src/usb_device_pipe.cpp",
     "native/src/usb_interface_type.cpp",
     "native/src/usb_request.cpp",
     "native/src/usb_srv_client.cpp",
     "native/src/usbd_bulk_callback.cpp",
+    "native/src/usbd_callback_server.cpp",
+    "native/src/usbd_callback_stub.cpp",
   ]
 
   configs = [
@@ -51,11 +54,13 @@ ohos_shared_library("usbsrv_client") {
     "cJSON:cjson",
     "drivers_interface_usb:serial_idl_headers",
     "drivers_interface_usb:usb_idl_headers_1.1",
+    "drivers_interface_usb:usb_idl_headers_1.2",
   ]
   external_deps = [
     "c_utils:utils",
     "drivers_interface_usb:serial_idl_headers",
     "drivers_interface_usb:usb_idl_headers_1.1",
+    "drivers_interface_usb:usb_idl_headers_1.2",
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",

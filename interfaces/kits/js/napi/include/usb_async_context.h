@@ -15,6 +15,7 @@
 #ifndef USB_ASYNC_CONTEXT_H
 #define USB_ASYNC_CONTEXT_H
 
+#include <chrono>
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "usb_device_pipe.h"
@@ -125,6 +126,42 @@ struct USBBulkTransferAsyncContext : USBAsyncContext {
     USBDevicePipe pipe;
     USBEndpoint endpoint;
 };
+
+struct AsyncCallBackContext {
+    napi_env env{nullptr};
+    napi_deferred deferred{nullptr};
+    napi_ref callbackRef{nullptr};
+    
+    int32_t actualLength;
+    int32_t status;
+
+    std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> isoInfo;
+};
+
+struct TimesUse {
+    std::chrono::steady_clock::time_point beginTime;
+    std::chrono::steady_clock::time_point endTime;
+};
+
+struct USBTransferAsyncContext : USBAsyncContext {
+    USBDevicePipe pipe;
+    int32_t endpoint;
+    int32_t flags;
+    int32_t type;
+    int32_t status;
+    int32_t timeOut = 0;
+    int32_t length;
+    int32_t actualLength;
+    size_t bufferLength = 0;
+    sptr<Ashmem> ashmem = nullptr;
+    uint8_t *userData;
+    uint8_t *buffer;
+    uint32_t numIsoPackets;
+    std::string name = "CreateAshmem";
+    napi_ref callbackRef{nullptr};
+};
+
+
 } // namespace USB
 } // namespace OHOS
 #endif // USB_ASYNC_CONTEXT_H

@@ -87,6 +87,22 @@
         {
             "name":"USB_my_tablet",
             "value":"我的平板"
+        },
+        {
+            "name":"USB_func_charge_notifier",
+            "value":"正在通过 USB 充电"
+        },
+        {
+            "name":"USB_func_mtp_notifier",
+            "value":"USB 已连接 (文件)"
+        },
+        {
+            "name":"USB_func_ptp_notifier",
+            "value":"USB 已连接 (照片)"
+        },
+        {
+            "name":"USB_func_more_notifier",
+            "value":"点击查看更多选项"
         }
     ]
 }

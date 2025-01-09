@@ -29,6 +29,7 @@
 #include "usb_port.h"
 #include "usb_request.h"
 #include "usb_interface_type.h"
+#include "usbd_callback_server.h"
 
 namespace OHOS {
 namespace USB {
@@ -64,7 +65,7 @@ public:
         int32_t timeOut);
     int32_t ControlTransfer(USBDevicePipe &pip, const HDI::Usb::V1_0::UsbCtrlTransfer &ctrl,
         std::vector<uint8_t> &bufferData);
-    int32_t UsbControlTransfer(USBDevicePipe &pipe, const HDI::Usb::V1_1::UsbCtrlTransferParams &ctrlParams,
+    int32_t UsbControlTransfer(USBDevicePipe &pipe, const HDI::Usb::V1_2::UsbCtrlTransferParams &ctrlParams,
         std::vector<uint8_t> &bufferData);
     int32_t SetConfiguration(USBDevicePipe &pip, const USBConfig &config);
     int32_t SetInterface(USBDevicePipe &pipe, const UsbInterface &interface);
@@ -84,7 +85,10 @@ public:
     {
         return SEVVERSION;
     }
-
+    
+    int32_t UsbCancelTransfer(USBDevicePipe &pip, const int32_t &endpoint);
+    int32_t UsbSubmitTransfer(USBDevicePipe &pip, HDI::Usb::V1_2::USBTransferInfo &info,
+        const TransferCallback &cb, sptr<Ashmem> &ashmem);
     int32_t RegBulkCallback(USBDevicePipe &pip, const USBEndpoint &endpoint, const sptr<IRemoteObject> &cb);
     int32_t UnRegBulkCallback(USBDevicePipe &pip, const USBEndpoint &endpoint);
     int32_t BulkRead(USBDevicePipe &pip, const USBEndpoint &endpoint, sptr<Ashmem> &ashmem);
@@ -134,6 +138,7 @@ private:
     sptr<IUsbSrv> proxy_ = nullptr;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ = nullptr;
     std::mutex mutex_;
+    sptr<UsbdCallBackServer> callBackService = nullptr;
 };
 } // namespace USB
 } // namespace OHOS

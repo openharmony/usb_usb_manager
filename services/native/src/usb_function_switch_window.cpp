@@ -28,7 +28,10 @@
 #include "bundle_mgr_client.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "usb_settings_datashare.h"
+#include "os_account_manager.h"
 #include "usb_errors.h"
+#include "uri.h"
 
 #define DEFAULT_PARAM_VALUE "charge,mtp,ptp"
 using namespace OHOS::AppExecFwk;
@@ -112,6 +115,20 @@ bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
         return false;
     }
     windowAction_ = UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_SHOW;
+ 
+    isPromptEnabeld = OHOS::system::GetBoolParameter("bootevent.boot.completed", false);
+    if (!isPromptEnabeld) {
+        USB_HILOGE(MODULE_USB_SERVICE, "boot.completed is false!");
+        int ret = WatchParameter("bootevent.boot.completed", BootCompletedEventCallback, this);
+        if (ret != 0) {
+            USB_HILOGI(MODULE_USB_SERVICE, "watchParameter is failed!");
+        }
+        return false;
+    }
+    if (ShouldRejectShowWindow()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "OOBE is not ready!");
+        return false;
+    }
     return ShowFunctionSwitchWindow();
 }
 
@@ -293,11 +310,81 @@ bool UsbFunctionSwitchWindow::CheckDialogInstallStatus()
         }
 
         if (windowAction_ == UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_SHOW) {
-            ShowFunctionSwitchWindow();
+            if (OHOS::system::GetBoolParameter("bootevent.boot.completed", false)) {
+                ShowFunctionSwitchWindow();
+            }
         }
         return true;
     }
     USB_HILOGE(MODULE_USB_SERVICE, "dialog is not installed");
+    return false;
+}
+
+void UsbFunctionSwitchWindow::BootCompletedEventCallback(const char *key, const char *value, void *context)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "testParameterChange key: %{public}s, value: %{public}s!", key, value);
+    if (!OHOS::system::GetBoolParameter("bootevent.boot.completed", false)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: boot.completed is false!", __func__);
+        return;
+    }
+    if (context == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: context is null!", __func__);
+        return;
+    }
+    auto eventSwitchWindow = reinterpret_cast<UsbFunctionSwitchWindow*>(context);
+    if (eventSwitchWindow == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "get eventSwitchWindow is null!");
+        return;
+    }
+
+    if (eventSwitchWindow->ShouldRejectShowWindow()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: OOBE is not ready!", __func__);
+        return;
+    }
+    bool ret = eventSwitchWindow->ShowFunctionSwitchWindow();
+    if (!ret) {
+        USB_HILOGE(MODULE_USB_SERVICE, "watchParameter to ShowFunctionSwitchWindow is failed!");
+    }
+}
+
+bool UsbFunctionSwitchWindow::ShouldRejectShowWindow()
+{
+    auto datashareHelper = std::make_shared<UsbSettingDataShare>();
+    std::string device_provisioned {"0"};
+    OHOS::Uri uri(
+        "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=device_provisioned");
+    bool resp = datashareHelper->Query(uri, "device_provisioned", device_provisioned);
+    if (resp && device_provisioned != "1") {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: device_provisioned is = 0", __func__);
+        return true;
+    }
+ 
+    std::string user_setup_complete {"0"};
+    std::vector<int> activedOsAccountIds;
+    OHOS::AccountSA::OsAccountManager::QueryActiveOsAccountIds(activedOsAccountIds);
+    if (activedOsAccountIds.empty()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: activedOsAccountIds is empty", __func__);
+        return true;
+    }
+    int userId = activedOsAccountIds[0];
+    OHOS::Uri uri_setup(
+        "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_SECURE_"
+        + std::to_string(userId) + "?Proxy=true&key=user_setup_complete");
+    bool resp_userSetup = datashareHelper->Query(uri_setup, "user_setup_complete", user_setup_complete);
+    if (resp_userSetup && user_setup_complete != "1") {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: user_setup_complete is = 0", __func__);
+        return true;
+    }
+ 
+    std::string is_ota_finished {"0"};
+    OHOS::Uri uri_ota(
+        "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_SECURE_"
+        + std::to_string(userId) + "?Proxy=true&key=is_ota_finished");
+    bool resp_ota = datashareHelper->Query(uri_ota, "is_ota_finished", is_ota_finished);
+    if (resp_ota && is_ota_finished == "0") {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: is_ota_finished is = 0", __func__);
+        return true;
+    }
     return false;
 }
 } // namespace USB

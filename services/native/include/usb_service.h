@@ -38,11 +38,14 @@
 #include "usb_server_stub.h"
 #include "usb_service_subscriber.h"
 #include "usbd_type.h"
-#include "v1_1/iusb_interface.h"
+#include "v1_2/iusb_interface.h"
 #include "v1_0/iusbd_bulk_callback.h"
 #include "v1_0/iusbd_subscriber.h"
 #include "v1_1/usb_types.h"
 #include "serial_manager.h"
+#include "v1_2/usb_types.h"
+#include "usbd_bulkcallback_impl.h"
+#include "usbd_transfer_callback_impl.h"
 
 namespace OHOS {
 namespace USB {
@@ -52,6 +55,11 @@ const std::string USB_PORT = "usb_port";
 const std::string USB_HELP = "-h";
 const std::string USB_LIST = "-l";
 const std::string USB_GETT = "-g";
+const int32_t ERRCODE_NEGATIVE_ONE = -1;
+const int32_t ERRCODE_NEGATIVE_TWO = -2;
+const int32_t ERRCODE_NEGATIVE_FOUR = -4;
+const int32_t ERRCODE_NEGATIVE_ELEVEN = -11;
+const int32_t ERRCODE_NEGATIVE_TWELVE = -12;
 class UsbService : public SystemAbility, public UsbServerStub {
     DECLARE_SYSTEM_ABILITY(UsbService)
     DECLARE_DELAYED_SP_SINGLETON(UsbService);
@@ -66,9 +74,9 @@ public:
     {
         return ready_;
     }
-
+    int32_t ErrorCode(int32_t &error);
     static sptr<UsbService> GetGlobalInstance();
-    int32_t SetUsbd(const sptr<HDI::Usb::V1_1::IUsbInterface> &usbd);
+    int32_t SetUsbd(const sptr<HDI::Usb::V1_2::IUsbInterface> &usbd);
     int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) override;
     int32_t ResetDevice(uint8_t busNum, uint8_t devAddr) override;
     bool CheckDevicePermission(uint8_t busNum, uint8_t devAddr);
@@ -99,7 +107,7 @@ public:
     int32_t ControlTransfer(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbCtrlTransfer &ctrl,
         std::vector<uint8_t> &bufferData) override;
     int32_t UsbControlTransfer(const HDI::Usb::V1_0::UsbDev &dev,
-        const HDI::Usb::V1_1::UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData) override;
+        const HDI::Usb::V1_2::UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData) override;
     int32_t SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex) override;
     int32_t GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &configIndex) override;
     int32_t SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t altIndex) override;
@@ -119,6 +127,10 @@ public:
     int32_t GetDeviceInfoDescriptor(
         const HDI::Usb::V1_0::UsbDev &uDev, std::vector<uint8_t> &descriptor, UsbDevice &dev);
     int32_t GetConfigDescriptor(UsbDevice &dev, std::vector<uint8_t> &descriptor);
+
+    int32_t UsbCancelTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, const int32_t &endpoint) override;
+    int32_t UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, HDI::Usb::V1_2::USBTransferInfo &info,
+        const sptr<IRemoteObject> &cb, sptr<Ashmem> &ashmem) override;
 
     int32_t RegBulkCallback(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe,
         const sptr<IRemoteObject> &cb) override;
@@ -230,7 +242,8 @@ private:
     std::shared_ptr<SERIAL::SerialManager> usbSerialManager_;
     sptr<UsbServiceSubscriber> usbdSubscriber_;
     sptr<HDI::Usb::V1_0::IUsbdBulkCallback> hdiCb_ = nullptr;
-    sptr<HDI::Usb::V1_1::IUsbInterface> usbd_ = nullptr;
+    sptr<UsbdTransferCallbackImpl> callbackImpl_ = nullptr;
+    sptr<HDI::Usb::V1_2::IUsbInterface> usbd_ = nullptr;
     std::map<std::string, std::string> deviceVidPidMap_;
     std::map<int32_t, std::pair<std::string, std::string>> serialVidPidMap_;
     sptr<OHOS::HDI::Usb::Serial::V1_0::ISerialInterface> seriald_ = nullptr;
