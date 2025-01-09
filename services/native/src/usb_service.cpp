@@ -397,7 +397,7 @@ std::string UsbService::GetDeviceVidPidSerialNumber(std::string deviceName)
 // LCOV_EXCL_START
 int32_t UsbService::GetDeviceVidPidSerialNumber(std::string deviceName, std::string& strDesc)
 {
-    int32_t isMatched = UEC_SERVICE_PERMISSION_DENIED;
+    int32_t isMatched = UEC_INTERFACE_INVALID_VALUE;
     std::lock_guard<std::mutex> guard(mutex_);
     for (auto it = deviceVidPidMap_.begin(); it != deviceVidPidMap_.end(); ++it) {
         USB_HILOGI(MODULE_USB_SERVICE, " it->first = %{public}s", it->first.c_str());
