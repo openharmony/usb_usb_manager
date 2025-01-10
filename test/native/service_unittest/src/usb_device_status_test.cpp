@@ -857,7 +857,7 @@ HWTEST_F(UsbDeviceStatusTest, UsbDetachKernelDriver004, TestSize.Level1)
     ret = UsbSrvClient.UsbDetachKernelDriver(pipe, interface);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver004 %{public}d UsbDetachKernelDriver=%{public}d",
         __LINE__, ret);
-    ASSERT_NE(ret, 0);
+    ASSERT_EQ(ret, 0);
     bool close = UsbSrvClient.Close(pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDetachKernelDriver004 %{public}d close=%{public}d", __LINE__, close);
     EXPECT_TRUE(close);
