@@ -35,11 +35,12 @@ struct IndexHapComponent {
   private currentChoice: number = 0;
   private content: string = ''
   private thisWant: string = ''
-  @State mtpTip: ResourceStr = $r('app.string.USB_func_mtp_tip');
+  private mtpTipDefault: ResourceStr = $r('app.string.USB_func_mtp_tip');
+  private mtpTipTablet: ResourceStr = $r('app.string.USB_func_mtp_tip2', $r('app.string.USB_my_tablet'));
   @State radioContent: SheetInfoEx[] = [];
   private radioMtp: SheetInfoEx = {
     title: $r('app.string.USB_func_mtp'),
-    subTitle: this.mtpTip,
+    subTitle: deviceInfo.deviceType === 'tablet' ? this.mtpTipTablet : this.mtpTipDefault,
     action: () => {
       let tmpChooseNumber: number = USBSERVICESWITCH_ID_XFER_FILE;
       this.setUsbFunction(tmpChooseNumber);
@@ -84,10 +85,6 @@ struct IndexHapComponent {
   }
 
   async aboutToAppear() {
-    if (deviceInfo.deviceType === 'tablet') {
-      this.mtpTip = $r('app.string.USB_func_mtp_tip2', $r('app.string.USB_my_tablet'));
-    }
-
     let supportedFuncs: number = 0;
     let tmpFuncs = Number.parseInt(globalThis.want?.parameters?.['supportedFuncs']);
     if (Number.isInteger(tmpFuncs) && tmpFuncs >= 0) {
