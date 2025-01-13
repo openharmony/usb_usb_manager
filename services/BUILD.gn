@@ -37,6 +37,7 @@ ohos_shared_library("usbservice") {
   branch_protector_ret = "pac_ret"
 
   install_enable = true
+  defines = [ "SERIAL_MOCK" ]
   sources = [
     "${usb_manager_path}/services/zidl/src/usb_srv_stub.cpp",
     "${utils_path}/native/src/struct_parcel.cpp",
