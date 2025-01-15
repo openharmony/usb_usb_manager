@@ -170,7 +170,7 @@ int32_t UsbHostManager::UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSub
 
 void UsbHostManager::ExecuteStrategy(UsbDevice *devInfo)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "start");
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbHostManager::ExecuteStrategy start");
     if (!IsEdmEnabled()) {
         USB_HILOGE(MODULE_USB_SERVICE, "edm is not activate, skip");
         return;
