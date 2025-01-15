@@ -123,7 +123,7 @@ UsbHostManager::~UsbHostManager()
 #ifdef USB_MANAGER_PASS_THROUGH
 bool UsbHostManager::InitUsbHostInterface()
 {
-    USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager in");
+    USB_HILOGI(MODULE_USB_SERVICE, "InitUsbHostInterface in");
     usbHostInterface_ = HDI::Usb::V2_0::IUsbHostInterface::Get(SERVICE_NAME, true);
     if (usbHostInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "InitUsbHostInterface get usbHostInterface_ is nullptr");
@@ -409,7 +409,7 @@ int32_t UsbHostManager::ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t inter
     }
     const HDI::Usb::V2_0::UsbDev dev = {busNum, devAddr};
     const HDI::Usb::V2_0::UsbPipe pipe = {interfaceId, endpointId};
-    return = usbHostInterface_->ClearHalt(dev, pipe);
+    return usbHostInterface_->ClearHalt(dev, pipe);
 #else
     const UsbDev dev = {busNum, devAddr};
     const UsbPipe pipe = {interfaceId, endpointId};

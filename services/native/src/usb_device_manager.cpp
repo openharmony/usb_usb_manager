@@ -76,7 +76,7 @@ UsbDeviceManager::~UsbDeviceManager()
 #ifdef USB_MANAGER_PASS_THROUGH
 bool UsbDeviceManager::InitUsbDeviceInterface()
 {
-    USB_HILOGE(MODULE_USB_SERVICE, "InitUsbDeviceInterface in");
+    USB_HILOGI(MODULE_USB_SERVICE, "InitUsbDeviceInterface in");
     usbDeviceInterface_ = HDI::Usb::V2_0::IUsbDeviceInterface::Get();
     if (usbDeviceInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "InitUsbDeviceInterface get usbDeviceInterface_ is nullptr");

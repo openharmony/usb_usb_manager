@@ -71,7 +71,10 @@ ohos_shared_library("usbservice") {
       "native/src/usbd_transfer_callback_impl.cpp",
     ]
     if (usb_manager_pass_through) {
-      sources += [ "native/src/usb_bulkcallback_impl.cpp" ]
+      sources += [
+        "native/src/usb_bulkcallback_impl.cpp",
+        "native/src/usb_transfer_callback_impl.cpp",
+      ]
     }
   }
   if (usb_manager_feature_device) {

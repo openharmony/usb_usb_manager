@@ -67,7 +67,7 @@ int32_t UsbServiceSubscriber::PortChangedEvent(const PortInfo &info)
 #else
     USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: Port feature is not supported.", __FUNCTION__);
     return UEC_SERVICE_NOT_SUPPORT_SWITCH_PORT;
-#endif
+#endif // USB_MANAGER_FEATURE_PORT
 }
 
 int32_t UsbServiceSubscriber::DeviceEvent(const USBDeviceInfo &info)

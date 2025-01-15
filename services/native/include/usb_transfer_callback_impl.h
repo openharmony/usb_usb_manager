@@ -13,24 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef USBMGR_USB_BULKCALLBACK_IMPL_H
-#define USBMGR_USB_BULKCALLBACK_IMPL_H
+#ifndef USBMGR_USBD_TRANSFER_CALLBACK_IMPL_H
+#define USBMGR_USBD_TRANSFER_CALLBACK_IMPL_H
 
 #include <refbase.h>
 #include "iremote_object.h"
-#include "v2_0/iusbd_bulk_callback.h"
+#include "v2_0/iusbd_transfer_callback.h"
+#include "v2_0/usb_types.h"
 
 namespace OHOS {
 namespace USB {
-class UsbBulkCallbackImpl : public HDI::Usb::V2_0::IUsbdBulkCallback {
+class UsbTransferCallbackImpl : public HDI::Usb::V2_0::IUsbdTransferCallback {
 public:
-    explicit UsbBulkCallbackImpl(const OHOS::sptr<OHOS::IRemoteObject> &cb) : remote_(cb) {}
-    int32_t OnBulkWriteCallback(int32_t status, int32_t actLength) override;
-    int32_t OnBulkReadCallback(int32_t status, int32_t actLength) override;
+    explicit UsbTransferCallbackImpl(const OHOS::sptr<OHOS::IRemoteObject> &cb) : remote_(cb) {}
+    UsbTransferCallbackImpl() = default;
 
+    int32_t OnTransferWriteCallback(int32_t status, int32_t actLength,
+        const std::vector<HDI::Usb::V2_0::UsbIsoPacketDescriptor> &isoInfo, const uint64_t userData) override;
+    int32_t OnTransferReadCallback(int32_t status, int32_t actLength,
+        const std::vector<HDI::Usb::V2_0::UsbIsoPacketDescriptor> &isoInfo, const uint64_t userData) override;
 private:
     sptr<IRemoteObject> remote_ = nullptr;
 };
 } // namespace USB
 } // namespace OHOS
-#endif // USBMGR_USB_BULKCALLBACK_IMPL_H
+#endif // USBMGR_USBD_TRANSFER_CALLBACK_IMPL_H

@@ -32,7 +32,7 @@
 #include "mem_mgr_proxy.h"
 #include "mem_mgr_client.h"
 #include "system_ability_definition.h"
-#endif
+#endif // USB_MANAGER_PASS_THROUGH
 
 #define USB_FUNCTION_MTP     (1 << 3)
 #define USB_FUNCTION_PTP     (1 << 4)
@@ -46,7 +46,7 @@ public:
     void Stop();
     int32_t BindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSubscriber> &subscriber);
     int32_t UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSubscriber> &subscriber);
-#endif
+#endif // USB_MANAGER_PASS_THROUGH
     UsbDeviceManager();
     ~UsbDeviceManager();
     int32_t Init();
@@ -86,7 +86,7 @@ private:
 #ifdef USB_MANAGER_PASS_THROUGH
     sptr<HDI::Usb::V2_0::IUsbDeviceInterface> usbDeviceInterface_ = nullptr;
     sptr<UsbManagerSubscriber> usbManagerSubscriber_;
-#endif
+#endif // USB_MANAGER_PASS_THROUGH
 };
 } // namespace USB
 } // namespace OHOS

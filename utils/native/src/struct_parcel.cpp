@@ -94,5 +94,82 @@ UsbIsoVecParcel *UsbIsoVecParcel::Unmarshalling(Parcel &in)
     return usbIsoVecParcel;
 }
 
+#ifdef USB_MANAGER_PASS_THROUGH
+bool UsbPassIsoParcel::Marshalling(Parcel &out) const
+{
+    if (!out.WriteInt32(isoInfo.isoLength)) {
+        return false;
+    }
+    if (!out.WriteInt32(isoInfo.isoActualLength)) {
+        return false;
+    }
+    if (!out.WriteInt32(isoInfo.isoStatus)) {
+        return false;
+    }
+
+    return true;
+}
+
+UsbPassIsoParcel *UsbPassIsoParcel::Unmarshalling(Parcel &in)
+{
+    auto *usbPassIsoParcel = new (std::nothrow) UsbPassIsoParcel();
+    if (usbPassIsoParcel == nullptr) {
+        return nullptr;
+    }
+
+    usbPassIsoParcel->isoInfo.isoLength = in.ReadInt32();
+    usbPassIsoParcel->isoInfo.isoActualLength = in.ReadInt32();
+    usbPassIsoParcel->isoInfo.isoStatus = in.ReadInt32();
+    return usbPassIsoParcel;
+}
+
+bool UsbPassIsoVecParcel::Marshalling(Parcel &out) const
+{
+    const std::vector<HDI::Usb::V2_0::UsbIsoPacketDescriptor> isoInfoVec = this->isoInfoVec;
+    uint32_t vecSize = isoInfoVec.size();
+    if (!out.WriteUint32(vecSize)) {
+        return false;
+    }
+
+    for (uint32_t index = 0; index < vecSize; index++) {
+        sptr<UsbPassIsoParcel> usbPassIsoParcel = new (std::nothrow) UsbPassIsoParcel();
+        if (usbPassIsoParcel == nullptr) {
+            return false;
+        }
+        
+        usbPassIsoParcel->isoInfo = isoInfoVec.at(index);
+        if (!out.WriteParcelable(usbPassIsoParcel)) {
+            delete (usbPassIsoParcel);
+            usbPassIsoParcel = nullptr;
+            return false;
+        }
+    }
+    return true;
+}
+
+UsbPassIsoVecParcel *UsbPassIsoVecParcel::Unmarshalling(Parcel &in)
+{
+    UsbPassIsoVecParcel *usbPassIsoVecParcel = new (std::nothrow) UsbPassIsoVecParcel();
+    if (usbPassIsoVecParcel == nullptr) {
+        return nullptr;
+    }
+
+    uint32_t vecSize;
+    if (!in.ReadUint32(vecSize)) {
+        delete (usbPassIsoVecParcel);
+        usbPassIsoVecParcel = nullptr;
+        return nullptr;
+    }
+
+    for (uint32_t index = 0; index < vecSize; index++) {
+        sptr<UsbPassIsoParcel> usbPassIsoParcel = in.ReadParcelable<UsbPassIsoParcel>();
+        if (usbPassIsoParcel == nullptr) {
+            return nullptr;
+        }
+        usbPassIsoVecParcel->isoInfoVec.emplace_back(usbPassIsoParcel->isoInfo);
+    }
+    return usbPassIsoVecParcel;
+}
+#endif // USB_MANAGER_PASS_THROUGH
 } // namespace USB
 } // namespace OHOS

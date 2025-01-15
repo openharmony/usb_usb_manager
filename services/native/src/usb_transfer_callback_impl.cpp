@@ -13,16 +13,18 @@
  * limitations under the License.
  */
 
-#include "usb_bulkcallback_impl.h"
+#include "usb_transfer_callback_impl.h"
+#include "usbd_callback_stub.h"
 #include "message_option.h"
 #include "message_parcel.h"
-#include "usbd_bulk_callback.h"
 #include "usb_errors.h"
 #include "hilog_wrapper.h"
+#include "struct_parcel.h"
 
 namespace OHOS {
 namespace USB {
-int32_t UsbBulkCallbackImpl::OnBulkWriteCallback(int32_t status, int32_t actLength)
+int32_t UsbTransferCallbackImpl::OnTransferWriteCallback(int32_t status, int32_t actLength,
+    const std::vector<HDI::Usb::V2_0::UsbIsoPacketDescriptor> &isoInfo, const uint64_t userData)
 {
     if (remote_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: remote_ is nullptr", __func__);
@@ -31,6 +33,13 @@ int32_t UsbBulkCallbackImpl::OnBulkWriteCallback(int32_t status, int32_t actLeng
     OHOS::MessageParcel data;
     OHOS::MessageParcel reply;
     OHOS::MessageOption option;
+
+    UsbPassIsoVecParcel usbIsoVecParcel;
+    usbIsoVecParcel.isoInfoVec = isoInfo;
+    if (!data.WriteParcelable(&usbIsoVecParcel)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:write usbIsoVecParcel failed", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     if (!data.WriteInt32(status)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write status failed", __func__);
         return UEC_SERVICE_INVALID_VALUE;
@@ -39,21 +48,34 @@ int32_t UsbBulkCallbackImpl::OnBulkWriteCallback(int32_t status, int32_t actLeng
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write actLength failed", __func__);
         return UEC_SERVICE_INVALID_VALUE;
     }
-    int32_t ret = remote_->SendRequest(UsbdBulkCallBack::CMD_USBD_BULK_CALLBACK_WRITE, data, reply, option);
+    if (!data.WriteUint64(userData)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write userData failed", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+
+    int32_t ret = remote_->SendRequest(UsbdStubCallBack::CMD_USBD_TRANSFER_CALLBACK_WRITE, data, reply, option);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s failed, error code is %{public}d", __func__, ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s UsbdStubCallBack failed, error code is %{public}d", __func__, ret);
         return ret;
     }
     return UEC_OK;
 }
 
-int32_t UsbBulkCallbackImpl::OnBulkReadCallback(int32_t status, int32_t actLength)
+int32_t UsbTransferCallbackImpl::OnTransferReadCallback(int32_t status, int32_t actLength,
+    const std::vector<HDI::Usb::V2_0::UsbIsoPacketDescriptor> &isoInfo, const uint64_t userData)
 {
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: UsbdTransferCallbackImpl OnTransferReadCallback enter", __func__);
     if (remote_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: remote_ is nullptr", __func__);
         return UEC_SERVICE_INVALID_VALUE;
     }
     OHOS::MessageParcel data;
+    UsbPassIsoVecParcel usbIsoVecParcel;
+    usbIsoVecParcel.isoInfoVec = isoInfo;
+    if (!data.WriteParcelable(&usbIsoVecParcel)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:write usbIsoVecParcel failed", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     if (!data.WriteInt32(status)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write status failed", __func__);
         return UEC_SERVICE_INVALID_VALUE;
@@ -62,11 +84,15 @@ int32_t UsbBulkCallbackImpl::OnBulkReadCallback(int32_t status, int32_t actLengt
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write actLength failed", __func__);
         return UEC_SERVICE_INVALID_VALUE;
     }
+    if (!data.WriteUint64(userData)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write userData failed", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     OHOS::MessageParcel reply;
     OHOS::MessageOption option;
-    int32_t ret = remote_->SendRequest(UsbdBulkCallBack::CMD_USBD_BULK_CALLBACK_READ, data, reply, option);
+    int32_t ret = remote_->SendRequest(UsbdStubCallBack::CMD_USBD_TRANSFER_CALLBACK_READ, data, reply, option);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s failed, error code is %{public}d", __func__, ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s UsbdStubCallBack failed, error code is %{public}d", __func__, ret);
         return ret;
     }
     return UEC_OK;

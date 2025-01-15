@@ -30,7 +30,7 @@
 #include "usb_right_manager.h"
 #ifdef USB_MANAGER_PASS_THROUGH
 #include "v2_0/iusb_device_interface.h"
-#endif
+#endif // USB_MANAGER_PASS_THROUGH
 namespace OHOS {
 namespace USB {
 
@@ -55,7 +55,7 @@ public:
     int32_t CloseAccessory(int32_t fd);
 #ifdef USB_MANAGER_PASS_THROUGH
     bool InitUsbAccessoryInterface();
-#endif
+#endif // USB_MANAGER_PASS_THROUGH
 private:
     void GetAccessoryInfo(std::vector<std::string> &accessorys);
     int32_t SetCurrentFunctions(int32_t funcs);
@@ -83,7 +83,7 @@ private:
     std::mutex mutexHandleEvent_;
 #ifdef USB_MANAGER_PASS_THROUGH
     sptr<HDI::Usb::V2_0::IUsbDeviceInterface> usbDeviceInterface_ = nullptr;
-#endif
+#endif // USB_MANAGER_PASS_THROUGH
 };
 
 } // USB

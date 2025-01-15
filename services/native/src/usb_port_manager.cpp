@@ -59,7 +59,7 @@ void UsbPortManager::Init()
 #ifdef USB_MANAGER_PASS_THROUGH
 bool UsbPortManager::InitUsbPortInterface()
 {
-    USB_HILOGE(MODULE_USB_SERVICE, "InitUsbPortInterface in");
+    USB_HILOGI(MODULE_USB_SERVICE, "InitUsbPortInterface in");
     for (int32_t i = 0; i < PARAM_COUNT_THR; i++) {
         usbPortInterface_ = HDI::Usb::V2_0::IUsbPortInterface::Get();
         if (usbPortInterface_ == nullptr) {
