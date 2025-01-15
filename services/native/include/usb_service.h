@@ -171,6 +171,23 @@ private:
         void OnRemoteDied(const wptr<IRemoteObject> &object) override;
     };
 
+    class UsbSubmitTransferDeathRecipient : public IRemoteObject::DeathRecipient {
+    public:
+        UsbSubmitTransferDeathRecipient(const HDI::Usb::V1_0::UsbDev &devInfo, const int32_t endpoint,
+            UsbService *service, const sptr<IRemoteObject> cb)
+            : devInfo_(devInfo), endpoint_(endpoint), service_(service), cb_(cb) {}
+        ~UsbSubmitTransferDeathRecipient()
+        {
+            cb_->RemoveDeathRecipient(this);
+        }
+        void OnRemoteDied(const wptr<IRemoteObject> &object) override;
+    private:
+        const HDI::Usb::V1_0::UsbDev devInfo_;
+        const int32_t endpoint_;
+        UsbService *service_;
+        const sptr<IRemoteObject> cb_;
+    };
+
 private:
     bool Init();
     bool InitUsbd();
