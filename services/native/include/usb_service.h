@@ -43,6 +43,9 @@
 #include "v1_0/iusbd_subscriber.h"
 #include "v1_2/usb_types.h"
 #include "usbd_bulkcallback_impl.h"
+#ifdef USB_MANAGER_PASS_THROUGH
+#include "v2_0/iusb_host_interface.h"
+#endif // USB_MANAGER_PASS_THROUGH
 
 namespace OHOS {
 namespace USB {
@@ -50,11 +53,13 @@ const std::string USB_HOST = "usb_host";
 const std::string USB_DEVICE = "usb_device";
 const std::string USB_PORT = "usb_port";
 const std::string USB_HELP = "-h";
+#ifdef USB_MANAGER_FEATURE_HOST
 const int32_t IO_ERROR = -1;
 const int32_t INVALID_PARAM = -2;
 const int32_t NO_DEVICE = -4;
 const int32_t NO_MEM = -11;
 const int32_t NOT_SUPPORT = -12;
+#endif // USB_MANAGER_FEATURE_HOST
 class UsbService : public SystemAbility, public UsbServerStub {
     DECLARE_SYSTEM_ABILITY(UsbService)
     DECLARE_DELAYED_SP_SINGLETON(UsbService);
@@ -71,28 +76,42 @@ public:
     }
     int32_t UsbSubmitTransferErrorCode(int32_t &error);
     static sptr<UsbService> GetGlobalInstance();
+#ifndef USB_MANAGER_PASS_THROUGH
     int32_t SetUsbd(const sptr<HDI::Usb::V1_2::IUsbInterface> &usbd);
-    int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) override;
-    int32_t ResetDevice(uint8_t busNum, uint8_t devAddr) override;
-    bool CheckDevicePermission(uint8_t busNum, uint8_t devAddr);
+#endif // USB_MANAGER_PASS_THROUGH
     int32_t CheckSysApiPermission();
     int32_t GetHapApiVersion();
-    bool HasRight(const std::string deviceName) override;
-    int32_t RequestRight(const std::string deviceName) override;
-    int32_t RemoveRight(const std::string deviceName) override;
-    int32_t GetDevices(std::vector<UsbDevice> &deviceList) override;
-    int32_t GetCurrentFunctions(int32_t &funcs) override;
-    int32_t SetCurrentFunctions(int32_t funcs) override;
-    int32_t UsbFunctionsFromString(std::string_view funcs) override;
-    std::string UsbFunctionsToString(int32_t funcs) override;
-    int32_t GetPorts(std::vector<UsbPort> &ports) override;
-    int32_t GetSupportedModes(int32_t portId, int32_t &result) override;
-    int32_t SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole) override;
-
+    void UnLoadSelf(UnLoadSaType type);
+    int32_t DeviceEvent(const HDI::Usb::V1_0::USBDeviceInfo &info);
+#ifdef USB_MANAGER_FEATURE_HOST
+    int32_t OpenDevice(uint8_t busNum, uint8_t devAddr) override;
+    int32_t Close(uint8_t busNum, uint8_t devAddr) override;
+    int32_t ResetDevice(uint8_t busNum, uint8_t devAddr) override;
     int32_t ClaimInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t force) override;
+    int32_t SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t altIndex) override;
+    int32_t ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid) override;
+    int32_t SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex) override;
+    int32_t ManageGlobalInterface(bool disable) override;
+    int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable) override;
+    int32_t ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable) override;
     int32_t UsbAttachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid) override;
     int32_t UsbDetachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid) override;
-    int32_t ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid) override;
+    int32_t ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t interfaceId, uint8_t endpointId) override;
+    bool AddDevice(uint8_t busNum, uint8_t devAddr);
+    bool DelDevice(uint8_t busNum, uint8_t devAddr);
+
+    int32_t GetDevices(std::vector<UsbDevice> &deviceList) override;
+    int32_t GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &dev);
+    int32_t GetDeviceInfoDescriptor(
+        const HDI::Usb::V1_0::UsbDev &uDev, std::vector<uint8_t> &descriptor, UsbDevice &dev);
+    int32_t GetConfigDescriptor(UsbDevice &dev, std::vector<uint8_t> &descriptor);
+    int32_t GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &configIndex) override;
+    int32_t GetRawDescriptor(uint8_t busNum, uint8_t devAddr, std::vector<uint8_t> &bufferData) override;
+    int32_t GetFileDescriptor(uint8_t busNum, uint8_t devAddr, int32_t &fd) override;
+    int32_t GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed) override;
+    int32_t GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated) override;
+    bool GetDeviceProductName(const std::string &deviceName, std::string &productName);
+
     int32_t BulkTransferRead(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe,
         std::vector<uint8_t> &bufferData, int32_t timeOut) override;
     int32_t BulkTransferReadwithLength(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe,
@@ -103,30 +122,14 @@ public:
         std::vector<uint8_t> &bufferData) override;
     int32_t UsbControlTransfer(const HDI::Usb::V1_0::UsbDev &dev,
         const HDI::Usb::V1_2::UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData) override;
-    int32_t SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex) override;
-    int32_t GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &configIndex) override;
-    int32_t SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t altIndex) override;
-    int32_t GetRawDescriptor(uint8_t busNum, uint8_t devAddr, std::vector<uint8_t> &bufferData) override;
-    int32_t GetFileDescriptor(uint8_t busNum, uint8_t devAddr, int32_t &fd) override;
     int32_t RequestQueue(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe,
         const std::vector<uint8_t> &clientData, const std::vector<uint8_t> &bufferData) override;
     int32_t RequestWait(const HDI::Usb::V1_0::UsbDev &dev, int32_t timeOut, std::vector<uint8_t> &clientData,
         std::vector<uint8_t> &bufferData) override;
     int32_t RequestCancel(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t endpointId) override;
-    int32_t Close(uint8_t busNum, uint8_t devAddr) override;
-    bool AddDevice(uint8_t busNum, uint8_t devAddr);
-    bool DelDevice(uint8_t busNum, uint8_t devAddr);
-    void UpdateUsbPort(int32_t portId, int32_t powerRole, int32_t dataRole, int32_t mode);
-    void UpdateDeviceState(int32_t status);
-    int32_t GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &dev);
-    int32_t GetDeviceInfoDescriptor(
-        const HDI::Usb::V1_0::UsbDev &uDev, std::vector<uint8_t> &descriptor, UsbDevice &dev);
-    int32_t GetConfigDescriptor(UsbDevice &dev, std::vector<uint8_t> &descriptor);
-
     int32_t UsbCancelTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, const int32_t &endpoint) override;
     int32_t UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, HDI::Usb::V1_2::USBTransferInfo &info,
         const sptr<IRemoteObject> &cb, sptr<Ashmem> &ashmem) override;
-
     int32_t RegBulkCallback(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe,
         const sptr<IRemoteObject> &cb) override;
     int32_t UnRegBulkCallback(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe) override;
@@ -135,17 +138,21 @@ public:
     int32_t BulkWrite(
         const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe, sptr<Ashmem> &ashmem) override;
     int32_t BulkCancel(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe) override;
+
+    bool CheckDevicePermission(uint8_t busNum, uint8_t devAddr);
+    bool HasRight(const std::string deviceName) override;
+    int32_t RequestRight(const std::string deviceName) override;
+    int32_t RemoveRight(const std::string deviceName) override;
     int32_t AddRight(const std::string &bundleName, const std::string &deviceName) override;
     int32_t AddAccessRight(const std::string &tokenId, const std::string &deviceName) override;
-    void UnLoadSelf(UnLoadSaType type);
-    int32_t ManageGlobalInterface(bool disable) override;
-    int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable) override;
-    int32_t ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable) override;
-    int32_t GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated) override;
-    int32_t ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t interfaceId, uint8_t endpointId) override;
-    int32_t GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed) override;
+#endif // USB_MANAGER_FEATURE_HOST
+#ifdef USB_MANAGER_FEATURE_DEVICE
+    int32_t GetCurrentFunctions(int32_t &funcs) override;
+    int32_t SetCurrentFunctions(int32_t funcs) override;
+    int32_t UsbFunctionsFromString(std::string_view funcs) override;
+    std::string UsbFunctionsToString(int32_t funcs) override;
+    void UpdateDeviceState(int32_t status);
 
-    bool GetDeviceProductName(const std::string &deviceName, std::string &productName);
     int32_t UserChangeProcess();
     int32_t GetAccessoryList(std::vector<USBAccessory> &accessList) override;
     int32_t OpenAccessory(const USBAccessory &access, int32_t &fd) override;
@@ -154,7 +161,26 @@ public:
     int32_t HasAccessoryRight(const USBAccessory &access, bool &result) override;
     int32_t RequestAccessoryRight(const USBAccessory &access, bool &result) override;
     int32_t CancelAccessoryRight(const USBAccessory &access) override;
+#endif // USB_MANAGER_FEATURE_DEVICE
+#ifdef USB_MANAGER_FEATURE_PORT
+    int32_t GetPorts(std::vector<UsbPort> &ports) override;
+    int32_t GetSupportedModes(int32_t portId, int32_t &result) override;
+    int32_t SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole) override;
+    void UpdateUsbPort(int32_t portId, int32_t powerRole, int32_t dataRole, int32_t mode);
+#endif // USB_MANAGER_FEATURE_PORT
 private:
+#ifdef USB_MANAGER_PASS_THROUGH
+    class SystemAbilityStatusChangeListener : public SystemAbilityStatusChangeStub {
+    public:
+        explicit SystemAbilityStatusChangeListener(sptr<UsbManagerSubscriber> usbManagerSubscriber);
+        ~SystemAbilityStatusChangeListener() = default;
+        void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+        void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+
+    private:
+        sptr<UsbManagerSubscriber> usbManagerSubscriber_;
+    };
+#else
     class SystemAbilityStatusChangeListener : public SystemAbilityStatusChangeStub {
     public:
         explicit SystemAbilityStatusChangeListener(sptr<UsbServiceSubscriber> usbdSubscriber);
@@ -165,6 +191,7 @@ private:
     private:
         sptr<UsbServiceSubscriber> usbdSubscriber_;
     };
+#endif // USB_MANAGER_PASS_THROUGH
 
     class UsbdDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
@@ -176,50 +203,38 @@ private:
     bool InitUsbd();
     bool IsCommonEventServiceAbilityExist();
     bool GetBundleName(std::string &bundleName);
-    bool GetCallingInfo(std::string &bundleName, std::string &tokenId, int32_t &userId);
+    bool IsNotNeedUnload();
+    void WaitUsbdService();
+    int32_t PreCallFunction();
+    int32_t InitUsbRight();
+    void DumpHelp(int32_t fd);
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+#ifdef USB_MANAGER_FEATURE_HOST
     bool GetBundleInfo(std::string &tokenId, int32_t &userId);
     std::string GetDeviceVidPidSerialNumber(std::string deviceName);
     int32_t GetDeviceVidPidSerialNumber(std::string deviceName, std::string& strDesc);
-    int32_t FillDevStrings(UsbDevice &dev);
-    std::string GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, uint8_t idx);
-    int32_t InitUsbRight();
-    void DumpHelp(int32_t fd);
-    int32_t PreCallFunction();
-    bool IsEdmEnabled();
-    int32_t ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whiteList);
-    int32_t ExecuteManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable);
-    int32_t GetEdmPolicy(bool &IsGlobalDisabled, std::vector<UsbDeviceType> &disableType,
-        std::vector<UsbDeviceId> &trustUsbDeviceId);
-    int32_t GetUsbPolicy(bool &IsGlobalDisabled, std::vector<UsbDeviceType> &disableType,
-        std::vector<UsbDeviceId> &trustUsbDeviceId);
-    void ExecuteStrategy(UsbDevice *devInfo);
-    int32_t GetEdmTypePolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceType> &disableType);
-    int32_t GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGlobalDisabled);
-    int32_t GetEdmStroageTypePolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceType> &disableType);
-    int32_t GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceId> &trustUsbDeviceId);
-    int32_t ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t interfaceId, bool disable);
-    void ExecuteManageDeviceType(const std::vector<UsbDeviceType> &disableType, bool disable,
-        const std::unordered_map<InterfaceType, std::vector<int32_t>> &map, bool isDev);
-    int32_t ManageGlobalInterfaceImpl(bool disable);
-    int32_t ManageDeviceImpl(int32_t vendorId, int32_t productId, bool disable);
-    int32_t ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable);
-    int32_t ManageDeviceTypeImpl(InterfaceType interfaceType, bool disable);
-    int32_t CheckUecValue();
-    void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
-    bool IsCallerValid();
+#endif // USB_MANAGER_FEATURE_HOST
+#if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
+    bool GetCallingInfo(std::string &bundleName, std::string &tokenId, int32_t &userId);
+#endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
     bool ready_ = false;
     int32_t commEventRetryTimes_ = 0;
     std::mutex mutex_;
-    std::mutex hdiCbMutex_;
-    std::mutex functionMutex_;
-    std::mutex transferMutex_;
+#ifdef USB_MANAGER_FEATURE_HOST
     std::shared_ptr<UsbHostManager> usbHostManager_;
-    std::shared_ptr<UsbRightManager> usbRightManager_;
-    std::shared_ptr<UsbPortManager> usbPortManager_;
+#endif // USB_MANAGER_FEATURE_HOST
+#ifdef USB_MANAGER_FEATURE_DEVICE
     std::shared_ptr<UsbDeviceManager> usbDeviceManager_;
     std::shared_ptr<UsbAccessoryManager> usbAccessoryManager_;
+#endif // USB_MANAGER_FEATURE_DEVICE
+#ifdef USB_MANAGER_FEATURE_PORT
+    std::shared_ptr<UsbPortManager> usbPortManager_;
+#endif // USB_MANAGER_FEATURE_PORT
+    std::shared_ptr<UsbRightManager> usbRightManager_;
     sptr<UsbServiceSubscriber> usbdSubscriber_;
-    sptr<HDI::Usb::V1_0::IUsbdBulkCallback> hdiCb_ = nullptr;
+#ifdef USB_MANAGER_PASS_THROUGH
+    sptr<UsbManagerSubscriber> usbManagerSubscriber_;
+#endif // USB_MANAGER_PASS_THROUGH
     sptr<HDI::Usb::V1_2::IUsbInterface> usbd_ = nullptr;
     std::map<std::string, std::string> deviceVidPidMap_;
     Utils::Timer unloadSelfTimer_ {"unLoadTimer"};

@@ -26,6 +26,13 @@
 #include "usb_srv_support.h"
 #include "v1_0/iusb_interface.h"
 #include "v1_0/iusbd_subscriber.h"
+#ifdef USB_MANAGER_PASS_THROUGH
+#include "usb_manager_subscriber.h"
+#include "v2_0/iusb_device_interface.h"
+#include "mem_mgr_proxy.h"
+#include "mem_mgr_client.h"
+#include "system_ability_definition.h"
+#endif
 
 #define USB_FUNCTION_MTP     (1 << 3)
 #define USB_FUNCTION_PTP     (1 << 4)
@@ -34,6 +41,12 @@ namespace OHOS {
 namespace USB {
 class UsbDeviceManager {
 public:
+#ifdef USB_MANAGER_PASS_THROUGH
+    bool InitUsbDeviceInterface();
+    void Stop();
+    int32_t BindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSubscriber> &subscriber);
+    int32_t UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSubscriber> &subscriber);
+#endif
     UsbDeviceManager();
     ~UsbDeviceManager();
     int32_t Init();
@@ -49,6 +62,8 @@ public:
     void Dump(int32_t fd, const std::vector<std::string> &args);
     bool IsGadgetConnected(void);
     int32_t UserChangeProcess();
+    int32_t GetCurrentFunctions(int32_t& funcs);
+    int32_t SetCurrentFunctions(int32_t funcs);
 private:
     void ProcessFunctionSwitchWindow(bool connected);
     void DumpGetSupportFunc(int32_t fd);
@@ -67,6 +82,11 @@ private:
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
     Utils::Timer delayDisconn_ {"delayDisconnTimer"};
     uint32_t delayDisconnTimerId_ {UINT32_MAX};
+    std::mutex functionMutex_;
+#ifdef USB_MANAGER_PASS_THROUGH
+    sptr<HDI::Usb::V2_0::IUsbDeviceInterface> usbDeviceInterface_ = nullptr;
+    sptr<UsbManagerSubscriber> usbManagerSubscriber_;
+#endif
 };
 } // namespace USB
 } // namespace OHOS

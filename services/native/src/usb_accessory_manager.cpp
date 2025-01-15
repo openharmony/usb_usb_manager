@@ -61,10 +61,12 @@ const std::string BASE_64_CHARS =
 UsbAccessoryManager::UsbAccessoryManager()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbAccessoryManager::Init start");
+#ifndef USB_MANAGER_PASS_THROUGH
     usbdImpl_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
     if (usbdImpl_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::Get inteface failed");
     }
+#endif // USB_MANAGER_PASS_THROUGH
     uint32_t ret = antiShakeDelayTimer_.Setup();
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "set up antiShakeDelayTimer_ failed %{public}u", ret);
@@ -81,6 +83,70 @@ UsbAccessoryManager::~UsbAccessoryManager()
 {
     accDelayTimer_.Shutdown();
     antiShakeDelayTimer_.Shutdown();
+}
+
+#ifdef USB_MANAGER_PASS_THROUGH
+bool UsbAccessoryManager::InitUsbAccessoryInterface()
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbAccessoryManager::InitUsbAccessoryInterface start");
+    usbDeviceInterface_ = HDI::Usb::V2_0::IUsbDeviceInterface::Get();
+    if (usbDeviceInterface_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager:: Get inteface failed");
+        return false;
+    }
+    return true;
+}
+#endif // USB_MANAGER_PASS_THROUGH
+
+void UsbAccessoryManager::GetAccessoryInfo(std::vector<std::string> &accessorys)
+{
+#ifdef USB_MANAGER_PASS_THROUGH
+    if (usbDeviceInterface_ == nullptr) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
+        return;
+    }
+    usbDeviceInterface_->GetAccessoryInfo(accessorys);
+#else
+    if (usbdImpl_ == nullptr) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbdImpl_ is nullptr.");
+        return;
+    }
+    usbdImpl_->GetAccessoryInfo(accessorys);
+#endif // USB_MANAGER_PASS_THROUGH
+}
+
+int32_t UsbAccessoryManager::SetCurrentFunctions(int32_t funcs)
+{
+#ifdef USB_MANAGER_PASS_THROUGH
+    if (usbDeviceInterface_ == nullptr) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    return usbDeviceInterface_->SetCurrentFunctions(funcs);
+#else
+    if (usbdImpl_ == nullptr) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbdImpl_ is nullptr.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    return usbdImpl_->SetCurrentFunctions(funcs);
+#endif // USB_MANAGER_PASS_THROUGH
+}
+
+int32_t UsbAccessoryManager::GetCurrentFunctions(int32_t funcs)
+{
+#ifdef USB_MANAGER_PASS_THROUGH
+    if (usbDeviceInterface_ == nullptr) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    return usbDeviceInterface_->GetCurrentFunctions(funcs);
+#else
+    if (usbdImpl_ == nullptr) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbdImpl_ is nullptr.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    return usbdImpl_->GetCurrentFunctions(funcs);
+#endif // USB_MANAGER_PASS_THROUGH
 }
 
 int32_t UsbAccessoryManager::SetUsbd(const sptr<OHOS::HDI::Usb::V1_2::IUsbInterface> usbd)
@@ -106,11 +172,20 @@ void UsbAccessoryManager::GetAccessoryList(const std::string &bundleName,
 
 int32_t UsbAccessoryManager::OpenAccessory(int32_t &fd)
 {
+    int32_t ret = UEC_INTERFACE_INVALID_VALUE;
+#ifdef USB_MANAGER_PASS_THROUGH
+    if (usbDeviceInterface_ == nullptr) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    ret = usbDeviceInterface_->OpenAccessory(fd);
+#else
     if (usbdImpl_ == nullptr) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbdImpl_ is nullptr.");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    int32_t ret = usbdImpl_->OpenAccessory(fd);
+    ret = usbdImpl_->OpenAccessory(fd);
+#endif // USB_MANAGER_PASS_THROUGH
     if (ret == UEC_OK) {
         accFd_ = fd;
         return ret;
@@ -122,11 +197,20 @@ int32_t UsbAccessoryManager::OpenAccessory(int32_t &fd)
 
 int32_t UsbAccessoryManager::CloseAccessory(int32_t fd)
 {
+    int32_t ret = UEC_INTERFACE_INVALID_VALUE;
+#ifdef USB_MANAGER_PASS_THROUGH
+    if (usbDeviceInterface_ == nullptr) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    ret = usbDeviceInterface_->CloseAccessory(accFd_);
+#else
     if (usbdImpl_ == nullptr) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbdImpl_ is nullptr.");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    int32_t ret = usbdImpl_->CloseAccessory(accFd_);
+    ret = usbdImpl_->CloseAccessory(accFd_);
+#endif // USB_MANAGER_PASS_THROUGH
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "%{public}s, close ret: %{public}d, fd: %{public}d.", __func__, ret, fd);
         return ret;
@@ -141,7 +225,7 @@ int32_t UsbAccessoryManager::ProcessAccessoryStart(int32_t curFunc, int32_t curA
     if ((curFuncUint & FUN_ACCESSORY) != 0 && accStatus_ != ACC_START) {
         this->accStatus_ = ACC_START;
         std::vector<std::string> accessorys;
-        usbdImpl_->GetAccessoryInfo(accessorys);
+        GetAccessoryInfo(accessorys);
         this->accessory.SetAccessory(accessorys);
         std::string hashSerial = SerialValueHash(this->accessory.GetSerialNumber());
         this->accessory.SetSerialNumber(hashSerial);
@@ -154,7 +238,7 @@ int32_t UsbAccessoryManager::ProcessAccessoryStart(int32_t curFunc, int32_t curA
             this->accessory.GetJsonString().c_str());
         return CommonEventManager::PublishCommonEvent(data, publishInfo);
     } else if ((curFuncUint & FUN_ACCESSORY) == 0 && curAccStatus == ACC_CONFIGURING) {
-        int32_t ret = usbdImpl_->SetCurrentFunctions(FUN_ACCESSORY);
+        int32_t ret = SetCurrentFunctions(FUN_ACCESSORY);
         if (ret != UEC_OK) {
             USB_HILOGE(MODULE_SERVICE, "curFunc %{public}d curAccStatus:%{public}u, set func ret: %{public}d",
                 curFuncUint, curAccStatus, ret);
@@ -163,7 +247,7 @@ int32_t UsbAccessoryManager::ProcessAccessoryStart(int32_t curFunc, int32_t curA
         lastDeviceFunc_ = static_cast<int32_t>(curFuncUint);
         auto task = [&]() {
             this->accStatus_ = ACC_STOP;
-            int32_t ret = usbdImpl_ ->SetCurrentFunctions(this->lastDeviceFunc_);
+            int32_t ret = SetCurrentFunctions(this->lastDeviceFunc_);
             if (ret != UEC_OK) {
                 USB_HILOGW(MODULE_SERVICE, "set old func: %{public}d ret: %{public}d", this->lastDeviceFunc_, ret);
             }
@@ -183,7 +267,7 @@ int32_t UsbAccessoryManager::ProcessAccessoryStop(int32_t curFunc, int32_t curAc
     uint32_t curFuncUint = static_cast<uint32_t>(curFunc);
     if ((curFuncUint & FUN_ACCESSORY) != 0 && accStatus_ == ACC_START) {
         accStatus_ = ACC_STOP;
-        int32_t ret = usbdImpl_ ->SetCurrentFunctions(lastDeviceFunc_);
+        int32_t ret = SetCurrentFunctions(lastDeviceFunc_);
         if (ret != UEC_OK) {
             USB_HILOGW(MODULE_SERVICE, "setFunc %{public}d curAccStatus:%{public}d, set func ret: %{public}d",
                 lastDeviceFunc_, curAccStatus, ret);
@@ -208,7 +292,7 @@ int32_t UsbAccessoryManager::ProcessAccessorySend()
 {
     this->accStatus_ = ACC_SEND;
     std::vector<std::string> accessorys;
-    usbdImpl_->GetAccessoryInfo(accessorys);
+    GetAccessoryInfo(accessorys);
     this->accessory.SetAccessory(accessorys);
     std::string extraInfo;
     if (accessorys.size() > ACCESSORY_INFO_SIZE &&
@@ -250,10 +334,16 @@ int32_t UsbAccessoryManager::ProcessAccessorySend()
 
 void UsbAccessoryManager::HandleEvent(int32_t status, bool delayProcess)
 {
+#ifdef USB_MANAGER_PASS_THROUGH
+    if (usbDeviceInterface_ == nullptr) {
+        return;
+    }
+#else
     if (usbdImpl_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager::usbd_ is nullptr");
         return;
     }
+#endif // USB_MANAGER_PASS_THROUGH
     std::lock_guard<std::mutex> guard(mutexHandleEvent_);
     eventStatus_ = status;
     if (delayProcess) {
@@ -301,7 +391,7 @@ void UsbAccessoryManager::ProcessHandle(int32_t curAccStatus)
         accDelayTimer_.Unregister(accDelayTimerId_);
 
         int32_t curFunc = 0;
-        ret = usbdImpl_->GetCurrentFunctions(curFunc);
+        ret = GetCurrentFunctions(curFunc);
         if (ret != UEC_OK) {
             USB_HILOGE(MODULE_USB_SERVICE, "GetCurrentFunctions ret: %{public}d", ret);
             return;

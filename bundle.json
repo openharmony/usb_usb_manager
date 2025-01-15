@@ -15,7 +15,10 @@
         "subsystem": "usb",
         "features": [
             "usb_manager_feature_pop_up_func_switch_model",
-            "usb_manager_feature_usb_right_dialog"
+            "usb_manager_feature_usb_right_dialog",
+            "usb_manager_feature_host",
+            "usb_manager_feature_device",
+            "usb_manager_feature_port"
         ],
         "syscap": [
             "SystemCapability.USB.USBManager"
