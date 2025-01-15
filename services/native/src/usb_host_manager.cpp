@@ -725,7 +725,8 @@ int32_t UsbHostManager::UsbControlTransfer(const HDI::Usb::V1_0::UsbDev &dev,
         return UEC_SERVICE_INVALID_VALUE;
     }
     const HDI::Usb::V2_0::UsbDev &usbDev_ = reinterpret_cast<const HDI::Usb::V2_0::UsbDev &>(dev);
-    const HDI::Usb::V2_0::UsbCtrlTransferParams &usbCtrlParams_ = reinterpret_cast<const HDI::Usb::V2_0::UsbCtrlTransferParams &>(dev);
+    const HDI::Usb::V2_0::UsbCtrlTransferParams &usbCtrlParams_ =
+        reinterpret_cast<const HDI::Usb::V2_0::UsbCtrlTransferParams &>(dev);
     int32_t ret = UEC_SERVICE_INNER_ERR;
     HDI::Usb::V2_0::UsbCtrlTransfer ctrl = {
         ctrlParams.requestType, ctrlParams.requestCmd, ctrlParams.value, ctrlParams.index, ctrlParams.timeout};
