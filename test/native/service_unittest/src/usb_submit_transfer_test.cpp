@@ -15,6 +15,11 @@
 
 #include "usb_submit_transfer_test.h"
 
+#include <thread>
+#include <mutex>
+#include <functional>
+#include <condition_variable>
+#include <atomic>
 #include <csignal>
 #include <iostream>
 #include <vector>
@@ -44,6 +49,12 @@ namespace USB {
 namespace SubmitTransfer {
 constexpr int32_t SLEEP_TIME = 3;
 
+std::mutex mtx;                                     // 全局互斥锁，用于保护共享资源
+std::condition_variable cv;                         // 条件变量，用于线程间的同步
+std::vector<bool> threadSuccessFlags;               // 用于标记每个线程是否成功完成操作
+std::atomic<int32_t> completedThreads(0);           // 用于标记线程完成数量
+std::atomic<int32_t> successCount(0);               // 用于统计 ASSERT_EQ(ret, UEC_OK) 成功的次数
+
 void UsbSubmitTransferTest::SetUpTestCase(void)
 {
     UsbCommonTest::GrantPermissionSysNative();
@@ -72,7 +83,88 @@ void UsbSubmitTransferTest::TearDownTestCase(void)
 void UsbSubmitTransferTest::SetUp(void) {}
 
 void UsbSubmitTransferTest::TearDown(void) {}
- 
+
+void usbSubmitTransferBulkWriteThreadFunc(int32_t threadId)
+{
+    std::unique_lock<std::mutex> lock(mtx);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferBulkWrite enter.");
+    vector<UsbDevice> devi;
+    auto &UsbSrvClient = UsbSrvClient::GetInstance();
+    auto ret = UsbSrvClient.GetDevices(devi);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferBulkWrite %{public}d ret=%{public}d", __LINE__, ret);
+    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferBulkWrite %{public}d size=%{public}zu", __LINE__,
+               devi.size());
+    USBDevicePipe pipe;
+    UsbDevice device = devi.front();
+    UsbSrvClient.RequestRight(device.GetName());
+    ret = UsbSrvClient.OpenDevice(device, pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferBulkWrite %{public}d OpenDevice=%{public}d", __LINE__,
+               ret);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
+    USBEndpoint point = interface.GetEndpoints().front();
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferBulkWrite %{public}d point=%{public}d", __LINE__,
+               point.GetInterfaceId());
+    ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
+    ASSERT_NE(ashmem, nullptr);
+    const uint8_t dataToWrite[TEN] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
+    ashmem->MapReadAndWriteAshmem();
+    bool writeSuccess = ashmem->WriteToAshmem(dataToWrite, sizeof(dataToWrite), 0);
+    ASSERT_TRUE(writeSuccess);
+    HDI::Usb::V1_2::USBTransferInfo transferInfo;
+    transferInfo.endpoint = 0x01;    // 0x01写 0x81读
+    transferInfo.flags = 0;
+    transferInfo.type = TYPE_BULK; // 开发板仅支持bulk
+    transferInfo.timeOut = 2000;
+    transferInfo.length = TEN;        // 期望长度
+    transferInfo.userData = 0;
+    transferInfo.numIsoPackets = 0;  // iso传输包数量 iso单包传输最大长度192
+    auto callback = [](const TransferCallbackInfo &info,
+                        const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &packets, uint64_t userData) {
+        USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferBulkWrite cb status:%{public}d,actualLength:%{public}d",
+            info.status, info.actualLength);
+    };
+    ret = UsbSrvClient.UsbSubmitTransfer(pipe, transferInfo, callback, ashmem);
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbSubmitTransferBulkWrite ret:%{public}d", __LINE__, ret);
+    if (ret == UEC_OK) {
+        successCount++;
+    }
+    ASSERT_EQ(ret, UEC_OK);
+    bool close = UsbSrvClient.Close(pipe);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferBulkWrite %{public}d close=%{public}d", __LINE__, close);
+    EXPECT_TRUE(close);
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferBulkWrite end.");
+    lock.unlock();
+    threadSuccessFlags[threadId] = true;
+    completedThreads++;
+    cv.notify_one();
+}
+
+HWTEST_F(UsbSubmitTransferTest, UsbSubmitTransferBulkWriteConcurrent, TestSize.Level1)
+{
+    int32_t numThreads = 5;  // 并发线程数量
+    threadSuccessFlags.resize(numThreads);
+    std::vector<std::thread> threads;
+    // 启动多个线程
+    for (int32_t i = 0; i < numThreads; ++i) {
+        threads.emplace_back([i]() { usbSubmitTransferBulkWriteThreadFunc(i); });
+    }
+    // 等待所有线程完成
+    std::unique_lock<std::mutex> lock(mtx);
+    cv.wait(lock, [numThreads]{ return completedThreads == numThreads; });
+    // 清理资源和验证结果
+    for (auto& t : threads) {
+        t.join();
+    }
+    // 检查是否所有线程都成功完成操作
+    for (int32_t i = 0; i < numThreads; ++i) {
+        EXPECT_TRUE(threadSuccessFlags[i]) << "Thread " << i << " did not complete successfully.";
+    }
+    // 检查是否所有的 ASSERT_EQ(ret, UEC_OK) 都成功
+    EXPECT_EQ(successCount, numThreads) << "Not all UsbSubmitTransfer calls returned UEC_OK.";
+}
+
 /**
  * @tc.name: UsbSubmitTransferBulkWrite
  * @tc.desc: Test the USB data write functionality of UsbSubmitTransfer OK.
