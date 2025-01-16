@@ -32,8 +32,8 @@ public:
     int32_t OnTransferReadCallback(int32_t status, int32_t actLength,
         std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo, uint64_t userData) override;
 private:
-    std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> isoInfo;
-    TransferCallbackInfo info;
+    std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> isoInfo_;
+    TransferCallbackInfo info_;
     TransferCallback callback_;
 };
 } // namespace OHOS::USB

@@ -1056,32 +1056,7 @@ int32_t UsbService::UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, HDI
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    int32_t ret = usbHostManager_->UsbSubmitTransfer(devInfo, info, cb, ashmem);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbService UsbSubmitTransfer error ret:%{public}d", ret);
-        return UsbSubmitTransferErrorCode(ret);
-    }
-    return ret;
-}
-// LCOV_EXCL_STOP
-
-// LCOV_EXCL_START
-int32_t UsbService::UsbSubmitTransferErrorCode(int32_t &error)
-{
-    switch (error) {
-        case IO_ERROR:
-            return USB_SUBMIT_TRANSFER_IO_ERROR;
-        case INVALID_PARAM:
-            return USB_SUBMIT_TRANSFER_INVALID_PARAM_ERROR;
-        case NO_DEVICE:
-            return USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR;
-        case NO_MEM:
-            return USB_SUBMIT_TRANSFER_NO_MEM_ERROR;
-        case NOT_SUPPORT:
-            return USB_SUBMIT_TRANSFER_NOT_SUPPORT;
-        default:
-            return USB_SUBMIT_TRANSFER_OTHER_ERROR;
-    }
+    return usbHostManager_->UsbSubmitTransfer(devInfo, info, cb, ashmem);
 }
 // LCOV_EXCL_STOP
 

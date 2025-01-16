@@ -74,7 +74,6 @@ public:
     {
         return ready_;
     }
-    int32_t UsbSubmitTransferErrorCode(int32_t &error);
     static sptr<UsbService> GetGlobalInstance();
 #ifndef USB_MANAGER_PASS_THROUGH
     int32_t SetUsbd(const sptr<HDI::Usb::V1_2::IUsbInterface> &usbd);

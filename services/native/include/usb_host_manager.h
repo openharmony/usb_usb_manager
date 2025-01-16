@@ -25,6 +25,7 @@
 #include "usb_right_manager.h"
 #include "usb_interface_type.h"
 #include "v1_2/iusb_interface.h"
+#include "iremote_object.h"
 #ifdef USB_MANAGER_PASS_THROUGH
 #include "mem_mgr_proxy.h"
 #include "mem_mgr_client.h"
@@ -143,6 +144,7 @@ private:
     int32_t ManageDeviceImpl(int32_t vendorId, int32_t productId, bool disable);
     int32_t ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable);
     int32_t ManageDeviceTypeImpl(InterfaceType interfaceType, bool disable);
+    int32_t UsbSubmitTransferErrorCode(int32_t &error);
     MAP_STR_DEVICE devices_;
     SystemAbility *systemAbility_;
     sptr<HDI::Usb::V1_2::IUsbInterface> usbd_ = nullptr;
@@ -151,6 +153,23 @@ private:
     sptr<HDI::Usb::V1_0::IUsbdBulkCallback> hdiCb_ = nullptr;
     std::mutex hdiCbMutex_;
     std::mutex transferMutex_;
+    class UsbSubmitTransferDeathRecipient : public IRemoteObject::DeathRecipient {
+    public:
+        UsbSubmitTransferDeathRecipient(const HDI::Usb::V1_0::UsbDev &devInfo, const int32_t endpoint,
+            UsbHostManager *service, const sptr<IRemoteObject> cb)
+            : devInfo_(devInfo), endpoint_(endpoint), service_(service), cb_(cb) {};
+        ~UsbSubmitTransferDeathRecipient()
+        {
+            cb_->RemoveDeathRecipient(this);
+        }
+        void OnRemoteDied(const wptr<IRemoteObject> &object) override;
+    private:
+        const HDI::Usb::V1_0::UsbDev devInfo_;
+        const int32_t endpoint_;
+        UsbHostManager *service_;
+        const sptr<IRemoteObject> cb_;
+    };
+
 #ifdef USB_MANAGER_PASS_THROUGH
     sptr<HDI::Usb::V2_0::IUsbHostInterface> usbHostInterface_ = nullptr;
     sptr<HDI::Usb::V2_0::IUsbdBulkCallback> usbHostHdiCb_ = nullptr;

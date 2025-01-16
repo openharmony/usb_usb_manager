@@ -23,24 +23,24 @@ namespace OHOS::USB {
 int32_t UsbdCallBackServer::OnTransferWriteCallback(int32_t status, int32_t actualLength,
     std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo, uint64_t userData)
 {
-    info.status = status;
-    info.actualLength = actualLength;
+    info_.status = status;
+    info_.actualLength = actualLength;
     if (!isoInfo.empty()) {
-        this->isoInfo = isoInfo;
+        this->isoInfo_ = isoInfo;
     }
-    callback_(info, isoInfo, userData);
+    callback_(info_, isoInfo_, userData);
     return UEC_OK;
 }
 
 int32_t UsbdCallBackServer::OnTransferReadCallback(int32_t status, int32_t actualLength,
     std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo, uint64_t userData)
 {
-    info.status = status;
-    info.actualLength = actualLength;
+    info_.status = status;
+    info_.actualLength = actualLength;
     if (!isoInfo.empty()) {
-        this->isoInfo = isoInfo;
+        this->isoInfo_ = isoInfo;
     }
-    callback_(info, isoInfo, userData);
+    callback_(info_, isoInfo_, userData);
     return UEC_OK;
 }
 

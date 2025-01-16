@@ -168,6 +168,18 @@ int32_t UsbHostManager::UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSub
 }
 #endif // USB_MANAGER_PASS_THROUGH
 
+// LCOV_EXCL_START
+void UsbHostManager::UsbSubmitTransferDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
+{
+    USB_HILOGI(MODULE_USBD, "UsbHostManager UsbSubmitTransferDeathRecipient enter");
+    int32_t ret = service_->UsbCancelTransfer(devInfo_, endpoint_);
+    if (ret == UEC_OK) {
+        USB_HILOGI(MODULE_USBD, "UsbHostManager OnRemoteDied Close.");
+        service_->Close(devInfo_.busNum, devInfo_.devAddr);
+    }
+}
+// LCOV_EXCL_STOP
+
 void UsbHostManager::ExecuteStrategy(UsbDevice *devInfo)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbHostManager::ExecuteStrategy start");
@@ -726,7 +738,7 @@ int32_t UsbHostManager::UsbControlTransfer(const HDI::Usb::V1_0::UsbDev &dev,
     }
     const HDI::Usb::V2_0::UsbDev &usbDev_ = reinterpret_cast<const HDI::Usb::V2_0::UsbDev &>(dev);
     const HDI::Usb::V2_0::UsbCtrlTransferParams &usbCtrlParams_ =
-        reinterpret_cast<const HDI::Usb::V2_0::UsbCtrlTransferParams &>(dev);
+        reinterpret_cast<const HDI::Usb::V2_0::UsbCtrlTransferParams &>(ctrlParams);
     int32_t ret = UEC_SERVICE_INNER_ERR;
     HDI::Usb::V2_0::UsbCtrlTransfer ctrl = {
         ctrlParams.requestType, ctrlParams.requestCmd, ctrlParams.value, ctrlParams.index, ctrlParams.timeout};
@@ -853,29 +865,61 @@ int32_t UsbHostManager::UsbCancelTransfer(const HDI::Usb::V1_0::UsbDev &devInfo,
 int32_t UsbHostManager::UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, HDI::Usb::V1_2::USBTransferInfo &info,
     const sptr<IRemoteObject> &cb, sptr<Ashmem> &ashmem)
 {
+    int32_t ret = UEC_SERVICE_INVALID_VALUE;
 #ifdef USB_MANAGER_PASS_THROUGH
     if (usbHostInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager::UsbSubmitTransfer usbHostInterface_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    sptr<UsbTransferCallbackImpl> callbackImpl_ = nullptr;
-    if (cb != nullptr) {
-        callbackImpl_ = new UsbTransferCallbackImpl(cb);
-    }
-    const HDI::Usb::V2_0::UsbDev &usbDev_ = reinterpret_cast<const HDI::Usb::V2_0::UsbDev &>(devInfo);
-    const HDI::Usb::V2_0::USBTransferInfo &usbInfo = reinterpret_cast<const HDI::Usb::V2_0::USBTransferInfo &>(info);
-    return usbHostInterface_->UsbSubmitTransfer(usbDev_, usbInfo, callbackImpl_, ashmem);
-#else
-    if (usbd_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager::usbd_ is nullptr");
+    sptr<UsbHostManager::UsbSubmitTransferDeathRecipient> submitRecipient =
+        new UsbSubmitTransferDeathRecipient(devInfo, info.endpoint, this, cb);
+    if (!cb->AddDeathRecipient(submitRecipient)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "add DeathRecipient failed");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    sptr<UsbdTransferCallbackImpl> callbackImpl_ = nullptr;
-    if (cb != nullptr) {
-        callbackImpl_ = new UsbdTransferCallbackImpl(cb);
+    sptr<UsbTransferCallbackImpl> callbackImpl = new UsbTransferCallbackImpl(cb);
+    const HDI::Usb::V2_0::UsbDev &usbDev_ = reinterpret_cast<const HDI::Usb::V2_0::UsbDev &>(devInfo);
+    const HDI::Usb::V2_0::USBTransferInfo &usbInfo = reinterpret_cast<const HDI::Usb::V2_0::USBTransferInfo &>(info);
+    ret = usbHostInterface_->UsbSubmitTransfer(usbDev_, usbInfo, callbackImpl, ashmem);
+#else
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager::UsbSubmitTransfer usbd_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
     }
-    return usbd_->UsbSubmitTransfer(devInfo, info, callbackImpl_, ashmem);
+    sptr<UsbHostManager::UsbSubmitTransferDeathRecipient> submitRecipient =
+        new UsbSubmitTransferDeathRecipient(devInfo, info.endpoint, this, cb);
+    if (!cb->AddDeathRecipient(submitRecipient)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "add DeathRecipient failed");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    sptr<UsbdTransferCallbackImpl> callbackImpl = new UsbdTransferCallbackImpl(cb);
+    ret = usbd_->UsbSubmitTransfer(devInfo, info, callbackImpl, ashmem);
 #endif // USB_MANAGER_PASS_THROUGH
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager UsbSubmitTransfer error ret:%{public}d", ret);
+        cb->RemoveDeathRecipient(submitRecipient);
+        submitRecipient.clear();
+        return UsbSubmitTransferErrorCode(ret);
+    }
+    return ret;
+}
+
+int32_t UsbHostManager::UsbSubmitTransferErrorCode(int32_t &error)
+{
+    switch (error) {
+        case IO_ERROR:
+            return USB_SUBMIT_TRANSFER_IO_ERROR;
+        case INVALID_PARAM:
+            return USB_SUBMIT_TRANSFER_INVALID_PARAM_ERROR;
+        case NO_DEVICE:
+            return USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR;
+        case NO_MEM:
+            return USB_SUBMIT_TRANSFER_NO_MEM_ERROR;
+        case NOT_SUPPORT:
+            return USB_SUBMIT_TRANSFER_NOT_SUPPORT;
+        default:
+            return USB_SUBMIT_TRANSFER_OTHER_ERROR;
+    }
 }
 
 int32_t UsbHostManager::RegBulkCallback(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe,
