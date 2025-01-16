@@ -2312,7 +2312,10 @@ int32_t UsbService::ManageGlobalInterface(bool disable)
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
-
+    if (!IsCallerValid()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
+        return UEC_SERVICE_INVALID_OPERATION;
+    }
     return ManageGlobalInterfaceImpl(disable);
 }
 // LCOV_EXCL_STOP
@@ -2324,7 +2327,10 @@ int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disab
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
-
+    if (!IsCallerValid()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
+        return UEC_SERVICE_INVALID_OPERATION;
+    }
     return ManageDeviceImpl(vendorId, productId, disable);
 }
 // LCOV_EXCL_STOP
@@ -2335,6 +2341,10 @@ int32_t UsbService::ManageInterfaceType(const std::vector<UsbDeviceType> &disabl
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
+    }
+    if (!IsCallerValid()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
+        return UEC_SERVICE_INVALID_OPERATION;
     }
     return ExecuteManageInterfaceType(disableType, disable);
 }
@@ -2512,10 +2522,6 @@ int32_t UsbService::ManageDeviceTypeImpl(InterfaceType interfaceType, bool disab
 // LCOV_EXCL_START
 int32_t UsbService::ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t interfaceId, bool disable)
 {
-    if (!IsCallerValid()) {
-        USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
-        return UEC_SERVICE_INVALID_OPERATION;
-    }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
