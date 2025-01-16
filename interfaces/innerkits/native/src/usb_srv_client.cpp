@@ -32,6 +32,7 @@ namespace OHOS {
 namespace USB {
 constexpr uint32_t WAIT_SERVICE_LOAD = 500;
 constexpr int32_t READ_BUF_SIZE = 8192;
+constexpr int32_t INVALID_PARAM = 14400015;
 UsbSrvClient::UsbSrvClient()
 {
     Connect();
@@ -446,11 +447,11 @@ int32_t UsbSrvClient::UsbSubmitTransfer(USBDevicePipe &pip, HDI::Usb::V1_2::USBT
 {
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
     const UsbDev tdev = {pip.GetBusNum(), pip.GetDevAddr()};
-    sptr<UsbdCallBackServer> callBackService_ = nullptr;
-    if (cb != nullptr) {
-        callBackService_ = new UsbdCallBackServer(cb);
+    if (cb == nullptr) {
+        return INVALID_PARAM;
     }
-    int32_t ret = proxy_->UsbSubmitTransfer(tdev, info, callBackService_, ashmem);
+    sptr<UsbdCallBackServer> callBackService = new UsbdCallBackServer(cb);
+    int32_t ret = proxy_->UsbSubmitTransfer(tdev, info, callBackService, ashmem);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSubmitTransfer failed with ret = %{public}d", ret);
     }

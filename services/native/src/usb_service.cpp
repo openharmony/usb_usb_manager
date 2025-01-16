@@ -1891,16 +1891,21 @@ int32_t UsbService::UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, HDI
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    sptr<UsbdTransferCallbackImpl> callbackImpl_ = nullptr;
-    if (cb != nullptr) {
-        callbackImpl_ = new UsbdTransferCallbackImpl(cb);
+    sptr<UsbService::UsbSubmitTransferDeathRecipient> submitRecipient =
+        new UsbSubmitTransferDeathRecipient(devInfo, info.endpoint, this, cb);
+    if (!cb->AddDeathRecipient(submitRecipient)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "add DeathRecipient failed");
+        return UEC_SERVICE_INVALID_VALUE;
     }
     if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
-    int32_t ret = usbd_->UsbSubmitTransfer(devInfo, info, callbackImpl_, ashmem);
+    sptr<UsbdTransferCallbackImpl> callbackImpl = new UsbdTransferCallbackImpl(cb);
+    int32_t ret = usbd_->UsbSubmitTransfer(devInfo, info, callbackImpl, ashmem);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService UsbSubmitTransfer error ret:%{public}d", ret);
+        cb->RemoveDeathRecipient(submitRecipient);
+        submitRecipient.clear();
         return UsbSubmitTransferErrorCode(ret);
     }
     return ret;
@@ -2247,6 +2252,18 @@ void UsbService::UsbdDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &obj
     auto ret = samgrProxy->UnloadSystemAbility(USB_SYSTEM_ABILITY_ID);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "unload failed");
+    }
+}
+// LCOV_EXCL_STOP
+
+// LCOV_EXCL_START
+void UsbService::UsbSubmitTransferDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
+{
+    USB_HILOGI(MODULE_USBD, "UsbService UsbSubmitTransferDeathRecipient enter");
+    int32_t ret = service_->UsbCancelTransfer(devInfo_, endpoint_);
+    if (ret == UEC_OK) {
+        USB_HILOGI(MODULE_USBD, "UsbService OnRemoteDied Close.");
+        service_->Close(devInfo_.busNum, devInfo_.devAddr);
     }
 }
 // LCOV_EXCL_STOP
