@@ -175,7 +175,7 @@ private:
     public:
         UsbSubmitTransferDeathRecipient(const HDI::Usb::V1_0::UsbDev &devInfo, const int32_t endpoint,
             UsbService *service, const sptr<IRemoteObject> cb)
-            : devInfo_(devInfo), endpoint_(endpoint), service_(service), cb_(cb) {}
+            : devInfo_(devInfo), endpoint_(endpoint), service_(service), cb_(cb) {};
         ~UsbSubmitTransferDeathRecipient()
         {
             cb_->RemoveDeathRecipient(this);
