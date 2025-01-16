@@ -208,6 +208,7 @@ private:
     int32_t InitUsbRight();
     void DumpHelp(int32_t fd);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    bool IsCallerValid();
 #ifdef USB_MANAGER_FEATURE_HOST
     bool GetBundleInfo(std::string &tokenId, int32_t &userId);
     std::string GetDeviceVidPidSerialNumber(std::string deviceName);

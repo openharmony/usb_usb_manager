@@ -123,7 +123,6 @@ private:
     int32_t GetDeviceDescription(int32_t baseClass, std::string &description, uint8_t &usage);
     int32_t GetInterfaceDescription(const UsbDevice &dev, std::string &description, int32_t &baseClass);
     std::string GetInterfaceUsageDescription(const UsbDeviceType &interfaceType);
-    bool IsCallerValid();
     int32_t FillDevStrings(UsbDevice &dev);
     std::string GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, uint8_t idx);
     bool IsEdmEnabled();

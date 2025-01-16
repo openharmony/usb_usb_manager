@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include <iostream>
-#include <ipc_skeleton.h>
 #include <sstream>
 #include <map>
 #include <string>
@@ -37,7 +36,6 @@
 #include "parameters.h"
 #include "usbd_bulkcallback_impl.h"
 #include "usb_descriptor_parser.h"
-#include "accesstoken_kit.h"
 #include "usbd_transfer_callback_impl.h"
 
 using namespace OHOS::AAFwk;
@@ -100,8 +98,6 @@ constexpr int32_t PROTOCAL_INDEX = 2;
 constexpr int32_t STORAGE_BASE_CLASS = 8;
 constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
-constexpr const pid_t ROOT_UID = 0;
-constexpr const pid_t EDM_UID = 3057;
 #ifdef USB_MANAGER_PASS_THROUGH
 const std::string SERVICE_NAME = "usb_host_interface_service";
 #endif // USB_MANAGER_PASS_THROUGH
@@ -1235,17 +1231,6 @@ void UsbHostManager::ReportHostPlugSysEvent(const std::string &event, const UsbD
         "VERSION", dev.GetVersion(), "EVENT_NAME", event);
 }
 
-bool UsbHostManager::IsCallerValid()
-{
-    OHOS::Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
-    auto callerTokenType = OHOS::Security::AccessToken::AccessTokenKit::GetTokenType(callerToken);
-    if (callerTokenType == OHOS::Security::AccessToken::TypeATokenTypeEnum::TOKEN_NATIVE) {
-        pid_t callerUid = IPCSkeleton::GetCallingUid();
-        return callerUid == ROOT_UID || callerUid == EDM_UID;
-    }
-    return false;
-}
-
 static std::string BcdToString(const std::vector<uint8_t> &bcd)
 {
     std::string tstr;
@@ -1600,10 +1585,6 @@ int32_t UsbHostManager::GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::v
 
 int32_t UsbHostManager::ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t interfaceId, bool disable)
 {
-    if (!IsCallerValid()) {
-        USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
-        return UEC_SERVICE_INVALID_OPERATION;
-    }
 #ifdef USB_MANAGER_PASS_THROUGH
     if (usbHostInterface_ == nullptr) {
         USB_HILOGE(MODULE_SERVICE, "UsbHostManager::ManageInterface usbHostInterface_ is nullptr");

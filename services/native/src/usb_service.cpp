@@ -60,6 +60,8 @@ constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 #endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
 #ifdef USB_MANAGER_FEATURE_HOST
 constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
+constexpr const pid_t ROOT_UID = 0;
+constexpr const pid_t EDM_UID = 3057;
 #endif // USB_MANAGER_FEATURE_HOST
 constexpr int32_t APIVERSION_16 = 16;
 
@@ -560,7 +562,10 @@ int32_t UsbService::ManageGlobalInterface(bool disable)
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
-
+    if (!IsCallerValid()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
+        return UEC_SERVICE_INVALID_OPERATION;
+    }
     return usbHostManager_->ManageGlobalInterface(disable);
 }
 // LCOV_EXCL_STOP
@@ -572,6 +577,10 @@ int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disab
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
+    if (!IsCallerValid()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
+        return UEC_SERVICE_INVALID_OPERATION;
+    }
     return usbHostManager_->ManageDevice(vendorId, productId, disable);
 }
 // LCOV_EXCL_STOP
@@ -582,6 +591,10 @@ int32_t UsbService::ManageInterfaceType(const std::vector<UsbDeviceType> &disabl
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
+    }
+    if (!IsCallerValid()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
+        return UEC_SERVICE_INVALID_OPERATION;
     }
     return usbHostManager_->ManageInterfaceType(disableType, disable);
 }
@@ -1407,6 +1420,17 @@ int32_t UsbService::PreCallFunction()
     return UEC_OK;
 }
 // LCOV_EXCL_STOP
+
+bool UsbService::IsCallerValid()
+{
+    OHOS::Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+    auto callerTokenType = OHOS::Security::AccessToken::AccessTokenKit::GetTokenType(callerToken);
+    if (callerTokenType == OHOS::Security::AccessToken::TypeATokenTypeEnum::TOKEN_NATIVE) {
+        pid_t callerUid = IPCSkeleton::GetCallingUid();
+        return callerUid == ROOT_UID || callerUid == EDM_UID;
+    }
+    return false;
+}
 #endif // USB_MANAGER_FEATURE_HOST
 
 #ifdef USB_MANAGER_FEATURE_DEVICE
