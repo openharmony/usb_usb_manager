@@ -37,6 +37,7 @@
 #include "usbd_bulkcallback_impl.h"
 #include "usb_descriptor_parser.h"
 #include "usbd_transfer_callback_impl.h"
+#include "usb_napi_errors.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::EventFwk;
@@ -98,6 +99,11 @@ constexpr int32_t PROTOCAL_INDEX = 2;
 constexpr int32_t STORAGE_BASE_CLASS = 8;
 constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
+const int32_t IO_ERROR = -1;
+const int32_t INVALID_PARAM = -2;
+const int32_t NO_DEVICE = -4;
+const int32_t NO_MEM = -11;
+const int32_t NOT_SUPPORT = -12;
 #ifdef USB_MANAGER_PASS_THROUGH
 const std::string SERVICE_NAME = "usb_host_interface_service";
 #endif // USB_MANAGER_PASS_THROUGH

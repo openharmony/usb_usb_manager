@@ -53,13 +53,6 @@ const std::string USB_HOST = "usb_host";
 const std::string USB_DEVICE = "usb_device";
 const std::string USB_PORT = "usb_port";
 const std::string USB_HELP = "-h";
-#ifdef USB_MANAGER_FEATURE_HOST
-const int32_t IO_ERROR = -1;
-const int32_t INVALID_PARAM = -2;
-const int32_t NO_DEVICE = -4;
-const int32_t NO_MEM = -11;
-const int32_t NOT_SUPPORT = -12;
-#endif // USB_MANAGER_FEATURE_HOST
 class UsbService : public SystemAbility, public UsbServerStub {
     DECLARE_SYSTEM_ABILITY(UsbService)
     DECLARE_DELAYED_SP_SINGLETON(UsbService);
