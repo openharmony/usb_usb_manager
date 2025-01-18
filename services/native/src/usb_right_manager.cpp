@@ -95,11 +95,13 @@ public:
             int32_t ret = UsbRightManager::CleanUpRightUserStopped(uid);
             USB_HILOGD(MODULE_USB_SERVICE, "on user %{public}d stopped, ret=%{public}d", uid, ret);
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
+#ifdef USB_MANAGER_FEATURE_DEVICE
             USB_HILOGI(MODULE_USB_SERVICE, "recv user switched.");
             auto usbService = UsbService::GetGlobalInstance();
             if (usbService != nullptr) {
                 usbService->UserChangeProcess();
             }
+#endif // USB_MANAGER_FEATURE_DEVICE
         }
     }
 };
@@ -149,6 +151,7 @@ bool UsbRightManager::HasRight(const std::string &deviceName, const std::string 
     return !helper->IsRecordExpired(userId, deviceName, bundleName, tokenId, nowTime);
 }
 
+#ifdef USB_MANAGER_FEATURE_HOST
 int32_t UsbRightManager::RequestRight(const std::string &busDev, const std::string &deviceName,
     const std::string &bundleName, const std::string &tokenId, const int32_t &userId)
 {
@@ -164,6 +167,75 @@ int32_t UsbRightManager::RequestRight(const std::string &busDev, const std::stri
     }
     return UEC_OK;
 }
+
+bool UsbRightManager::GetUserAgreementByDiag(const std::string &busDev, const std::string &deviceName,
+    const std::string &bundleName, const std::string &tokenId, const int32_t &userId)
+{
+#ifdef USB_RIGHT_TEST
+    return true;
+#endif
+    /* There can only be one dialog at a time */
+    std::lock_guard<std::mutex> guard(dialogRunning_);
+    if (!ShowUsbDialog(busDev, deviceName, bundleName, tokenId)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "ShowUsbDialog failed");
+        return false;
+    }
+
+    return HasRight(deviceName, bundleName, tokenId, userId);
+}
+
+bool UsbRightManager::ShowUsbDialog(
+    const std::string &busDev, const std::string &deviceName, const std::string &bundleName, const std::string &tokenId)
+{
+    auto abmc = AAFwk::AbilityManagerClient::GetInstance();
+    if (abmc == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetInstance failed");
+        return false;
+    }
+
+    std::string appName;
+    if (!GetAppName(bundleName, appName)) {
+        appName = bundleName;
+    }
+
+    std::string productName;
+    if (!GetProductName(busDev, productName)) {
+        productName = busDev;
+    }
+
+    AAFwk::Want want;
+    want.SetElementName("com.usb.right", "UsbServiceExtAbility");
+    want.SetParam("bundleName", bundleName);
+    want.SetParam("deviceName", busDev);
+    want.SetParam("tokenId", tokenId);
+    want.SetParam("appName", appName);
+    want.SetParam("productName", productName);
+
+    sptr<UsbAbilityConn> usbAbilityConn_ = new (std::nothrow) UsbAbilityConn();
+    if (usbAbilityConn_ == nullptr) {
+        USB_HILOGE(MODULE_SERVICE, "the UsbAbilityConn() construct failed");
+        return false;
+    }
+    sem_init(&waitDialogDisappear_, 1, 0);
+    auto ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
+        return false;
+    }
+    /* Waiting for the user to click */
+    sem_wait(&waitDialogDisappear_);
+    return true;
+}
+
+bool UsbRightManager::GetProductName(const std::string &devName, std::string &productName)
+{
+    auto usbService = UsbService::GetGlobalInstance();
+    if (usbService == nullptr) {
+        return false;
+    }
+    return usbService->GetDeviceProductName(devName, productName);
+}
+#endif // USB_MANAGER_FEATURE_HOST
 
 int32_t UsbRightManager::RequestRight(const USBAccessory &access, const std::string &seriaValue,
     const std::string &bundleName, const std::string &tokenId, const int32_t &userId, bool &result)
@@ -318,49 +390,6 @@ bool UsbRightManager::RemoveDeviceAllRight(const std::string &deviceName)
     return true;
 }
 
-bool UsbRightManager::ShowUsbDialog(
-    const std::string &busDev, const std::string &deviceName, const std::string &bundleName, const std::string &tokenId)
-{
-    auto abmc = AAFwk::AbilityManagerClient::GetInstance();
-    if (abmc == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetInstance failed");
-        return false;
-    }
-
-    std::string appName;
-    if (!GetAppName(bundleName, appName)) {
-        appName = bundleName;
-    }
-
-    std::string productName;
-    if (!GetProductName(busDev, productName)) {
-        productName = busDev;
-    }
-
-    AAFwk::Want want;
-    want.SetElementName("com.usb.right", "UsbServiceExtAbility");
-    want.SetParam("bundleName", bundleName);
-    want.SetParam("deviceName", busDev);
-    want.SetParam("tokenId", tokenId);
-    want.SetParam("appName", appName);
-    want.SetParam("productName", productName);
-
-    sptr<UsbAbilityConn> usbAbilityConn_ = new (std::nothrow) UsbAbilityConn();
-    if (usbAbilityConn_ == nullptr) {
-        USB_HILOGE(MODULE_SERVICE, "the UsbAbilityConn() construct failed");
-        return false;
-    }
-    sem_init(&waitDialogDisappear_, 1, 0);
-    auto ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
-        return false;
-    }
-    /* Waiting for the user to click */
-    sem_wait(&waitDialogDisappear_);
-    return true;
-}
-
 bool UsbRightManager::GetAccessoryName(const USBAccessory &access, std::string &accessName)
 {
     accessName = access.GetProduct();
@@ -409,22 +438,6 @@ bool UsbRightManager::ShowUsbDialog(const USBAccessory &access, const std::strin
     /* Waiting for the user to click */
     sem_wait(&waitDialogDisappear_);
     return true;
-}
-
-bool UsbRightManager::GetUserAgreementByDiag(const std::string &busDev, const std::string &deviceName,
-    const std::string &bundleName, const std::string &tokenId, const int32_t &userId)
-{
-#ifdef USB_RIGHT_TEST
-    return true;
-#endif
-    /* There can only be one dialog at a time */
-    std::lock_guard<std::mutex> guard(dialogRunning_);
-    if (!ShowUsbDialog(busDev, deviceName, bundleName, tokenId)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "ShowUsbDialog failed");
-        return false;
-    }
-
-    return HasRight(deviceName, bundleName, tokenId, userId);
 }
 
 bool UsbRightManager::GetUserAgreementByDiag(const USBAccessory &access, const std::string &seriaValue,
@@ -484,15 +497,6 @@ bool UsbRightManager::GetAppName(const std::string &bundleName, std::string &app
     }
     appName = info.label;
     return true;
-}
-
-bool UsbRightManager::GetProductName(const std::string &devName, std::string &productName)
-{
-    auto usbService = UsbService::GetGlobalInstance();
-    if (usbService == nullptr) {
-        return false;
-    }
-    return usbService->GetDeviceProductName(devName, productName);
 }
 
 bool UsbRightManager::IsSystemAppOrSa()

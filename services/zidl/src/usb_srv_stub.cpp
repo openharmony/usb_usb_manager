@@ -28,6 +28,7 @@
 using namespace OHOS::HDI::Usb::V1_2;
 namespace OHOS {
 namespace USB {
+#ifdef USB_MANAGER_FEATURE_HOST
 constexpr int32_t MAX_EDM_LIST_SIZE = 200;
 int32_t UsbServerStub::GetDeviceMessage(MessageParcel &data, uint8_t &busNum, uint8_t &devAddr)
 {
@@ -81,131 +82,69 @@ int32_t UsbServerStub::GetBufferMessage(MessageParcel &data, std::vector<uint8_t
     bufferData.swap(tdata);
     return UEC_OK;
 }
+#endif // USB_MANAGER_FEATURE_HOST
 
-bool UsbServerStub::WriteFileDescriptor(MessageParcel &data, int fd)
+int32_t UsbServerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    if (!data.WriteBool(fd >= 0 ? true : false)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: failed to write fd vailed", __func__);
-        return false;
+    USB_HILOGD(MODULE_USB_SERVICE, "UsbServerStub::OnRemoteRequest, cmd = %{public}u, flags = %{public}d", code,
+        option.GetFlags());
+    std::u16string descriptor = UsbServerStub::GetDescriptor();
+    std::u16string remoteDescriptor = data.ReadInterfaceToken();
+    if (descriptor != remoteDescriptor) {
+        USB_HILOGE(MODULE_SERVICE, "UsbServerStub::OnRemoteRequest failed, descriptor is not matched!");
+        return UEC_SERVICE_INNER_ERR;
     }
-    if (fd < 0) {
-        return true;
+
+    int32_t ret = 0;
+#ifdef USB_MANAGER_FEATURE_HOST
+    if (StubHostManage(code, ret, data, reply, option)) {
+        return ret;
     }
-    if (!data.WriteFileDescriptor(fd)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: failed to write fd", __func__);
-        return false;
+    if (StubHostTransfer(code, ret, data, reply, option)) {
+        return ret;
     }
-    return true;
+    if (StubHostRight(code, ret, data, reply, option)) {
+        return ret;
+    }
+#endif // USB_MANAGER_FEATURE_HOST
+#ifdef USB_MANAGER_FEATURE_DEVICE
+    if (StubDevice(code, ret, data, reply, option)) {
+        return ret;
+    }
+#endif // USB_MANAGER_FEATURE_DEVICE
+#ifdef USB_MANAGER_FEATURE_PORT
+    if (StubPort(code, ret, data, reply, option)) {
+        return ret;
+    }
+#endif // USB_MANAGER_FEATURE_PORT
+    return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
-bool UsbServerStub::StubDevice(
-    uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option)
-{
-    switch (code) {
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_OPEN_DEVICE):
-            result = DoOpenDevice(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_RESET_DEVICE):
-            result = DoResetDevice(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_HAS_RIGHT):
-            result = DoHasRight(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_REQUEST_RIGHT):
-            result = DoRequestRight(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_REMOVE_RIGHT):
-            result = DoRemoveRight(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_PORTS):
-            result = DoGetPorts(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_SUPPORTED_MODES):
-            result = DoGetSupportedModes(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_SET_PORT_ROLE):
-            result = DoSetPortRole(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_CLAIM_INTERFACE):
-            result = DoClaimInterface(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_ATTACH_KERNEL_DRIVER):
-            result = DoUsbAttachKernelDriver(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_DETACH_KERNEL_DRIVER):
-            result = DoUsbDetachKernelDriver(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_RELEASE_INTERFACE):
-            result = DoReleaseInterface(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_REG_BULK_CALLBACK):
-            result = DoRegBulkCallback(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_UNREG_BULK_CALLBACK):
-            result = DoUnRegBulkCallback(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_FILEDESCRIPTOR):
-            result = DoGetFileDescriptor(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_ADD_RIGHT):
-            result = DoAddRight(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_ADD_ACCESS_RIGHT):
-            result = DoAddAccessRight(data, reply, option);
-            return true;
-        default:;
-    }
-    return false;
-}
-
-bool UsbServerStub::StubHost(
+#ifdef USB_MANAGER_FEATURE_HOST
+bool UsbServerStub::StubHostManage(
     uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     switch (code) {
         case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_DEVICES):
             result = DoGetDevices(data, reply, option);
             return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_CURRENT_FUNCTIONS):
-            result = DoGetCurrentFunctions(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_SET_CURRENT_FUNCTIONS):
-            result = DoSetCurrentFunctions(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_USB_FUNCTIONS_FROM_STRING):
-            result = DoUsbFunctionsFromString(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_USB_FUNCTIONS_TO_STRING):
-            result = DoUsbFunctionsToString(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_CLOSE_DEVICE):
-            result = DoClose(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_REQUEST_QUEUE):
-            result = DoRequestQueue(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_REQUEST_WAIT):
-            result = DoRequestWait(data, reply, option);
-            return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_SET_INTERFACE):
             result = DoSetInterface(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_CLAIM_INTERFACE):
+            result = DoClaimInterface(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_RELEASE_INTERFACE):
+            result = DoReleaseInterface(data, reply, option);
             return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_SET_ACTIVE_CONFIG):
             result = DoSetActiveConfig(data, reply, option);
             return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_REQUEST_CANCEL):
-            result = DoRequestCancel(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_AYSNC_READ):
-            result = DoBulkRead(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_AYSNC_WRITE):
-            result = DoBulkWrite(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_AYSNC_CANCEL):
-            result = DoBulkCancel(data, reply, option);
-            return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_DESCRIPTOR):
             result = DoGetRawDescriptor(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_FILEDESCRIPTOR):
+            result = DoGetFileDescriptor(data, reply, option);
             return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_DISABLE_GLOBAL_INTERFACE):
             result = DoManageGlobalInterface(data, reply, option);
@@ -216,14 +155,17 @@ bool UsbServerStub::StubHost(
         case static_cast<int>(UsbInterfaceCode::USB_FUN_DISABLE_INTERFACE_TYPE):
             result = DoManageInterfaceType(data, reply, option);
             return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_CLEAR_HALT):
-            result = DoClearHalt(data, reply, option);
-            return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_DEVICE_SPEED):
             result = DoGetDeviceSpeed(data, reply, option);
             return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_DRIVER_ACTIVE_STATUS):
             result = DoGetInterfaceActiveStatus(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_OPEN_DEVICE):
+            result = DoOpenDevice(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_RESET_DEVICE):
+            result = DoResetDevice(data, reply, option);
             return true;
         default:;
     }
@@ -234,6 +176,21 @@ bool UsbServerStub::StubHostTransfer(uint32_t code, int32_t &result,
     MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     switch (code) {
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_AYSNC_READ):
+            result = DoBulkRead(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_AYSNC_WRITE):
+            result = DoBulkWrite(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_AYSNC_CANCEL):
+            result = DoBulkCancel(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REG_BULK_CALLBACK):
+            result = DoRegBulkCallback(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_UNREG_BULK_CALLBACK):
+            result = DoUnRegBulkCallback(data, reply, option);
+            return true;
         case static_cast<int>(UsbInterfaceCode::USB_FUN_BULK_TRANSFER_READ):
             result = DoBulkTransferRead(data, reply, option);
             return true;
@@ -255,95 +212,54 @@ bool UsbServerStub::StubHostTransfer(uint32_t code, int32_t &result,
         case static_cast<int>(UsbInterfaceCode::USB_FUN_CANCEL_TRANSFER):
             result = DoUsbCancelTransfer(data, reply, option);
             return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_ACCESSORY_LIST):
-            result = DoGetAccessoryList(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_OPEN_ACCESSORY):
-            result = DoOpenAccessory(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_CLOSE_ACCESSORY):
-            result = DoCloseAccessory(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_HAS_ACCESSORY_RIGHT):
-            result = DoHasAccessoryRight(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_REMOVE_ACCESSORY_RIGHT):
-            result = DoCancelAccessoryRight(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_ADD_ACCESSORY_RIGHT):
-            result = DoAddAccessoryRight(data, reply, option);
-            return true;
-        case static_cast<int>(UsbInterfaceCode::USB_FUN_REQUEST_ACCESSORY_RIGHT):
-            result = DoRequestAccessoryRight(data, reply, option);
-            return true;
         default:;
     }
     return false;
 }
 
-int32_t UsbServerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+bool UsbServerStub::StubHostRight(
+    uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    USB_HILOGD(MODULE_USB_SERVICE, "UsbServerStub::OnRemoteRequest, cmd = %{public}u, flags = %{public}d", code,
-        option.GetFlags());
-    std::u16string descriptor = UsbServerStub::GetDescriptor();
-    std::u16string remoteDescriptor = data.ReadInterfaceToken();
-    if (descriptor != remoteDescriptor) {
-        USB_HILOGE(MODULE_SERVICE, "UsbServerStub::OnRemoteRequest failed, descriptor is not matched!");
-        return UEC_SERVICE_INNER_ERR;
+    switch (code) {
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_HAS_RIGHT):
+            result = DoHasRight(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REQUEST_RIGHT):
+            result = DoRequestRight(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REMOVE_RIGHT):
+            result = DoRemoveRight(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_ADD_RIGHT):
+            result = DoAddRight(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_ADD_ACCESS_RIGHT):
+            result = DoAddAccessRight(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_ATTACH_KERNEL_DRIVER):
+            result = DoUsbAttachKernelDriver(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_DETACH_KERNEL_DRIVER):
+            result = DoUsbDetachKernelDriver(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_CLEAR_HALT):
+            result = DoClearHalt(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REQUEST_QUEUE):
+            result = DoRequestQueue(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REQUEST_WAIT):
+            result = DoRequestWait(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REQUEST_CANCEL):
+            result = DoRequestCancel(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_CLOSE_DEVICE):
+            result = DoClose(data, reply, option);
+            return true;
+        default:;
     }
-
-    int32_t ret = 0;
-    if (StubHost(code, ret, data, reply, option)) {
-        return ret;
-    } else if (StubDevice(code, ret, data, reply, option)) {
-        return ret;
-    } else if (StubHostTransfer(code, ret, data, reply, option)) {
-        return ret;
-    } else {
-        return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
-    }
-
-    return UEC_OK;
-}
-
-int32_t UsbServerStub::DoGetCurrentFunctions(MessageParcel &data, MessageParcel &reply, MessageOption &option)
-{
-    int32_t functions;
-    int32_t ret = GetCurrentFunctions(functions);
-    if (ret != UEC_OK) {
-        UsbReportSysEvent::ReportTransforFaultSysEvent("GetCurrentFunctions", {0, 0}, {0, 0}, ret);
-        return ret;
-    }
-    WRITE_PARCEL_WITH_RET(reply, Int32, functions, UEC_SERVICE_WRITE_PARCEL_ERROR);
-    return UEC_OK;
-}
-
-int32_t UsbServerStub::DoSetCurrentFunctions(MessageParcel &data, MessageParcel &reply, MessageOption &option)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_USB, "SetCurrentFunctions");
-    int32_t funcs;
-    READ_PARCEL_WITH_RET(data, Int32, funcs, UEC_SERVICE_READ_PARCEL_ERROR);
-    int32_t ret = SetCurrentFunctions(funcs);
-    if (ret != UEC_OK) {
-        UsbReportSysEvent::ReportTransforFaultSysEvent("SetCurrentFunctions", {0, 0}, {0, 0}, ret);
-    }
-    return ret;
-}
-
-int32_t UsbServerStub::DoUsbFunctionsFromString(MessageParcel &data, MessageParcel &reply, MessageOption &option)
-{
-    std::string funcs;
-    READ_PARCEL_WITH_RET(data, String, funcs, UEC_SERVICE_READ_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(reply, Int32, UsbFunctionsFromString(funcs), UEC_SERVICE_WRITE_PARCEL_ERROR);
-    return UEC_OK;
-}
-
-int32_t UsbServerStub::DoUsbFunctionsToString(MessageParcel &data, MessageParcel &reply, MessageOption &option)
-{
-    int32_t funcs;
-    READ_PARCEL_WITH_RET(data, Int32, funcs, UEC_SERVICE_READ_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(reply, String, UsbFunctionsToString(funcs), UEC_SERVICE_WRITE_PARCEL_ERROR);
-    return UEC_OK;
+    return false;
 }
 
 int32_t UsbServerStub::DoOpenDevice(MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -399,68 +315,6 @@ int32_t UsbServerStub::DoRemoveRight(MessageParcel &data, MessageParcel &reply, 
     READ_PARCEL_WITH_RET(data, String16, deviceName, UEC_SERVICE_READ_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(reply, Int32, RemoveRight(Str16ToStr8(deviceName)), UEC_SERVICE_WRITE_PARCEL_ERROR);
     return UEC_OK;
-}
-
-int32_t UsbServerStub::DoGetPorts(MessageParcel &data, MessageParcel &reply, MessageOption &option)
-{
-    std::vector<UsbPort> ports;
-    int32_t ret = GetPorts(ports);
-    USB_HILOGI(MODULE_SERVICE, "UsbServerStub::GetPorts ret %{public}d ", ret);
-    if (ret != UEC_OK) {
-        UsbReportSysEvent::ReportTransforFaultSysEvent("GetPorts", {0, 0}, {0, 0}, ret);
-        return ret;
-    }
-    uint32_t size = ports.size();
-    USB_HILOGI(MODULE_SERVICE, "UsbServerStub::GetPorts size %{public}d ", size);
-    WRITE_PARCEL_WITH_RET(reply, Int32, size, UEC_SERVICE_WRITE_PARCEL_ERROR);
-    for (uint32_t i = 0; i < size; ++i) {
-        ret = WriteUsbPort(reply, ports[i]);
-        if (ret) {
-            return ret;
-        }
-    }
-    return ret;
-}
-
-int32_t UsbServerStub::WriteUsbPort(MessageParcel &reply, const UsbPort &port)
-{
-    WRITE_PARCEL_WITH_RET(reply, Int32, port.id, UEC_SERVICE_WRITE_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(reply, Int32, port.supportedModes, UEC_SERVICE_WRITE_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(reply, Int32, port.usbPortStatus.currentMode, UEC_SERVICE_WRITE_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(reply, Int32, port.usbPortStatus.currentPowerRole, UEC_SERVICE_WRITE_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(reply, Int32, port.usbPortStatus.currentDataRole, UEC_SERVICE_WRITE_PARCEL_ERROR);
-    USB_HILOGI(MODULE_SERVICE, "UsbServerStub::GetPorts supportedModes %{public}d ", port.supportedModes);
-    return UEC_OK;
-}
-
-int32_t UsbServerStub::DoGetSupportedModes(MessageParcel &data, MessageParcel &reply, MessageOption &option)
-{
-    int32_t supportedModes = 0;
-    int32_t portId = 0;
-    READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
-    int32_t ret = GetSupportedModes(portId, supportedModes);
-    if (ret != UEC_OK) {
-        return ret;
-    }
-    WRITE_PARCEL_WITH_RET(reply, Int32, supportedModes, UEC_SERVICE_WRITE_PARCEL_ERROR);
-    return ret;
-}
-
-int32_t UsbServerStub::DoSetPortRole(MessageParcel &data, MessageParcel &reply, MessageOption &option)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_USB, "SetPortRole");
-    int32_t portId = 0;
-    int32_t powerRole = 0;
-    int32_t dataRole = 0;
-    READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
-    READ_PARCEL_WITH_RET(data, Int32, powerRole, UEC_SERVICE_READ_PARCEL_ERROR);
-    READ_PARCEL_WITH_RET(data, Int32, dataRole, UEC_SERVICE_READ_PARCEL_ERROR);
-    int32_t ret = SetPortRole(portId, powerRole, dataRole);
-    if (ret != UEC_OK) {
-        UsbReportSysEvent::ReportTransforFaultSysEvent("SetPortRole", {0, 0}, {0, 0}, ret);
-        return ret;
-    }
-    return ret;
 }
 
 int32_t UsbServerStub::DoClaimInterface(MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -899,31 +753,6 @@ int32_t UsbServerStub::DoGetDevices(MessageParcel &data, MessageParcel &reply, M
     return ret;
 }
 
-int32_t UsbServerStub::SetAccessoryListMessageParcel(std::vector<USBAccessory> &accessoryList, MessageParcel &data)
-{
-    int32_t accessoryCount = (int32_t)accessoryList.size();
-    WRITE_PARCEL_WITH_RET(data, Int32, accessoryCount, UEC_SERVICE_WRITE_PARCEL_ERROR);
-    for (int32_t i = 0; i < accessoryCount; ++i) {
-        int32_t ret = SetAccessoryMessageParcel(accessoryList[i], data);
-        if (ret) {
-            return ret;
-        }
-    }
-    return UEC_OK;
-}
-
-int32_t UsbServerStub::SetAccessoryMessageParcel(USBAccessory &accessoryInfo, MessageParcel &data)
-{
-    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetManufacturer(), UEC_SERVICE_WRITE_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetProduct(), UEC_SERVICE_WRITE_PARCEL_ERROR);
-
-    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetDescription(), UEC_SERVICE_WRITE_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetVersion(), UEC_SERVICE_WRITE_PARCEL_ERROR);
-
-    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetSerialNumber(), UEC_SERVICE_WRITE_PARCEL_ERROR);
-    return UEC_OK;
-}
-
 int32_t UsbServerStub::SetDeviceListMessageParcel(std::vector<UsbDevice> &deviceList, MessageParcel &data)
 {
     int32_t deviceCount = (int32_t)deviceList.size();
@@ -1304,6 +1133,115 @@ int32_t UsbServerStub::DoGetDeviceSpeed(MessageParcel &data, MessageParcel &repl
     USB_HILOGE(MODULE_USBD, "DoGetDeviceSpeed speed:%{public}u", speed);
     return ret;
 }
+#endif // USB_MANAGER_FEATURE_HOST
+
+#ifdef USB_MANAGER_FEATURE_DEVICE
+bool UsbServerStub::StubDevice(
+    uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    switch (code) {
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_CURRENT_FUNCTIONS):
+            result = DoGetCurrentFunctions(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_SET_CURRENT_FUNCTIONS):
+            result = DoSetCurrentFunctions(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_USB_FUNCTIONS_FROM_STRING):
+            result = DoUsbFunctionsFromString(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_USB_FUNCTIONS_TO_STRING):
+            result = DoUsbFunctionsToString(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_ACCESSORY_LIST):
+            result = DoGetAccessoryList(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_OPEN_ACCESSORY):
+            result = DoOpenAccessory(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_CLOSE_ACCESSORY):
+            result = DoCloseAccessory(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_HAS_ACCESSORY_RIGHT):
+            result = DoHasAccessoryRight(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REMOVE_ACCESSORY_RIGHT):
+            result = DoCancelAccessoryRight(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_ADD_ACCESSORY_RIGHT):
+            result = DoAddAccessoryRight(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REQUEST_ACCESSORY_RIGHT):
+            result = DoRequestAccessoryRight(data, reply, option);
+            return true;
+        default:;
+    }
+    return false;
+}
+
+int32_t UsbServerStub::DoGetCurrentFunctions(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    int32_t functions;
+    int32_t ret = GetCurrentFunctions(functions);
+    if (ret != UEC_OK) {
+        UsbReportSysEvent::ReportTransforFaultSysEvent("GetCurrentFunctions", {0, 0}, {0, 0}, ret);
+        return ret;
+    }
+    WRITE_PARCEL_WITH_RET(reply, Int32, functions, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
+}
+
+int32_t UsbServerStub::DoSetCurrentFunctions(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "SetCurrentFunctions");
+    int32_t funcs;
+    READ_PARCEL_WITH_RET(data, Int32, funcs, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = SetCurrentFunctions(funcs);
+    if (ret != UEC_OK) {
+        UsbReportSysEvent::ReportTransforFaultSysEvent("SetCurrentFunctions", {0, 0}, {0, 0}, ret);
+    }
+    return ret;
+}
+
+int32_t UsbServerStub::DoUsbFunctionsFromString(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    std::string funcs;
+    READ_PARCEL_WITH_RET(data, String, funcs, UEC_SERVICE_READ_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(reply, Int32, UsbFunctionsFromString(funcs), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
+}
+
+int32_t UsbServerStub::DoUsbFunctionsToString(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    int32_t funcs;
+    READ_PARCEL_WITH_RET(data, Int32, funcs, UEC_SERVICE_READ_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(reply, String, UsbFunctionsToString(funcs), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
+}
+
+int32_t UsbServerStub::SetAccessoryListMessageParcel(std::vector<USBAccessory> &accessoryList, MessageParcel &data)
+{
+    int32_t accessoryCount = (int32_t)accessoryList.size();
+    WRITE_PARCEL_WITH_RET(data, Int32, accessoryCount, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    for (int32_t i = 0; i < accessoryCount; ++i) {
+        int32_t ret = SetAccessoryMessageParcel(accessoryList[i], data);
+        if (ret) {
+            return ret;
+        }
+    }
+    return UEC_OK;
+}
+
+int32_t UsbServerStub::SetAccessoryMessageParcel(USBAccessory &accessoryInfo, MessageParcel &data)
+{
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetManufacturer(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetProduct(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetDescription(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetVersion(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+
+    WRITE_PARCEL_WITH_RET(data, String, accessoryInfo.GetSerialNumber(), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return UEC_OK;
+}
 
 int32_t UsbServerStub::DoGetAccessoryList(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -1321,6 +1259,7 @@ int32_t UsbServerStub::DoGetAccessoryList(MessageParcel &data, MessageParcel &re
     }
     return ret;
 }
+
 int32_t UsbServerStub::GetAccessoryMessageParcel(MessageParcel &data, USBAccessory &accessoryInfo)
 {
     std::string tmp;
@@ -1340,6 +1279,7 @@ int32_t UsbServerStub::GetAccessoryMessageParcel(MessageParcel &data, USBAccesso
     accessoryInfo.SetSerialNumber(tmp);
     return UEC_OK;
 }
+
 int32_t UsbServerStub::DoOpenAccessory(MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     USBAccessory accessory;
@@ -1443,5 +1383,106 @@ int32_t UsbServerStub::DoCancelAccessoryRight(MessageParcel &data, MessageParcel
     WRITE_PARCEL_WITH_RET(reply, Int32, ret, UEC_SERVICE_WRITE_PARCEL_ERROR);
     return ret;
 }
+#endif // USB_MANAGER_FEATURE_DEVICE
+
+#ifdef USB_MANAGER_FEATURE_PORT
+bool UsbServerStub::StubPort(
+    uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    switch (code) {
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_PORTS):
+            result = DoGetPorts(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_GET_SUPPORTED_MODES):
+            result = DoGetSupportedModes(data, reply, option);
+            return true;
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_SET_PORT_ROLE):
+            result = DoSetPortRole(data, reply, option);
+            return true;
+        default:;
+    }
+    return false;
+}
+
+int32_t UsbServerStub::DoGetPorts(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    std::vector<UsbPort> ports;
+    int32_t ret = GetPorts(ports);
+    USB_HILOGI(MODULE_SERVICE, "UsbServerStub::GetPorts ret %{public}d ", ret);
+    if (ret != UEC_OK) {
+        UsbReportSysEvent::ReportTransforFaultSysEvent("GetPorts", {0, 0}, {0, 0}, ret);
+        return ret;
+    }
+    uint32_t size = ports.size();
+    USB_HILOGI(MODULE_SERVICE, "UsbServerStub::GetPorts size %{public}d ", size);
+    WRITE_PARCEL_WITH_RET(reply, Int32, size, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    for (uint32_t i = 0; i < size; ++i) {
+        ret = WriteUsbPort(reply, ports[i]);
+        if (ret) {
+            return ret;
+        }
+    }
+    return ret;
+}
+
+int32_t UsbServerStub::WriteUsbPort(MessageParcel &reply, const UsbPort &port)
+{
+    WRITE_PARCEL_WITH_RET(reply, Int32, port.id, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(reply, Int32, port.supportedModes, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(reply, Int32, port.usbPortStatus.currentMode, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(reply, Int32, port.usbPortStatus.currentPowerRole, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(reply, Int32, port.usbPortStatus.currentDataRole, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    USB_HILOGI(MODULE_SERVICE, "UsbServerStub::GetPorts supportedModes %{public}d ", port.supportedModes);
+    return UEC_OK;
+}
+
+int32_t UsbServerStub::DoGetSupportedModes(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    int32_t supportedModes = 0;
+    int32_t portId = 0;
+    READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = GetSupportedModes(portId, supportedModes);
+    if (ret != UEC_OK) {
+        return ret;
+    }
+    WRITE_PARCEL_WITH_RET(reply, Int32, supportedModes, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    return ret;
+}
+
+int32_t UsbServerStub::DoSetPortRole(MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "SetPortRole");
+    int32_t portId = 0;
+    int32_t powerRole = 0;
+    int32_t dataRole = 0;
+    READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, powerRole, UEC_SERVICE_READ_PARCEL_ERROR);
+    READ_PARCEL_WITH_RET(data, Int32, dataRole, UEC_SERVICE_READ_PARCEL_ERROR);
+    int32_t ret = SetPortRole(portId, powerRole, dataRole);
+    if (ret != UEC_OK) {
+        UsbReportSysEvent::ReportTransforFaultSysEvent("SetPortRole", {0, 0}, {0, 0}, ret);
+        return ret;
+    }
+    return ret;
+}
+#endif // USB_MANAGER_FEATURE_PORT
+
+#if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
+bool UsbServerStub::WriteFileDescriptor(MessageParcel &data, int fd)
+{
+    if (!data.WriteBool(fd >= 0 ? true : false)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: failed to write fd vailed", __func__);
+        return false;
+    }
+    if (fd < 0) {
+        return true;
+    }
+    if (!data.WriteFileDescriptor(fd)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: failed to write fd", __func__);
+        return false;
+    }
+    return true;
+}
+#endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
 } // namespace USB
 } // namespace OHOS

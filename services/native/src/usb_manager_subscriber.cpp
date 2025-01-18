@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "usb_service_subscriber.h"
+#include "usb_manager_subscriber.h"
 #include "common_event_data.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
@@ -27,12 +27,12 @@
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::EventFwk;
-using namespace OHOS::HDI::Usb::V1_0;
+using namespace OHOS::HDI::Usb::V2_0;
 
 namespace OHOS {
 namespace USB {
-UsbServiceSubscriber::UsbServiceSubscriber() {}
-int32_t UsbServiceSubscriber::PortChangedEvent(const PortInfo &info)
+UsbManagerSubscriber::UsbManagerSubscriber() {}
+int32_t UsbManagerSubscriber::PortChangedEvent(const PortInfo &info)
 {
 #ifdef USB_MANAGER_FEATURE_PORT
     auto pms = UsbService::GetGlobalInstance();
@@ -65,19 +65,21 @@ int32_t UsbServiceSubscriber::PortChangedEvent(const PortInfo &info)
     }
     return isSuccess;
 #else
-    USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: Port feature is not supported.", __FUNCTION__);
+    USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: Port feature is not supported currently.", __FUNCTION__);
     return UEC_SERVICE_NOT_SUPPORT_SWITCH_PORT;
 #endif // USB_MANAGER_FEATURE_PORT
 }
 
-int32_t UsbServiceSubscriber::DeviceEvent(const USBDeviceInfo &info)
+int32_t UsbManagerSubscriber::DeviceEvent(const USBDeviceInfo &info)
 {
     auto pms = UsbService::GetGlobalInstance();
     if (pms == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "failed to GetInstance");
         return UEC_SERVICE_GET_USB_SERVICE_FAILED;
     }
-    return pms->DeviceEvent(info);
+
+    OHOS::HDI::Usb::V1_0::USBDeviceInfo deviceInfo {info.status, info.busNum, info.devNum};
+    return pms->DeviceEvent(deviceInfo);
 }
 } // namespace USB
 } // namespace OHOS

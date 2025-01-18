@@ -33,14 +33,11 @@ ohos_shared_library("usbsrv_client") {
 
   sources = [
     "${usb_manager_path}/services/zidl/src/usb_srv_proxy.cpp",
-    "${utils_path}/native/src/struct_parcel.cpp",
     "native/src/usb_device_pipe.cpp",
     "native/src/usb_interface_type.cpp",
     "native/src/usb_request.cpp",
     "native/src/usb_srv_client.cpp",
     "native/src/usbd_bulk_callback.cpp",
-    "native/src/usbd_callback_server.cpp",
-    "native/src/usbd_callback_stub.cpp",
   ]
 
   configs = [
@@ -48,6 +45,22 @@ ohos_shared_library("usbsrv_client") {
     ":usbsrv_private_config",
     ":usbsrv_public_config",
   ]
+
+  defines = []
+  if (usb_manager_feature_host) {
+    defines += [ "USB_MANAGER_FEATURE_HOST" ]
+    sources += [
+      "${utils_path}/native/src/struct_parcel.cpp",
+      "native/src/usbd_callback_server.cpp",
+      "native/src/usbd_callback_stub.cpp",
+    ]
+  }
+  if (usb_manager_feature_device) {
+    defines += [ "USB_MANAGER_FEATURE_DEVICE" ]
+  }
+  if (usb_manager_feature_port) {
+    defines += [ "USB_MANAGER_FEATURE_PORT" ]
+  }
 
   public_configs = [ ":usbsrv_public_config" ]
   public_external_deps = [

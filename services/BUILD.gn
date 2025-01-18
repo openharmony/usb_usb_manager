@@ -39,23 +39,13 @@ ohos_shared_library("usbservice") {
   install_enable = true
   sources = [
     "${usb_manager_path}/services/zidl/src/usb_srv_stub.cpp",
-    "${utils_path}/native/src/struct_parcel.cpp",
     "${utils_path}/native/src/usb_settings_datashare.cpp",
-    "native/src/usb_accessory_manager.cpp",
-    "native/src/usb_descriptor_parser.cpp",
-    "native/src/usb_device_manager.cpp",
-    "native/src/usb_function_switch_window.cpp",
-    "native/src/usb_host_manager.cpp",
-    "native/src/usb_port_manager.cpp",
     "native/src/usb_report_sys_event.cpp",
     "native/src/usb_right_database.cpp",
     "native/src/usb_right_db_helper.cpp",
     "native/src/usb_right_manager.cpp",
-    "native/src/usb_serial_reader.cpp",
     "native/src/usb_service.cpp",
     "native/src/usb_service_subscriber.cpp",
-    "native/src/usbd_bulkcallback_impl.cpp",
-    "native/src/usbd_transfer_callback_impl.cpp",
   ]
 
   configs = [
@@ -66,6 +56,39 @@ ohos_shared_library("usbservice") {
   public_configs = [ ":usbsrv_public_config" ]
 
   defines = []
+  if (usb_manager_pass_through) {
+    defines += [ "USB_MANAGER_PASS_THROUGH" ]
+    sources += [ "native/src/usb_manager_subscriber.cpp" ]
+  }
+  if (usb_manager_feature_host) {
+    defines += [ "USB_MANAGER_FEATURE_HOST" ]
+    sources += [
+      "${utils_path}/native/src/struct_parcel.cpp",
+      "native/src/usb_descriptor_parser.cpp",
+      "native/src/usb_host_manager.cpp",
+      "native/src/usb_serial_reader.cpp",
+      "native/src/usbd_bulkcallback_impl.cpp",
+      "native/src/usbd_transfer_callback_impl.cpp",
+    ]
+    if (usb_manager_pass_through) {
+      sources += [
+        "native/src/usb_bulkcallback_impl.cpp",
+        "native/src/usb_transfer_callback_impl.cpp",
+      ]
+    }
+  }
+  if (usb_manager_feature_device) {
+    defines += [ "USB_MANAGER_FEATURE_DEVICE" ]
+    sources += [
+      "native/src/usb_accessory_manager.cpp",
+      "native/src/usb_device_manager.cpp",
+      "native/src/usb_function_switch_window.cpp",
+    ]
+  }
+  if (usb_manager_feature_port) {
+    defines += [ "USB_MANAGER_FEATURE_PORT" ]
+    sources += [ "native/src/usb_port_manager.cpp" ]
+  }
 
   external_deps = [
     "ability_base:base",
@@ -97,6 +120,13 @@ ohos_shared_library("usbservice") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+  if (usb_manager_pass_through) {
+    external_deps += [
+      "drivers_interface_usb:libusb_proxy_2.0",
+      "drivers_peripheral_usb:libusb_device_interface_service_2.0",
+      "drivers_peripheral_usb:libusb_port_interface_service_2.0",
+    ]
+  }
 
   if (usb_manager_feature_pop_up_func_switch_model) {
     defines += [ "USB_FUNC_SWITCH_MODE" ]

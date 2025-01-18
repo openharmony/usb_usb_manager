@@ -39,8 +39,10 @@ public:
     bool HasRight(const std::string &deviceName, const std::string &bundleName,
         const std::string &tokenId, const int32_t &userId);
     /* busDev is in busNum-devAddr format */
+#ifdef USB_MANAGER_FEATURE_HOST
     int32_t RequestRight(const std::string &busDev, const std::string &deviceName, const std::string &bundleName,
         const std::string &tokenId, const int32_t &userId);
+#endif // USB_MANAGER_FEATURE_HOST
     int32_t RequestRight(const USBAccessory &access, const std::string &seriaValue, const std::string &bundleName,
         const std::string &tokenId, const int32_t &userId, bool &result);
     bool AddDeviceRight(const std::string &deviceName, const std::string &tokenIdStr);
@@ -61,19 +63,21 @@ public:
     int32_t HasSetFuncRight(int32_t functions);
 
 private:
+#ifdef USB_MANAGER_FEATURE_HOST
     bool GetUserAgreementByDiag(const std::string &busDev, const std::string &deviceName, const std::string &bundleName,
         const std::string &tokenId, const int32_t &userId);
-    bool GetUserAgreementByDiag(const USBAccessory &access, const std::string &seriaValue,
-        const std::string &bundleName, const std::string &tokenId, const int32_t &userId);
     bool ShowUsbDialog(const std::string &busDev, const std::string &deviceName,
         const std::string &bundleName, const std::string &tokenId);
+    bool GetProductName(const std::string &devName, std::string &productName);
+#endif // USB_MANAGER_FEATURE_HOST
+    bool GetUserAgreementByDiag(const USBAccessory &access, const std::string &seriaValue,
+        const std::string &bundleName, const std::string &tokenId, const int32_t &userId);
     bool ShowUsbDialog(const USBAccessory &access, const std::string &seriaValue,
         const std::string &bundleName, const std::string &tokenId);
     bool IsAllDigits(const std::string &bundleName);
     sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
     sptr<AppExecFwk::IBundleResource> GetBundleResMgr();
     bool GetAppName(const std::string &bundleName, std::string &appName);
-    bool GetProductName(const std::string &devName, std::string &productName);
     bool GetAccessoryName(const USBAccessory &access, std::string &accessName);
     static sem_t waitDialogDisappear_;
     class UsbAbilityConn : public AAFwk::AbilityConnectionStub {

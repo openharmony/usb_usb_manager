@@ -28,6 +28,9 @@
 #include "v1_0/iusbd_subscriber.h"
 #include "delayed_sp_singleton.h"
 #include "usb_right_manager.h"
+#ifdef USB_MANAGER_PASS_THROUGH
+#include "v2_0/iusb_device_interface.h"
+#endif // USB_MANAGER_PASS_THROUGH
 namespace OHOS {
 namespace USB {
 
@@ -50,7 +53,13 @@ public:
         std::string &serialValue);
     int32_t OpenAccessory(int32_t &fd);
     int32_t CloseAccessory(int32_t fd);
+#ifdef USB_MANAGER_PASS_THROUGH
+    bool InitUsbAccessoryInterface();
+#endif // USB_MANAGER_PASS_THROUGH
 private:
+    void GetAccessoryInfo(std::vector<std::string> &accessorys);
+    int32_t SetCurrentFunctions(int32_t funcs);
+    int32_t GetCurrentFunctions(int32_t funcs);
     void ProcessHandle(int32_t curAccStatus);
     int32_t ProcessAccessoryStart(int32_t curFunc, int32_t curAccStatus);
     int32_t ProcessAccessoryStop(int32_t curFunc, int32_t curAccStatus);
@@ -72,6 +81,9 @@ private:
     sptr<HDI::Usb::V1_2::IUsbInterface> usbdImpl_ = nullptr;
     std::map<char, int> base64Map_;
     std::mutex mutexHandleEvent_;
+#ifdef USB_MANAGER_PASS_THROUGH
+    sptr<HDI::Usb::V2_0::IUsbDeviceInterface> usbDeviceInterface_ = nullptr;
+#endif // USB_MANAGER_PASS_THROUGH
 };
 
 } // USB
