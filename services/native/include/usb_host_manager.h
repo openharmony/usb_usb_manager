@@ -157,10 +157,7 @@ private:
         UsbSubmitTransferDeathRecipient(const HDI::Usb::V1_0::UsbDev &devInfo, const int32_t endpoint,
             UsbHostManager *service, const sptr<IRemoteObject> cb)
             : devInfo_(devInfo), endpoint_(endpoint), service_(service), cb_(cb) {};
-        ~UsbSubmitTransferDeathRecipient()
-        {
-            cb_->RemoveDeathRecipient(this);
-        }
+        ~UsbSubmitTransferDeathRecipient() {};
         void OnRemoteDied(const wptr<IRemoteObject> &object) override;
     private:
         const HDI::Usb::V1_0::UsbDev devInfo_;
