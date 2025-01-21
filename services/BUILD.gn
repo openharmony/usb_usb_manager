@@ -40,13 +40,13 @@ ohos_shared_library("usbservice") {
   sources = [
     "${usb_manager_path}/services/zidl/src/usb_srv_stub.cpp",
     "${utils_path}/native/src/usb_settings_datashare.cpp",
+    "native/src/serial_manager.cpp",
     "native/src/usb_report_sys_event.cpp",
     "native/src/usb_right_database.cpp",
     "native/src/usb_right_db_helper.cpp",
     "native/src/usb_right_manager.cpp",
     "native/src/usb_service.cpp",
     "native/src/usb_service_subscriber.cpp",
-    "native/src/serial_manager.cpp",
   ]
 
   configs = [

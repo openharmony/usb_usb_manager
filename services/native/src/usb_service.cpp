@@ -1944,6 +1944,40 @@ bool UsbService::GetBundleName(std::string &bundleName)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
+bool UsbService::CheckManager(int fd, const std::vector<std::string> &argList)
+{
+#ifdef USB_MANAGER_FEATURE_HOST
+    if (usbHostManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
+        return false;
+    }
+    if (argList[0] == USB_HOST) {
+        usbHostManager_->Dump(fd, argList[1]);
+    }
+#endif // USB_MANAGER_FEATURE_HOST
+#ifdef USB_MANAGER_FEATURE_DEVICE
+    if (usbDeviceManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbDeviceManager_ is nullptr");
+        return false;
+    }
+    if (argList[0] == USB_DEVICE) {
+        usbDeviceManager_->Dump(fd, argList);
+    }
+#endif // USB_MANAGER_FEATURE_DEVICE
+#ifdef USB_MANAGER_FEATURE_PORT
+    if (usbPortManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbPortManager_ is nullptr");
+        return false;
+    }
+    if (argList[0] == USB_PORT) {
+        usbPortManager_->Dump(fd, argList);
+    }
+#endif // USB_MANAGER_FEATURE_PORT
+    return true;
+}
+// LCOV_EXCL_STOP
+
+// LCOV_EXCL_START
 int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
 {
     if (fd < 0) {
@@ -1966,29 +2000,9 @@ int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
         usbSerialManager_->ListGetDumpHelp(fd);
         return UEC_SERVICE_INVALID_VALUE;
     }
-#ifdef USB_MANAGER_FEATURE_HOST
-    if (usbHostManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
+    if (!CheckManager(fd, argList)) {
         return UEC_SERVICE_INVALID_VALUE;
     }
-    if (argList[0] == USB_HOST) {
-        usbHostManager_->Dump(fd, argList[1]);
-    }
-#endif // USB_MANAGER_FEATURE_HOST
-#ifdef USB_MANAGER_FEATURE_DEVICE
-    if (usbDeviceManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "usbDeviceManager_ is nullptr");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    if (argList[0] == USB_DEVICE) {
-        usbDeviceManager_->Dump(fd, argList);
-    }
-#endif // USB_MANAGER_FEATURE_DEVICE
-#ifdef USB_MANAGER_FEATURE_PORT
-    if (argList[0] == USB_PORT) {
-        usbPortManager_->Dump(fd, argList);
-    }
-#endif // USB_MANAGER_FEATURE_PORT
     if (argList[0] == USB_HELP) {
         DumpHelp(fd);
         usbSerialManager_->ListGetDumpHelp(fd);
