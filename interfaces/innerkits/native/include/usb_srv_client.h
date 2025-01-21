@@ -121,6 +121,7 @@ private:
     };
 
     int32_t Connect();
+    int32_t ConnectUnLocked();
     void ResetProxy(const wptr<IRemoteObject> &remote);
     sptr<IUsbSrv> proxy_ = nullptr;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ = nullptr;

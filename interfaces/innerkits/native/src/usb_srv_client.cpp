@@ -53,6 +53,11 @@ int32_t UsbSrvClient::Connect()
     if (proxy_ != nullptr) {
         return UEC_OK;
     }
+    return ConnectUnLocked();
+}
+
+int32_t UsbSrvClient::ConnectUnLocked()
+{
     sptr<ISystemAbilityManager> sm = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sm == nullptr) {
         USB_HILOGE(MODULE_USB_INNERKIT, "fail to get SystemAbilityManager");
@@ -82,21 +87,12 @@ void UsbSrvClient::ResetProxy(const wptr<IRemoteObject> &remote)
     auto serviceRemote = proxy_->AsObject();
     if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
         serviceRemote->RemoveDeathRecipient(deathRecipient_);
+        proxy_ = nullptr;
 
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_SERVICE_LOAD));
-
-        sptr<ISystemAbilityManager> sm = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        if (sm == nullptr) {
-            USB_HILOGE(MODULE_USB_INNERKIT, "fail to get SystemAbilityManager");
-            return;
-        }
-        sptr<IRemoteObject> remoteObject = sm->CheckSystemAbility(USB_SYSTEM_ABILITY_ID);
-        if (remoteObject == nullptr) {
-            USB_HILOGE(MODULE_USB_INNERKIT, "GetSystemAbility failed.");
-            proxy_ = nullptr;
-            return;
-        }
-        proxy_ = iface_cast<IUsbSrv>(remoteObject);
+        ConnectUnLocked();
+    } else {
+        USB_HILOGW(MODULE_USB_INNERKIT, "serviceRemote is null or serviceRemote != promote");
     }
 }
 
@@ -106,8 +102,8 @@ void UsbSrvClient::UsbSrvDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> 
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvDeathRecipient::OnRemoteDied failed, remote is nullptr.");
         return;
     }
-    UsbSrvClient::GetInstance().ResetProxy(remote);
     USB_HILOGI(MODULE_USB_INNERKIT, "UsbSrvDeathRecipient::Recv death notice.");
+    UsbSrvClient::GetInstance().ResetProxy(remote);
 }
 
 #ifdef USB_MANAGER_FEATURE_HOST
