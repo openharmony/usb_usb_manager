@@ -102,6 +102,8 @@ constexpr int32_t RANDOM_VALUE_INDICATE = -1;
 const int32_t IO_ERROR = -1;
 const int32_t INVALID_PARAM = -2;
 const int32_t NO_DEVICE = -4;
+const int32_t NOT_FOUND = -5;
+const int32_t ERROR_BUSY = -6;
 const int32_t NO_MEM = -11;
 const int32_t NOT_SUPPORT = -12;
 #ifdef USB_MANAGER_PASS_THROUGH
@@ -860,7 +862,12 @@ int32_t UsbHostManager::UsbCancelTransfer(const HDI::Usb::V1_0::UsbDev &devInfo,
         USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    return usbd_->UsbCancelTransfer(devInfo, endpoint);
+    int32_t ret = usbd_->UsbCancelTransfer(devInfo, endpoint);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbCancelTransfer error ret:%{public}d", ret);
+        return UsbSubmitTransferErrorCode(ret);
+    }
+    return ret;
 #endif // USB_MANAGER_PASS_THROUGH
 }
 
@@ -906,15 +913,20 @@ int32_t UsbHostManager::UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo,
     return ret;
 }
 
-int32_t UsbHostManager::UsbSubmitTransferErrorCode(int32_t &error)
+int32_t UsbService::UsbSubmitTransferErrorCode(int32_t &error)
 {
     switch (error) {
         case IO_ERROR:
             return USB_SUBMIT_TRANSFER_IO_ERROR;
         case INVALID_PARAM:
             return USB_SUBMIT_TRANSFER_INVALID_PARAM_ERROR;
+            return OHEC_COMMON_PARAM_ERROR;
         case NO_DEVICE:
             return USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR;
+        case NOT_FOUND:
+            return USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR;
+        case ERROR_BUSY:
+            return USB_SUBMIT_TRANSFER_RESOURCE_BUSY_ERROR;
         case NO_MEM:
             return USB_SUBMIT_TRANSFER_NO_MEM_ERROR;
         case NOT_SUPPORT:

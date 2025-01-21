@@ -48,10 +48,8 @@ static constexpr int32_t INDEX_0 = 0;
 static constexpr int32_t INDEX_1 = 1;
 static constexpr int32_t INDEX_2 = 2;
 static constexpr int32_t INDEX_3 = 3;
-static constexpr int32_t STATUS_ZERO = 0;
 static constexpr int32_t STATUS_ONE = 1;
 static constexpr int32_t STATUS_TWO = 2;
-static constexpr int32_t STATUS_THREE = 3;
 static constexpr int32_t STATUS_FOUR = 4;
 static constexpr int32_t STATUS_FIVE = 5;
 static constexpr int32_t STATUS_SIX = 6;
@@ -1992,7 +1990,7 @@ static bool ParseTransferParams(const napi_env &env, const napi_value &object,
         return false;
     }
 
-    NapiUtil::JsObjectToUint(env, object, "numIsoPackets", asyncContext->numIsoPackets);
+    NapiUtil::JsObjectToUint(env, object, "isoPacketCount", asyncContext->numIsoPackets);
     return true;
 }
 
@@ -2023,19 +2021,15 @@ static napi_value ErrorCodeInput(napi_env env, int32_t status)
 {
     napi_value error = nullptr;
     switch (status) {
-        case STATUS_ZERO:
-            napi_create_int32(env, USB_SUBMIT_TRANSFER_OPERATION_SUCCESSFUL, &error);
-            return error;
         case STATUS_ONE:
             napi_create_int32(env, USB_SUBMIT_TRANSFER_IO_ERROR, &error);
             return error;
         case STATUS_TWO:
             napi_create_int32(env, USB_SUBMIT_TRANSFER_TIMEOUT_ERROR, &error);
             return error;
-        case STATUS_THREE:
-            napi_create_int32(env, USB_SUBMIT_TRANSFER_IO_ERROR, &error);
-            return error;
         case STATUS_FOUR:
+            napi_create_int32(env, USB_SUBMIT_TRANSFER_PIPE_ERROR, &error);
+            return error;
         case STATUS_FIVE:
             napi_create_int32(env, USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR, &error);
             return error;
@@ -2043,7 +2037,7 @@ static napi_value ErrorCodeInput(napi_env env, int32_t status)
             napi_create_int32(env, USB_SUBMIT_TRANSFER_OVERFLOW_ERROR, &error);
             return error;
         default:
-            napi_create_int32(env, USB_SUBMIT_TRANSFER_OTHER_ERROR, &error);
+            napi_create_int32(env, USB_SUBMIT_TRANSFER_OPERATION_SUCCESSFUL, &error);
             return error;
     }
 }
@@ -2079,12 +2073,12 @@ static napi_value ParmsInput(napi_env env, AsyncCallBackContext &asyncCBWork)
         napi_create_int32(env, asyncCBWork.isoInfo[i].isoLength, &isoLength);
         napi_create_int32(env, asyncCBWork.isoInfo[i].isoActualLength, &isoActualLength);
         napi_create_int32(env, asyncCBWork.isoInfo[i].isoStatus, &isoStatus);
-        napi_set_named_property(env, iso, "isoLength", isoLength);
-        napi_set_named_property(env, iso, "isoActualLength", isoActualLength);
-        napi_set_named_property(env, iso, "isoStatus", isoStatus);
+        napi_set_named_property(env, iso, "length", isoLength);
+        napi_set_named_property(env, iso, "actualLength", isoActualLength);
+        napi_set_named_property(env, iso, "status", isoStatus);
         napi_set_element(env, isoObjArray, i, iso);
     }
-    napi_set_named_property(env, res, "isoPacketDesc", isoObjArray);
+    napi_set_named_property(env, res, "isoPacketDescs", isoObjArray);
     return res;
 }
 
@@ -2174,7 +2168,7 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
     if (!GetTransferParamsFromJsObj(env, info, asyncContext)) {
         USB_HILOGE(MODULE_JS_NAPI, "end call invalid arg");
         asyncContext->status = napi_invalid_arg;
-        napi_create_int32(env, USB_SUBMIT_TRANSFER_GET_PARAMS_ERROR, &result);
+        napi_create_int32(env, OHEC_COMMON_PARAM_ERROR, &result);
         return result;
     }
     asyncContext->env = env;
@@ -2268,13 +2262,13 @@ static napi_value UsbCancelTransfer(napi_env env, napi_callback_info info)
     if (!GetCancelParamsFromJsObj(env, info, asyncContext)) {
         USB_HILOGE(MODULE_JS_NAPI, "end call invalid arg");
         asyncContext->status = napi_invalid_arg;
-        napi_create_int32(env, USB_SUBMIT_TRANSFER_GET_PARAMS_ERROR, &result);
+        napi_create_int32(env, OHEC_COMMON_PARAM_ERROR, &result);
         return result;
     }
 
     int32_t ret = asyncContext->pipe.UsbCancelTransfer(asyncContext->endpoint);
     if (ret != napi_ok) {
-        napi_create_int32(env, USB_SUBMIT_TRANSFER_IO_ERROR, &result);
+        napi_create_int32(env, ret, &result);
         return result;
     }
     return nullptr;

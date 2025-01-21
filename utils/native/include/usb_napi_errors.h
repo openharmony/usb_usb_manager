@@ -42,14 +42,15 @@ enum UsbJsErrCode : int32_t {
 
     USB_SUBMIT_TRANSFER_OPERATION_SUCCESSFUL = 14400006,
     USB_SUBMIT_TRANSFER_IO_ERROR = 14400007,
-    USB_SUBMIT_TRANSFER_INVALID_PARAM_ERROR = 14400008,
+    USB_SUBMIT_TRANSFER_RESOURCE_BUSY_ERROR = 14400008,
     USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR =  14400009,
     USB_SUBMIT_TRANSFER_TIMEOUT_ERROR = 14400010,
     USB_SUBMIT_TRANSFER_OTHER_ERROR = 14400011,
     USB_SUBMIT_TRANSFER_OVERFLOW_ERROR = 14400012,
     USB_SUBMIT_TRANSFER_NO_MEM_ERROR = 14400013,
-    USB_SUBMIT_TRANSFER_NOT_SUPPORT = 144000154,
-    USB_SUBMIT_TRANSFER_GET_PARAMS_ERROR = 14400015,
+    USB_SUBMIT_TRANSFER_NOT_SUPPORT = 14400014,
+    USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR = 14400015,
+    USB_SUBMIT_TRANSFER_PIPE_ERROR = 14400016,
 };
 
 const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
@@ -71,16 +72,17 @@ const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
     {UEC_ACCESSORY_OPEN_FAILED, "BusinessError 14401002:Failed to open the native accessory node."},
     {UEC_ACCESSORY_CAN_NOT_REOPEN,    "BusinessError 14401003:Cannot reopen the accessory."},
 
-    {USB_SUBMIT_TRANSFER_OPERATION_SUCCESSFUL, "BusinessError 14400006:operation successful."},
-    {USB_SUBMIT_TRANSFER_IO_ERROR, "BusinessError 14400007:Input/output error."},
-    {USB_SUBMIT_TRANSFER_INVALID_PARAM_ERROR, "BusinessError 14400008:Invalid parameter."},
+    {USB_SUBMIT_TRANSFER_OPERATION_SUCCESSFUL, "BusinessError 14400006:Submit transmission operation successful."},
+    {USB_SUBMIT_TRANSFER_IO_ERROR, "BusinessError 14400007:Transmission I/O error."},
+    {USB_SUBMIT_TRANSFER_RESOURCE_BUSY_ERROR, "BusinessError 14400008:Resource busy."},
     {USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR, "BusinessError 14400009:No such device (it may have been disconnected)."},
-    {USB_SUBMIT_TRANSFER_TIMEOUT_ERROR, "BusinessError 14400010:Operation timed out."},
+    {USB_SUBMIT_TRANSFER_TIMEOUT_ERROR, "BusinessError 14400010:Transmission time out error."},
     {USB_SUBMIT_TRANSFER_OTHER_ERROR, "BusinessError 14400011:Other error."},
-    {USB_SUBMIT_TRANSFER_OVERFLOW_ERROR, "BusinessError 14400012:Overflow error."},
+    {USB_SUBMIT_TRANSFER_OVERFLOW_ERROR, "BusinessError 14400012:Transmission overflow error."},
     {USB_SUBMIT_TRANSFER_NO_MEM_ERROR, "BusinessError 14400013:Insufficient memory."},
-    {USB_SUBMIT_TRANSFER_NOT_SUPPORT, "BusinessError 14400014:interface does not support."},
-    {USB_SUBMIT_TRANSFER_GET_PARAMS_ERROR, "BusinessError 14400015:napi get params error."},
+    {USB_SUBMIT_TRANSFER_NOT_SUPPORT, "BusinessError 14400014:Interface does not support."},
+    {USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR, "BusinessError 14400015:Entity not found."},
+    {USB_SUBMIT_TRANSFER_PIPE_ERROR, "BusinessError 14400016:Pipe error."},
 };
 
 void ThrowBusinessError(const napi_env &env, int32_t errCode, const std::string &errMsg);
