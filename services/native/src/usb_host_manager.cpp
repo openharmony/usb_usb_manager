@@ -913,13 +913,12 @@ int32_t UsbHostManager::UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo,
     return ret;
 }
 
-int32_t UsbService::UsbSubmitTransferErrorCode(int32_t &error)
+int32_t UsbHostManager::UsbSubmitTransferErrorCode(int32_t &error)
 {
     switch (error) {
         case IO_ERROR:
             return USB_SUBMIT_TRANSFER_IO_ERROR;
         case INVALID_PARAM:
-            return USB_SUBMIT_TRANSFER_INVALID_PARAM_ERROR;
             return OHEC_COMMON_PARAM_ERROR;
         case NO_DEVICE:
             return USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR;
