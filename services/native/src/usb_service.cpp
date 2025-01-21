@@ -2403,7 +2403,7 @@ bool UsbService::HasSerialRight(int32_t portId)
     }
 
     if (usbRightManager_->IsSystemAppOrSa()) {
-        USB_HILOGW(MODULE_USB_SERVICE, "system app, bypass: dev=%{public}s", deviceName.c_str());
+        USB_HILOGW(MODULE_USB_SERVICE, "system app, bypass: dev=%{public}s ", deviceName.c_str());
         return false;
     }
 
