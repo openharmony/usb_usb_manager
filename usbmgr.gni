@@ -19,4 +19,8 @@ utils_path = "${usb_manager_path}/utils"
 
 declare_args() {
   usb_manager_feature_pop_up_func_switch_model = true
+  usb_manager_feature_host = true
+  usb_manager_feature_device = true
+  usb_manager_feature_port = true
+  usb_manager_pass_through = false
 }

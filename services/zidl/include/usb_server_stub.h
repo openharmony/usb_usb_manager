@@ -35,24 +35,18 @@ public:
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
 private:
-    bool StubHost(uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option);
-    bool StubDevice(uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option);
-    bool StubHostTransfer(uint32_t code, int32_t &result,
-        MessageParcel &data, MessageParcel &reply, MessageOption &option);
-
-    int32_t DoGetCurrentFunctions(MessageParcel &data, MessageParcel &reply, MessageOption &option);
-    int32_t DoSetCurrentFunctions(MessageParcel &data, MessageParcel &reply, MessageOption &option);
-    int32_t DoUsbFunctionsFromString(MessageParcel &data, MessageParcel &reply, MessageOption &option);
-    int32_t DoUsbFunctionsToString(MessageParcel &data, MessageParcel &reply, MessageOption &option);
-
+#ifdef USB_MANAGER_FEATURE_HOST
+    bool StubHostManage(
+        uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    bool StubHostTransfer(
+        uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    bool StubHostRight(
+        uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoOpenDevice(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoResetDevice(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoHasRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoRequestRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoRemoveRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
-    int32_t DoGetPorts(MessageParcel &data, MessageParcel &reply, MessageOption &option);
-    int32_t DoGetSupportedModes(MessageParcel &data, MessageParcel &reply, MessageOption &option);
-    int32_t DoSetPortRole(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoClaimInterface(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoUsbAttachKernelDriver(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoUsbDetachKernelDriver(MessageParcel &data, MessageParcel &reply, MessageOption &option);
@@ -73,9 +67,6 @@ private:
 
     int32_t DoClose(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoGetDevices(MessageParcel &data, MessageParcel &reply, MessageOption &option);
-
-    int32_t WriteUsbPort(MessageParcel &reply, const UsbPort &port);
-
     int32_t GetDeviceMessage(MessageParcel &data, uint8_t &busNum, uint8_t &devAddr);
     int32_t SetBufferMessage(MessageParcel &data, const std::vector<uint8_t> &bufferData);
     int32_t GetBufferMessage(MessageParcel &data, std::vector<uint8_t> &bufferData);
@@ -104,6 +95,13 @@ private:
 
     int32_t DoGetDeviceSpeed(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoGetInterfaceActiveStatus(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+#endif // USB_MANAGER_FEATURE_HOST
+#ifdef USB_MANAGER_FEATURE_DEVICE
+    bool StubDevice(uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoGetCurrentFunctions(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoSetCurrentFunctions(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoUsbFunctionsFromString(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoUsbFunctionsToString(MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
     int32_t DoAddAccessoryRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoHasAccessoryRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
@@ -115,8 +113,18 @@ private:
     int32_t SetAccessoryListMessageParcel(std::vector<USBAccessory> &accessoryList, MessageParcel &data);
     int32_t SetAccessoryMessageParcel(USBAccessory &accessoryInfo, MessageParcel &data);
     int32_t GetAccessoryMessageParcel(MessageParcel &data, USBAccessory &accessoryInfo);
+#endif // USB_MANAGER_FEATURE_DEVICE
+#ifdef USB_MANAGER_FEATURE_PORT
+    bool StubPort(uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoGetPorts(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoGetSupportedModes(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoSetPortRole(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t WriteUsbPort(MessageParcel &reply, const UsbPort &port);
+#endif // USB_MANAGER_FEATURE_PORT
+#if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
     bool WriteFileDescriptor(MessageParcel &data, int fd);
-
+#endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
+    bool StubSerial(uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoSerialOpen(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoSerialClose(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoSerialRead(MessageParcel &data, MessageParcel &reply, MessageOption &option);

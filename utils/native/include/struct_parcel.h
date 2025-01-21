@@ -18,6 +18,9 @@
 
 #include "parcel.h"
 #include "v1_2/usb_types.h"
+#ifdef USB_MANAGER_PASS_THROUGH
+#include "v2_0/usb_types.h"
+#endif // USB_MANAGER_PASS_THROUGH
 
 namespace OHOS {
 namespace USB {
@@ -38,6 +41,23 @@ struct UsbIsoVecParcel final : public Parcelable {
     std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> isoInfoVec;
 };
 
+#ifdef USB_MANAGER_PASS_THROUGH
+struct UsbPassIsoParcel final : public Parcelable {
+    UsbPassIsoParcel() = default;
+    ~UsbPassIsoParcel() = default;
+    bool Marshalling(Parcel &out) const override;
+    static UsbPassIsoParcel *Unmarshalling(Parcel &in);
+    HDI::Usb::V2_0::UsbIsoPacketDescriptor isoInfo;
+};
+
+struct UsbPassIsoVecParcel final : public Parcelable {
+    UsbPassIsoVecParcel() = default;
+    ~UsbPassIsoVecParcel() = default;
+    bool Marshalling(Parcel &out) const override;
+    static UsbPassIsoVecParcel *Unmarshalling(Parcel &in);
+    std::vector<HDI::Usb::V2_0::UsbIsoPacketDescriptor> isoInfoVec;
+};
+#endif // USB_MANAGER_PASS_THROUGH
 } // namespace USB
 } // namespace OHOS
 #endif // USB_STRUCT_PARCEL_H

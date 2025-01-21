@@ -40,7 +40,9 @@ namespace OHOS {
 namespace USB {
 namespace Core {
 constexpr int32_t SLEEP_TIME = 3;
+#ifdef USB_MANAGER_FEATURE_DEVICE
 constexpr int32_t USB_FUNCTION_INVALID = -1;
+#endif // USB_MANAGER_FEATURE_DEVICE
 constexpr int32_t USB_PORT_ID_INVALID = 5;
 constexpr int32_t USB_POWER_ROLE_INVALID = 5;
 constexpr int32_t USB_DATA_ROLE_INVALID = 5;
@@ -70,6 +72,7 @@ void UsbCoreTest::SetUp(void) {}
 
 void UsbCoreTest::TearDown(void) {}
 
+#ifdef USB_MANAGER_FEATURE_DEVICE
 /**
  * @tc.name: GetCurrentFunctions001
  * @tc.desc: Test functions to GetCurrentFunctions()
@@ -563,6 +566,7 @@ HWTEST_F(UsbCoreTest, UsbFunctionsToString005, TestSize.Level1)
     ASSERT_TRUE(!(funcName.empty()));
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : UsbFunctionsToString005 : SetConfig");
 }
+#endif // USB_MANAGER_FEATURE_DEVICE
 
 /**
  * @tc.name: GetPorts001

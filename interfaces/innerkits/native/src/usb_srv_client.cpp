@@ -31,7 +31,10 @@ using namespace OHOS::HDI::Usb::V1_2;
 namespace OHOS {
 namespace USB {
 constexpr uint32_t WAIT_SERVICE_LOAD = 500;
+#ifdef USB_MANAGER_FEATURE_HOST
 constexpr int32_t READ_BUF_SIZE = 8192;
+constexpr int32_t INVALID_PARAM = 14400015;
+#endif // USB_MANAGER_FEATURE_HOST
 UsbSrvClient::UsbSrvClient()
 {
     Connect();
@@ -107,6 +110,7 @@ void UsbSrvClient::UsbSrvDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> 
     USB_HILOGI(MODULE_USB_INNERKIT, "UsbSrvDeathRecipient::Recv death notice.");
 }
 
+#ifdef USB_MANAGER_FEATURE_HOST
 int32_t UsbSrvClient::OpenDevice(const UsbDevice &device, USBDevicePipe &pipe)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "Calling OpenDevice Start!");
@@ -173,82 +177,6 @@ int32_t UsbSrvClient::GetDevices(std::vector<UsbDevice> &deviceList)
         return ret;
     }
     USB_HILOGI(MODULE_USB_INNERKIT, "GetDevices deviceList size = %{public}zu!", deviceList.size());
-    return ret;
-}
-
-int32_t UsbSrvClient::GetCurrentFunctions(int32_t &funcs)
-{
-    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
-    int32_t ret = proxy_->GetCurrentFunctions(funcs);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
-        return ret;
-    }
-    USB_HILOGI(MODULE_USB_INNERKIT, " Calling GetCurrentFunctions Success!");
-    USB_HILOGI(MODULE_USB_INNERKIT, "GetCurrentFunctions funcs = %{public}d!", funcs);
-    return ret;
-}
-
-int32_t UsbSrvClient::SetCurrentFunctions(int32_t funcs)
-{
-    USB_HILOGI(MODULE_USB_INNERKIT, "SetCurrentFunctions funcs = %{public}d!", funcs);
-    RETURN_IF_WITH_RET(Connect() != UEC_OK, false);
-    int32_t ret = proxy_->SetCurrentFunctions(funcs);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
-        return ret;
-    }
-    USB_HILOGI(MODULE_USB_INNERKIT, " Calling SetCurrentFunctions Success!");
-    return ret;
-}
-
-int32_t UsbSrvClient::UsbFunctionsFromString(std::string_view funcs)
-{
-    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
-    int32_t result = proxy_->UsbFunctionsFromString(funcs);
-    USB_HILOGI(MODULE_USB_INNERKIT, " Calling UsbFunctionsFromString Success!");
-    return result;
-}
-
-std::string UsbSrvClient::UsbFunctionsToString(int32_t funcs)
-{
-    std::string result;
-    RETURN_IF_WITH_RET(Connect() != UEC_OK, result);
-    result = proxy_->UsbFunctionsToString(funcs);
-    USB_HILOGI(MODULE_USB_INNERKIT, " Calling UsbFunctionsToString Success!");
-    return result;
-}
-
-int32_t UsbSrvClient::GetPorts(std::vector<UsbPort> &usbports)
-{
-    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
-    USB_HILOGI(MODULE_USB_INNERKIT, " Calling GetPorts");
-    int32_t ret = proxy_->GetPorts(usbports);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
-    }
-    return ret;
-}
-
-int32_t UsbSrvClient::GetSupportedModes(int32_t portId, int32_t &result)
-{
-    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
-    USB_HILOGI(MODULE_USB_INNERKIT, " Calling GetSupportedModes");
-    int32_t ret = proxy_->GetSupportedModes(portId, result);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
-    }
-    return ret;
-}
-
-int32_t UsbSrvClient::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole)
-{
-    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
-    USB_HILOGI(MODULE_USB_INNERKIT, "Calling SetPortRole");
-    int32_t ret = proxy_->SetPortRole(portId, powerRole, dataRole);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
-    }
     return ret;
 }
 
@@ -446,11 +374,11 @@ int32_t UsbSrvClient::UsbSubmitTransfer(USBDevicePipe &pip, HDI::Usb::V1_2::USBT
 {
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
     const UsbDev tdev = {pip.GetBusNum(), pip.GetDevAddr()};
-    sptr<UsbdCallBackServer> callBackService_ = nullptr;
-    if (cb != nullptr) {
-        callBackService_ = new UsbdCallBackServer(cb);
+    if (cb == nullptr) {
+        return INVALID_PARAM;
     }
-    int32_t ret = proxy_->UsbSubmitTransfer(tdev, info, callBackService_, ashmem);
+    sptr<UsbdCallBackServer> callBackService = new UsbdCallBackServer(cb);
+    int32_t ret = proxy_->UsbSubmitTransfer(tdev, info, callBackService, ashmem);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSubmitTransfer failed with ret = %{public}d", ret);
     }
@@ -599,6 +527,283 @@ int32_t UsbSrvClient::GetInterfaceActiveStatus(USBDevicePipe &pipe, const UsbInt
     }
     return ret;
 }
+#else
+int32_t UsbSrvClient::OpenDevice(const UsbDevice &device, USBDevicePipe &pipe)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::ResetDevice(const UsbDevice &device, USBDevicePipe &pipe)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+bool UsbSrvClient::HasRight(const std::string deviceName)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return false;
+}
+
+int32_t UsbSrvClient::RequestRight(const std::string deviceName)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::RemoveRight(const std::string deviceName)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::GetDevices(std::vector<UsbDevice> &deviceList)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::ClaimInterface(USBDevicePipe &pipe, const UsbInterface &interface, bool force)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::UsbAttachKernelDriver(USBDevicePipe &pipe, const UsbInterface &interface)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::UsbDetachKernelDriver(USBDevicePipe &pipe, const UsbInterface &interface)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::ReleaseInterface(USBDevicePipe &pipe, const UsbInterface &interface)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::BulkTransfer(
+    USBDevicePipe &pipe, const USBEndpoint &endpoint, std::vector<uint8_t> &bufferData, int32_t timeOut)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::ControlTransfer(
+    USBDevicePipe &pipe, const UsbCtrlTransfer &ctrl, std::vector<uint8_t> &bufferData)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::UsbControlTransfer(USBDevicePipe &pipe, const HDI::Usb::V1_2::UsbCtrlTransferParams &ctrlParams,
+    std::vector<uint8_t> &bufferData)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::SetConfiguration(USBDevicePipe &pipe, const USBConfig &config)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::SetInterface(USBDevicePipe &pipe, const UsbInterface &interface)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::GetRawDescriptors(USBDevicePipe &pipe, std::vector<uint8_t> &bufferData)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::GetFileDescriptor(USBDevicePipe &pipe, int32_t &fd)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+bool UsbSrvClient::Close(const USBDevicePipe &pipe)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return false;
+}
+
+int32_t UsbSrvClient::PipeRequestWait(USBDevicePipe &pipe, int64_t timeOut, UsbRequest &req)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::RequestInitialize(UsbRequest &request)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::RequestFree(UsbRequest &request)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::RequestAbort(UsbRequest &request)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::RequestQueue(UsbRequest &request)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::UsbCancelTransfer(USBDevicePipe &pip, const int32_t &endpoint)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::UsbSubmitTransfer(USBDevicePipe &pip, HDI::Usb::V1_2::USBTransferInfo &info,
+    const TransferCallback &cb, sptr<Ashmem> &ashmem)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::RegBulkCallback(USBDevicePipe &pip, const USBEndpoint &endpoint, const sptr<IRemoteObject> &cb)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::UnRegBulkCallback(USBDevicePipe &pip, const USBEndpoint &endpoint)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::BulkRead(USBDevicePipe &pip, const USBEndpoint &endpoint, sptr<Ashmem> &ashmem)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::BulkWrite(USBDevicePipe &pip, const USBEndpoint &endpoint, sptr<Ashmem> &ashmem)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::BulkCancel(USBDevicePipe &pip, const USBEndpoint &endpoint)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::AddRight(const std::string &bundleName, const std::string &deviceName)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::AddAccessRight(const std::string &tokenId, const std::string &deviceName)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::ManageGlobalInterface(bool disable)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::ManageDevice(int32_t vendorId, int32_t productId, bool disable)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::ClearHalt(USBDevicePipe &pipe, const USBEndpoint &ep)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::GetDeviceSpeed(USBDevicePipe &pipe, uint8_t &speed)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::GetInterfaceActiveStatus(USBDevicePipe &pipe, const UsbInterface &interface, bool &unactivated)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_HOST_NOT_SUPPORT;
+}
+#endif // USB_MANAGER_FEATURE_HOST
+
+#ifdef USB_MANAGER_FEATURE_DEVICE
+int32_t UsbSrvClient::GetCurrentFunctions(int32_t &funcs)
+{
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    int32_t ret = proxy_->GetCurrentFunctions(funcs);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
+        return ret;
+    }
+    USB_HILOGI(MODULE_USB_INNERKIT, " Calling GetCurrentFunctions Success!");
+    USB_HILOGI(MODULE_USB_INNERKIT, "GetCurrentFunctions funcs = %{public}d!", funcs);
+    return ret;
+}
+
+int32_t UsbSrvClient::SetCurrentFunctions(int32_t funcs)
+{
+    USB_HILOGI(MODULE_USB_INNERKIT, "SetCurrentFunctions funcs = %{public}d!", funcs);
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, false);
+    int32_t ret = proxy_->SetCurrentFunctions(funcs);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
+        return ret;
+    }
+    USB_HILOGI(MODULE_USB_INNERKIT, " Calling SetCurrentFunctions Success!");
+    return ret;
+}
+
+int32_t UsbSrvClient::UsbFunctionsFromString(std::string_view funcs)
+{
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    int32_t result = proxy_->UsbFunctionsFromString(funcs);
+    USB_HILOGI(MODULE_USB_INNERKIT, " Calling UsbFunctionsFromString Success!");
+    return result;
+}
+
+std::string UsbSrvClient::UsbFunctionsToString(int32_t funcs)
+{
+    std::string result;
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, result);
+    result = proxy_->UsbFunctionsToString(funcs);
+    USB_HILOGI(MODULE_USB_INNERKIT, " Calling UsbFunctionsToString Success!");
+    return result;
+}
 
 int32_t UsbSrvClient::GetAccessoryList(std::vector<USBAccessory> &accessList)
 {
@@ -667,7 +872,126 @@ int32_t UsbSrvClient::CloseAccessory(const int32_t fd)
     }
     return ret;
 }
+#else
+int32_t UsbSrvClient::GetCurrentFunctions(int32_t &funcs)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: device feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_DEVICE_NOT_SUPPORT;
+}
 
+int32_t UsbSrvClient::SetCurrentFunctions(int32_t funcs)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: device feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_DEVICE_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::UsbFunctionsFromString(std::string_view funcs)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: device feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_DEVICE_NOT_SUPPORT;
+}
+
+std::string UsbSrvClient::UsbFunctionsToString(int32_t funcs)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: device feature is not supported.", __FUNCTION__);
+    return "";
+}
+
+int32_t UsbSrvClient::GetAccessoryList(std::vector<USBAccessory> &accessList)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: device feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_DEVICE_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::OpenAccessory(const USBAccessory &access, int32_t &fd)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: device feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_DEVICE_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::AddAccessoryRight(const uint32_t tokenId, const USBAccessory &access)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: device feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_DEVICE_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::HasAccessoryRight(const USBAccessory &access, bool &result)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: device feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_DEVICE_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::RequestAccessoryRight(const USBAccessory &access, bool &result)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: device feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_DEVICE_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::CancelAccessoryRight(const USBAccessory &access)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: device feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_DEVICE_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::CloseAccessory(const int32_t fd)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: device feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_DEVICE_NOT_SUPPORT;
+}
+#endif // USB_MANAGER_FEATURE_DEVICE
+
+#ifdef USB_MANAGER_FEATURE_PORT
+int32_t UsbSrvClient::GetPorts(std::vector<UsbPort> &usbports)
+{
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    USB_HILOGI(MODULE_USB_INNERKIT, " Calling GetPorts");
+    int32_t ret = proxy_->GetPorts(usbports);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
+    }
+    return ret;
+}
+
+int32_t UsbSrvClient::GetSupportedModes(int32_t portId, int32_t &result)
+{
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    USB_HILOGI(MODULE_USB_INNERKIT, " Calling GetSupportedModes");
+    int32_t ret = proxy_->GetSupportedModes(portId, result);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
+    }
+    return ret;
+}
+
+int32_t UsbSrvClient::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole)
+{
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    USB_HILOGI(MODULE_USB_INNERKIT, "Calling SetPortRole");
+    int32_t ret = proxy_->SetPortRole(portId, powerRole, dataRole);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
+    }
+    return ret;
+}
+#else
+int32_t UsbSrvClient::GetPorts(std::vector<UsbPort> &usbports)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: port feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_PORT_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::GetSupportedModes(int32_t portId, int32_t &result)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: port feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_PORT_NOT_SUPPORT;
+}
+
+int32_t UsbSrvClient::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole)
+{
+    USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: port feature is not supported.", __FUNCTION__);
+    return UEC_SERVICE_PORT_NOT_SUPPORT;
+}
+#endif // USB_MANAGER_FEATURE_PORT
 int32_t UsbSrvClient::SerialOpen(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "Calling SerialOpen");
@@ -784,6 +1108,5 @@ int32_t UsbSrvClient::AddSerialRight(uint32_t tokenId, int32_t portId)
     }
     return ret;
 }
-
 } // namespace USB
 } // namespace OHOS

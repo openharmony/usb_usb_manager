@@ -1115,46 +1115,56 @@ ohos_fuzztest("UsbMgrCancelTransferFuzzTest") {
 group("fuzztest") {
   testonly = true
   deps = []
-  deps += [
-    ":UsbMgrAttachKernelDriverFuzzTest",
-    ":UsbMgrBulkCancelFuzzTest",
-    ":UsbMgrBulkReadFuzzTest",
-    ":UsbMgrBulkTransferFuzzTest",
-    ":UsbMgrBulkWriteFuzzTest",
-    ":UsbMgrCancelTransferFuzzTest",
-    ":UsbMgrClaimInterfaceFuzzTest",
-    ":UsbMgrClearHaltFuzzTest",
-    ":UsbMgrCloseFuzzTest",
-    ":UsbMgrControlTransferFuzzTest",
-    ":UsbMgrDetachKernelDriverFuzzTest",
-    ":UsbMgrExFuzzTest",
-    ":UsbMgrFuzzTest",
-    ":UsbMgrGetDeviceSpeedFuzzTest",
-    ":UsbMgrGetFileDescriptorFuzzTest",
-    ":UsbMgrGetInterfaceStatusFuzzTest",
-    ":UsbMgrGetRawDescriptorsFuzzTest",
-    ":UsbMgrGetSupportedModesFuzzTest",
-    ":UsbMgrHasRightFuzzTest",
-    ":UsbMgrManageDeviceFuzzTest",
-    ":UsbMgrManageGlobalInterfaceFuzzTest",
-    ":UsbMgrManageManageInterfaceTypeFuzzTest",
-    ":UsbMgrPipeRequestWaitFuzzTest",
-    ":UsbMgrRegBulkCallbackFuzzTest",
-    ":UsbMgrReleaseInterfaceFuzzTest",
-    ":UsbMgrRemoveRightFuzzTest",
-    ":UsbMgrRequestFreeFuzzTest",
-    ":UsbMgrRequestInitializeFuzzTest",
-    ":UsbMgrRequestQueueFuzzTest",
-    ":UsbMgrRequestRightFuzzTest",
-    ":UsbMgrResetDeviceFuzzTest",
-    ":UsbMgrSetConfigurationFuzzTest",
-    ":UsbMgrSetCurrentFunctionsFuzzTest",
-    ":UsbMgrSetInterfaceFuzzTest",
-    ":UsbMgrSetPortRoleFuzzTest",
-    ":UsbMgrSubmitTransferFuzzTest",
-    ":UsbMgrUnRegBulkCallbackFuzzTest",
-    ":UsbMgrUsbControlTransferFuzzTest",
-    ":UsbMgrUsbFunctionsFromStringFuzzTest",
-    ":UsbMgrUsbFunctionsToStringFuzzTest",
-  ]
+  if (usb_manager_feature_host) {
+    deps += [
+      ":UsbMgrAttachKernelDriverFuzzTest",
+      ":UsbMgrBulkCancelFuzzTest",
+      ":UsbMgrBulkReadFuzzTest",
+      ":UsbMgrBulkTransferFuzzTest",
+      ":UsbMgrBulkWriteFuzzTest",
+      ":UsbMgrCancelTransferFuzzTest",
+      ":UsbMgrClaimInterfaceFuzzTest",
+      ":UsbMgrClearHaltFuzzTest",
+      ":UsbMgrCloseFuzzTest",
+      ":UsbMgrControlTransferFuzzTest",
+      ":UsbMgrDetachKernelDriverFuzzTest",
+      ":UsbMgrExFuzzTest",
+      ":UsbMgrFuzzTest",
+      ":UsbMgrGetDeviceSpeedFuzzTest",
+      ":UsbMgrGetFileDescriptorFuzzTest",
+      ":UsbMgrGetInterfaceStatusFuzzTest",
+      ":UsbMgrGetRawDescriptorsFuzzTest",
+      ":UsbMgrHasRightFuzzTest",
+      ":UsbMgrManageDeviceFuzzTest",
+      ":UsbMgrManageGlobalInterfaceFuzzTest",
+      ":UsbMgrManageManageInterfaceTypeFuzzTest",
+      ":UsbMgrPipeRequestWaitFuzzTest",
+      ":UsbMgrRegBulkCallbackFuzzTest",
+      ":UsbMgrReleaseInterfaceFuzzTest",
+      ":UsbMgrRemoveRightFuzzTest",
+      ":UsbMgrRequestFreeFuzzTest",
+      ":UsbMgrRequestInitializeFuzzTest",
+      ":UsbMgrRequestQueueFuzzTest",
+      ":UsbMgrRequestRightFuzzTest",
+      ":UsbMgrResetDeviceFuzzTest",
+      ":UsbMgrSetConfigurationFuzzTest",
+      ":UsbMgrSetInterfaceFuzzTest",
+      ":UsbMgrSubmitTransferFuzzTest",
+      ":UsbMgrUnRegBulkCallbackFuzzTest",
+      ":UsbMgrUsbControlTransferFuzzTest",
+    ]
+  }
+  if (usb_manager_feature_device) {
+    deps += [
+      ":UsbMgrSetCurrentFunctionsFuzzTest",
+      ":UsbMgrUsbFunctionsFromStringFuzzTest",
+      ":UsbMgrUsbFunctionsToStringFuzzTest",
+    ]
+  }
+  if (usb_manager_feature_port) {
+    deps += [
+      ":UsbMgrGetSupportedModesFuzzTest",
+      ":UsbMgrSetPortRoleFuzzTest",
+    ]
+  }
 }

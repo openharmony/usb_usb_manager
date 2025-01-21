@@ -24,6 +24,13 @@
 #include "usb_common.h"
 #include "usb_port.h"
 #include "v1_0/iusb_interface.h"
+#ifdef USB_MANAGER_PASS_THROUGH
+#include "v2_0/iusb_port_interface.h"
+#include "usb_manager_subscriber.h"
+#include "mem_mgr_proxy.h"
+#include "mem_mgr_client.h"
+#include "system_ability_definition.h"
+#endif // USB_MANAGER_PASS_THROUGH
 
 namespace OHOS {
 namespace USB {
@@ -34,6 +41,12 @@ public:
 
     void Init();
     void Init(int32_t test);
+#ifdef USB_MANAGER_PASS_THROUGH
+    bool InitUsbPortInterface();
+    void Stop();
+    int32_t BindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSubscriber> &subscriber);
+    int32_t UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSubscriber> &subscriber);
+#endif // USB_MANAGER_PASS_THROUGH
     int32_t SetUsbd(const sptr<HDI::Usb::V1_0::IUsbInterface> &usbd);
     int32_t GetPorts(std::vector<UsbPort> &ports);
     int32_t GetSupportedModes(int32_t portId, int32_t &supportedModes);
@@ -45,6 +58,7 @@ public:
     void GetDumpHelp(int32_t fd);
     void Dump(int32_t fd, const std::vector<std::string> &args);
 
+    int32_t SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole);
 private:
     void GetIUsbInterface();
     void GetPortsInfo(int32_t fd);
@@ -55,6 +69,10 @@ private:
     std::mutex mutex_;
     std::map<int32_t, UsbPort> portMap_;
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
+#ifdef USB_MANAGER_PASS_THROUGH
+    sptr<HDI::Usb::V2_0::IUsbPortInterface> usbPortInterface_ = nullptr;
+    sptr<UsbManagerSubscriber> usbManagerSubscriber_;
+#endif // USB_MANAGER_PASS_THROUGH
 };
 } // namespace USB
 } // namespace OHOS
