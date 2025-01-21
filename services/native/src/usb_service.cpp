@@ -2240,7 +2240,7 @@ int32_t UsbService::SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V
 
     int32_t ret = usbSerialManager_->SerialGetAttribute(portId, attributeInfo);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "usbSerialManager_->SerialGetAttribute failed  ret = %{public}d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "usbSerialManager_->SerialGetAttribute failed, ret = %{public}d", ret);
         return ret;
     }
 
