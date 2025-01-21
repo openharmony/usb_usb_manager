@@ -710,5 +710,179 @@ describe('UsbCoreJsFunctionsTestEx', function () {
       expect(err.code).assertEqual(401);
     }
   })
+  /**
+   * @tc.number   : SUB_USB_HostManager_JS_ErrCode_0100
+   * @tc.name     : testGetDevices002
+   * @tc.desc     : Negative test: Get device list, parameters exception(parameter transfer without parameter interface)
+   * @tc.size     : MediumTest
+   * @tc.type     : Function
+   * @tc.level    : Level 2
+   */
+  it('testGetDevices002', 0, function () {
+    console.info(TAG, 'usb testGetDevices002 begin');
+    if (!isDeviceConnected) {
+      expect(isDeviceConnected).assertFalse();
+      return
+    }
+    try {
+      var maskCode = usbManager.getDevices(PARAM_INVALID);
+      console.info(TAG, 'usb testGetDevices002 case getDevices return: ' + maskCode);
+      expect(maskCode === null).assertTrue();
+    } catch (err) {
+      console.info(TAG, 'usb testGetDevices002 catch err code: ' + err.code + ' message: ' + err.message);
+      expect(err.code).assertEqual(401);
+    }
+  })
+
+  /**
+   * @tc.number   : SUB_USB_HostManager_JS_ErrCode_0500
+   * @tc.name     : testClosePipe005
+   * @tc.desc     : Negative test: close device, parameter type error PARAM_INVALID
+   * @tc.size     : MediumTest
+   * @tc.type     : Function
+   * @tc.level    : Level 2
+   */
+  it('testClosePipe005', 0, function () {
+    console.info(TAG, 'usb testClosePipe005 begin');
+    if (!isDeviceConnected) {
+      expect(isDeviceConnected).assertFalse();
+      return
+    }
+
+    try {
+      var maskCode = usbManager.closePipe(PARAM_INVALID);
+      console.info(TAG, 'usb testClosePipe005 case closePipe return: ' + maskCode);
+      expect(maskCode === null).assertTrue();
+    } catch (err) {
+      console.info(TAG, 'usb testClosePipe005 catch err code: ' + err.code + ' message: ' + err.message);
+      expect(err.code).assertEqual(401);
+    }
+  })
+
+  /**
+   * @tc.number   : SUB_USB_HostManager_JS_ErrCode_2000
+   * @tc.name     : testClosePipe006
+   * @tc.desc     : Negative test: close device, parameter number exception, necessary parameters not input
+   * @tc.size     : MediumTest
+   * @tc.type     : Function
+   * @tc.level    : Level 2
+   */
+  it('testClosePipe006', 0, function () {
+    console.info(TAG, 'usb SUB_USB_HostManager_JS_ErrCode_2000 begin');
+    if (!isDeviceConnected) {
+      expect(isDeviceConnected).assertFalse();
+      return
+    }
+
+    try {
+      var maskCode = usbManager.closePipe();
+      console.info(TAG, 'usb testClosePipe006 case closePipe return: ' + maskCode);
+      expect(maskCode === null).assertTrue();
+    } catch (err) {
+      console.info(TAG, 'usb testClosePipe006 catch err code: ' + err.code + ' message: ' + err.message);
+      expect(err.code).assertEqual(401);
+    }
+  })
+
+  /**
+   * @tc.number   : SUB_USB_HostManager_JS_ErrCode_0600
+   * @tc.name     : testGetRawDescriptor002
+   * @tc.desc     : Negative test: Get the original USB descriptor, parameter type error PARAM_INVALID
+   * @tc.size     : MediumTest
+   * @tc.type     : Function
+   * @tc.level    : Level 2
+   */
+  it('testGetRawDescriptor002', 0, function () {
+    console.info(TAG, 'usb testGetRawDescriptor002 begin');
+    if (!isDeviceConnected) {
+      expect(isDeviceConnected).assertFalse();
+      return
+    }
+
+    try {
+      var maskCode = usbManager.getRawDescriptor(PARAM_INVALID);
+      console.info(TAG, 'usb testGetRawDescriptor002 case getRawDescriptor return: ' + maskCode);
+      expect(maskCode === null).assertTrue();
+    } catch (err) {
+      console.info(TAG, 'usb testGetRawDescriptor002 catch err code: ' + err.code + ' message: ' + err.message);
+      expect(err.code).assertEqual(401);
+    }
+  })
+
+  /**
+   * @tc.number   : SUB_USB_HostManager_JS_ErrCode_2100
+   * @tc.name     : testGetRawDescriptor003
+   * @tc.desc     : Negative test: Get the original USB descriptor, parameter number exception,
+   *           necessary parameters not input
+   * @tc.size     : MediumTest
+   * @tc.type     : Function
+   * @tc.level    : Level 2
+   */
+  it('testGetRawDescriptor003', 0, function () {
+    console.info(TAG, 'usb testGetRawDescriptor003 begin');
+    if (!isDeviceConnected) {
+      expect(isDeviceConnected).assertFalse();
+      return
+    }
+
+    try {
+      var maskCode = usbManager.getRawDescriptor();
+      console.info(TAG, 'usb testGetRawDescriptor003 case getRawDescriptor return: ' + maskCode);
+      expect(maskCode === null).assertTrue();
+    } catch (err) {
+      console.info(TAG, 'usb testGetRawDescriptor003 catch err code: ' + err.code + ' message: ' + err.message);
+      expect(err.code).assertEqual(401);
+    }
+  })
+
+  /**
+   * @tc.number   : SUB_USB_HostManager_JS_ErrCode_0800
+   * @tc.name     : testRemoveRight002
+   * @tc.desc     : Negative test: Remove Permissions, parameter type error
+   * @tc.size     : MediumTest
+   * @tc.type     : Function
+   * @tc.level    : Level 2
+   */
+  it('testRemoveRight002', 0, function () {
+    console.info(TAG, 'usb testRemoveRight002 begin');
+    if (!isDeviceConnected) {
+      expect(isDeviceConnected).assertFalse();
+      return
+    }
+
+    try {
+      var maskCode = usbManager.removeRight(PARAM_INVALIDCODE);
+      console.info(TAG, 'usb testRemoveRight002 case removeRight return: ' + maskCode);
+      expect(maskCode === null).assertTrue();
+    } catch (err) {
+      console.info(TAG, 'usb testRemoveRight002 catch err code: ' + err.code + ' message: ' + err.message);
+      expect(err.code).assertEqual(401);
+    }
+  })
+
+  /**
+   * @tc.number   : SUB_USB_HostManager_JS_ErrCode_2200
+   * @tc.name     : testRemoveRight003
+   * @tc.desc     : Negative test: Remove Permissions, parameter number exception, necessary parameters not input
+   * @tc.size     : MediumTest
+   * @tc.type     : Function
+   * @tc.level    : Level 2
+   */
+  it('testRemoveRight003', 0, function () {
+    console.info(TAG, 'usb testRemoveRight003 begin');
+    if (!isDeviceConnected) {
+      expect(isDeviceConnected).assertFalse();
+      return
+    }
+
+    try {
+      var maskCode = usbManager.removeRight();
+      console.info(TAG, 'usb testRemoveRight003 case removeRight return: ' + maskCode);
+      expect(maskCode === null).assertTrue();
+    } catch (err) {
+      console.info(TAG, 'usb testRemoveRight003 catch err code: ' + err.code + ' message: ' + err.message);
+      expect(err.code).assertEqual(401);
+    }
+  })
 })
 }

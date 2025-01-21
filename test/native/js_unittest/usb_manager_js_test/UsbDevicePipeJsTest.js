@@ -1474,6 +1474,140 @@ describe('UsbDevicePipeJsFunctionsTestEx', function () {
       expect(ret == 0).assertTrue();
     }
   })
+  /**
+   * @tc.number   : SUB_USB_HostManager_JS_Compatibility_4000
+   * @tc.name     : testSetConfiguration006
+   * @tc.desc     : Negative test: Set Device Configuration, USBConfig name interval(1-16) error
+   * @tc.size     : MediumTest
+   * @tc.type     : Function
+   * @tc.level    : Level 2
+   */
+  it('testSetConfiguration006', 0, function () {
+    console.info(TAG, 'usb testSetConfiguration006 begin');
+    if (!isDeviceConnected) {
+      expect(isDeviceConnected).assertFalse();
+      return
+    }
+    if (gDeviceList.length == 0) {
+      console.info(TAG, 'usb case get_device_list is null')
+      expect(false).assertTrue();
+      return
+    }
+
+    for (var j = 0; j < gDeviceList[0].configs.length; j++) {
+      var config = gDeviceList[0].configs[j];
+      config.name = 'asdfsd';
+      config.interfaces[0].endpoints[0].interval = 0;
+      var ret = usbManager.setConfiguration(gPipe, config);
+      console.info(TAG, 'usb case testSetConfiguration006 return : ' + ret);
+      expect(ret == 0).assertTrue();
+    }
+  })
+
+  /**
+   * @tc.number   : SUB_USB_HostManager_JS_ErrCode_1100
+   * @tc.name     : testSetConfiguration007
+   * @tc.desc     : Negative test: Set Device Configuration, parameter number exception, input a parameter
+   * @tc.size     : MediumTest
+   * @tc.type     : Function
+   * @tc.level    : Level 2
+   */
+  it('testSetConfiguration007', 0, function () {
+    console.info(TAG, 'usb testSetConfiguration007 begin');
+    if (!isDeviceConnected) {
+      expect(isDeviceConnected).assertFalse();
+      return
+    }
+
+    try {
+      var maskCode = usbManager.setConfiguration("invalid");
+      console.info(TAG, 'usb testSetConfiguration007 case setConfiguration return: ' + maskCode);
+      expect(maskCode === null).assertTrue();
+    } catch (err) {
+      console.info(TAG, 'usb testSetConfiguration007 catch err code: ' + err.code + ' message: ' + err.message);
+      expect(err.code).assertEqual(401);
+    }
+  })
+
+  /**
+   * @tc.number   : SUB_USB_HostManager_JS_ErrCode_2800
+   * @tc.name     : testSetConfiguration008
+   * @tc.desc     : Negative test: Set Device Configuration, parameter number exception, necessary parameters not input
+   * @tc.size     : MediumTest
+   * @tc.type     : Function
+   * @tc.level    : Level 2
+   */
+  it('testSetConfiguration008', 0, function () {
+    console.info(TAG, 'usb testSetConfiguration008 begin');
+    if (!isDeviceConnected) {
+      expect(isDeviceConnected).assertFalse();
+      return
+    }
+
+    try {
+      var maskCode = usbManager.setConfiguration();
+      console.info(TAG, 'usb testSetConfiguration008 case setConfiguration return: ' + maskCode);
+      expect(maskCode === null).assertTrue();
+    } catch (err) {
+      console.info(TAG, 'usb testSetConfiguration008 catch err code: ' + err.code + ' message: ' + err.message);
+      expect(err.code).assertEqual(401);
+    }
+  })
+
+  /**
+   * @tc.number   : SUB_USB_HostManager_JS_ErrCode_3500
+   * @tc.name     : testSetConfiguration009
+   * @tc.desc     : Negative test: Set Device Configuration, parameter pipe type error
+   * @tc.size     : MediumTest
+   * @tc.type     : Function
+   * @tc.level    : Level 2
+   */
+  it('testSetConfiguration009', 0, function () {
+    console.info(TAG, 'usb testSetConfiguration009 begin');
+    if (!isDeviceConnected) {
+      expect(isDeviceConnected).assertFalse();
+      return
+    }
+    
+    var testParamPip = "invalid";
+    try {
+      for (var j = 0; j < gDeviceList[0].configs.length; j++) {
+        var TmpConfig = gDeviceList[0].configs[j];
+        var maskCode = usbManager.setConfiguration(testParamPip, TmpConfig);
+        console.info(TAG, 'usb testSetConfiguration009 case setConfiguration return: ' + maskCode);
+        expect(maskCode === null).assertTrue();
+      }
+    } catch (err) {
+      console.info(TAG, 'usb testSetConfiguration009 catch err code: ' + err.code + ' message: ' + err.message);
+      expect(err.code).assertEqual(401);
+    }
+  })
+
+  /**
+   * @tc.number   : SUB_USB_HostManager_JS_ErrCode_4200
+   * @tc.name     : testSetConfiguration010
+   * @tc.desc     : Negative test: Set Device Configuration, parameter config type error
+   * @tc.size     : MediumTest
+   * @tc.type     : Function
+   * @tc.level    : Level 2
+   */
+  it('testSetConfiguration010', 0, function () {
+    console.info(TAG, 'usb testSetConfiguration010 begin');
+    if (!isDeviceConnected) {
+      expect(isDeviceConnected).assertFalse();
+      return
+    }
+
+    var TmpConfig = "invalid";
+    try {
+      var maskCode = usbManager.setConfiguration(gPipe, TmpConfig);
+      console.info(TAG, 'usb testSetConfiguration010 case setConfiguration return: ' + maskCode);
+      expect(maskCode === null).assertTrue();
+    } catch (err) {
+      console.info(TAG, 'usb testSetConfiguration010 catch err code: ' + err.code + ' message: ' + err.message);
+      expect(err.code).assertEqual(401);
+    }
+  })
 
 })
 }
