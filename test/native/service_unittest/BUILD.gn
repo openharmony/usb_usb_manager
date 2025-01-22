@@ -247,9 +247,6 @@ ohos_unittest("test_usbcore") {
     "src/usb_core_test.cpp",
   ]
 
-  if (usb_manager_feature_device) {
-    defines = [ "USB_MANAGER_FEATURE_DEVICE" ]
-  }
   configs = [
     "${utils_path}:utils_config",
     ":module_private_config",
@@ -424,19 +421,17 @@ ohos_unittest("test_usbdfx") {
 
 group("unittest") {
   testonly = true
-  deps = [ ":test_usbcore" ]
-  if (usb_manager_feature_host) {
-    deps += [
-      ":test_bulkcallback",
-      ":test_usbdevicepipe",
-      ":test_usbdevicestatus",
-      ":test_usbdfx",
-      ":test_usbevent",
-      ":test_usbmanageinterface",
-      ":test_usbrequest",
-      ":test_bulk_transfer",
-      ":test_isochronous_transfer",
-      ":test_interrupt_transfer",
-    ]
-  }
+  deps = [
+    ":test_bulk_transfer",
+    ":test_bulkcallback",
+    ":test_interrupt_transfer",
+    ":test_isochronous_transfer",
+    ":test_usbcore",
+    ":test_usbdevicepipe",
+    ":test_usbdevicestatus",
+    ":test_usbdfx",
+    ":test_usbevent",
+    ":test_usbmanageinterface",
+    ":test_usbrequest",
+  ]
 }
