@@ -313,7 +313,7 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbSubmitTransferBulkWriteParamError, TestSi
             info.status, info.actualLength);
     };
     ret = UsbSrvClient.UsbSubmitTransfer(pipe, transferInfo, callback, ashmem);
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbSubmitTransferBulkWriteParamError ret:%{public}d", __LINE__, ret);
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. BulkWriteParamError ret:%{public}d", __LINE__, ret);
     ASSERT_EQ(ret, OHEC_COMMON_PARAM_ERROR);
     bool close = UsbSrvClient.Close(pipe);
     EXPECT_TRUE(close);
