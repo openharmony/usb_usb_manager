@@ -327,7 +327,7 @@ HWTEST_F(UsbSubmitTransferIsochronousTest, UsbCancelTransferIsochronousWrite, Te
     // 取消写操作
     ret = UsbSrvClient.UsbCancelTransfer(pip, transferInfo.endpoint);
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbCancelTransferIsochronousWrite ret:%{public}d", __LINE__, ret);
-    ASSERT_EQ(ret, FIVE); // 传输已完成或者已被取消
+    ASSERT_EQ(ret, USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR); // 传输已完成或者已被取消
 
     bool close = UsbSrvClient.Close(pip);
     EXPECT_TRUE(close);
