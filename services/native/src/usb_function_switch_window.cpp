@@ -45,6 +45,20 @@ constexpr int32_t MAX_RETRY_TIMES = 30;
 constexpr int32_t RETRY_INTERVAL_SECONDS = 1;
 constexpr uint32_t DELAY_CHECK_DIALOG = 1;
 
+class FuncSwitchSubscriber : public CommonEventSubscriber {
+public:
+    explicit FuncSwitchSubscriber(const CommonEventSubscribeInfo &sp) : CommonEventSubscriber(sp) {}
+
+    void OnReceiveEvent(const CommonEventData &data) override
+    {
+        auto &want = data.GetWant();
+        std::string wantAction = want.GetAction();
+        if (wantAction == CommonEventSupport::COMMON_EVENT_BUNDLE_SCAN_FINISHED) {
+            UsbFunctionSwitchWindow::GetInstance()->CheckDialogInstallStatus();
+        }
+    }
+};
+
 std::shared_ptr<UsbFunctionSwitchWindow> UsbFunctionSwitchWindow::instance_;
 std::mutex UsbFunctionSwitchWindow::insMutex_;
 
@@ -67,6 +81,19 @@ UsbFunctionSwitchWindow::~UsbFunctionSwitchWindow()
     }
 }
 
+void UsbFunctionSwitchWindow::SubscribeCommonEvent()
+{
+    MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_BUNDLE_SCAN_FINISHED);
+    CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    std::shared_ptr<FuncSwitchSubscriber> subscriber = std::make_shared<FuncSwitchSubscriber>(subscriberInfo);
+    bool ret = CommonEventManager::SubscribeCommonEvent(subscriber);
+    if (!ret) {
+        USB_HILOGW(MODULE_USB_SERVICE, "subscriber event failed.");
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "subscriber bms scan finished.");
+}
+
 int32_t UsbFunctionSwitchWindow::Init()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "init: window action=%{public}d,%{public}d", windowAction_, isDialogInstalled_);
@@ -78,7 +105,10 @@ int32_t UsbFunctionSwitchWindow::Init()
     checkDialogTimer_.Shutdown();
     // async check dialog install status
     auto task = [this]() {
-        CheckDialogInstallStatus();
+        bool checkRet = CheckDialogInstallStatus();
+        if (!checkRet) {
+            SubscribeCommonEvent();
+        }
         checkDialogTimer_.Unregister(checkDialogTimerId_);
         checkDialogTimer_.Shutdown(false);
         USB_HILOGI(MODULE_USB_SERVICE, "dialog check end");
@@ -87,7 +117,10 @@ int32_t UsbFunctionSwitchWindow::Init()
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "set up timer failed %{public}u", ret);
         // fall back to sync
-        CheckDialogInstallStatus();
+        bool checkRet = CheckDialogInstallStatus();
+        if (!checkRet) {
+            SubscribeCommonEvent();
+        }
         return isDialogInstalled_ ? UEC_OK : ret;
     }
     checkDialogTimerId_ = checkDialogTimer_.Register(task, DELAY_CHECK_DIALOG, true);

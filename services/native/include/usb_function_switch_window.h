@@ -57,6 +57,7 @@ public:
     bool DismissFunctionSwitchWindow();
     int32_t SetCurrentFunctionLabel(int32_t func);
     int32_t RemoveCurrentFunctionLabel();
+    bool CheckDialogInstallStatus();
 private:
     UsbFunctionSwitchWindow();
     DISALLOW_COPY_AND_MOVE(UsbFunctionSwitchWindow);
@@ -71,7 +72,7 @@ private:
     };
     bool ShowFunctionSwitchWindow();
     bool UnShowFunctionSwitchWindow();
-    bool CheckDialogInstallStatus();
+    void SubscribeCommonEvent();
     bool ShouldRejectShowWindow();
     static void BootCompletedEventCallback(const char *key, const char *value, void *context);
     static std::shared_ptr<UsbFunctionSwitchWindow> instance_;
