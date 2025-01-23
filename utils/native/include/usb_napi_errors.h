@@ -77,10 +77,10 @@ const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
     {USB_SUBMIT_TRANSFER_RESOURCE_BUSY_ERROR, "BusinessError 14400008:Resource busy."},
     {USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR, "BusinessError 14400009:No such device (it may have been disconnected)."},
     {USB_SUBMIT_TRANSFER_TIMEOUT_ERROR, "BusinessError 14400010:Transmission time out error."},
-    {USB_SUBMIT_TRANSFER_OTHER_ERROR, "BusinessError 14400011:Usb error other."},
+    {USB_SUBMIT_TRANSFER_OTHER_ERROR, "BusinessError 14400011:Other USB error."},
     {USB_SUBMIT_TRANSFER_OVERFLOW_ERROR, "BusinessError 14400012:Transmission overflow error."},
     {USB_SUBMIT_TRANSFER_NO_MEM_ERROR, "BusinessError 14400013:Insufficient memory."},
-    {USB_SUBMIT_TRANSFER_NOT_SUPPORT, "BusinessError 14400014:Interface does not support."},
+    {USB_SUBMIT_TRANSFER_NOT_SUPPORT, "BusinessError 14400014:API not supported."},
     {USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR, "BusinessError 14400015:Entity not found."},
     {USB_SUBMIT_TRANSFER_PIPE_ERROR, "BusinessError 14400016:Pipe error."},
 };
