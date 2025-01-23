@@ -33,7 +33,7 @@ namespace USB {
 constexpr uint32_t WAIT_SERVICE_LOAD = 500;
 #ifdef USB_MANAGER_FEATURE_HOST
 constexpr int32_t READ_BUF_SIZE = 8192;
-constexpr int32_t INVALID_PARAM = 14400015;
+constexpr int32_t PARAM_ERROR = 401;
 #endif // USB_MANAGER_FEATURE_HOST
 UsbSrvClient::UsbSrvClient()
 {
@@ -371,7 +371,7 @@ int32_t UsbSrvClient::UsbSubmitTransfer(USBDevicePipe &pip, HDI::Usb::V1_2::USBT
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
     const UsbDev tdev = {pip.GetBusNum(), pip.GetDevAddr()};
     if (cb == nullptr) {
-        return INVALID_PARAM;
+        return PARAM_ERROR;
     }
     sptr<UsbdCallBackServer> callBackService = new UsbdCallBackServer(cb);
     int32_t ret = proxy_->UsbSubmitTransfer(tdev, info, callBackService, ashmem);
