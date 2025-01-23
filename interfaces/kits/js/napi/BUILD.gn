@@ -89,12 +89,12 @@ ohos_shared_library("serial") {
   defines = [ "SERIAL_NAPI" ]
 
   sources = [
-    "${usb_manager_path}/interfaces/innerkits/native/src/usb_srv_client.cpp",
     "${utils_path}/native/src/usb_napi_errors.cpp",
     "src/napi_util.cpp",
     "src/serial_info.cpp",
     "src/serial_middle.cpp",
   ]
+  deps = [ "${usb_manager_path}/interfaces/innerkits:usbsrv_client" ]
   external_deps = [
     "cJSON:cjson",
     "c_utils:utils",
