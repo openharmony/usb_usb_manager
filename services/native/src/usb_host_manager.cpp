@@ -105,7 +105,6 @@ const int32_t NO_DEVICE = -4;
 const int32_t NOT_FOUND = -5;
 const int32_t ERROR_BUSY = -6;
 const int32_t NO_MEM = -11;
-const int32_t NOT_SUPPORT = -12;
 #ifdef USB_MANAGER_PASS_THROUGH
 const std::string SERVICE_NAME = "usb_host_interface_service";
 #endif // USB_MANAGER_PASS_THROUGH
@@ -928,8 +927,6 @@ int32_t UsbHostManager::UsbSubmitTransferErrorCode(int32_t &error)
             return USB_SUBMIT_TRANSFER_RESOURCE_BUSY_ERROR;
         case NO_MEM:
             return USB_SUBMIT_TRANSFER_NO_MEM_ERROR;
-        case NOT_SUPPORT:
-            return USB_SUBMIT_TRANSFER_NOT_SUPPORT;
         default:
             return USB_SUBMIT_TRANSFER_OTHER_ERROR;
     }

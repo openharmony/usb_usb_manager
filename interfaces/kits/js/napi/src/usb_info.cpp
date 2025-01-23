@@ -48,11 +48,6 @@ static constexpr int32_t INDEX_0 = 0;
 static constexpr int32_t INDEX_1 = 1;
 static constexpr int32_t INDEX_2 = 2;
 static constexpr int32_t INDEX_3 = 3;
-static constexpr int32_t STATUS_ONE = 1;
-static constexpr int32_t STATUS_TWO = 2;
-static constexpr int32_t STATUS_FOUR = 4;
-static constexpr int32_t STATUS_FIVE = 5;
-static constexpr int32_t STATUS_SIX = 6;
 static constexpr int32_t PARAM_COUNT_0 = 0;
 static constexpr int32_t PARAM_COUNT_1 = 1;
 static constexpr int32_t PARAM_COUNT_2 = 2;
@@ -2017,31 +2012,6 @@ static bool GetTransferParamsFromJsObj(const napi_env &env, const napi_callback_
     return true;
 }
 
-static napi_value ErrorCodeInput(napi_env env, int32_t status)
-{
-    napi_value error = nullptr;
-    switch (status) {
-        case STATUS_ONE:
-            napi_create_int32(env, USB_SUBMIT_TRANSFER_IO_ERROR, &error);
-            return error;
-        case STATUS_TWO:
-            napi_create_int32(env, USB_SUBMIT_TRANSFER_TIMEOUT_ERROR, &error);
-            return error;
-        case STATUS_FOUR:
-            napi_create_int32(env, USB_SUBMIT_TRANSFER_PIPE_ERROR, &error);
-            return error;
-        case STATUS_FIVE:
-            napi_create_int32(env, USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR, &error);
-            return error;
-        case STATUS_SIX:
-            napi_create_int32(env, USB_SUBMIT_TRANSFER_OVERFLOW_ERROR, &error);
-            return error;
-        default:
-            napi_create_int32(env, USB_SUBMIT_TRANSFER_OPERATION_SUCCESSFUL, &error);
-            return error;
-    }
-}
-
 static napi_value ParmsInput(napi_env env, AsyncCallBackContext &asyncCBWork)
 {
     napi_value res = nullptr;
@@ -2130,7 +2100,6 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
             napi_value resultJsCb;
             res = napi_get_reference_value(asyncCBWork->env, asyncCBWork->callbackRef, &resultJsCb);
             napi_value argv[2] = {nullptr};
-            argv[0] = ErrorCodeInput(asyncCBWork->env, asyncCBWork->status);
             argv[1] = ParmsInput(asyncCBWork->env, *asyncCBWork);
             napi_value result;
             res = napi_call_function(asyncCBWork->env, nullptr, resultJsCb, PARAM_COUNT_2, argv, &result);
