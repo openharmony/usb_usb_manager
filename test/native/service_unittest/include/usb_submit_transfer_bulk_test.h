@@ -28,15 +28,11 @@ public:
     void SetUp();
     void TearDown();
 };
-static constexpr int32_t TEN = 10;
-static constexpr int32_t TYPE_BULK = 2;
-static constexpr int32_t TYPE_INTERRUPT = 3;
 
 enum UsbBulkTestErrCode {
     OHEC_COMMON_PARAM_ERROR = 401,
-    USB_SUBMIT_TRANSFER_IO_ERROR = 14400007,
-    USB_SUBMIT_TRANSFER_TIMEOUT_ERROR = 14400010,
-    USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR = 14400015,
+    USB_SUBMIT_TRANSFER_IO_ERROR = 14400006,
+    USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR = 14400011,
 };
 
 } // SubmitTransfer

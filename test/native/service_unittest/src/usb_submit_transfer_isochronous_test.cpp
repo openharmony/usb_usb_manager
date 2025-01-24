@@ -101,18 +101,18 @@ HWTEST_F(UsbSubmitTransferIsochronousTest, UsbSubmitTransferIsochronousWrite, Te
     ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferIsochronousWrite %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
-    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", 10);
     ASSERT_NE(ashmem, nullptr);
-    const uint8_t dataToWrite[TEN] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
+    const uint8_t dataToWrite[10] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
     ashmem->MapReadAndWriteAshmem();
     bool writeSuccess = ashmem->WriteToAshmem(dataToWrite, sizeof(dataToWrite), 0);
     ASSERT_TRUE(writeSuccess);
     HDI::Usb::V1_2::USBTransferInfo transferInfo;
     transferInfo.endpoint = 0x05;    // 0x01写 0x81读 测试设备：usb耳机，端点0x05
     transferInfo.flags = 0;
-    transferInfo.type = TYPE_ISOCHRONOUS; // 开发板仅支持bulk
+    transferInfo.type = 1; // 开发板仅支持bulk
     transferInfo.timeOut = 2000;
-    transferInfo.length = TEN;        // 期望长度
+    transferInfo.length = 10;        // 期望长度
     transferInfo.userData = 0;
     transferInfo.numIsoPackets = 1;  // iso传输包数量 iso单包传输最大长度192
     auto callback = [](const TransferCallbackInfo &info,
@@ -151,16 +151,16 @@ HWTEST_F(UsbSubmitTransferIsochronousTest, UsbSubmitTransferIsochronousRead, Tes
     ret = UsbSrvClient.ClaimInterface(pip, interface, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferIsochronousRead ClaimInterface ret%{public}d", ret);
 
-    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", 10);
     ASSERT_NE(ashmem, nullptr);
     ashmem->MapReadAndWriteAshmem();
 
     HDI::Usb::V1_2::USBTransferInfo transferInfo;
     transferInfo.endpoint = 0x84;    // 0x01写 0x81读
     transferInfo.flags = 0;
-    transferInfo.type = TYPE_ISOCHRONOUS; // 开发板仅支持bulk
+    transferInfo.type = 1; // 开发板仅支持bulk
     transferInfo.timeOut = 2000;
-    transferInfo.length = TEN;        // 期望长度
+    transferInfo.length = 10;        // 期望长度
     transferInfo.userData = 0;
     transferInfo.numIsoPackets = 1;  // iso传输包数量 iso单包传输最大长度192
 
@@ -203,18 +203,18 @@ HWTEST_F(UsbSubmitTransferIsochronousTest, UsbSubmitTransferIsochronousWriteInva
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbSubmitTransferIsochronousWriteInvalidEndpoint ret:%{public}d",
         __LINE__, ret);
 
-    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", 10);
     ASSERT_NE(ashmem, nullptr);
-    const uint8_t dataToWrite[TEN] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
+    const uint8_t dataToWrite[10] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
     ashmem->MapReadAndWriteAshmem();
     bool writeSuccess = ashmem->WriteToAshmem(dataToWrite, sizeof(dataToWrite), 0);
     ASSERT_TRUE(writeSuccess);
     HDI::Usb::V1_2::USBTransferInfo transferInfo;
     transferInfo.endpoint = 0xFF;    //无效参数
     transferInfo.flags = 0;
-    transferInfo.type = TYPE_ISOCHRONOUS; // 开发板仅支持bulk
+    transferInfo.type = 1; // 开发板仅支持bulk
     transferInfo.timeOut = 2000;
-    transferInfo.length = TEN;        // 期望长度
+    transferInfo.length = 10;        // 期望长度
     transferInfo.userData = 0;
     transferInfo.numIsoPackets = 1;  // iso传输包数量 iso单包传输最大长度192
 
@@ -252,18 +252,18 @@ HWTEST_F(UsbSubmitTransferIsochronousTest, UsbSubmitTransferIsochronousWriteIoEr
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
     USBEndpoint point = interface.GetEndpoints().front();
     UsbSrvClient.ReleaseInterface(pip, interface);
-    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", 10);
     ASSERT_NE(ashmem, nullptr);
-    const uint8_t dataToWrite[TEN] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
+    const uint8_t dataToWrite[10] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
     ashmem->MapReadAndWriteAshmem();
     bool writeSuccess = ashmem->WriteToAshmem(dataToWrite, sizeof(dataToWrite), 0);
     ASSERT_TRUE(writeSuccess);
     HDI::Usb::V1_2::USBTransferInfo transferInfo;
     transferInfo.endpoint = 0x01;    // 写操作（对于开发板，0x81是读操作）
     transferInfo.flags = 0;
-    transferInfo.type = TYPE_ISOCHRONOUS; // 开发板仅支持bulk
+    transferInfo.type = 1; // 开发板仅支持bulk
     transferInfo.timeOut = 2000;
-    transferInfo.length = TEN;        // 期望长度
+    transferInfo.length = 10;        // 期望长度
     transferInfo.userData = 0;
     transferInfo.numIsoPackets = 1;  // iso传输包数量 iso单包传输最大长度192
     auto callback = [](const TransferCallbackInfo &info,
@@ -302,19 +302,19 @@ HWTEST_F(UsbSubmitTransferIsochronousTest, UsbCancelTransferIsochronousWrite, Te
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCancelTransferIsochronousWrite ClaimInterface %{public}d ret:%{public}d",
         __LINE__, ret);
 
-    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", 10);
     ASSERT_NE(ashmem, nullptr);
-    const uint8_t dataToWrite[TEN] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
+    const uint8_t dataToWrite[10] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
     ashmem->MapReadAndWriteAshmem();
-    bool writeSuccess = ashmem->WriteToAshmem(dataToWrite, TEN, 0);
+    bool writeSuccess = ashmem->WriteToAshmem(dataToWrite, 10, 0);
     ASSERT_TRUE(writeSuccess);
 
     HDI::Usb::V1_2::USBTransferInfo transferInfo;
     transferInfo.endpoint = 0x05;    // 写操作
     transferInfo.flags = 0;
-    transferInfo.type = TYPE_ISOCHRONOUS; // 开发板不支持ISO传输类型
+    transferInfo.type = 1; // 开发板不支持ISO传输类型
     transferInfo.timeOut = 0;        // 设置超时时间
-    transferInfo.length = TEN;        // 设置传输数据的长度
+    transferInfo.length = 10;        // 设置传输数据的长度
     transferInfo.userData = 0;
     transferInfo.numIsoPackets = 1;  // 只有type为1有iso
 
