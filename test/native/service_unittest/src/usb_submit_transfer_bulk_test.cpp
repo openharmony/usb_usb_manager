@@ -103,18 +103,18 @@ void UsbSubmitTransferBulkWriteThreadFunc(int32_t threadId)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferBulkWrite %{public}d point=%{public}d", __LINE__,
                point.GetInterfaceId());
     ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
-    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", 10);
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
     ASSERT_NE(ashmem, nullptr);
-    const uint8_t dataToWrite[10] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
+    const uint8_t dataToWrite[TEN] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
     ashmem->MapReadAndWriteAshmem();
     bool writeSuccess = ashmem->WriteToAshmem(dataToWrite, sizeof(dataToWrite), 0);
     ASSERT_TRUE(writeSuccess);
     HDI::Usb::V1_2::USBTransferInfo transferInfo;
     transferInfo.endpoint = 0x01;    // 0x01写 0x81读
     transferInfo.flags = 0;
-    transferInfo.type = 2; // 开发板仅支持bulk
+    transferInfo.type = TYPE_BULK; // 开发板仅支持bulk
     transferInfo.timeOut = TIMEOUT;
-    transferInfo.length = 10;        // 期望长度
+    transferInfo.length = TEN;        // 期望长度
     transferInfo.userData = 0;
     transferInfo.numIsoPackets = 0;  // iso传输包数量 iso单包传输最大长度192
     auto callback = [](const TransferCallbackInfo &info,
@@ -184,18 +184,18 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbSubmitTransferBulkWrite, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferBulkWrite %{public}d point=%{public}d", __LINE__,
                point.GetInterfaceId());
     ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
-    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", 10);
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
     ASSERT_NE(ashmem, nullptr);
-    const uint8_t dataToWrite[10] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
+    const uint8_t dataToWrite[TEN] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
     ashmem->MapReadAndWriteAshmem();
     bool writeSuccess = ashmem->WriteToAshmem(dataToWrite, sizeof(dataToWrite), 0);
     ASSERT_TRUE(writeSuccess);
     HDI::Usb::V1_2::USBTransferInfo transferInfo;
     transferInfo.endpoint = 0x01;    // 0x01写 0x81读
     transferInfo.flags = 0;
-    transferInfo.type = 2;
+    transferInfo.type = TYPE_BULK;
     transferInfo.timeOut = 2000;
-    transferInfo.length = 10;        // 期望长度
+    transferInfo.length = TEN;        // 期望长度
     transferInfo.userData = 0;
     transferInfo.numIsoPackets = 0;  // iso传输包数量 iso单包传输最大长度192
     auto callback = [](const TransferCallbackInfo &info,
@@ -238,9 +238,9 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbSubmitTransferBulkWriteParamError, TestSi
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferBulkWriteParamError %{public}d point=%{public}d", __LINE__,
                point.GetInterfaceId());
     ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
-    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", 10);
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
     ASSERT_NE(ashmem, nullptr);
-    const uint8_t dataToWrite[10] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
+    const uint8_t dataToWrite[TEN] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
     ashmem->MapReadAndWriteAshmem();
     bool writeSuccess = ashmem->WriteToAshmem(dataToWrite, sizeof(dataToWrite), 0);
     ASSERT_TRUE(writeSuccess);
@@ -249,7 +249,7 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbSubmitTransferBulkWriteParamError, TestSi
     transferInfo.flags = 0;
     transferInfo.type = 5;              // 错误类型
     transferInfo.timeOut = 2000;
-    transferInfo.length = 10;        // 期望长度
+    transferInfo.length = TEN;        // 期望长度
     transferInfo.userData = 0;
     transferInfo.numIsoPackets = 0;  // iso传输包数量 iso单包传输最大长度192
     auto callback = [](const TransferCallbackInfo &info,
@@ -287,16 +287,16 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbSubmitTransferBulkReadTimeOut, TestSize.L
     ret = UsbSrvClient.ClaimInterface(pip, interface, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferBulkReadTimeOut ClaimInterface ret%{public}d", ret);
 
-    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", 10);
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
     ASSERT_NE(ashmem, nullptr);
     ashmem->MapReadAndWriteAshmem();
 
     HDI::Usb::V1_2::USBTransferInfo transferInfo;
     transferInfo.endpoint = 0x81;    // 0x01写 0x81读
     transferInfo.flags = 0;
-    transferInfo.type = 2; // 开发板仅支持bulk
+    transferInfo.type = TYPE_BULK; // 开发板仅支持bulk
     transferInfo.timeOut = 2000;
-    transferInfo.length = 10;        // 期望长度
+    transferInfo.length = TEN;        // 期望长度
     transferInfo.userData = 0;
     transferInfo.numIsoPackets = 0;  // iso传输包数量 iso单包传输最大长度192
 
@@ -339,18 +339,18 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbSubmitTransferBulkWriteIOError, TestSize.
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbSubmitTransferBulkWriteIOError ret:%{public}d",
         __LINE__, ret);
 
-    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", 10);
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
     ASSERT_NE(ashmem, nullptr);
-    const uint8_t dataToWrite[10] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
+    const uint8_t dataToWrite[TEN] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
     ashmem->MapReadAndWriteAshmem();
     bool writeSuccess = ashmem->WriteToAshmem(dataToWrite, sizeof(dataToWrite), 0);
     ASSERT_TRUE(writeSuccess);
     HDI::Usb::V1_2::USBTransferInfo transferInfo;
     transferInfo.endpoint = 0xFF;    //无效参数
     transferInfo.flags = 0;
-    transferInfo.type = 2; // 开发板仅支持bulk
+    transferInfo.type = TYPE_BULK; // 开发板仅支持bulk
     transferInfo.timeOut = 2000;
-    transferInfo.length = 10;        // 期望长度
+    transferInfo.length = TEN;        // 期望长度
     transferInfo.userData = 0;
     transferInfo.numIsoPackets = 0;  // iso传输包数量 iso单包传输最大长度192
 
@@ -392,19 +392,19 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbCancelTransferBulkWrite, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCancelTransferBulkWrite ClaimInterface %{public}d ret:%{public}d",
         __LINE__, ret);
 
-    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", 10);
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
     ASSERT_NE(ashmem, nullptr);
-    const uint8_t dataToWrite[10] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
+    const uint8_t dataToWrite[TEN] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
     ashmem->MapReadAndWriteAshmem();
-    bool writeSuccess = ashmem->WriteToAshmem(dataToWrite, 10, 0);
+    bool writeSuccess = ashmem->WriteToAshmem(dataToWrite, TEN, 0);
     ASSERT_TRUE(writeSuccess);
 
     HDI::Usb::V1_2::USBTransferInfo transferInfo;
     transferInfo.endpoint = 0x01;    // 写操作
     transferInfo.flags = 0;
-    transferInfo.type = 2; // 开发板不支持ISO传输类型
+    transferInfo.type = TYPE_BULK; // 开发板不支持ISO传输类型
     transferInfo.timeOut = 0;        // 设置超时时间
-    transferInfo.length = 10;        // 设置传输数据的长度
+    transferInfo.length = TEN;        // 设置传输数据的长度
     transferInfo.userData = 0;
     transferInfo.numIsoPackets = 0;  // 只有type为1有iso
 
@@ -448,19 +448,19 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbCancelTransferBulkWriteNotFound, TestSize
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCancelTransferBulkWrite ClaimInterface %{public}d ret:%{public}d",
         __LINE__, ret);
 
-    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", 10);
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
     ASSERT_NE(ashmem, nullptr);
-    const uint8_t dataToWrite[10] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
+    const uint8_t dataToWrite[TEN] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
     ashmem->MapReadAndWriteAshmem();
-    bool writeSuccess = ashmem->WriteToAshmem(dataToWrite, 10, 0);
+    bool writeSuccess = ashmem->WriteToAshmem(dataToWrite, TEN, 0);
     ASSERT_TRUE(writeSuccess);
 
     HDI::Usb::V1_2::USBTransferInfo transferInfo;
     transferInfo.endpoint = 0x01;    // 写操作
     transferInfo.flags = 0;
-    transferInfo.type = 2; // 开发板不支持ISO传输类型
+    transferInfo.type = TYPE_BULK; // 开发板不支持ISO传输类型
     transferInfo.timeOut = 0;        // 设置超时时间
-    transferInfo.length = 10;        // 设置传输数据的长度
+    transferInfo.length = TEN;        // 设置传输数据的长度
     transferInfo.userData = 0;
     transferInfo.numIsoPackets = 0;  // 只有type为1有iso
 
@@ -505,16 +505,16 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbCancelTransferBulkRead, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbCancelTransferBulkRead ClaimInterface ret: %{public}d",
         __LINE__, ret);
 
-    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", 10);
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
     ASSERT_NE(ashmem, nullptr);
     ashmem->MapReadAndWriteAshmem();
 
     HDI::Usb::V1_2::USBTransferInfo transferInfo;
     transferInfo.endpoint = 0x81;    // 读操作
     transferInfo.flags = 0;
-    transferInfo.type = 2; // 开发板不支持ISO传输类型
+    transferInfo.type = TYPE_BULK; // 开发板不支持ISO传输类型
     transferInfo.timeOut = 0;        // 设置超时时间
-    transferInfo.length = 10;        // 设置传输数据的长度
+    transferInfo.length = TEN;        // 设置传输数据的长度
     transferInfo.userData = 0;
     transferInfo.numIsoPackets = 0;  // 只有type为1有iso
 

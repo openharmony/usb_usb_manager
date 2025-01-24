@@ -28,6 +28,8 @@ public:
     void SetUp();
     void TearDown();
 };
+static constexpr int32_t TEN = 10;
+static constexpr int32_t TYPE_INTERRUPT = 3;
 
 enum UsbInterruptTestErrCode {
     OHEC_COMMON_PARAM_ERROR = 401,
