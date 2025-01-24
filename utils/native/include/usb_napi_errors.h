@@ -73,7 +73,7 @@ const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
     {USB_SUBMIT_TRANSFER_NO_MEM_ERROR, "BusinessError 14400009:Insufficient memory."},
     {USB_SUBMIT_TRANSFER_OTHER_ERROR, "BusinessError 14400010:Other USB error."},
     {USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR,
-        "BusinessError 14400011:If the transfer is not in progress, already complete, or already cancelled."},
+        "BusinessError 14400011:The transfer is not in progress, or is already complete or cancelled."},
 };
 
 void ThrowBusinessError(const napi_env &env, int32_t errCode, const std::string &errMsg);
