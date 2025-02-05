@@ -33,7 +33,7 @@ static constexpr int32_t TYPE_INTERRUPT = 3;
 
 enum UsbInterruptTestErrCode {
     OHEC_COMMON_PARAM_ERROR = 401,
-    USB_SUBMIT_TRANSFER_IO_ERROR = 14400006,
+    USB_SUBMIT_TRANSFER_IO_ERROR = 14400012,
 };
 
 } // SubmitTransfer

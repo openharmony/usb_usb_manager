@@ -40,12 +40,12 @@ enum UsbJsErrCode : int32_t {
     UEC_ACCESSORY_OPEN_FAILED = UEC_ACCESSORY_BASE + 2,
     UEC_ACCESSORY_CAN_NOT_REOPEN = UEC_ACCESSORY_BASE + 3,
 
-    USB_SUBMIT_TRANSFER_IO_ERROR = 14400006,
     USB_SUBMIT_TRANSFER_RESOURCE_BUSY_ERROR = 14400007,
     USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR = 14400008,
     USB_SUBMIT_TRANSFER_NO_MEM_ERROR =  14400009,
     USB_SUBMIT_TRANSFER_OTHER_ERROR = 14400010,
     USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR = 14400011,
+    USB_SUBMIT_TRANSFER_IO_ERROR = 14400012,
 };
 
 const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
@@ -67,13 +67,13 @@ const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
     {UEC_ACCESSORY_OPEN_FAILED, "BusinessError 14401002:Failed to open the native accessory node."},
     {UEC_ACCESSORY_CAN_NOT_REOPEN,    "BusinessError 14401003:Cannot reopen the accessory."},
 
-    {USB_SUBMIT_TRANSFER_IO_ERROR, "BusinessError 14400006:Transmission I/O error."},
     {USB_SUBMIT_TRANSFER_RESOURCE_BUSY_ERROR, "BusinessError 14400007:Resource busy."},
     {USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR, "BusinessError 14400008:No such device (it may have been disconnected)."},
     {USB_SUBMIT_TRANSFER_NO_MEM_ERROR, "BusinessError 14400009:Insufficient memory."},
     {USB_SUBMIT_TRANSFER_OTHER_ERROR, "BusinessError 14400010:Other USB error."},
     {USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR,
         "BusinessError 14400011:The transfer is not in progress, or is already complete or cancelled."},
+    {USB_SUBMIT_TRANSFER_IO_ERROR, "BusinessError 14400012:Transmission I/O error."},
 };
 
 void ThrowBusinessError(const napi_env &env, int32_t errCode, const std::string &errMsg);
