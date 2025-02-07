@@ -130,8 +130,15 @@ int32_t UsbFunctionSwitchWindow::Init()
 bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "pop up function switch window");
-    bool isPromptEnabeld = OHOS::system::GetBoolParameter("persist.usb.setting.gadget_conn_prompt", true);
-    if (!isPromptEnabeld) {
+    bool isPromptEnabled = OHOS::system::GetBoolParameter("persist.usb.setting.gadget_conn_prompt", true);
+    bool isTempDisablePrompt = OHOS::system::GetBoolParameter("usb.setting.gadget_conn_prompt", false);
+
+    if (!isTempDisablePrompt) {
+        USB_HILOGE(MODULE_USB_SERVICE, "temporarily close the pop up window");
+        return false;
+    }
+
+    if (!isPromptEnabled) {
         USB_HILOGE(MODULE_USB_SERVICE, "gadget_conn_prompt is false");
         return false;
     }
@@ -149,8 +156,8 @@ bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
     }
     windowAction_ = UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_SHOW;
  
-    isPromptEnabeld = OHOS::system::GetBoolParameter("bootevent.boot.completed", false);
-    if (!isPromptEnabeld) {
+    isPromptEnabled = OHOS::system::GetBoolParameter("bootevent.boot.completed", false);
+    if (!isPromptEnabled) {
         USB_HILOGE(MODULE_USB_SERVICE, "boot.completed is false!");
         int ret = WatchParameter("bootevent.boot.completed", BootCompletedEventCallback, this);
         if (ret != 0) {
