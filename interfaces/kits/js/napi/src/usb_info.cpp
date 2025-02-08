@@ -2033,8 +2033,8 @@ static napi_value ParmsInput(napi_env env, AsyncCallBackContext &asyncCBWork)
     }
     napi_value isoObjArray = nullptr;
     napi_create_array(env, &isoObjArray);
-    const int32_t isoCount = asyncCBWork.isoInfo.size();
-    for (int32_t i = 0; i < isoCount; i++) {
+    const uint32_t isoCount = asyncCBWork.isoInfo.size();
+    for (uint32_t i = 0; i < isoCount; i++) {
         napi_value iso = nullptr;
         napi_create_object(env, &iso);
         napi_value isoLength = nullptr;
@@ -2054,7 +2054,8 @@ static napi_value ParmsInput(napi_env env, AsyncCallBackContext &asyncCBWork)
 
 static void ReadDataToBuffer(USBTransferAsyncContext *asyncContext, const TransferCallbackInfo &info)
 {
-    if ((asyncContext->endpoint & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_IN) {
+    uint8_t endpointId = static_cast<uint8_t>(asyncContext->endpoint) & USB_ENDPOINT_DIR_MASK;
+    if (endpointId == USB_ENDPOINT_DIR_IN) {
         asyncContext->ashmem->MapReadAndWriteAshmem();
         auto ashmemBuffer = asyncContext->ashmem->ReadFromAshmem(info.actualLength, 0);
         if (ashmemBuffer == nullptr) {
@@ -2137,6 +2138,7 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
     if (!GetTransferParamsFromJsObj(env, info, asyncContext)) {
         USB_HILOGE(MODULE_JS_NAPI, "end call invalid arg");
         asyncContext->status = napi_invalid_arg;
+        delete asyncContext;
         napi_create_int32(env, OHEC_COMMON_PARAM_ERROR, &result);
         return result;
     }
@@ -2148,12 +2150,12 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
         USB_HILOGE(MODULE_JS_NAPI, "Ashmem::CreateAshmem failed");
         return nullptr;
     }
-    if ((asyncContext->endpoint & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
+    uint8_t endpointId = static_cast<uint8_t>(asyncContext->endpoint & USB_ENDPOINT_DIR_MASK);
+    if (endpointId == USB_ENDPOINT_DIR_OUT) {
         std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
-        obj.length = bufferData.size();
+        obj.length = static_cast<int32_t>(bufferData.size());
         asyncContext->ashmem->MapReadAndWriteAshmem();
-        bool isWrite = asyncContext->ashmem->WriteToAshmem(asyncContext->buffer, bufferData.size(), 0);
-        if (!isWrite) {
+        if (!asyncContext->ashmem->WriteToAshmem(asyncContext->buffer, bufferData.size(), 0)) {
             asyncContext->ashmem->CloseAshmem();
             USB_HILOGE(MODULE_JS_NAPI, "napi UsbSubmitTransfer Failed to UsbSubmitTransfer to ashmem.");
         }

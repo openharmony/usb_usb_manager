@@ -62,8 +62,7 @@ bool UsbIsoVecParcel::Marshalling(Parcel &out) const
         
         usbIsoParcel->isoInfo = isoInfoVec.at(index);
         if (!out.WriteParcelable(usbIsoParcel)) {
-            delete (usbIsoParcel);
-            usbIsoParcel = nullptr;
+            usbIsoParcel.clear();
             return false;
         }
     }
@@ -84,9 +83,17 @@ UsbIsoVecParcel *UsbIsoVecParcel::Unmarshalling(Parcel &in)
         return nullptr;
     }
 
+    if (vecSize >= UINT32_MAX) {
+        delete (usbIsoVecParcel);
+        usbIsoVecParcel = nullptr;
+        return nullptr;
+    }
+
     for (uint32_t index = 0; index < vecSize; index++) {
         sptr<UsbIsoParcel> usbIsoParcel = in.ReadParcelable<UsbIsoParcel>();
         if (usbIsoParcel == nullptr) {
+            delete (usbIsoVecParcel);
+            usbIsoVecParcel = nullptr;
             return nullptr;
         }
         usbIsoVecParcel->isoInfoVec.emplace_back(usbIsoParcel->isoInfo);
