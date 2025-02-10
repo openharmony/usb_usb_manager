@@ -2333,7 +2333,8 @@ int32_t UsbService::RequestSerialRight(int32_t portId)
     USB_HILOGI(MODULE_USB_SERVICE, "bundle=%{public}s, device=%{public}s, tokenId=%{public}s",
         bundleName.c_str(), deviceName.c_str(), tokenId.c_str());
     
-    ret = usbRightManager_->RequestRight(portId, deviceVidPidSerialNum, bundleName, tokenId, userId);
+    SerialDeviceIdentity serialDeviceIdentity = { deviceName, deviceVidPidSerialNum };
+    ret = usbRightManager_->RequestRight(portId, serialDeviceIdentity, bundleName, tokenId, userId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE,
             "UsbService::RequestSerialRight RequestRight failed. ret = %{public}d", ret);
