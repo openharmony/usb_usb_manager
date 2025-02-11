@@ -2093,11 +2093,8 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
                 delete asyncContext;
             });
         napi_handle_scope scope;
-        napi_status res = napi_open_handle_scope(asyncCBWork->env, &scope);
-        if (res != napi_ok) {
-            USB_HILOGE(MODULE_JS_NAPI, "napi_open_handle_scope failed, res: %{public}d", res);
-            return;
-        }
+        napi_open_handle_scope(asyncCBWork->env, &scope);
+        napi_status res = napi_ok;
         napi_value resultJsCb;
         res = napi_get_reference_value(asyncCBWork->env, asyncCBWork->callbackRef, &resultJsCb);
         if (res != napi_ok || resultJsCb == nullptr) {
