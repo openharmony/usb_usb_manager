@@ -2095,13 +2095,13 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
         napi_handle_scope scope;
         napi_status res = napi_open_handle_scope(asyncCBWork->env, &scope);
         if (res != napi_ok) {
-            USB_HILOGE(MODULE_JS_NAPI, "napi_open_handle_scope failed, res: %d", res);
+            USB_HILOGE(MODULE_JS_NAPI, "napi_open_handle_scope failed, res: %{public}d", res);
             return;
         }
         napi_value resultJsCb;
         res = napi_get_reference_value(asyncCBWork->env, asyncCBWork->callbackRef, &resultJsCb);
         if (res != napi_ok || resultJsCb == nullptr) {
-            USB_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed, res: %d", res);
+            USB_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed, res: %{public}d", res);
             napi_close_handle_scope(asyncCBWork->env, scope);
             return;
         }
@@ -2110,15 +2110,15 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
         napi_value result;
         res = napi_call_function(asyncCBWork->env, nullptr, resultJsCb, PARAM_COUNT_2, argv, &result);
         if (res != napi_ok) {
-            USB_HILOGE(MODULE_JS_NAPI, "napi call function failed, res: %{public}d", res);
+            USB_HILOGE(MODULE_JS_NAPI, "napi_call_function failed, res: %{public}d", res);
         }
         napi_close_handle_scope(asyncCBWork->env, scope);
     };
     if (napi_status::napi_ok != napi_send_event(asyncCBWork->env, task, napi_eprio_immediate)) {
         USB_HILOGE(MODULE_JS_NAPI, "OnJsCallbackVolumeEvent: Failed to SendEvent");
-        delete asyncCBWork;
-        delete asyncContext;
     }
+    delete asyncCBWork;
+    delete asyncContext;
 }
 
 static void GetUSBTransferInfo(USBTransferInfo &obj, USBTransferAsyncContext *asyncContext)
