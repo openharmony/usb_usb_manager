@@ -2075,9 +2075,11 @@ static void ReadDataToBuffer(USBTransferAsyncContext *asyncContext, const Transf
 static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCallbackInfo &info,
     const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo)
 {
+    USB_HILOGI(MODULE_JS_NAPI, "JsCallBack enter.");
     ReadDataToBuffer(asyncContext, info);
     AsyncCallBackContext *asyncCBWork = new (std::nothrow) AsyncCallBackContext;
     if (asyncCBWork == nullptr) {
+        delete asyncContext;
         return;
     }
     asyncCBWork->env = asyncContext->env;
@@ -2096,12 +2098,7 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
         napi_open_handle_scope(asyncCBWork->env, &scope);
         napi_status res = napi_ok;
         napi_value resultJsCb;
-        res = napi_get_reference_value(asyncCBWork->env, asyncCBWork->callbackRef, &resultJsCb);
-        if (res != napi_ok || resultJsCb == nullptr) {
-            USB_HILOGE(MODULE_JS_NAPI, "napi_get_reference_value failed, res: %{public}d", res);
-            napi_close_handle_scope(asyncCBWork->env, scope);
-            return;
-        }
+        napi_get_reference_value(asyncCBWork->env, asyncCBWork->callbackRef, &resultJsCb);
         napi_value argv[2] = {nullptr};
         argv[1] = ParmsInput(asyncCBWork->env, *asyncCBWork);
         napi_value result;
@@ -2114,8 +2111,6 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
     if (napi_status::napi_ok != napi_send_event(asyncCBWork->env, task, napi_eprio_immediate)) {
         USB_HILOGE(MODULE_JS_NAPI, "OnJsCallbackVolumeEvent: Failed to SendEvent");
     }
-    delete asyncCBWork;
-    delete asyncContext;
 }
 
 static void GetUSBTransferInfo(USBTransferInfo &obj, USBTransferAsyncContext *asyncContext)
