@@ -430,6 +430,7 @@ int32_t UsbDeviceManager::UserChangeProcess()
 void UsbDeviceManager::BroadcastFuncChange(bool connected, int32_t currentFunc)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Current Connect %{public}d,bconnected: %{public}d", connected, currentFunc);
+    CommonEventManager::RemoveStickyCommonEvent(CommonEventSupport::COMMON_EVENT_USB_STATE);
     Want want;
     want.SetAction(CommonEventSupport::COMMON_EVENT_USB_STATE);
  
@@ -448,6 +449,7 @@ void UsbDeviceManager::BroadcastFuncChange(bool connected, int32_t currentFunc)
     }
     CommonEventData data(want);
     CommonEventPublishInfo publishInfo;
+    publishInfo.SetSticky(true);
     USB_HILOGI(MODULE_SERVICE, "send COMMON_EVENT_USB_STATE broadcast connected:%{public}d, "
         "currentFunctions:%{public}d", connected, currentFunc);
     CommonEventManager::PublishCommonEvent(data, publishInfo);
