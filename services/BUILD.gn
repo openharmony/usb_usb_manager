@@ -56,7 +56,7 @@ ohos_shared_library("usbservice") {
 
   public_configs = [ ":usbsrv_public_config" ]
 
-  defines = [ "SERIAL_MOCK" ]
+  defines = []
   if (usb_manager_pass_through) {
     defines += [ "USB_MANAGER_PASS_THROUGH" ]
     sources += [ "native/src/usb_manager_subscriber.cpp" ]
