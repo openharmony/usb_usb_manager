@@ -2198,15 +2198,11 @@ static void ReadDataToBuffer(USBTransferAsyncContext *asyncContext, const Transf
 static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCallbackInfo &info,
     const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo)
 {
+    USB_HILOGI(MODULE_JS_NAPI, "JsCallBack enter.");
     ReadDataToBuffer(asyncContext, info);
-    uv_loop_s *loop = nullptr;
-    napi_get_uv_event_loop(asyncContext->env, &loop);
-    uv_work_t *work = new (std::nothrow) uv_work_t;
-    if (work == nullptr) {
-        return;
-    }
     AsyncCallBackContext *asyncCBWork = new (std::nothrow) AsyncCallBackContext;
     if (asyncCBWork == nullptr) {
+        delete asyncContext;
         return;
     }
     asyncCBWork->env = asyncContext->env;
@@ -2214,28 +2210,30 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
     asyncCBWork->status = info.status;
     asyncCBWork->isoInfo = isoInfo;
     asyncCBWork->callbackRef = asyncContext->callbackRef;
-    work->data = asyncCBWork;
-    uv_queue_work_with_qos(loop, work, [](uv_work_t *work) {}, [](uv_work_t *work, int status) {
-        AsyncCallBackContext *asyncCBWork = (AsyncCallBackContext *)work->data;
-        if (asyncCBWork) {
-            napi_handle_scope scope;
-            napi_open_handle_scope(asyncCBWork->env, &scope);
-            napi_status res = napi_ok;
-            napi_value resultJsCb;
-            res = napi_get_reference_value(asyncCBWork->env, asyncCBWork->callbackRef, &resultJsCb);
-            napi_value argv[2] = {nullptr};
-            argv[1] = ParmsInput(asyncCBWork->env, *asyncCBWork);
-            napi_value result;
-            res = napi_call_function(asyncCBWork->env, nullptr, resultJsCb, PARAM_COUNT_2, argv, &result);
-            if (res != napi_ok) {
-                USB_HILOGE(MODULE_JS_NAPI, "napi call function failed, res: %{public}d", res);
-            }
-            napi_close_handle_scope(asyncCBWork->env, scope);
-            delete asyncCBWork;
+    auto task = [asyncCBWork, asyncContext]() {
+        std::shared_ptr<AsyncCallBackContext> context(
+            static_cast<AsyncCallBackContext*>(asyncCBWork),
+            [asyncContext](AsyncCallBackContext* ptr) {
+                delete ptr;
+                delete asyncContext;
+            });
+        napi_handle_scope scope;
+        napi_open_handle_scope(asyncCBWork->env, &scope);
+        napi_status res = napi_ok;
+        napi_value resultJsCb;
+        napi_get_reference_value(asyncCBWork->env, asyncCBWork->callbackRef, &resultJsCb);
+        napi_value argv[2] = {nullptr};
+        argv[1] = ParmsInput(asyncCBWork->env, *asyncCBWork);
+        napi_value result;
+        res = napi_call_function(asyncCBWork->env, nullptr, resultJsCb, PARAM_COUNT_2, argv, &result);
+        if (res != napi_ok) {
+            USB_HILOGE(MODULE_JS_NAPI, "napi_call_function failed, res: %{public}d", res);
         }
-        delete work;
-    }, uv_qos_default);
-    delete asyncContext;
+        napi_close_handle_scope(asyncCBWork->env, scope);
+    };
+    if (napi_status::napi_ok != napi_send_event(asyncCBWork->env, task, napi_eprio_immediate)) {
+        USB_HILOGE(MODULE_JS_NAPI, "OnJsCallbackVolumeEvent: Failed to SendEvent");
+    }
 }
 
 static void GetUSBTransferInfo(USBTransferInfo &obj, USBTransferAsyncContext *asyncContext)
