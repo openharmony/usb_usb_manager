@@ -83,7 +83,7 @@ UsbIsoVecParcel *UsbIsoVecParcel::Unmarshalling(Parcel &in)
         return nullptr;
     }
 
-    if (vecSize >= UINT32_MAX) {
+    if (vecSize > UINT32_MAX || vecSize < 0) {
         delete (usbIsoVecParcel);
         usbIsoVecParcel = nullptr;
         return nullptr;

@@ -2270,7 +2270,7 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
         USB_HILOGE(MODULE_JS_NAPI, "Ashmem::CreateAshmem failed");
         return nullptr;
     }
-    uint8_t endpointId = static_cast<uint8_t>(asyncContext->endpoint & USB_ENDPOINT_DIR_MASK);
+    uint8_t endpointId = static_cast<uint8_t>(asyncContext->endpoint) & USB_ENDPOINT_DIR_MASK;
     if (endpointId == USB_ENDPOINT_DIR_OUT) {
         std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
         obj.length = static_cast<int32_t>(bufferData.size());
