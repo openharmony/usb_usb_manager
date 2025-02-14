@@ -34,6 +34,7 @@
 #include "system_ability_definition.h"
 #endif // USB_MANAGER_PASS_THROUGH
 
+#define USB_FUNCTION_HDC     (1 << 2)
 #define USB_FUNCTION_MTP     (1 << 3)
 #define USB_FUNCTION_PTP     (1 << 4)
 #define USB_FUNCTION_STORAGE     (1 << 9)
@@ -66,6 +67,7 @@ public:
     int32_t SetCurrentFunctions(int32_t funcs);
 private:
     void ProcessFunctionSwitchWindow(bool connected);
+    void ProcessFunctionNotifier(bool connected, int32_t func);
     void DumpGetSupportFunc(int32_t fd);
     void DumpSetFunc(int32_t fd, const std::string &args);
     void ReportFuncChangeSysEvent(int32_t currentFunctions, int32_t updateFunctions);
