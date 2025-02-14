@@ -44,7 +44,7 @@ static const std::string SET_BUNDLE_NAME = "com.usb.right";
 static const std::string BUNDLE_NAME_KEY = "EntryAbility";
 static const std::string URI = "";
 static const std::string HAP_PATH = "/system/app/usb_right_dialog/usb_right_dialog.hap";
-static const std::string ICON_NAME = "mtp_notification_icon";
+static const std::string ICON_NAME = "icon";
 constexpr std::int32_t BUNDLE_MGR_SERVICE_SA_ID = 401;
 constexpr std::int32_t NOTIFICATION_ID_ZERO = 0;
 

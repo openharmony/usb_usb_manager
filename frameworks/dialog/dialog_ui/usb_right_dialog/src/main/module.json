@@ -26,10 +26,10 @@
       },
       {
         "name": "EntryAbility",
-        "startWindowIcon": "$media:mtp_notification_icon",
+        "startWindowIcon": "$media:icon",
         "srcEntrance": "./ets/MainAbility/EntryAbility.ts",
         "description": "$string:MainAbility_desc",
-        "icon": "$media:mtp_notification_icon",
+        "icon": "$media:icon",
         "label": "$string:MainAbility_label",
         "visible": true,
         "launchType": "singleton",
