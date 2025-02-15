@@ -45,6 +45,7 @@ struct SimpleContacts {
   @State mtpChecked: boolean = false;
   @State ptpChecked: boolean = false;
   @State chargeChecked: boolean = false;
+  @State setFuncFinished: boolean = true;
   private curFunc: number = USBSERVICESWITCH_ID_CHARGE_ONLY;
   @State index: number = USBSERVICESWITCH_ID_CHARGE_ONLY;
   private contacts: Array<Contact> = []
@@ -52,7 +53,9 @@ struct SimpleContacts {
 
   onPageHide() {
     console.info('IndexComponent onPageHide');
-    usbServiceSwitch.serviceChoose(this.index);
+    if (!this.setFuncFinished) {
+        usbServiceSwitch.serviceChoose(this.index);
+    }
     let context = getContext(this) as common.ServiceExtensionContext;
     context?.terminateSelf();
   }
@@ -242,6 +245,8 @@ struct SimpleContacts {
       console.log('serviceChoose start')
       usbServiceSwitch.serviceChoose(choose);
       console.log('serviceChoose end')
+      this.setFuncFinished = true;
     }, DEBOUNCE_TIME)
+    this.setFuncFinished = false;
   }
 }
