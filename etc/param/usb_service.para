@@ -11,4 +11,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 persist.usb.setting.gadget_conn_prompt=true
-usb.setting.gadget_conn_prompt=true
