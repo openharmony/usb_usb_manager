@@ -115,19 +115,31 @@
         },
         {
             "name":"USB_func_charge_notifier",
-            "value":"Charging via USB"
+            "value":"Charging via USB",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"USB_func_mtp_notifier",
-            "value":"USB connected (file transfer mode)"
+            "value":"File transfer via USB",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"USB_func_ptp_notifier",
-            "value":"USB connected (photo transfer mode)"
+            "value":"photo browsing via USB",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"USB_func_more_notifier",
-            "value":"Touch for more options"
+            "value":"Tap for more options.",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

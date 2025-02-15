@@ -83,6 +83,34 @@
             "attr":{
                 "priority":"LT"
             }
+        },
+        {
+            "name":"USB_func_charge_notifier",
+            "value":"通過 USB 充電",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_more_notifier",
+            "value":"輕觸檢視更多選項",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp_notifier",
+            "value":"通過 USB 瀏覽相片",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_notifier",
+            "value":"通過 USB 傳輸檔案",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

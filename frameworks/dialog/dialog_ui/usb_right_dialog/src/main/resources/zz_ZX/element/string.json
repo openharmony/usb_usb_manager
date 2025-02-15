@@ -75,6 +75,22 @@
         {
             "name":"USB_func_mtp_tip",
             "value":"[TS_1000797]_For items under \"My phone\" in Files."
+        },
+        {
+            "name":"USB_func_charge_notifier",
+            "value":"[TS_1017356]_Charging via USB"
+        },
+        {
+            "name":"USB_func_more_notifier",
+            "value":"[TS_1017357]_Tap for more options."
+        },
+        {
+            "name":"USB_func_ptp_notifier",
+            "value":"[TS_1017355]_Photo_browsing via USB"
+        },
+        {
+            "name":"USB_func_mtp_notifier",
+            "value":"[TS_1017358]_File transfer via USB"
         }
     ]
 }

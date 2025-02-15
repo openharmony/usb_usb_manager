@@ -40,6 +40,7 @@ ohos_shared_library("usbservice") {
   sources = [
     "${usb_manager_path}/services/zidl/src/usb_srv_stub.cpp",
     "${utils_path}/native/src/usb_settings_datashare.cpp",
+    "native/src/usb_connection_notifier.cpp",
     "native/src/usb_report_sys_event.cpp",
     "native/src/usb_right_database.cpp",
     "native/src/usb_right_db_helper.cpp",
@@ -110,6 +111,7 @@ ohos_shared_library("usbservice") {
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
+    "i18n:intl_util",
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_single",
@@ -120,6 +122,9 @@ ohos_shared_library("usbservice") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+  if (true) {
+    external_deps += [ "distributed_notification_service:ans_innerkits" ]
+  }
   if (usb_manager_pass_through) {
     external_deps += [
       "drivers_interface_usb:libusb_proxy_2.0",
