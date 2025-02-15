@@ -48,10 +48,9 @@ class UsbServiceSwitch {
       console.log(TAG + 'choose: charge only');
       return;
     } else if (chooseId === USBFUNCTION_NONE) {
+      this.tarFunc = (this.tarFunc | USBFUNCTION_NONE) & (~USBFUNCTION_STORAGE);
       if (this.tarFunc === USBFUNCTION_NONE) {
         this.tarFunc = USBFUNCTION_STORAGE;
-      } else {
-        this.tarFunc = (this.tarFunc | USBFUNCTION_NONE) & (~USBFUNCTION_STORAGE);
       }
       console.log(TAG + 'choose: xfer file(NONE)');
     } else if (chooseId === USBFUNCTION_MTP) {
