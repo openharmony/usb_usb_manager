@@ -199,14 +199,18 @@ struct SimpleContacts {
                         .margin(0)
                         .padding(0)
                         .checked(this.index === item.usbFunction)
+                        .alignSelf(ItemAlign.End)
                     } else {
                       Column()
                         .height(20)
                         .width(20)
+                        .alignSelf(ItemAlign.End)
                     }
                   }
                   .justifyContent(FlexAlign.End)
+                  .width('7.5%')
                 }
+                .width('100%')
               }
               .padding(12)
               .width('100%')
