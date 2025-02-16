@@ -17,6 +17,7 @@ import usbManagerService from '@ohos.usbManager';
 
 const TAG: string = 'usbfunctionswitchwindow_UsbServiceSwitch';
 const USBFUNCTION_NONE: number = 0;
+const USBFUNCTION_HDC: number = 4;
 const USBFUNCTION_MTP: number = 8;
 const USBFUNCTION_PTP: number = 16;
 const USBFUNCTION_STORAGE: number = 512;
@@ -24,6 +25,12 @@ const USBFUNCTION_STORAGE: number = 512;
 class UsbServiceSwitch {
   private curFunc: number = USBFUNCTION_NONE;
   private tarFunc: number = USBFUNCTION_NONE;
+
+  getCurrentFunctions(): number {
+    this.curFunc = usbManagerService.getCurrentFunctions();
+    console.log(TAG + 'current' + this.curFunc);
+    return this.curFunc;
+  }
 
   async serviceChoose(chooseId: number): Promise<void> {
     this.curFunc = usbManagerService.getCurrentFunctions();
@@ -40,6 +47,12 @@ class UsbServiceSwitch {
     if (chooseId === -1) {
       console.log(TAG + 'choose: charge only');
       return;
+    } else if (chooseId === USBFUNCTION_NONE) {
+      this.tarFunc = (this.tarFunc | USBFUNCTION_NONE) & (~USBFUNCTION_STORAGE);
+      if (this.tarFunc === USBFUNCTION_NONE) {
+        this.tarFunc = USBFUNCTION_STORAGE;
+      }
+      console.log(TAG + 'choose: xfer file(NONE)');
     } else if (chooseId === USBFUNCTION_MTP) {
       this.tarFunc = (this.tarFunc | USBFUNCTION_MTP) & (~USBFUNCTION_STORAGE);
       console.log(TAG + 'choose: xfer file(MTP)');

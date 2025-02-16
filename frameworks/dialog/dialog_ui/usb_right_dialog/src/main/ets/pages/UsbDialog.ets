@@ -33,7 +33,6 @@ struct IndexHapComponent {
       },
       secondaryButton: {
         value: $r('app.string.allowButton'),
-        role: ButtonRole.ERROR,
         action: () => {
           try {
             if (globalThis.want.parameters['accessory'] === undefined) {

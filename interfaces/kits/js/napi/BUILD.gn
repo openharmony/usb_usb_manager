@@ -61,6 +61,18 @@ ohos_shared_library("usbmanager") {
     ":usbnapi_private_config",
   ]
   deps = [ "${usb_manager_path}/interfaces/innerkits:usbsrv_client" ]
+
+  defines = []
+  if (usb_manager_feature_host) {
+    defines += [ "USB_MANAGER_FEATURE_HOST" ]
+  }
+  if (usb_manager_feature_device) {
+    defines += [ "USB_MANAGER_FEATURE_DEVICE" ]
+  }
+  if (usb_manager_feature_port) {
+    defines += [ "USB_MANAGER_FEATURE_PORT" ]
+  }
+
   public_external_deps = [ "cJSON:cjson" ]
   external_deps = [
     "bounds_checking_function:libsec_shared",

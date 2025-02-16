@@ -23,6 +23,19 @@
         "label": "$string:MainAbility_label",
         "visible": false,
         "launchType": "standard"
+      },
+      {
+        "name": "EntryAbility",
+        "startWindowIcon": "$media:icon",
+        "srcEntrance": "./ets/MainAbility/EntryAbility.ts",
+        "description": "$string:MainAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:MainAbility_label",
+        "visible": true,
+        "launchType": "singleton",
+        "excludeFromMissions": true,
+        "orientation": "auto_rotation_restricted",
+        "exported": true
       }
     ],
     "requestPermissions": [

@@ -19,6 +19,7 @@
 #include "common_event_data.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "usb_connection_notifier.h"
 #include "hisysevent.h"
 #include "usb_errors.h"
 #include "usb_srv_support.h"
@@ -293,12 +294,15 @@ std::string UsbDeviceManager::ConvertToString(uint32_t function)
 
 void UsbDeviceManager::UpdateFunctions(int32_t func)
 {
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: func %{public}d, currentFunctions_ %{public}d", __func__, func,
+        currentFunctions_);
     if (func == currentFunctions_) {
         return;
     }
     ReportFuncChangeSysEvent(currentFunctions_, func);
     currentFunctions_ = func;
     BroadcastFuncChange(connected_, currentFunctions_);
+    ProcessFunctionNotifier(connected_, func);
 }
 
 int32_t UsbDeviceManager::GetCurrentFunctions()
@@ -430,6 +434,7 @@ int32_t UsbDeviceManager::UserChangeProcess()
 void UsbDeviceManager::BroadcastFuncChange(bool connected, int32_t currentFunc)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Current Connect %{public}d,bconnected: %{public}d", connected, currentFunc);
+    CommonEventManager::RemoveStickyCommonEvent(CommonEventSupport::COMMON_EVENT_USB_STATE);
     Want want;
     want.SetAction(CommonEventSupport::COMMON_EVENT_USB_STATE);
  
@@ -448,6 +453,7 @@ void UsbDeviceManager::BroadcastFuncChange(bool connected, int32_t currentFunc)
     }
     CommonEventData data(want);
     CommonEventPublishInfo publishInfo;
+    publishInfo.SetSticky(true);
     USB_HILOGI(MODULE_SERVICE, "send COMMON_EVENT_USB_STATE broadcast connected:%{public}d, "
         "currentFunctions:%{public}d", connected, currentFunc);
     CommonEventManager::PublishCommonEvent(data, publishInfo);
@@ -458,10 +464,29 @@ void UsbDeviceManager::ProcessFuncChange(bool connected, int32_t currentFunc)
 {
     BroadcastFuncChange(connected, currentFunc);
     ProcessFunctionSwitchWindow(connected);
+    ProcessFunctionNotifier(connected, 0);
+}
+
+void UsbDeviceManager::ProcessFunctionNotifier(bool connected, int32_t func)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: connected %{public}d, func %{public}d", __func__, connected, func);
+    uint32_t func_uint = static_cast<uint32_t>(func);
+    if (connected) {
+        if (func_uint & USB_FUNCTION_MTP) {
+            UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_MTP);
+        } else if (func_uint & USB_FUNCTION_PTP) {
+            UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_PTP);
+        } else {
+            UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_CHARGE);
+        }
+    } else {
+        UsbConnectionNotifier::GetInstance()->CancelNotification();
+    }
 }
 
 void UsbDeviceManager::ProcessFunctionSwitchWindow(bool connected)
 {
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: connected %{public}d", __func__, connected);
     std::shared_ptr<UsbFunctionSwitchWindow> window_ = UsbFunctionSwitchWindow::GetInstance();
     if (window_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "show window: get usb function switch window failed");
