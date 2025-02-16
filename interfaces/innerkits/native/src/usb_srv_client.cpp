@@ -38,6 +38,7 @@ constexpr int32_t PARAM_ERROR = 401;
 UsbSrvClient::UsbSrvClient()
 {
     Connect();
+    serialRemote = new SerialDeathMonitor();
 }
 UsbSrvClient::~UsbSrvClient() {}
 
@@ -988,11 +989,12 @@ int32_t UsbSrvClient::SetPortRole(int32_t portId, int32_t powerRole, int32_t dat
     return UEC_SERVICE_PORT_NOT_SUPPORT;
 }
 #endif // USB_MANAGER_FEATURE_PORT
+
 int32_t UsbSrvClient::SerialOpen(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "Calling SerialOpen");
     RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
-    int32_t ret = proxy_->SerialOpen(portId);
+    int32_t ret = proxy_->SerialOpen(portId, serialRemote);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialOpen failed ret = %{public}d!", ret);
     }
@@ -1010,10 +1012,10 @@ int32_t UsbSrvClient::SerialClose(int32_t portId)
     return ret;
 }
 
-int32_t UsbSrvClient::SerialRead(int32_t portId, std::vector<uint8_t>& data, uint32_t size)
+int32_t UsbSrvClient::SerialRead(int32_t portId, uint8_t *buffData, uint32_t size, uint32_t timeout)
 {
     RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
-    int32_t ret = proxy_->SerialRead(portId, data, size);
+    int32_t ret = proxy_->SerialRead(portId, buffData, size, timeout);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialRead failed ret = %{public}d!", ret);
     }
@@ -1021,10 +1023,10 @@ int32_t UsbSrvClient::SerialRead(int32_t portId, std::vector<uint8_t>& data, uin
     return ret;
 }
 
-int32_t UsbSrvClient::SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size)
+int32_t UsbSrvClient::SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size, uint32_t timeout)
 {
     RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
-    int32_t ret = proxy_->SerialWrite(portId, data, size);
+    int32_t ret = proxy_->SerialWrite(portId, data, size, timeout);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialWrite failed ret = %{public}d!", ret);
     }

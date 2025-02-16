@@ -136,6 +136,7 @@ private:
     int32_t DoAddSerialRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoCancelSerialRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t DoRequestSerialRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t WriteSerialPort(MessageParcel &reply, const OHOS::HDI::Usb::Serial::V1_0::SerialPort &port);
 };
 } // namespace USB
 } // namespace OHOS

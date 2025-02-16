@@ -56,27 +56,23 @@ const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
 #error
 #endif
 
-inline bool SerialAssert(napi_env env, bool assertion, int errCode, const std::string& errMsg)
+inline bool CheckAndThrowOnError(napi_env env, bool assertion, int errCode, const std::string& errMsg)
 {
-    do {
-        if (!(assertion)) {
-            USB_HILOGE(MODULE_JS_NAPI, "%{public}s", errMsg.c_str());
-            OHOS::USB::ThrowBusinessError(env, errCode, errMsg.c_str());
-            return false;
-        }
-        return true;
-    } while (0);
+    if (!assertion) {
+        USB_HILOGE(MODULE_JS_NAPI, "%{public}s", errMsg.c_str());
+        OHOS::USB::ThrowBusinessError(env, errCode, errMsg.c_str());
+        return false;
+    }
+    return true;
 }
 
-inline bool NapiCheck(napi_env env, napi_status theCall, const std::string& loginfo)
+inline bool CheckNapiResult(napi_env env, napi_status theCall, const std::string& loginfo)
 {
-    do {
-        if ((theCall) != napi_ok) {
-            USB_HILOGE(MODULE_JS_NAPI, "%{public}s:  %{public}s", __func__, loginfo.c_str());
-            return false;
-        }
-        return true;
-    } while (0);
+    if (theCall != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "%{public}s:  %{public}s", __func__, loginfo.c_str());
+        return false;
+    }
+    return true;
 }
 
 } // namespace SERIAL

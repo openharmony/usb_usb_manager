@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 #include "v1_0/iserial_interface.h"
+#include <ipc_skeleton.h>
+#include "usb_right_manager.h"
 
 namespace OHOS {
 namespace SERIAL {
@@ -32,19 +34,26 @@ public:
 
     int32_t SerialOpen(int32_t portId);
     int32_t SerialClose(int32_t portId);
-    int32_t SerialRead(int32_t portId, std::vector<uint8_t>& data, uint32_t size);
-    int32_t SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size);
+    int32_t SerialRead(int32_t portId, uint8_t *buffData, uint32_t size, uint32_t timeout);
+    int32_t SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size, uint32_t timeout);
     int32_t SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute);
     int32_t SerialSetAttribute(int32_t portId, const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute);
     int32_t SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList);
     void SerialPortListDump(int32_t fd, const std::vector<std::string>& args);
     void ListGetDumpHelp(int32_t fd);
     void SerialGetAttributeDump(int32_t fd, const std::vector<std::string>& args);
+    bool IsPortIdExist(int32_t portId);
+    void FreeTokenId(int32_t portId, uint32_t tokenId);
+    int32_t GetTokenId(uint32_t &tokenId);
 private:
     bool IsPortStatus(int32_t portId);
-    std::mutex mutex_;
-    std::map<int32_t, bool> portManageMap_;
+    bool CheckTokenIdValidity(int32_t portId);
+    void UpdateSerialPortMap(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList);
+    std::map<int32_t, uint32_t> portTokenMap_;
+    std::map<int32_t, OHOS::HDI::Usb::Serial::V1_0::SerialPort> serialPortMap_;
     sptr<OHOS::HDI::Usb::Serial::V1_0::ISerialInterface> serial_ = nullptr;
+    std::shared_ptr<USB::UsbRightManager> usbRightManager_;
+    std::mutex serialPortMapMutex_;
 };
 } // namespace SERIAL
 } // namespace OHOS

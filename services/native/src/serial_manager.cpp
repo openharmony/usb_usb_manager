@@ -20,34 +20,34 @@
 #include "securec.h"
 #include "serial_manager.h"
 #include "hilog_wrapper.h"
+#include "tokenid_kit.h"
+#include "accesstoken_kit.h"
 
-#define TWOARGES 2
-#ifdef SERIAL_MOCK
-static std::vector<uint8_t> g_mockBuffer = {'s', 'e', 'r', 'i', 'a', 'l', '\0'};
-static const size_t BUFFER_CAPACITY = 30;
-#endif
+#define DUMP_PARAMS_NUM_2 2
 
 using namespace OHOS::HiviewDFX;
 using OHOS::USB::USB_MGR_LABEL;
 using OHOS::USB::MODULE_USB_SERVICE;
-using OHOS::USB::UEC_MANAGER_PORT_REPEAT_OPEN;
-using OHOS::USB::UEC_MANAGER_PORT_REPEAT_CLOSE;
-using OHOS::USB::UEC_MANAGER_PORT_NOT_OPEN;
 using OHOS::USB::UEC_OK;
 
 namespace OHOS {
 namespace SERIAL {
 constexpr int32_t PARAM_COUNT_ONE = 1;
-constexpr int32_t ERR_CODE_TIMEOUT = -4;
-constexpr int32_t ERR_CODE_IOEXCEPTION = -5;
+constexpr int32_t ERR_CODE_IOEXCEPTION = -1;
 constexpr int32_t ERR_CODE_DEVICENOTOPEN = -6;
+constexpr int32_t ERR_CODE_TIMEOUT = -7;
+constexpr int32_t ERR_CODE_ERROR_OVERFLOW = -8;
 
 SerialManager::SerialManager()
 {
-    serial_ = OHOS::HDI::Usb::Serial::V1_0::ISerialInterface::Get("serial_interface_service", true);
     if (serial_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialManager serial_ is null");
+        serial_ = OHOS::HDI::Usb::Serial::V1_0::ISerialInterface::Get("serial_interface_service", true);
+        if (serial_ == nullptr) {
+            USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialManager serial_ is nullptr");
+        }
     }
+
+    usbRightManager_ = std::make_shared<USB::UsbRightManager>();
 }
 
 SerialManager::~SerialManager()
@@ -57,68 +57,73 @@ SerialManager::~SerialManager()
 
 inline int32_t ErrorCodeWrap(int32_t errorCode)
 {
-    if (errorCode == ERR_CODE_TIMEOUT) {
-        return USB::UEC_INTERFACE_TIMED_OUT;
-    } else if (errorCode == ERR_CODE_IOEXCEPTION) {
-        return USB::UEC_MANAGER_IO_EXCEPTION;
+    if (errorCode == ERR_CODE_IOEXCEPTION || errorCode == ERR_CODE_ERROR_OVERFLOW) {
+        return USB::UEC_SERIAL_IO_EXCEPTION;
     } else if (errorCode == ERR_CODE_DEVICENOTOPEN) {
-        return USB::UEC_MANAGER_DEVICENOTOPEN;
+        return USB::UEC_SERIAL_DEVICENOTOPEN;
+    } else if (errorCode == ERR_CODE_TIMEOUT) {
+        return USB::UEC_INTERFACE_TIMED_OUT;
     } else {
-        return USB::UEC_SERIAL_INTERFACE_ERROR;
+        return USB::UEC_SERIAL_OTHER_ERROR;
     }
 }
 
 int32_t SerialManager::SerialOpen(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "serialManager::SerialOpen start");
-    std::lock_guard<std::mutex> guard(mutex_);
     if (serial_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialOpen serial_ is nullptr");
         return OHOS::USB::UEC_SERVICE_INVALID_VALUE;
     }
 
-    if (portManageMap_.find(portId) != portManageMap_.end()) {
-        if (portManageMap_[portId]) {
-            USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialOpen The port has been opened");
-            return UEC_MANAGER_PORT_REPEAT_OPEN;
-        }
+    if (portTokenMap_.find(portId) != portTokenMap_.end()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialOpen The port has been opened");
+        return OHOS::USB::UEC_SERIAL_PORT_REPEAT_OPEN;
+    }
+
+    uint32_t tokenId;
+    if (GetTokenId(tokenId) != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "get tokenId failed");
+        return OHOS::USB::UEC_SERVICE_INVALID_VALUE;
     }
 
     int32_t ret = serial_->SerialOpen(portId);
-    if (ret == UEC_OK) {
-        portManageMap_[portId] = true;
-        return ret;
+    if (ret != UEC_OK) {
+        return ErrorCodeWrap(ret);
     }
 
-    return ErrorCodeWrap(ret);
+    portTokenMap_[portId] = tokenId;
+    return ret;
 }
 
 int32_t SerialManager::SerialClose(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "serialManager::SerialClose start");
-    std::lock_guard<std::mutex> guard(mutex_);
     if (serial_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialClose serial_ is nullptr");
         return OHOS::USB::UEC_SERVICE_INVALID_VALUE;
     }
 
-    if (portManageMap_.find(portId) != portManageMap_.end()) {
-        if (!portManageMap_.find(portId)->second) {
-            USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialClose The port repeat close");
-            return UEC_MANAGER_PORT_REPEAT_CLOSE;
-        }
+    if (!IsPortStatus(portId)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialClose The port repeat close");
+        return OHOS::USB::UEC_SERIAL_PORT_REPEAT_CLOSE;
+    }
+
+    if (!CheckTokenIdValidity(portId)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "The application is incorrect and cannot be closed");
+        return OHOS::USB::UEC_SERIAL_PORT_OCCUPIED;
     }
 
     int32_t ret = serial_->SerialClose(portId);
-    if (ret == UEC_OK) {
-        portManageMap_[portId] = false;
-        return ret;
+    if (ret != UEC_OK) {
+         return ErrorCodeWrap(ret);
     }
 
-    return ErrorCodeWrap(ret);
+    portTokenMap_.erase(portId);
+    return ret;
 }
 
-int32_t SerialManager::SerialRead(int32_t portId, std::vector<uint8_t>& data, uint32_t size)
+int32_t SerialManager::SerialRead(int32_t portId, uint8_t *buffData, uint32_t size, uint32_t timeout)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "serialManager::SerialRead start");
     if (serial_ == nullptr) {
@@ -128,30 +133,29 @@ int32_t SerialManager::SerialRead(int32_t portId, std::vector<uint8_t>& data, ui
 
     if (!IsPortStatus(portId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialRead The port is not open");
-        return UEC_MANAGER_PORT_NOT_OPEN;
+        return OHOS::USB::UEC_SERIAL_PORT_NOT_OPEN;
     }
 
-#ifdef SERIAL_MOCK
-    data.clear();
-    if (size > g_mockBuffer.size()) {
-        return UEC_OK;
+    if (!CheckTokenIdValidity(portId)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "The application is incorrect and cannot be read");
+        return OHOS::USB::UEC_SERIAL_PORT_OCCUPIED;
     }
-    for (size_t i = 0; i < size; ++i) {
-        data.push_back(g_mockBuffer[i]);
-    }
-    auto it = g_mockBuffer.cbegin();
-    g_mockBuffer.erase(it, it + size);
-    return UEC_OK;
-#else
-    int32_t ret = serial_->SerialRead(portId, data, size);
+
+    std::vector<uint8_t> data;
+    int32_t ret = serial_->SerialRead(portId, data, size, timeout);
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "SerialRead failed ret = %{public}d", ret);
         return ErrorCodeWrap(ret);
     }
+
+    for (size_t i = 0; i < data.size(); i++) {
+        buffData[i] = data.at(i);
+    }
+
     return ret;
-#endif
 }
 
-int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size)
+int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size, uint32_t timeout)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "serialManager::SerialWrite start");
     if (serial_ == nullptr) {
@@ -161,25 +165,20 @@ int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& d
 
     if (!IsPortStatus(portId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialWrite The port is not open");
-        return UEC_MANAGER_PORT_NOT_OPEN;
+        return OHOS::USB::UEC_SERIAL_PORT_NOT_OPEN;
     }
 
-#ifdef SERIAL_MOCK
-    for (size_t i = 0; i < size <= data.size() ? size : data.size(); ++i) {
-        if (g_mockBuffer.size() == BUFFER_CAPACITY) {
-            return UEC_OK;
-        }
-        g_mockBuffer.push_back(data[i]);
+    if (!CheckTokenIdValidity(portId)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "The application is incorrect and cannot be write");
+        return OHOS::USB::UEC_SERIAL_PORT_OCCUPIED;
     }
 
-    return UEC_OK;
-#else
-    int32_t ret = serial_->SerialWrite(portId, data, size);
+    int32_t ret = serial_->SerialWrite(portId, data, size, timeout);
     if (ret != UEC_OK) {
         return ErrorCodeWrap(ret);
     }
+
     return ret;
-#endif
 }
 
 int32_t SerialManager::SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute)
@@ -189,14 +188,22 @@ int32_t SerialManager::SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial
         USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialGetAttribute serial_ is nullptr");
         return OHOS::USB::UEC_SERVICE_INVALID_VALUE;
     }
+
     if (!IsPortStatus(portId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialGetAttribute The port is not open");
-        return UEC_MANAGER_PORT_NOT_OPEN;
+        return OHOS::USB::UEC_SERIAL_PORT_NOT_OPEN;
     }
+
+    if (!CheckTokenIdValidity(portId)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "The application is incorrect and cannot be get attribute");
+        return OHOS::USB::UEC_SERIAL_PORT_OCCUPIED;
+    }
+
     int32_t ret = serial_->SerialGetAttribute(portId, attribute);
     if (ret != UEC_OK) {
         return ErrorCodeWrap(ret);
     }
+
     return ret;
 }
 
@@ -211,13 +218,20 @@ int32_t SerialManager::SerialSetAttribute(int32_t portId,
     }
 
     if (!IsPortStatus(portId)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialSetAttribute The port is not open");
-        return UEC_MANAGER_PORT_NOT_OPEN;
+        USB_HILOGE(MODULE_USB_SERVICE, "SerialManager::SerialGetAttribute The port is not open");
+        return OHOS::USB::UEC_SERIAL_PORT_NOT_OPEN;
     }
+
+    if (!CheckTokenIdValidity(portId)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "The application is incorrect and cannot be set attribute");
+        return OHOS::USB::UEC_SERIAL_PORT_OCCUPIED;
+    }
+
     int32_t ret = serial_->SerialSetAttribute(portId, attribute);
     if (ret != UEC_OK) {
         return ErrorCodeWrap(ret);
     }
+
     return ret;
 }
 
@@ -230,16 +244,90 @@ int32_t SerialManager::SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_
         return OHOS::USB::UEC_SERVICE_INVALID_VALUE;
     }
 
-    return serial_->SerialGetPortList(serialPortList);
+    int32_t ret = serial_->SerialGetPortList(serialPortList);
+    if (ret != UEC_OK) {
+        return ret;
+    }
+    
+    UpdateSerialPortMap(serialPortList);
+    return ret;
+}
+
+void SerialManager::UpdateSerialPortMap(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList)
+{
+    std::lock_guard<std::mutex> guard(serialPortMapMutex_);
+    for (auto it : serialPortList) {
+        serialPortMap_[it.portId] = it;
+    }
+}
+
+bool SerialManager::IsPortIdExist(int32_t portId)
+{
+    std::lock_guard<std::mutex> guard(serialPortMapMutex_);
+    if (serialPortMap_.find(portId) == serialPortMap_.end()) {
+        return false;
+    }
+
+    return true;
 }
 
 bool SerialManager::IsPortStatus(int32_t portId)
 {
-    if (portManageMap_.find(portId) == portManageMap_.end()) {
+    if (portTokenMap_.find(portId) == portTokenMap_.end()) {
         return false;
     }
 
-    return portManageMap_.find(portId)->second;
+    return true;
+}
+
+bool SerialManager::CheckTokenIdValidity(int32_t portId)
+{
+    uint32_t tokenId;
+    if (GetTokenId(tokenId) != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "get tokenId failed");
+        return false;
+    }
+
+    if (tokenId != portTokenMap_[portId]) {
+        return false;
+    }
+
+    return true;
+}
+
+
+int32_t SerialManager::GetTokenId(uint32_t &tokenId)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "GetTokenId start");
+    OHOS::Security::AccessToken::AccessTokenID token = IPCSkeleton::GetCallingTokenID();
+    OHOS::Security::AccessToken::HapTokenInfo hapTokenInfoRes;
+    int32_t ret = OHOS::Security::AccessToken::AccessTokenKit::GetHapTokenInfo(token, hapTokenInfoRes);
+    if (ret != ERR_OK) {
+        if (usbRightManager_->IsSystemAppOrSa()) {
+            tokenId = token;
+            return UEC_OK;
+        }
+        USB_HILOGE(MODULE_USB_SERVICE, "GetTokenId failed");
+        return -1;
+    }
+
+    tokenId = token;
+    return ERR_OK;
+}
+
+void SerialManager::FreeTokenId(int32_t portId, uint32_t tokenId)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "SerialManager::FreeTokenId start");
+    if ((portTokenMap_.find(portId) == portTokenMap_.end()) || (portTokenMap_[portId] != tokenId)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "portid not exist or tokenId failed");
+        return;
+    }
+
+    if (serial_ != nullptr) {
+        serial_->SerialClose(portId);
+    }
+    
+    portTokenMap_.erase(portId);
 }
 
 void SerialManager::SerialPortListDump(int32_t fd, const std::vector<std::string>& args)
@@ -250,7 +338,7 @@ void SerialManager::SerialPortListDump(int32_t fd, const std::vector<std::string
         return;
     }
     
-    if (args[0] =="-l") {
+    if (args[0] == "-l") {
         std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort> serialPortList;
         SerialGetPortList(serialPortList);
         dprintf(fd, "=========== dump the serial port list ===========\n");
@@ -289,7 +377,7 @@ void SerialManager::SerialGetAttributeDump(int32_t fd, const std::vector<std::st
             dprintf(fd, "Port %zu: baudrate: %zu stopBits:%zu parity:%zu dataBits:%zu\n",
                 i, attribute.baudrate, attribute.stopBits, attribute.parity, attribute.dataBits);
         }
-    } else if (size == TWOARGES) {
+    } else if (size == DUMP_PARAMS_NUM_2) {
         int32_t portId = std::stoi(args[1]);
         int32_t ret = SerialGetAttribute(portId, attribute);
         if (ret != UEC_OK) {

@@ -1742,7 +1742,7 @@ bool UsbServerProxy::ReadFileDescriptor(MessageParcel &data, int &fd)
 }
 #endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
 
-int32_t UsbServerProxy::SerialOpen(int32_t portId)
+int32_t UsbServerProxy::SerialOpen(int32_t portId, sptr<IRemoteObject> serialRemote)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -1754,6 +1754,7 @@ int32_t UsbServerProxy::SerialOpen(int32_t portId)
         return UEC_INTERFACE_WRITE_PARCEL_ERROR;
     }
     WRITE_PARCEL_WITH_RET(data, Int32, portId, UEC_INTERFACE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, RemoteObject, serialRemote, UEC_SERVICE_WRITE_PARCEL_ERROR);
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::SERIAL_FUN_SERIAL_OPEN),
         data, reply, option);
     if (ret) {
@@ -1784,41 +1785,41 @@ int32_t UsbServerProxy::SerialClose(int32_t portId)
     return ret;
 }
 
-int32_t UsbServerProxy::SerialRead(int32_t portId, std::vector<uint8_t>& data, uint32_t size)
+int32_t UsbServerProxy::SerialRead(int32_t portId, uint8_t *buffData, uint32_t size, uint32_t timeout)
 {
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
 
-    MessageParcel mData;
+    MessageParcel data;
     MessageParcel reply;
     RETURN_IF_WITH_RET(remote == nullptr, UEC_INTERFACE_INVALID_VALUE);
-    if (!mData.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
+    if (!data.WriteInterfaceToken(UsbServerProxy::GetDescriptor())) {
         USB_HILOGE(MODULE_INNERKIT, "write descriptor failed!");
         return UEC_INTERFACE_WRITE_PARCEL_ERROR;
     }
-    WRITE_PARCEL_WITH_RET(mData, Int32, portId, UEC_INTERFACE_WRITE_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(mData, Uint32, size, UEC_INTERFACE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Int32, portId, UEC_INTERFACE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Uint32, size, UEC_INTERFACE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Uint32, timeout, UEC_INTERFACE_WRITE_PARCEL_ERROR);
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::SERIAL_FUN_SERIAL_READ),
-        mData, reply, option);
+        data, reply, option);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
-    int32_t mSize;
-    READ_PARCEL_WITH_RET(reply, Int32, mSize, UEC_INTERFACE_READ_PARCEL_ERROR);
-    USB_HILOGI(MODULE_USB_INNERKIT, "SerialRead size %{public}d", mSize);
+    int32_t buffSize;
+    READ_PARCEL_WITH_RET(reply, Int32, buffSize, UEC_INTERFACE_READ_PARCEL_ERROR);
+    USB_HILOGI(MODULE_USB_INNERKIT, "SerialRead size %{public}d", buffSize);
 
-    for (int32_t i = 0; i < mSize; ++i) {
+    for (int32_t i = 0; i < buffSize; ++i) {
         USB_HILOGI(MODULE_USB_INNERKIT, "ParseUsbPort : %{public}d", i);
-        ret = SerialReadData(reply, data);
-        if (ret) {
-            return ret;
-        }
+        uint8_t tmp;
+        READ_PARCEL_WITH_RET(reply, Uint8, tmp, UEC_INTERFACE_READ_PARCEL_ERROR);
+        buffData[i] = tmp;
     }
     return ret;
 }
 
-int32_t UsbServerProxy::SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size)
+int32_t UsbServerProxy::SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size, uint32_t timeout)
 {
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
@@ -1840,6 +1841,7 @@ int32_t UsbServerProxy::SerialWrite(int32_t portId, const std::vector<uint8_t>& 
     }
 
     WRITE_PARCEL_WITH_RET(mData, Uint32, size, UEC_INTERFACE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(mData, Uint32, timeout, UEC_INTERFACE_WRITE_PARCEL_ERROR);
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::SERIAL_FUN_SERIAL_WRITE),
         mData, reply, option);
     if (ret != UEC_OK) {
@@ -2035,15 +2037,6 @@ int32_t UsbServerProxy::RequestSerialRight(int32_t portId)
         return ret;
     }
     return ret;
-}
-
-int32_t UsbServerProxy::SerialReadData(MessageParcel &reply, std::vector<uint8_t> &data)
-{
-    uint8_t tmp;
-    READ_PARCEL_WITH_RET(reply, Uint8, tmp, UEC_INTERFACE_READ_PARCEL_ERROR);
-    USB_HILOGI(MODULE_USB_INNERKIT, "UsbServerProxy::port->id %{public}d", tmp);
-    data.push_back(tmp);
-    return UEC_OK;
 }
 
 int32_t UsbServerProxy::ParseSerialPort(MessageParcel &reply,

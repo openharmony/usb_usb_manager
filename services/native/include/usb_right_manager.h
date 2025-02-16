@@ -79,7 +79,7 @@ private:
         const std::string &bundleName, const std::string &tokenId, const int32_t &userId);
     bool ShowUsbDialog(const USBAccessory &access, const std::string &seriaValue,
         const std::string &bundleName, const std::string &tokenId);
-    bool ShowUsbDialog(const int32_t portId, const uint32_t tokenId, const std::string &bundleName,
+    bool ShowSerialDialog(const int32_t portId, const uint32_t tokenId, const std::string &bundleName,
         const std::string &busDev);
     bool IsAllDigits(const std::string &bundleName);
     sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
