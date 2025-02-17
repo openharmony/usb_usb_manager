@@ -72,7 +72,7 @@ int32_t ErrorCodeConversion(int32_t value)
         return SERIAL_IO_EXCEPTION;
     } else if (value == UEC_SERIAL_PORT_NOT_EXIST) {
         return SERIAL_PORT_NOT_EXIST;
-    }else {
+    } else {
         return SERIAL_SERVICE_ABNORMAL;
     }
 }
@@ -81,7 +81,8 @@ static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
 {
     USB_HILOGI(MODULE_JS_NAPI, "SerialGetPortListNapi start");
     size_t argc = ARGC_0;
-    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr), "Get call back info failed")) {
+    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr),
+        "Get call back info failed")) {
         return nullptr;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_0), SYSPARAM_INVALID_INPUT, "The function takes no arguments.")) {
@@ -114,7 +115,8 @@ static napi_value SerialGetAttributeNapi(napi_env env, napi_callback_info info)
     USB_HILOGI(MODULE_JS_NAPI, "SerialGetAttributeNapi start");
     size_t argc = ARGC_1;
     napi_value argv[ARGC_1] = {nullptr};
-    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
+    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
+        "Get call back info failed")) {
         return nullptr;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
@@ -151,7 +153,8 @@ bool ParseSetAttributeInterfaceParams(napi_env env, napi_callback_info info,
     USB_HILOGI(MODULE_JS_NAPI, "ParseSetAttributeInterfaceParams start");
     size_t argc = ARGC_2;
     napi_value argv[ARGC_2] = { nullptr };
-    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
+    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
+        "Get call back info failed")) {
         return false;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_2), SYSPARAM_INVALID_INPUT, "The function takes 2 arguments.")) {
@@ -169,7 +172,8 @@ bool ParseSetAttributeInterfaceParams(napi_env env, napi_callback_info info,
     }
     napi_value obj = argv[1];
     napi_typeof(env, obj, &type);
-    if (!CheckAndThrowOnError(env, type == napi_object, SYSPARAM_INVALID_INPUT, "The type of arg1 must be SerialAttribute.")) {
+    if (!CheckAndThrowOnError(env, type == napi_object, SYSPARAM_INVALID_INPUT,
+        "The type of arg1 must be SerialAttribute.")) {
         return false;
     }
     NapiUtil::JsObjectToUint(env, obj, "baudrate", serialAttribute.baudrate);
@@ -201,7 +205,8 @@ bool ParseWriteInterfaceParams(napi_env env, napi_callback_info info,
     USB_HILOGI(MODULE_JS_NAPI, "ParseWriteInterfaceParams start");
     size_t argc = ARGC_3;
     napi_value argv[ARGC_3] = {nullptr};
-    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
+    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
+        "Get call back info failed")) {
         return false;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_2 || argc == ARGC_3), SYSPARAM_INVALID_INPUT,
@@ -211,7 +216,8 @@ bool ParseWriteInterfaceParams(napi_env env, napi_callback_info info,
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
-    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be int32_t.")) {
+    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT,
+        "The type of portId must be int32_t.")) {
         return false;
     }
     napi_get_value_int32(env, portId, &portIdValue);
@@ -222,7 +228,8 @@ bool ParseWriteInterfaceParams(napi_env env, napi_callback_info info,
     if (argc == ARGC_3) {
         napi_value timeout = argv[2];
         napi_typeof(env, timeout, &type);
-        if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of timeout must be uint32_t.")) {
+        if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT,
+            "The type of timeout must be uint32_t.")) {
             return false;
         }
         napi_get_value_uint32(env, timeout, &timeoutValue);
@@ -352,7 +359,8 @@ bool ParseReadInterfaceParams(napi_env env, napi_callback_info info, int32_t& po
 {
     size_t argc = ARGC_3;
     napi_value argv[ARGC_3] = {nullptr};
-    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
+    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
+        "Get call back info failed")) {
         return false;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_2 || argc == ARGC_3), SYSPARAM_INVALID_INPUT,
@@ -362,7 +370,8 @@ bool ParseReadInterfaceParams(napi_env env, napi_callback_info info, int32_t& po
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
-    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be int32_t.")) {
+    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT,
+        "The type of portId must be int32_t.")) {
         return false;
     }
     napi_get_value_int32(env, portId, &portIdValue);
@@ -373,7 +382,8 @@ bool ParseReadInterfaceParams(napi_env env, napi_callback_info info, int32_t& po
     if (argc == ARGC_3) {
         napi_value timeout = argv[2];
         napi_typeof(env, timeout, &type);
-        if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of timeout must be uint32_t.")) {
+        if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT,
+            "The type of timeout must be uint32_t.")) {
             return false;
         }
         napi_get_value_uint32(env, timeout, &timeoutValue);
@@ -485,7 +495,8 @@ static napi_value SerialOpenNapi(napi_env env, napi_callback_info info)
     USB_HILOGI(MODULE_JS_NAPI, "serialOpenNapi start");
     size_t argc = ARGC_1;
     napi_value argv[ARGC_1] = {nullptr};
-    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
+    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
+        "Get call back info failed")) {
         return nullptr;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
@@ -494,7 +505,8 @@ static napi_value SerialOpenNapi(napi_env env, napi_callback_info info)
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
-    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be int32_t.")) {
+    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT,
+        "The type of portId must be int32_t.")) {
         return nullptr;
     }
     int32_t portIdValue = -1;
@@ -516,7 +528,8 @@ static napi_value SerialCloseNapi(napi_env env, napi_callback_info info)
     USB_HILOGI(MODULE_JS_NAPI, "SerialCloseNapi start");
     size_t argc = ARGC_1;
     napi_value argv[ARGC_1] = {nullptr};
-    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
+    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
+        "Get call back info failed")) {
         return nullptr;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
@@ -525,7 +538,8 @@ static napi_value SerialCloseNapi(napi_env env, napi_callback_info info)
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
-    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be int32_t.")) {
+    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT,
+        "The type of portId must be int32_t.")) {
         return nullptr;
     }
     int32_t portIdValue = -1;
@@ -546,7 +560,8 @@ static napi_value SerialHasRightNapi(napi_env env, napi_callback_info info)
     USB_HILOGI(MODULE_JS_NAPI, "SerialHasRightNapi start");
     size_t argc = ARGC_1;
     napi_value argv[ARGC_1] = {nullptr};
-    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
+    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
+        "Get call back info failed")) {
         return nullptr;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
@@ -555,7 +570,8 @@ static napi_value SerialHasRightNapi(napi_env env, napi_callback_info info)
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
-    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be int32_t.")) {
+    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT,
+        "The type of portId must be int32_t.")) {
         return nullptr;
     }
     int32_t portIdValue = -1;
@@ -574,7 +590,8 @@ static napi_value CancelSerialRightNapi(napi_env env, napi_callback_info info)
     USB_HILOGI(MODULE_JS_NAPI, "CancelSerialRightNapi start");
     size_t argc = ARGC_1;
     napi_value argv[ARGC_1] = {nullptr};
-    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
+    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
+        "Get call back info failed")) {
         return nullptr;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
@@ -583,7 +600,8 @@ static napi_value CancelSerialRightNapi(napi_env env, napi_callback_info info)
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
-    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be int32_t.")) {
+    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT,
+        "The type of portId must be int32_t.")) {
         return nullptr;
     }
     int32_t portIdValue = -1;
@@ -603,7 +621,8 @@ static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
     USB_HILOGI(MODULE_JS_NAPI, "SerialAddRightNapi start");
     size_t argc = ARGC_2;
     napi_value argv[ARGC_2] = {nullptr};
-    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
+    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), 
+        "Get call back info failed")) {
         return nullptr;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_2), SYSPARAM_INVALID_INPUT, "The function takes 2 arguments.")) {
@@ -612,7 +631,8 @@ static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
     napi_value tokenId = argv[0];
     napi_valuetype type;
     napi_typeof(env, tokenId, &type);
-    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of tokenId must be uint32_t.")) {
+    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT,
+        "The type of tokenId must be uint32_t.")) {
         return nullptr;
     }
     uint32_t tokenIdValue = -1;
@@ -622,7 +642,8 @@ static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
     }
     napi_value portId = argv[1];
     napi_typeof(env, portId, &type);
-    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be int32_t.")) {
+    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT,
+        "The type of portId must be int32_t.")) {
         return nullptr;
     }
     int32_t portIdValue = -1;
@@ -666,7 +687,8 @@ static napi_value SerialRequestRightNapi(napi_env env, napi_callback_info info)
 {
     size_t argc = ARGC_1;
     napi_value argv[ARGC_1] = {nullptr};
-    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed")) {
+    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
+        "Get call back info failed")) {
         return nullptr;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
@@ -675,7 +697,8 @@ static napi_value SerialRequestRightNapi(napi_env env, napi_callback_info info)
     napi_value portId = argv[0];
     napi_valuetype type;
     napi_typeof(env, portId, &type);
-    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT, "The type of portId must be int32_t.")) {
+    if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT,
+        "The type of portId must be int32_t.")) {
         return nullptr;
     }
     int32_t portIdValue = -1;

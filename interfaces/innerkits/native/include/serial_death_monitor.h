@@ -24,7 +24,8 @@ public:
     explicit SerialDeathMonitor() : OHOS::IPCObjectStub() {}
     ~SerialDeathMonitor() override = default;
     int32_t OnRemoteRequest(uint32_t code, OHOS::MessageParcel &data, OHOS::MessageParcel &reply,
-        OHOS::MessageOption &option)override {
+        OHOS::MessageOption &option)override
+        {
             return 0;
         }
 };

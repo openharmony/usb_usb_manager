@@ -116,7 +116,7 @@ int32_t SerialManager::SerialClose(int32_t portId)
 
     int32_t ret = serial_->SerialClose(portId);
     if (ret != UEC_OK) {
-         return ErrorCodeWrap(ret);
+        return ErrorCodeWrap(ret);
     }
 
     portTokenMap_.erase(portId);

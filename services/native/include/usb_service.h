@@ -218,7 +218,7 @@ private:
     class SerialDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         SerialDeathRecipient(UsbService *service, int32_t portId, uint32_t tokenId)
-        : service_(service), portId_(portId), tokenId_(tokenId){};
+            : service_(service), portId_(portId), tokenId_(tokenId){};
         ~SerialDeathRecipient() {};
         void OnRemoteDied(const wptr<IRemoteObject> &object) override;
     private:
