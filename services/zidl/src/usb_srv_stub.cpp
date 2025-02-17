@@ -1493,37 +1493,37 @@ bool UsbServerStub::StubSerial(
     uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     switch (code) {
-        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_SERIAL_OPEN):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_SERIAL_OPEN):
             result = DoSerialOpen(data, reply, option);
             return true;
-        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_SERIAL_CLOSE):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_SERIAL_CLOSE):
             result = DoSerialClose(data, reply, option);
             return true;
-        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_SERIAL_READ):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_SERIAL_READ):
             result = DoSerialRead(data, reply, option);
             return true;
-        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_SERIAL_WRITE):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_SERIAL_WRITE):
             result = DoSerialWrite(data, reply, option);
             return true;
-        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_SERIAL_GET_ATTRIBUTE):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_SERIAL_GET_ATTRIBUTE):
             result = DoSerialGetAttribute(data, reply, option);
             return true;
-        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_SERIAL_SET_ATTRIBUTE):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_SERIAL_SET_ATTRIBUTE):
             result = DoSerialSetAttribute(data, reply, option);
             return true;
-        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_SERIAL_GET_PORTLIST):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_SERIAL_GET_PORTLIST):
             result = DoSerialGetPortList(data, reply, option);
             return true;
-        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_HAS_SERIAL_RIGHT):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_HAS_SERIAL_RIGHT):
             result = DoHasSerialRight(data, reply, option);
             return true;
-        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_ADD_SERIAL_RIGHT):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_ADD_SERIAL_RIGHT):
             result = DoAddSerialRight(data, reply, option);
             return true;
-        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_CANCEL_SERIAL_RIGHT):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_CANCEL_SERIAL_RIGHT):
             result = DoCancelSerialRight(data, reply, option);
             return true;
-        case static_cast<int>(UsbInterfaceCode::SERIAL_FUN_REQUEST_SERIAL_RIGHT):
+        case static_cast<int>(UsbInterfaceCode::USB_FUN_REQUEST_SERIAL_RIGHT):
             result = DoRequestSerialRight(data, reply, option);
             return true;
         default:;
