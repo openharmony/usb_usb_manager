@@ -2510,7 +2510,7 @@ void UsbService::UpdateDeviceVidPidMap(std::vector<OHOS::HDI::Usb::Serial::V1_0:
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
     std::lock_guard<std::mutex> guard(serialPidVidMapMutex_);
     serialVidPidMap_.clear();
-    for (auto ele: serialPortList) {
+    for (auto &ele: serialPortList) {
         std::string busNum = std::to_string(ele.deviceInfo.busNum);
         std::string devAddr = std::to_string(ele.deviceInfo.devAddr);
         std::string vid = std::to_string(ele.deviceInfo.vid);
