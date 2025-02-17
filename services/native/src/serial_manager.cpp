@@ -68,7 +68,7 @@ inline int32_t ErrorCodeWrap(int32_t errorCode)
     }
 }
 
-inline int32_t SerialManager::CheckPortAndTokenId(int32_t portId)
+int32_t SerialManager::CheckPortAndTokenId(int32_t portId)
 {
     if (serial_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: serial_ is nullptr", __func__);
@@ -156,7 +156,7 @@ int32_t SerialManager::SerialRead(int32_t portId, uint8_t *buffData, uint32_t si
     std::vector<uint8_t> data;
     ret = serial_->SerialRead(portId, data, size, timeout);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialRead failed ret = %{public}d",__func__, ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialRead failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
 
