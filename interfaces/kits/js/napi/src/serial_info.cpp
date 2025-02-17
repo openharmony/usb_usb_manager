@@ -635,9 +635,9 @@ static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
         "The type of tokenId must be uint32_t.")) {
         return nullptr;
     }
-    uint32_t tokenIdValue = -1;
+    uint32_t tokenIdValue = 0;
     napi_get_value_uint32(env, tokenId, &tokenIdValue);
-    if (!CheckAndThrowOnError(env, (tokenIdValue != -1), SYSPARAM_INVALID_INPUT, "Failed to get tokenId.")) {
+    if (!CheckAndThrowOnError(env, (tokenIdValue != 0), SYSPARAM_INVALID_INPUT, "Failed to get tokenId.")) {
         return nullptr;
     }
     napi_value portId = argv[1];
@@ -753,21 +753,21 @@ static napi_value DeclareEnum(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_3500000", ToInt32Value(env, BAUDRATE_3500000)),
         DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_4000000", ToInt32Value(env, BAUDRATE_4000000)),
 
-        DECLARE_NAPI_STATIC_PROPERTY("USB_ATTR_DATABIT_8", ToInt32Value(env, USB_ATTR_DATABIT_8)),
-        DECLARE_NAPI_STATIC_PROPERTY("USB_ATTR_DATABIT_7", ToInt32Value(env, USB_ATTR_DATABIT_7)),
-        DECLARE_NAPI_STATIC_PROPERTY("USB_ATTR_DATABIT_6", ToInt32Value(env, USB_ATTR_DATABIT_6)),
-        DECLARE_NAPI_STATIC_PROPERTY("USB_ATTR_DATABIT_5", ToInt32Value(env, USB_ATTR_DATABIT_5)),
-        DECLARE_NAPI_STATIC_PROPERTY("USB_ATTR_DATABIT_4", ToInt32Value(env, USB_ATTR_DATABIT_4)),
+        DECLARE_NAPI_STATIC_PROPERTY("DATABIT_8", ToInt32Value(env, DATABIT_8)),
+        DECLARE_NAPI_STATIC_PROPERTY("DATABIT_7", ToInt32Value(env, DATABIT_7)),
+        DECLARE_NAPI_STATIC_PROPERTY("DATABIT_6", ToInt32Value(env, DATABIT_6)),
+        DECLARE_NAPI_STATIC_PROPERTY("DATABIT_5", ToInt32Value(env, DATABIT_5)),
+        DECLARE_NAPI_STATIC_PROPERTY("DATABIT_4", ToInt32Value(env, DATABIT_4)),
 
-        DECLARE_NAPI_STATIC_PROPERTY("USB_ATTR_PARITY_NONE", ToInt32Value(env, USB_ATTR_PARITY_NONE)),
-        DECLARE_NAPI_STATIC_PROPERTY("USB_ATTR_PARITY_ODD", ToInt32Value(env, USB_ATTR_PARITY_ODD)),
-        DECLARE_NAPI_STATIC_PROPERTY("USB_ATTR_PARITY_EVEN", ToInt32Value(env, USB_ATTR_PARITY_EVEN)),
-        DECLARE_NAPI_STATIC_PROPERTY("USB_ATTR_PARITY_MARK", ToInt32Value(env, USB_ATTR_PARITY_MARK)),
-        DECLARE_NAPI_STATIC_PROPERTY("USB_ATTR_PARITY_SPACE", ToInt32Value(env, USB_ATTR_PARITY_SPACE)),
+        DECLARE_NAPI_STATIC_PROPERTY("PARITY_NONE", ToInt32Value(env, PARITY_NONE)),
+        DECLARE_NAPI_STATIC_PROPERTY("PARITY_ODD", ToInt32Value(env, PARITY_ODD)),
+        DECLARE_NAPI_STATIC_PROPERTY("PARITY_EVEN", ToInt32Value(env, PARITY_EVEN)),
+        DECLARE_NAPI_STATIC_PROPERTY("PARITY_MARK", ToInt32Value(env, PARITY_MARK)),
+        DECLARE_NAPI_STATIC_PROPERTY("PARITY_SPACE", ToInt32Value(env, PARITY_SPACE)),
 
-        DECLARE_NAPI_STATIC_PROPERTY("USB_ATTR_STOPBIT_1", ToInt32Value(env, USB_ATTR_STOPBIT_1)),
-        DECLARE_NAPI_STATIC_PROPERTY("USB_ATTR_STOPBIT_1P5", ToInt32Value(env, USB_ATTR_STOPBIT_1P5)),
-        DECLARE_NAPI_STATIC_PROPERTY("USB_ATTR_STOPBIT_2", ToInt32Value(env, USB_ATTR_STOPBIT_2)),
+        DECLARE_NAPI_STATIC_PROPERTY("STOPBIT_1", ToInt32Value(env, STOPBIT_1)),
+        DECLARE_NAPI_STATIC_PROPERTY("STOPBIT_1P5", ToInt32Value(env, STOPBIT_1P5)),
+        DECLARE_NAPI_STATIC_PROPERTY("STOPBIT_2", ToInt32Value(env, STOPBIT_2)),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     return exports;
