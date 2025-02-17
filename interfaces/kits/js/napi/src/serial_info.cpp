@@ -621,7 +621,7 @@ static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
     USB_HILOGI(MODULE_JS_NAPI, "SerialAddRightNapi start");
     size_t argc = ARGC_2;
     napi_value argv[ARGC_2] = {nullptr};
-    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), 
+    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
         "Get call back info failed")) {
         return nullptr;
     }

@@ -15,7 +15,7 @@
 
 import { AlertDialog } from '@ohos.arkui.advanced.Dialog'
 import usbMgr from '@ohos.usbManager'
-import serialMgr from '@ohos.usbManager.serial'
+import serialManager from '@ohos.usbManager.serial'
 
 @Entry
 @Component
@@ -43,7 +43,7 @@ struct IndexHapComponent {
                 console.info(`USBRight addDeviceAccessRight result:${res}`);
               } else {
                 console.info('SERIALRight allowed');
-                serialMgr.addSerialRight(globalThis.want.parameters['tokenId'],
+                serialManager.addSerialRight(globalThis.want.parameters['tokenId'],
                   globalThis.want.parameters['portId']);
               }
             } else {
