@@ -244,6 +244,7 @@ private:
     bool IsCallerValid();
     bool DoDump(int fd, const std::vector<std::string> &argList);
     void FreeTokenId(int32_t portId, uint32_t tokenId);
+    inline int32_t ValidateUsbSerialManagerAndPort(int32_t portId);
 #ifdef USB_MANAGER_FEATURE_HOST
     bool GetBundleInfo(std::string &tokenId, int32_t &userId);
     std::string GetDeviceVidPidSerialNumber(std::string deviceName);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -49,6 +49,7 @@ private:
     bool IsPortStatus(int32_t portId);
     bool CheckTokenIdValidity(int32_t portId);
     void UpdateSerialPortMap(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList);
+    inline int32_t CheckPortAndTokenId(int32_t portId);
     std::map<int32_t, uint32_t> portTokenMap_;
     std::map<int32_t, OHOS::HDI::Usb::Serial::V1_0::SerialPort> serialPortMap_;
     sptr<OHOS::HDI::Usb::Serial::V1_0::ISerialInterface> serial_ = nullptr;
