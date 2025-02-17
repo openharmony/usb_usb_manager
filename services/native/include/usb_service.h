@@ -89,9 +89,9 @@ public:
     int32_t UsbAttachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid) override;
     int32_t UsbDetachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid) override;
     int32_t ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t interfaceId, uint8_t endpointId) override;
+
     bool AddDevice(uint8_t busNum, uint8_t devAddr);
     bool DelDevice(uint8_t busNum, uint8_t devAddr);
-
     int32_t GetDevices(std::vector<UsbDevice> &deviceList) override;
     int32_t GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &dev);
     int32_t GetDeviceInfoDescriptor(
@@ -132,9 +132,9 @@ public:
     int32_t BulkCancel(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe) override;
 
     bool CheckDevicePermission(uint8_t busNum, uint8_t devAddr);
-    bool HasRight(const std::string deviceName) override;
-    int32_t RequestRight(const std::string deviceName) override;
-    int32_t RemoveRight(const std::string deviceName) override;
+    bool HasRight(std::string deviceName) override;
+    int32_t RequestRight(std::string deviceName) override;
+    int32_t RemoveRight(std::string deviceName) override;
     int32_t AddRight(const std::string &bundleName, const std::string &deviceName) override;
     int32_t AddAccessRight(const std::string &tokenId, const std::string &deviceName) override;
 #endif // USB_MANAGER_FEATURE_HOST
@@ -199,9 +199,9 @@ private:
     void WaitUsbdService();
     int32_t PreCallFunction();
     int32_t InitUsbRight();
+    bool IsCallerValid();
     void DumpHelp(int32_t fd);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
-    bool IsCallerValid();
 #ifdef USB_MANAGER_FEATURE_HOST
     bool GetBundleInfo(std::string &tokenId, int32_t &userId);
     std::string GetDeviceVidPidSerialNumber(std::string deviceName);

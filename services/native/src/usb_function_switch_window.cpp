@@ -83,6 +83,7 @@ UsbFunctionSwitchWindow::~UsbFunctionSwitchWindow()
 
 void UsbFunctionSwitchWindow::SubscribeCommonEvent()
 {
+    USB_HILOGI(MODULE_USB_SERVICE, "subscriber bms scan finished.");
     MatchingSkills matchingSkills;
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_BUNDLE_SCAN_FINISHED);
     CommonEventSubscribeInfo subscriberInfo(matchingSkills);
@@ -91,7 +92,6 @@ void UsbFunctionSwitchWindow::SubscribeCommonEvent()
     if (!ret) {
         USB_HILOGW(MODULE_USB_SERVICE, "subscriber event failed.");
     }
-    USB_HILOGI(MODULE_USB_SERVICE, "subscriber bms scan finished.");
 }
 
 int32_t UsbFunctionSwitchWindow::Init()

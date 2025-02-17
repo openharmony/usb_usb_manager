@@ -352,7 +352,7 @@ int32_t UsbServerProxy::ResetDevice(uint8_t busNum, uint8_t devAddr)
     return ret;
 }
 
-bool UsbServerProxy::HasRight(const std::string deviceName)
+bool UsbServerProxy::HasRight(std::string deviceName)
 {
     MessageParcel data;
     MessageOption option;
@@ -377,7 +377,7 @@ bool UsbServerProxy::HasRight(const std::string deviceName)
     return result;
 }
 
-int32_t UsbServerProxy::RequestRight(const std::string deviceName)
+int32_t UsbServerProxy::RequestRight(std::string deviceName)
 {
     MessageParcel reply;
     MessageOption option;
@@ -399,7 +399,7 @@ int32_t UsbServerProxy::RequestRight(const std::string deviceName)
     return ret;
 }
 
-int32_t UsbServerProxy::RemoveRight(const std::string deviceName)
+int32_t UsbServerProxy::RemoveRight(std::string deviceName)
 {
     MessageParcel reply;
     MessageOption option;

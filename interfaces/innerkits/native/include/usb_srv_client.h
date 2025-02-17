@@ -45,9 +45,9 @@ public:
     static UsbSrvClient& GetInstance();
     int32_t OpenDevice(const UsbDevice &device, USBDevicePipe &pipe);
     int32_t ResetDevice(const UsbDevice &device, USBDevicePipe &pipe);
-    bool HasRight(const std::string deviceName);
-    int32_t RequestRight(const std::string deviceName);
-    int32_t RemoveRight(const std::string deviceName);
+    bool HasRight(std::string deviceName);
+    int32_t RequestRight(std::string deviceName);
+    int32_t RemoveRight(std::string deviceName);
     int32_t GetDevices(std::vector<UsbDevice> &deviceList);
     int32_t GetPorts(std::vector<UsbPort> &usbPorts);
     int32_t GetSupportedModes(int32_t portId, int32_t &supportedModes);
@@ -84,7 +84,7 @@ public:
     {
         return SEVVERSION;
     }
-    
+
     int32_t UsbCancelTransfer(USBDevicePipe &pip, const int32_t &endpoint);
     int32_t UsbSubmitTransfer(USBDevicePipe &pip, HDI::Usb::V1_2::USBTransferInfo &info,
         const TransferCallback &cb, sptr<Ashmem> &ashmem);

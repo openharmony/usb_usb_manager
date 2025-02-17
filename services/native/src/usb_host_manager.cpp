@@ -18,6 +18,7 @@
 #include <string>
 #include <set>
 #include <thread>
+#include <ipc_skeleton.h>
 
 #include "usb_host_manager.h"
 #include "common_event_data.h"
@@ -38,6 +39,7 @@
 #include "usb_descriptor_parser.h"
 #include "usbd_transfer_callback_impl.h"
 #include "usb_napi_errors.h"
+#include "accesstoken_kit.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::EventFwk;
@@ -435,7 +437,6 @@ int32_t UsbHostManager::ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t inter
     return usbd_->ClearHalt(dev, pipe);
 #endif // USB_MANAGER_PASS_THROUGH
 }
-
 
 int32_t UsbHostManager::GetDevices(std::vector<UsbDevice> &deviceList)
 {
@@ -1472,12 +1473,12 @@ int32_t UsbHostManager::GetEdmTypePolicy(sptr<IRemoteObject> remote, std::vector
     data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
     uint32_t funcCode = (1 << EMD_MASK_CODE) | USB_DEVICE_ACCESS_POLICY;
-    int32_t sendRet = remote->SendRequest(funcCode, data, reply, option);
+    int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
     bool isSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!isSuccess || (sendRet != UEC_OK)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmTypePolicy failed. sendRet =  %{public}d, ret = %{public}d",
-            sendRet, ret);
+    if (!isSuccess) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmTypePolicy failed. ErrCode =  %{public}d, ret = %{public}d",
+            ErrCode, ret);
         return UEC_SERVICE_EDM_SEND_REQUEST_FAILED;
     }
 
@@ -1512,12 +1513,12 @@ int32_t UsbHostManager::GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsG
     data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
     uint32_t funcCode = (1 << EMD_MASK_CODE) | DISABLE_USB;
-    int32_t sendRet = remote->SendRequest(funcCode, data, reply, option);
+    int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
     bool isSuccess = reply.ReadInt32(ret) && (ret == UEC_OK);
-    if (!isSuccess || (sendRet != UEC_OK)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetGlobalPolicy failed. sendRet =  %{public}d, ret = %{public}d",
-            sendRet, ret);
+    if (!isSuccess) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetGlobalPolicy failed. ErrCode =  %{public}d, ret = %{public}d",
+            ErrCode, ret);
         return UEC_SERVICE_EDM_SEND_REQUEST_FAILED;
     }
 
@@ -1540,12 +1541,12 @@ int32_t UsbHostManager::GetEdmStroageTypePolicy(sptr<IRemoteObject> remote, std:
     data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
     uint32_t funcCode = (1 << EMD_MASK_CODE) | USB_STORAGE_DEVICE_ACCESS_POLICY;
-    int32_t sendRet = remote->SendRequest(funcCode, data, reply, option);
+    int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
     bool isSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!isSuccess || (sendRet != UEC_OK)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmStroageTypePolicy failed. sendRet =  %{public}d, ret = %{public}d",
-            sendRet, ret);
+    if (!isSuccess) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmStroageTypePolicy failed. ErrCode =  %{public}d, ret = %{public}d",
+            ErrCode, ret);
         return UEC_SERVICE_EDM_SEND_REQUEST_FAILED;
     }
 
@@ -1573,12 +1574,12 @@ int32_t UsbHostManager::GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::v
     data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
     uint32_t funcCode = (1 << EMD_MASK_CODE) | ALLOWED_USB_DEVICES;
-    int32_t sendRet = remote->SendRequest(funcCode, data, reply, option);
+    int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
     bool IsSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
-    if (!IsSuccess || (sendRet != UEC_OK)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmWhiteListPolicy failed. sendRet =  %{public}d, ret = %{public}d",
-            sendRet, ret);
+    if (!IsSuccess) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmWhiteListPolicy failed. ErrCode =  %{public}d, ret = %{public}d",
+            ErrCode, ret);
         return UEC_SERVICE_EDM_SEND_REQUEST_FAILED;
     }
 
@@ -1665,19 +1666,18 @@ int32_t UsbHostManager::ManageGlobalInterfaceImpl(bool disable)
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         uint8_t configIndex = 0;
-        if (OpenDevice(dev.busNum, dev.devAddr) != UEC_OK) {
-            USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl OpenDevice failed");
-            continue;
+        int32_t ret = OpenDevice(dev.busNum, dev.devAddr);
+        if (ret != UEC_OK) {
+            USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl open fail ret = %{public}d", ret);
+            return ret;
         }
-        if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex) || (configIndex < 1)) {
+        if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex)) {
             USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
-            Close(dev.busNum, dev.devAddr);
             continue;
         }
         USBConfig configs;
         if (it->second->GetConfig(static_cast<uint8_t>(configIndex) - 1, configs)) {
             USB_HILOGW(MODULE_USB_SERVICE, "get device config info failed.");
-            Close(dev.busNum, dev.devAddr);
             continue;
         }
 
@@ -1686,8 +1686,10 @@ int32_t UsbHostManager::ManageGlobalInterfaceImpl(bool disable)
             ManageInterface(dev, interfaces[i].GetId(), disable);
             std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
         }
-        if (Close(dev.busNum, dev.devAddr) != UEC_OK) {
-            USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl CloseDevice fail");
+        ret = Close(dev.busNum, dev.devAddr);
+        if (ret != UEC_OK) {
+            USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl close fail ret = %{public}d", ret);
+            return ret;
         }
     }
     return UEC_OK;
@@ -1701,19 +1703,18 @@ int32_t UsbHostManager::ManageDeviceImpl(int32_t vendorId, int32_t productId, bo
         if ((it->second->GetVendorId() == vendorId) && (it->second->GetProductId() == productId)) {
             UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
             uint8_t configIndex = 0;
-            if (OpenDevice(dev.busNum, dev.devAddr) != UEC_OK) {
-                USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceImpl open fail");
-                continue;
+            int32_t ret = OpenDevice(dev.busNum, dev.devAddr);
+            if (ret != UEC_OK) {
+                USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl open fail ret = %{public}d", ret);
+                return ret;
             }
-            if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex) || (configIndex < 1)) {
+            if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex)) {
                 USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
-                Close(dev.busNum, dev.devAddr);
                 continue;
             }
             USBConfig configs;
             if (it->second->GetConfig(static_cast<uint8_t>(configIndex) - 1, configs)) {
                 USB_HILOGW(MODULE_USB_SERVICE, "get device config info failed.");
-                Close(dev.busNum, dev.devAddr);
                 continue;
             }
             std::vector<UsbInterface> interfaces = configs.GetInterfaces();
@@ -1721,8 +1722,10 @@ int32_t UsbHostManager::ManageDeviceImpl(int32_t vendorId, int32_t productId, bo
                 ManageInterface(dev, interfaces[i].GetId(), disable);
                 std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
             }
-            if (Close(dev.busNum, dev.devAddr) != UEC_OK) {
-                USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceImpl Close fail");
+            ret = Close(dev.busNum, dev.devAddr);
+            if (ret != UEC_OK) {
+                USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl close fail ret = %{public}d", ret);
+                return ret;
             }
         }
     }
@@ -1739,7 +1742,7 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         uint8_t configIndex = 0;
-        if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex) || (configIndex < 1)) {
+        if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex)) {
             USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
             continue;
         }

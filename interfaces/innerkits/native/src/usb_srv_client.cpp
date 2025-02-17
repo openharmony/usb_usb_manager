@@ -39,7 +39,10 @@ UsbSrvClient::UsbSrvClient()
 {
     Connect();
 }
-UsbSrvClient::~UsbSrvClient() {}
+UsbSrvClient::~UsbSrvClient()
+{
+    USB_HILOGE(MODULE_USB_INNERKIT, "~UsbSrvClient!");
+}
 
 UsbSrvClient& UsbSrvClient::GetInstance()
 {
@@ -137,14 +140,14 @@ int32_t UsbSrvClient::ResetDevice(const UsbDevice &device, USBDevicePipe &pipe)
     return UEC_OK;
 }
 
-bool UsbSrvClient::HasRight(const std::string deviceName)
+bool UsbSrvClient::HasRight(std::string deviceName)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "Calling HasRight Start!");
     RETURN_IF_WITH_RET(Connect() != UEC_OK, false);
     return proxy_->HasRight(deviceName);
 }
 
-int32_t UsbSrvClient::RequestRight(const std::string deviceName)
+int32_t UsbSrvClient::RequestRight(std::string deviceName)
 {
     RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
     int32_t ret = proxy_->RequestRight(deviceName);
@@ -154,7 +157,7 @@ int32_t UsbSrvClient::RequestRight(const std::string deviceName)
     return ret;
 }
 
-int32_t UsbSrvClient::RemoveRight(const std::string deviceName)
+int32_t UsbSrvClient::RemoveRight(std::string deviceName)
 {
     RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
     int32_t ret = proxy_->RemoveRight(deviceName);
@@ -536,19 +539,19 @@ int32_t UsbSrvClient::ResetDevice(const UsbDevice &device, USBDevicePipe &pipe)
     return UEC_SERVICE_HOST_NOT_SUPPORT;
 }
 
-bool UsbSrvClient::HasRight(const std::string deviceName)
+bool UsbSrvClient::HasRight(std::string deviceName)
 {
     USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
     return false;
 }
 
-int32_t UsbSrvClient::RequestRight(const std::string deviceName)
+int32_t UsbSrvClient::RequestRight(std::string deviceName)
 {
     USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
     return UEC_SERVICE_HOST_NOT_SUPPORT;
 }
 
-int32_t UsbSrvClient::RemoveRight(const std::string deviceName)
+int32_t UsbSrvClient::RemoveRight(std::string deviceName)
 {
     USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
     return UEC_SERVICE_HOST_NOT_SUPPORT;
