@@ -48,13 +48,6 @@ const int32_t ARGC_3 = 3;
 
 static UsbSrvClient &g_usbClient = UsbSrvClient::GetInstance();
 
-static napi_value ToInt32Value(napi_env env, int32_t value)
-{
-    napi_value staticValue = nullptr;
-    napi_create_int32(env, value, &staticValue);
-    return staticValue;
-}
-
 int32_t ErrorCodeConversion(int32_t value)
 {
     if (value == UEC_SERVICE_PERMISSION_DENIED_SYSAPI) {
@@ -719,55 +712,120 @@ static napi_value SerialRequestRightNapi(napi_env env, napi_callback_info info)
     return result;
 }
 
+static void SetEnumProperty(napi_env env, napi_value object, const std::string &name, int32_t value)
+{
+    if (name.empty()) {
+        USB_HILOGE(MODULE_JS_NAPI, "Property name cannot be an empty string");
+        return;
+    }
+
+    napi_value tempValue = nullptr;
+    napi_status status = napi_create_int32(env, value, &tempValue);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create int32 value for enum %{public}s", name.c_str());
+        return;
+    }
+    status = napi_set_named_property(env, object, name.c_str(), tempValue);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to set property %{public}s", name.c_str());
+        return;
+    }
+}
+
+static napi_value NapiCreateStopBitsTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "STOPBIT_1", STOPBIT_1);
+    SetEnumProperty(env, object, "STOPBIT_1P5", STOPBIT_1P5);
+    SetEnumProperty(env, object, "STOPBIT_2", STOPBIT_2);
+    return object;
+}
+
+static napi_value NapiCreateParityTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "PARITY_NONE", PARITY_NONE);
+    SetEnumProperty(env, object, "PARITY_ODD", PARITY_ODD);
+    SetEnumProperty(env, object, "PARITY_EVEN", PARITY_EVEN);
+    SetEnumProperty(env, object, "PARITY_MARK", PARITY_MARK);
+    SetEnumProperty(env, object, "PARITY_SPACE", PARITY_SPACE);
+    return object;
+}
+
+static napi_value NapiCreateDataBitsTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "DATABIT_8", DATABIT_8);
+    SetEnumProperty(env, object, "DATABIT_7", DATABIT_7);
+    SetEnumProperty(env, object, "DATABIT_6", DATABIT_6);
+    SetEnumProperty(env, object, "DATABIT_5", DATABIT_5);
+    SetEnumProperty(env, object, "DATABIT_4", DATABIT_4);
+    return object;
+}
+
+static napi_value NapiCreateBaudRatesTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "BAUDRATE_50", BAUDRATE_50);
+    SetEnumProperty(env, object, "BAUDRATE_75", BAUDRATE_75);
+    SetEnumProperty(env, object, "BAUDRATE_110", BAUDRATE_110);
+    SetEnumProperty(env, object, "BAUDRATE_134", BAUDRATE_134);
+    SetEnumProperty(env, object, "BAUDRATE_150", BAUDRATE_150);
+    SetEnumProperty(env, object, "BAUDRATE_200", BAUDRATE_200);
+    SetEnumProperty(env, object, "BAUDRATE_300", BAUDRATE_300);
+    SetEnumProperty(env, object, "BAUDRATE_600", BAUDRATE_600);
+    SetEnumProperty(env, object, "BAUDRATE_1200", BAUDRATE_1200);
+    SetEnumProperty(env, object, "BAUDRATE_1800", BAUDRATE_1800);
+    SetEnumProperty(env, object, "BAUDRATE_2400", BAUDRATE_2400);
+    SetEnumProperty(env, object, "BAUDRATE_4800", BAUDRATE_4800);
+    SetEnumProperty(env, object, "BAUDRATE_9600", BAUDRATE_9600);
+    SetEnumProperty(env, object, "BAUDRATE_19200", BAUDRATE_19200);
+    SetEnumProperty(env, object, "BAUDRATE_38400", BAUDRATE_38400);
+    SetEnumProperty(env, object, "BAUDRATE_57600", BAUDRATE_57600);
+    SetEnumProperty(env, object, "BAUDRATE_115200", BAUDRATE_115200);
+    SetEnumProperty(env, object, "BAUDRATE_230400", BAUDRATE_230400);
+    SetEnumProperty(env, object, "BAUDRATE_460800", BAUDRATE_460800);
+    SetEnumProperty(env, object, "BAUDRATE_500000", BAUDRATE_500000);
+    SetEnumProperty(env, object, "BAUDRATE_576000", BAUDRATE_576000);
+    SetEnumProperty(env, object, "BAUDRATE_921600", BAUDRATE_921600);
+    SetEnumProperty(env, object, "BAUDRATE_1000000", BAUDRATE_1000000);
+    SetEnumProperty(env, object, "BAUDRATE_1152000", BAUDRATE_1152000);
+    SetEnumProperty(env, object, "BAUDRATE_1500000", BAUDRATE_1500000);
+    SetEnumProperty(env, object, "BAUDRATE_2000000", BAUDRATE_2000000);
+    SetEnumProperty(env, object, "BAUDRATE_2500000", BAUDRATE_2500000);
+    SetEnumProperty(env, object, "BAUDRATE_3000000", BAUDRATE_3000000);
+    SetEnumProperty(env, object, "BAUDRATE_3500000", BAUDRATE_3500000);
+    SetEnumProperty(env, object, "BAUDRATE_4000000", BAUDRATE_4000000);
+    return object;
+}
+
 static napi_value DeclareEnum(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_50", ToInt32Value(env, BAUDRATE_50)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_75", ToInt32Value(env, BAUDRATE_75)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_110", ToInt32Value(env, BAUDRATE_110)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_134", ToInt32Value(env, BAUDRATE_134)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_150", ToInt32Value(env, BAUDRATE_150)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_200", ToInt32Value(env, BAUDRATE_200)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_300", ToInt32Value(env, BAUDRATE_300)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_600", ToInt32Value(env, BAUDRATE_600)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_1200", ToInt32Value(env, BAUDRATE_1200)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_1800", ToInt32Value(env, BAUDRATE_1800)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_2400", ToInt32Value(env, BAUDRATE_2400)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_4800", ToInt32Value(env, BAUDRATE_4800)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_9600", ToInt32Value(env, BAUDRATE_9600)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_19200", ToInt32Value(env, BAUDRATE_19200)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_38400", ToInt32Value(env, BAUDRATE_38400)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_57600", ToInt32Value(env, BAUDRATE_57600)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_115200", ToInt32Value(env, BAUDRATE_115200)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_230400", ToInt32Value(env, BAUDRATE_230400)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_460800", ToInt32Value(env, BAUDRATE_460800)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_500000", ToInt32Value(env, BAUDRATE_500000)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_576000", ToInt32Value(env, BAUDRATE_576000)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_921600", ToInt32Value(env, BAUDRATE_921600)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_1000000", ToInt32Value(env, BAUDRATE_1000000)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_1152000", ToInt32Value(env, BAUDRATE_1152000)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_1500000", ToInt32Value(env, BAUDRATE_1500000)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_2000000", ToInt32Value(env, BAUDRATE_2000000)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_2500000", ToInt32Value(env, BAUDRATE_2500000)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_3000000", ToInt32Value(env, BAUDRATE_3000000)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_3500000", ToInt32Value(env, BAUDRATE_3500000)),
-        DECLARE_NAPI_STATIC_PROPERTY("BAUDRATE_4000000", ToInt32Value(env, BAUDRATE_4000000)),
-
-        DECLARE_NAPI_STATIC_PROPERTY("DATABIT_8", ToInt32Value(env, DATABIT_8)),
-        DECLARE_NAPI_STATIC_PROPERTY("DATABIT_7", ToInt32Value(env, DATABIT_7)),
-        DECLARE_NAPI_STATIC_PROPERTY("DATABIT_6", ToInt32Value(env, DATABIT_6)),
-        DECLARE_NAPI_STATIC_PROPERTY("DATABIT_5", ToInt32Value(env, DATABIT_5)),
-        DECLARE_NAPI_STATIC_PROPERTY("DATABIT_4", ToInt32Value(env, DATABIT_4)),
-
-        DECLARE_NAPI_STATIC_PROPERTY("PARITY_NONE", ToInt32Value(env, PARITY_NONE)),
-        DECLARE_NAPI_STATIC_PROPERTY("PARITY_ODD", ToInt32Value(env, PARITY_ODD)),
-        DECLARE_NAPI_STATIC_PROPERTY("PARITY_EVEN", ToInt32Value(env, PARITY_EVEN)),
-        DECLARE_NAPI_STATIC_PROPERTY("PARITY_MARK", ToInt32Value(env, PARITY_MARK)),
-        DECLARE_NAPI_STATIC_PROPERTY("PARITY_SPACE", ToInt32Value(env, PARITY_SPACE)),
-
-        DECLARE_NAPI_STATIC_PROPERTY("STOPBIT_1", ToInt32Value(env, STOPBIT_1)),
-        DECLARE_NAPI_STATIC_PROPERTY("STOPBIT_1P5", ToInt32Value(env, STOPBIT_1P5)),
-        DECLARE_NAPI_STATIC_PROPERTY("STOPBIT_2", ToInt32Value(env, STOPBIT_2)),
+        DECLARE_NAPI_STATIC_PROPERTY("StopBits", NapiCreateStopBitsTypeEnum(env)),
+        DECLARE_NAPI_STATIC_PROPERTY("Parity", NapiCreateParityTypeEnum(env)),
+        DECLARE_NAPI_STATIC_PROPERTY("DataBits", NapiCreateDataBitsTypeEnum(env)),
+        DECLARE_NAPI_STATIC_PROPERTY("BaudRates", NapiCreateBaudRatesTypeEnum(env)),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     return exports;

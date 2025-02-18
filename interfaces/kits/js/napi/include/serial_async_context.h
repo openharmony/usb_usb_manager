@@ -51,10 +51,10 @@ const int32_t BAUDRATE_3000000 = 3000000;
 const int32_t BAUDRATE_3500000 = 3500000;
 const int32_t BAUDRATE_4000000 = 4000000;
 
-const int32_t DATABIT_8 = 0;
-const int32_t DATABIT_7 = 1;
-const int32_t DATABIT_6 = 2;
-const int32_t DATABIT_5 = 3;
+const int32_t DATABIT_8 = 8;
+const int32_t DATABIT_7 = 7;
+const int32_t DATABIT_6 = 6;
+const int32_t DATABIT_5 = 5;
 const int32_t DATABIT_4 = 4;
 
 const int32_t PARITY_NONE = 0;
