@@ -37,9 +37,9 @@ constexpr int32_t WAIT_DELAY_US = 20000;
 UsbPortManager::UsbPortManager()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::Init start");
-#ifndef USB_MANAGER_PASS_THROUGH
+#ifndef USB_MANAGER_V2_0
     GetIUsbInterface();
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
 }
 
 UsbPortManager::~UsbPortManager()
@@ -56,7 +56,7 @@ void UsbPortManager::Init()
     }
 }
 
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
 bool UsbPortManager::InitUsbPortInterface()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "InitUsbPortInterface in");
@@ -110,11 +110,11 @@ int32_t UsbPortManager::UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSub
     }
     return usbPortInterface_->UnbindUsbdPortSubscriber(subscriber);
 }
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
 
 int32_t UsbPortManager::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole)
 {
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
     if (usbPortInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::SetPortRole usbPortInterface_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -126,7 +126,7 @@ int32_t UsbPortManager::SetPortRole(int32_t portId, int32_t powerRole, int32_t d
         return UEC_SERVICE_INVALID_VALUE;
     }
     return usbd_->SetPortRole(portId, powerRole, dataRole);
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
 }
 
 void UsbPortManager::GetIUsbInterface()
@@ -196,7 +196,7 @@ int32_t UsbPortManager::QueryPort()
     int32_t powerRole = 0;
     int32_t dataRole = 0;
     int32_t mode = 0;
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
     if (usbPortInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::QueryPort usbPortInterface_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -209,7 +209,7 @@ int32_t UsbPortManager::QueryPort()
         return UEC_SERVICE_INVALID_VALUE;
     }
     int32_t ret = usbd_->QueryPort(portId, powerRole, dataRole, mode);
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
     USB_HILOGI(MODULE_USB_SERVICE, "portId:%{public}d powerRole:%{public}d dataRole:%{public}d mode:%{public}d ",
         portId, powerRole, dataRole, mode);
     if (ret) {
@@ -323,7 +323,7 @@ void UsbPortManager::DumpSetPortRoles(int32_t fd, const std::string &args)
         GetPortsInfo(fd);
         return;
     }
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
     if (usbPortInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::DumpSetPortRoles usbPortInterface_ is nullptr");
         return;
@@ -333,7 +333,7 @@ void UsbPortManager::DumpSetPortRoles(int32_t fd, const std::string &args)
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::DumpSetPortRoles usbd_ is nullptr");
         return;
     }
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
     if (!std::regex_match(args, std::regex("^[0-9]+$"))) {
         dprintf(fd, "Invalid input, please enter a valid integer\n");
         GetDumpHelp(fd);

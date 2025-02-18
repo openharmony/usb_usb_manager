@@ -53,7 +53,7 @@ const std::map<std::string_view, uint32_t> UsbDeviceManager::FUNCTION_MAPPING_N2
 UsbDeviceManager::UsbDeviceManager()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceManager::Init start");
-#ifndef USB_MANAGER_PASS_THROUGH
+#ifndef USB_MANAGER_V2_0
     if (usbd_ == nullptr) {
         usbd_ = IUsbInterface::Get();
     } else {
@@ -62,7 +62,7 @@ UsbDeviceManager::UsbDeviceManager()
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::Get inteface failed");
     }
-#endif
+#endif // USB_MANAGER_V2_0
     auto ret = delayDisconn_.Setup();
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "set up timer failed %{public}u", ret);
@@ -74,7 +74,7 @@ UsbDeviceManager::~UsbDeviceManager()
     delayDisconn_.Shutdown();
 }
 
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
 bool UsbDeviceManager::InitUsbDeviceInterface()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "InitUsbDeviceInterface in");
@@ -121,11 +121,11 @@ int32_t UsbDeviceManager::UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdS
     }
     return usbDeviceInterface_->UnbindUsbdDeviceSubscriber(subscriber);
 }
-#endif
+#endif // USB_MANAGER_V2_0
 
 int32_t UsbDeviceManager::GetCurrentFunctions(int32_t& funcs)
 {
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
     if (usbDeviceInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::usbDeviceInterface_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -139,10 +139,10 @@ int32_t UsbDeviceManager::GetCurrentFunctions(int32_t& funcs)
     }
     std::lock_guard<std::mutex> guard(functionMutex_);
     return usbd_->GetCurrentFunctions(funcs);
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
 }
 
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
 int32_t UsbDeviceManager::SetCurrentFunctions(int32_t funcs)
 {
     if (usbDeviceInterface_ == nullptr) {
@@ -198,7 +198,7 @@ int32_t UsbDeviceManager::SetCurrentFunctions(int32_t funcs)
     UpdateFunctions(funcs);
     return UEC_OK;
 }
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
 
 int32_t UsbDeviceManager::Init()
 {
@@ -310,7 +310,7 @@ int32_t UsbDeviceManager::GetCurrentFunctions()
     return currentFunctions_;
 }
 
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
 void UsbDeviceManager::HandleEvent(int32_t status)
 {
     if (usbDeviceInterface_ == nullptr) {
@@ -414,7 +414,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
         USB_HILOGI(MODULE_USB_SERVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
     }
 }
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
 
 int32_t UsbDeviceManager::UserChangeProcess()
 {
@@ -422,11 +422,11 @@ int32_t UsbDeviceManager::UserChangeProcess()
         currentFunctions_ = currentFunctions_ & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
         currentFunctions_ = currentFunctions_ == 0 ? USB_FUNCTION_STORAGE : currentFunctions_;
         USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
         return usbDeviceInterface_->SetCurrentFunctions(currentFunctions_);
 #else
         return usbd_->SetCurrentFunctions(currentFunctions_);
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
     }
     return UEC_OK;
 }
@@ -549,7 +549,7 @@ bool StringToInteger(const std::string &str, int32_t &result)
     return true;
 }
 
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
 void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
 {
     int32_t currentFunction;
@@ -633,7 +633,7 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
 
     dprintf(fd, "current function: %s\n", ConvertToString(currentFunction).c_str());
 }
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
 
 void UsbDeviceManager::Dump(int32_t fd, const std::vector<std::string> &args)
 {

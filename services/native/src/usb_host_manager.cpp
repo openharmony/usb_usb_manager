@@ -112,7 +112,9 @@ UsbHostManager::UsbHostManager(SystemAbility *systemAbility)
 {
     systemAbility_ = systemAbility;
     usbRightManager_ = std::make_shared<UsbRightManager>();
+#ifndef USB_MANAGER_PASS_THROUGH
     usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
+#endif // USB_MANAGER_PASS_THROUGH
 }
 
 UsbHostManager::~UsbHostManager()
@@ -134,7 +136,7 @@ bool UsbHostManager::InitUsbHostInterface()
     }
     usbManagerSubscriber_ = new (std::nothrow) UsbManagerSubscriber();
     if (usbManagerSubscriber_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "lsq usbManagerSubscriber_ is nullptr");
+        USB_HILOGE(MODULE_USB_SERVICE, "usbManagerSubscriber_ is nullptr");
         return false;
     }
     ErrCode ret = usbHostInterface_->BindUsbdHostSubscriber(usbManagerSubscriber_);
@@ -1302,12 +1304,20 @@ std::string UsbHostManager::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAd
     if (idx == 0) {
         return strDesc;
     }
-
+#ifdef USB_MANAGER_PASS_THROUGH
+    if (usbHostInterface_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager::usbHostInterface_ is nullptr");
+        return nullptr;
+    }
+    const HDI::Usb::V2_0::UsbDev &usbDev_ = reinterpret_cast<const HDI::Usb::V2_0::UsbDev &>(dev);
+    int32_t ret = usbHostInterface_->GetStringDescriptor(usbDev_, idx, strV);
+#else
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager::usbd_ is nullptr");
         return nullptr;
     }
     int32_t ret = usbd_->GetStringDescriptor(dev, idx, strV);
+#endif // USB_MANAGER_PASS_THROUGH
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "get string[%{public}hhu] failed ret:%{public}d", idx, ret);
         return strDesc;
@@ -1612,7 +1622,7 @@ int32_t UsbHostManager::ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8
         return UEC_SERVICE_INVALID_VALUE;
     }
     return usbd_->ManageInterface(dev, interfaceId, disable);
-#endif
+#endif // USB_MANAGER_PASS_THROUGH
 }
 
 void UsbHostManager::ExecuteManageDeviceType(const std::vector<UsbDeviceType> &disableType, bool disable,
