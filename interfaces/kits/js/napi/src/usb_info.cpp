@@ -1730,7 +1730,6 @@ static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
     if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
         uint8_t *nativeArrayBuffer = new (std::nothrow) uint8_t[controlParam.dataLength];
         if (nativeArrayBuffer == nullptr) {
-            USB_HILOGE(MODULE_JS_NAPI, "new failed");
             delete asyncContext;
             return nullptr;
         }
@@ -1894,7 +1893,6 @@ static napi_value PipeUsbControlTransfer(napi_env env, napi_callback_info info)
     if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
         uint8_t *nativeArrayBuffer = new (std::nothrow) uint8_t[controlParam.dataLength];
         if (nativeArrayBuffer == nullptr) {
-            USB_HILOGE(MODULE_JS_NAPI, "new failed");
             delete asyncContext;
             return nullptr;
         }
@@ -2298,7 +2296,6 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
     GetUSBTransferInfo(obj, asyncContext);
     asyncContext->ashmem = Ashmem::CreateAshmem(asyncContext->name.c_str(), asyncContext->length);
     if (asyncContext->ashmem == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "Ashmem::CreateAshmem failed");
         return nullptr;
     }
     uint8_t endpointId = static_cast<uint8_t>(asyncContext->endpoint) & USB_ENDPOINT_DIR_MASK;
