@@ -22,13 +22,13 @@ import { LengthMetrics, LengthUnit } from '@ohos.arkui.node';
 import common from '@ohos.app.ability.common';
 
 export declare class ButtonOptions {
-  value: ResourceStr;
-  action?: () => void;
-  background?: ResourceColor;
-  fontColor?: ResourceColor;
-  buttonStyle?: ButtonStyleMode;
-  role?: ButtonRole;
-  defaultFocus?: boolean;
+  public value: ResourceStr;
+  public action?: () => void;
+  public background?: ResourceColor;
+  public fontColor?: ResourceColor;
+  public buttonStyle?: ButtonStyleMode;
+  public role?: ButtonRole;
+  public defaultFocus?: boolean;
 }
 
 class CustomThemeImpl implements CustomTheme {
