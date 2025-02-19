@@ -16,6 +16,7 @@
 #include "napi_util.h"
 #include <codecvt>
 #include <cstdio>
+#include <climits>
 #include <locale>
 #include <string>
 
@@ -157,6 +158,18 @@ void NapiUtil::JsObjectToUint(
     status = napi_get_value_uint32(env, field, &fieldRef);
     if (status != napi_ok) {
         USB_HILOGE(MODULE_JS_NAPI, "get value failed: %{public}s", fieldStr.c_str());
+    }
+}
+
+void NapiUtil::JsObjectToUint(
+    const napi_env &env, const napi_value &object, const std::string &fieldStr, uint8_t &fieldRef)
+{
+    uint32_t tmpValue = UINT_MAX;
+    JsObjectToUint(env, object, fieldStr, tmpValue);
+    if (tmpValue > SCHAR_MAX) {
+        USB_HILOGE(MODULE_JS_NAPI, "type error failed: uint32_t to uint8_t");
+    } else {
+        fieldRef = tmpValue;
     }
 }
 

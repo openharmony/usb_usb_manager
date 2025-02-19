@@ -29,6 +29,7 @@
 #include "usb_common.h"
 #include "parameter.h"
 #include "usb_accessory.h"
+#include "serial_device_identity.h"
 namespace OHOS {
 namespace USB {
 
@@ -45,6 +46,8 @@ public:
 #endif // USB_MANAGER_FEATURE_HOST
     int32_t RequestRight(const USBAccessory &access, const std::string &seriaValue, const std::string &bundleName,
         const std::string &tokenId, const int32_t &userId, bool &result);
+    int32_t RequestRight(const int32_t portId,  const SerialDeviceIdentity &serialDeviceIdentity,
+        const std::string &bundleName, const std::string &tokenId, const int32_t &userId);
     bool AddDeviceRight(const std::string &deviceName, const std::string &tokenIdStr);
     bool AddDeviceRight(const std::string &deviceName, const std::string &bundleName,
         const std::string &tokenId, const int32_t &userId);
@@ -72,8 +75,12 @@ private:
 #endif // USB_MANAGER_FEATURE_HOST
     bool GetUserAgreementByDiag(const USBAccessory &access, const std::string &seriaValue,
         const std::string &bundleName, const std::string &tokenId, const int32_t &userId);
+    bool GetUserAgreementByDiag(const int32_t portId, const SerialDeviceIdentity &serialDeviceIdentity,
+        const std::string &bundleName, const std::string &tokenId, const int32_t &userId);
     bool ShowUsbDialog(const USBAccessory &access, const std::string &seriaValue,
         const std::string &bundleName, const std::string &tokenId);
+    bool ShowSerialDialog(const int32_t portId, const uint32_t tokenId, const std::string &bundleName,
+        const std::string &busDev);
     bool IsAllDigits(const std::string &bundleName);
     sptr<AppExecFwk::IBundleMgr> GetBundleMgr();
     sptr<AppExecFwk::IBundleResource> GetBundleResMgr();
