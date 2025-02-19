@@ -2201,14 +2201,7 @@ int32_t UsbService::ValidateUsbSerialManagerAndPort(int32_t portId)
 int32_t UsbService::SerialOpen(int32_t portId, sptr<IRemoteObject> serialRemote)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
-    int32_t ret = SerialCheckSysApiPermission();
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE,
-            "%{public}s: SerialCheckSysApiPermission failed ret = %{public}d", __func__, ret);
-        return ret;
-    }
-
-    ret = ValidateUsbSerialManagerAndPort(portId);
+    int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
         return ret;
@@ -2242,14 +2235,7 @@ int32_t UsbService::SerialOpen(int32_t portId, sptr<IRemoteObject> serialRemote)
 int32_t UsbService::SerialClose(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
-    int32_t ret = SerialCheckSysApiPermission();
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE,
-            "%{public}s: SerialCheckSysApiPermission failed ret = %{public}d", __func__, ret);
-        return ret;
-    }
-
-    ret = ValidateUsbSerialManagerAndPort(portId);
+    int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
         return ret;
@@ -2262,14 +2248,7 @@ int32_t UsbService::SerialRead(int32_t portId, uint8_t *data, uint32_t size, uin
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
     HITRACE_METER_NAME(HITRACE_TAG_USB, "SerialRead");
-    int32_t ret = SerialCheckSysApiPermission();
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE,
-            "%{public}s: SerialCheckSysApiPermission failed ret = %{public}d", __func__, ret);
-        return ret;
-    }
-    
-    ret = ValidateUsbSerialManagerAndPort(portId);
+    int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
         return ret;
@@ -2282,14 +2261,7 @@ int32_t UsbService::SerialWrite(int32_t portId, const std::vector<uint8_t>& data
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
     HITRACE_METER_NAME(HITRACE_TAG_USB, "SerialWrite");
-    int32_t ret = SerialCheckSysApiPermission();
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE,
-            "%{public}s: SerialCheckSysApiPermission failed ret = %{public}d", __func__, ret);
-        return ret;
-    }
-
-    ret = ValidateUsbSerialManagerAndPort(portId);
+    int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
         return ret;
@@ -2301,14 +2273,7 @@ int32_t UsbService::SerialWrite(int32_t portId, const std::vector<uint8_t>& data
 int32_t UsbService::SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attributeInfo)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
-    int32_t ret = SerialCheckSysApiPermission();
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE,
-            "%{public}s: SerialCheckSysApiPermission failed ret = %{public}d", __func__, ret);
-        return ret;
-    }
-
-    ret = ValidateUsbSerialManagerAndPort(portId);
+    int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
         return ret;
@@ -2321,14 +2286,7 @@ int32_t UsbService::SerialSetAttribute(int32_t portId,
     const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attributeInfo)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
-    int32_t ret = SerialCheckSysApiPermission();
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE,
-            "%{public}s: SerialCheckSysApiPermission failed ret = %{public}d", __func__, ret);
-        return ret;
-    }
-
-    ret = ValidateUsbSerialManagerAndPort(portId);
+    int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
         return ret;
@@ -2340,19 +2298,12 @@ int32_t UsbService::SerialSetAttribute(int32_t portId,
 int32_t UsbService::SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
-    int32_t ret = SerialCheckSysApiPermission();
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE,
-            "%{public}s: SerialCheckSysApiPermission failed ret = %{public}d", __func__, ret);
-        return ret;
-    }
-
     if (usbSerialManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbSerialManager_ is nullptr", __func__);
         return UEC_SERVICE_INVALID_VALUE;
     }
 
-    ret = usbSerialManager_->SerialGetPortList(serialPortList);
+    int32_t ret = usbSerialManager_->SerialGetPortList(serialPortList);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialGetPortList failed", __func__);
         return ret;
@@ -2365,14 +2316,12 @@ int32_t UsbService::SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::
 int32_t UsbService::RequestSerialRight(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
-    int32_t ret = SerialCheckSysApiPermission();
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE,
-            "%{public}s: SerialCheckSysApiPermission failed ret = %{public}d", __func__, ret);
-        return ret;
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbRightManager_ is nullptr", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
     }
     
-    ret = ValidateUsbSerialManagerAndPort(portId);
+    int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
         return ret;
@@ -2416,14 +2365,12 @@ int32_t UsbService::RequestSerialRight(int32_t portId)
 int32_t UsbService::CancelSerialRight(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
-    int32_t ret = SerialCheckSysApiPermission();
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE,
-            "%{public}s: SerialCheckSysApiPermission failed ret = %{public}d", __func__, ret);
-        return ret;
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbRightManager_ is nullptr", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
     }
 
-    ret = ValidateUsbSerialManagerAndPort(portId);
+    int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
         return ret;
@@ -2468,14 +2415,12 @@ int32_t UsbService::CancelSerialRight(int32_t portId)
 bool UsbService::HasSerialRight(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
-    int32_t ret = SerialCheckSysApiPermission();
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE,
-            "%{public}s: SerialCheckSysApiPermission failed ret = %{public}d", __func__, ret);
-        return ret;
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbRightManager_ is nullptr", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
     }
 
-    ret = ValidateUsbSerialManagerAndPort(portId);
+    int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
         return ret;
@@ -2517,17 +2462,18 @@ bool UsbService::HasSerialRight(int32_t portId)
 int32_t UsbService::AddSerialRight(uint32_t tokenId, int32_t portId)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
-    int32_t ret = SerialCheckSysApiPermission();
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbRightManager_ is nullptr", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+
+    int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE,
             "%{public}s: SerialCheckSysApiPermission failed ret = %{public}d", __func__, ret);
         return ret;
     }
 
-    if (usbRightManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbRightManager_ is nullptr", __func__);
-        return UEC_SERVICE_INVALID_VALUE;
-    }
     std::string deviceName;
     std::string deviceVidPidSerialNum;
 
@@ -2537,31 +2483,12 @@ int32_t UsbService::AddSerialRight(uint32_t tokenId, int32_t portId)
         return ret;
     }
 
-    if (!(usbRightManager_->IsSystemAppOrSa() && usbRightManager_->VerifyPermission())) {
-        return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
-    }
-
     if (!usbRightManager_->AddDeviceRight(deviceVidPidSerialNum, std::to_string(tokenId).c_str())) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: AddDeviceRight failed", __func__);
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
     USB_HILOGI(MODULE_USB_SERVICE, "AddRight done");
-    return UEC_OK;
-}
-
-int32_t UsbService::SerialCheckSysApiPermission()
-{
-    if (usbRightManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    int32_t ret = CheckSysApiPermission();
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
-        return ret;
-    }
-
     return UEC_OK;
 }
 

@@ -245,7 +245,6 @@ private:
     bool DoDump(int fd, const std::vector<std::string> &argList);
     void FreeTokenId(int32_t portId, uint32_t tokenId);
     int32_t ValidateUsbSerialManagerAndPort(int32_t portId);
-    int32_t SerialCheckSysApiPermission();
 #ifdef USB_MANAGER_FEATURE_HOST
     bool GetBundleInfo(std::string &tokenId, int32_t &userId);
     std::string GetDeviceVidPidSerialNumber(std::string deviceName);
