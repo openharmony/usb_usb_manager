@@ -88,3 +88,44 @@ ohos_shared_library("usbmanager") {
   subsystem_name = "usb"
   part_name = "usb_manager"
 }
+
+ohos_shared_library("serial") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    integer_overflow = true
+    boundary_sanitize = true
+    ubsan = true
+  }
+
+  defines = [ "SERIAL_NAPI" ]
+
+  sources = [
+    "${utils_path}/native/src/usb_napi_errors.cpp",
+    "src/napi_util.cpp",
+    "src/serial_info.cpp",
+    "src/serial_middle.cpp",
+  ]
+  deps = [ "${usb_manager_path}/interfaces/innerkits:usbsrv_client" ]
+  external_deps = [
+    "cJSON:cjson",
+    "c_utils:utils",
+    "drivers_interface_usb:libserial_proxy_1.0",
+    "drivers_interface_usb:libserial_stub_1.0",
+    "drivers_interface_usb:usb_idl_headers_1.1",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+    "samgr:samgr_proxy",
+  ]
+
+  configs = [
+    "${utils_path}:utils_config",
+    ":usbnapi_private_config",
+  ]
+
+  relative_install_dir = "module/usbmanager"
+
+  subsystem_name = "usb"
+  part_name = "usb_manager"
+}

@@ -38,6 +38,7 @@ constexpr int32_t PARAM_ERROR = 401;
 UsbSrvClient::UsbSrvClient()
 {
     Connect();
+    serialRemote = new SerialDeathMonitor();
 }
 UsbSrvClient::~UsbSrvClient() {}
 
@@ -988,5 +989,124 @@ int32_t UsbSrvClient::SetPortRole(int32_t portId, int32_t powerRole, int32_t dat
     return UEC_SERVICE_PORT_NOT_SUPPORT;
 }
 #endif // USB_MANAGER_FEATURE_PORT
+
+int32_t UsbSrvClient::SerialOpen(int32_t portId)
+{
+    USB_HILOGI(MODULE_USB_INNERKIT, "Calling SerialOpen");
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    int32_t ret = proxy_->SerialOpen(portId, serialRemote);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialOpen failed ret = %{public}d!", ret);
+    }
+    return ret;
+}
+
+int32_t UsbSrvClient::SerialClose(int32_t portId)
+{
+    USB_HILOGI(MODULE_USB_INNERKIT, "Calling SerialClose");
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    int32_t ret = proxy_->SerialClose(portId);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialClose failed ret = %{public}d!", ret);
+    }
+    return ret;
+}
+
+int32_t UsbSrvClient::SerialRead(int32_t portId, uint8_t *buffData, uint32_t size, uint32_t timeout)
+{
+    USB_HILOGI(MODULE_USB_INNERKIT, "Calling SerialRead");
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    int32_t ret = proxy_->SerialRead(portId, buffData, size, timeout);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialRead failed ret = %{public}d!", ret);
+    }
+
+    return ret;
+}
+
+int32_t UsbSrvClient::SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size, uint32_t timeout)
+{
+    USB_HILOGI(MODULE_USB_INNERKIT, "Calling SerialWrite");
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    int32_t ret = proxy_->SerialWrite(portId, data, size, timeout);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialWrite failed ret = %{public}d!", ret);
+    }
+    return ret;
+}
+
+int32_t UsbSrvClient::SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute)
+{
+    USB_HILOGI(MODULE_USB_INNERKIT, "Calling SerialGetAttribute");
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    int32_t ret = proxy_->SerialGetAttribute(portId, attribute);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialGetAttribute failed ret = %{public}d!", ret);
+    }
+    return ret;
+}
+
+int32_t UsbSrvClient::SerialSetAttribute(int32_t portId,
+    const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute)
+{
+    USB_HILOGI(MODULE_USB_INNERKIT, "Calling SerialSetAttribute");
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    int32_t ret = proxy_->SerialSetAttribute(portId, attribute);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialSetAttribute failed ret = %{public}d!", ret);
+    }
+    return ret;
+}
+
+int32_t UsbSrvClient::SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList)
+{
+    USB_HILOGI(MODULE_USB_INNERKIT, "Calling SerialGetPortList");
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    int32_t ret = proxy_->SerialGetPortList(serialPortList);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialGetPortList failed ret = %{public}d!", ret);
+    }
+    return ret;
+}
+
+bool UsbSrvClient::HasSerialRight(int32_t portId)
+{
+    USB_HILOGI(MODULE_USB_INNERKIT, "Calling HasSerialRight");
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    return proxy_->HasSerialRight(portId);
+}
+
+int32_t UsbSrvClient::CancelSerialRight(int32_t portId)
+{
+    USB_HILOGI(MODULE_USB_INNERKIT, "Calling CancelSerialRight");
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    int32_t ret = proxy_->CancelSerialRight(portId);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::CancelSerialRight failed ret = %{public}d !", ret);
+    }
+    return ret;
+}
+
+int32_t UsbSrvClient::RequestSerialRight(int32_t portId)
+{
+    USB_HILOGI(MODULE_USB_INNERKIT, "Calling RequestSerialRight");
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    int32_t ret = proxy_->RequestSerialRight(portId);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::RequestSerialRight failed ret = %{public}d !", ret);
+    }
+    return ret;
+}
+
+int32_t UsbSrvClient::AddSerialRight(uint32_t tokenId, int32_t portId)
+{
+    USB_HILOGI(MODULE_USB_INNERKIT, "Calling AddSerialRight");
+    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    int32_t ret = proxy_->AddSerialRight(tokenId, portId);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::AddSerialRight failed ret = %{public}d!", ret);
+    }
+    return ret;
+}
 } // namespace USB
 } // namespace OHOS
