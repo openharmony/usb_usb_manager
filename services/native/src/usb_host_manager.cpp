@@ -1243,7 +1243,7 @@ void UsbHostManager::ReportHostPlugSysEvent(const std::string &event, const UsbD
     }
     USB_HILOGI(MODULE_SERVICE, "Host mode Indicates the insertion and removal information");
     HiSysEventWrite(HiSysEvent::Domain::USB, "PLUG_IN_OUT_HOST_MODE", HiSysEvent::EventType::BEHAVIOR,
-        "DEVICE_NAME", dev.GetProuductName(), "DEVICE_PROTOCOL", dev.GetProtocol(),
+        "DEVICE_NAME", dev.GetProductName(), "DEVICE_PROTOCOL", dev.GetProtocol(),
         "DEVICE_SUBCLASS", dev.GetSubclass(), "DEVICE_CLASS", dev.GetClass(),
         "DEVICE_CLASS_DESCRIPTION", deviceUsageDes, "INTERFACE_CLASS_DESCRIPTION", extUsageDes,
         "VENDOR_ID", dev.GetVendorId(), "PRODUCT_ID", dev.GetProductId(),
