@@ -57,6 +57,13 @@ static constexpr int32_t STR_DEFAULT_SIZE = 256;
 static constexpr int32_t DEFAULT_DESCRIPTION_SIZE = 32;
 static constexpr int32_t DEFAULT_ACCESSORY_DESCRIPTION_SIZE = 256;
 static int32_t g_accFd = 0;
+const int32_t USB_TRANSFER_SHORT_NOT_OK = 0;
+const int32_t USB_TRANSFER_FREE_BUFFER = 1;
+const int32_t USB_TRANSFER_FREE_TRANSFER = 2;
+const int32_t USB_TRANSFER_ADD_ZERO_PACKET = 3;
+const int32_t TRANSFER_TYPE_ISOCHRONOUS = 1;
+const int32_t TRANSFER_TYPE_BULK = 2;
+const int32_t TRANSFER_TYPE_INTERRUPT = 3;
 
 enum UsbManagerFeature {
     FEATURE_HOST = 0,
@@ -2367,6 +2374,56 @@ static napi_value UsbCancelTransfer(napi_env env, napi_callback_info info)
     return nullptr;
 }
 
+static void SetEnumProperty(napi_env env, napi_value object, const std::string &name, int32_t value)
+{
+    USB_HILOGE(MODULE_JS_NAPI, "UsbSubmitTransfer SetEnumProperty enter");
+    if (name.empty()) {
+        USB_HILOGE(MODULE_JS_NAPI, "Property name cannot be an empty string");
+        return;
+    }
+
+    napi_value tempValue = nullptr;
+    napi_status status = napi_create_int32(env, value, &tempValue);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create int32 value for enum %{public}s", name.c_str());
+        return;
+    }
+    status = napi_set_named_property(env, object, name.c_str(), tempValue);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to set property %{public}s", name.c_str());
+        return;
+    }
+}
+
+static napi_value NapiCreateFlagsEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "USB_TRANSFER_SHORT_NOT_OK", USB_TRANSFER_SHORT_NOT_OK);
+    SetEnumProperty(env, object, "USB_TRANSFER_FREE_BUFFER", USB_TRANSFER_FREE_BUFFER);
+    SetEnumProperty(env, object, "USB_TRANSFER_FREE_TRANSFER", USB_TRANSFER_FREE_TRANSFER);
+    SetEnumProperty(env, object, "USB_TRANSFER_ADD_ZERO_PACKET", USB_TRANSFER_ADD_ZERO_PACKET);
+    return object;
+}
+
+static napi_value NapiCreateTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "TRANSFER_TYPE_ISOCHRONOUS", TRANSFER_TYPE_ISOCHRONOUS);
+    SetEnumProperty(env, object, "TRANSFER_TYPE_BULK", TRANSFER_TYPE_BULK);
+    SetEnumProperty(env, object, "TRANSFER_TYPE_INTERRUPT", TRANSFER_TYPE_INTERRUPT);
+    return object;
+}
+
 static napi_value PipeClose(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
@@ -2452,6 +2509,8 @@ static napi_value DeclareEnum(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_PROPERTY("AUDIO_SOURCE", ToInt32Value(env, AUDIO_SOURCE)),
         DECLARE_NAPI_STATIC_PROPERTY("NCM", ToInt32Value(env, NCM)),
         DECLARE_NAPI_STATIC_PROPERTY("STORAGE", ToInt32Value(env, STORAGE)),
+        DECLARE_NAPI_STATIC_PROPERTY("UsbTransferFlags", NapiCreateFlagsEnum(env)),
+        DECLARE_NAPI_STATIC_PROPERTY("UsbEndpointTransferType", NapiCreateTypeEnum(env)),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     return exports;
