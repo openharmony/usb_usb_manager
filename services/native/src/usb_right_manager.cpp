@@ -283,6 +283,7 @@ bool IsWithinUint64Range(const std::string &numberStr)
         return false;
     }
     return true;
+}
 
 int32_t UsbRightManager::RequestRight(const int32_t portId, const SerialDeviceIdentity &serialDeviceIdentity,
     const std::string &bundleName, const std::string &tokenId, const int32_t &userId)
