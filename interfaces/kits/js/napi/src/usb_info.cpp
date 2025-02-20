@@ -62,7 +62,7 @@ const int32_t USB_TRANSFER_FREE_BUFFER = 1;
 const int32_t USB_TRANSFER_FREE_TRANSFER = 2;
 const int32_t USB_TRANSFER_ADD_ZERO_PACKET = 3;
 const int32_t TRANSFER_TYPE_ISOCHRONOUS = 1;
-const int32_t TRANSFER_TYPE_BULK =2;
+const int32_t TRANSFER_TYPE_BULK = 2;
 const int32_t TRANSFER_TYPE_INTERRUPT = 3;
 
 enum UsbManagerFeature {
