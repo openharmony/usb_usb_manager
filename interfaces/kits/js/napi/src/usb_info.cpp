@@ -1576,6 +1576,7 @@ static napi_value PipeGetFileDescriptor(napi_env env, napi_callback_info info)
 }
 
 static auto g_controlTransferExecute = [](napi_env env, void *data) {
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "NAPI:g_controlTransferExecute");
     USBControlTransferAsyncContext *asyncContext = (USBControlTransferAsyncContext *)data;
     std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
     if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
@@ -1708,9 +1709,7 @@ static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
             delete asyncContext;
             return nullptr;
         }
-        StartTrace(HITRACE_TAG_USB, "NAPI:memcpy_s");
         errno_t ret = memcpy_s(nativeArrayBuffer, controlParam.dataLength, controlParam.data, controlParam.dataLength);
-        FinishTrace(HITRACE_TAG_USB);
         if (ret != EOK) {
             USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed");
             delete asyncContext;
@@ -1729,16 +1728,15 @@ static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
 
     napi_value resource = nullptr;
     napi_create_string_utf8(env, "PipeControlTransfer", NAPI_AUTO_LENGTH, &resource);
-    StartTrace(HITRACE_TAG_USB, "NAPI:napi_create_async_work");
     napi_create_async_work(env, nullptr, resource, g_controlTransferExecute, g_controlTransferComplete,
         reinterpret_cast<void *>(asyncContext), &asyncContext->work);
-    FinishTrace(HITRACE_TAG_USB);
     napi_queue_async_work(env, asyncContext->work);
 
     return result;
 }
 
 static auto g_usbControlTransferExecute = [](napi_env env, void *data) {
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "NAPI:g_usbControlTransferExecute");
     USBDeviceControlTransferAsyncContext *asyncContext = (USBDeviceControlTransferAsyncContext *)data;
     std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
     if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT && asyncContext->buffer != nullptr) {
@@ -1874,9 +1872,7 @@ static napi_value PipeUsbControlTransfer(napi_env env, napi_callback_info info)
             delete asyncContext;
             return nullptr;
         }
-        StartTrace(HITRACE_TAG_USB, "NAPI:memcpy_s");
         errno_t ret = memcpy_s(nativeArrayBuffer, controlParam.dataLength, controlParam.data, controlParam.dataLength);
-        FinishTrace(HITRACE_TAG_USB);
         if (ret != EOK) {
             USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed");
             delete asyncContext;
@@ -1895,16 +1891,15 @@ static napi_value PipeUsbControlTransfer(napi_env env, napi_callback_info info)
 
     napi_value resource = nullptr;
     napi_create_string_utf8(env, "PipeUsbControlTransfer", NAPI_AUTO_LENGTH, &resource);
-    StartTrace(HITRACE_TAG_USB, "NAPI:napi_create_async_work");
     napi_create_async_work(env, nullptr, resource, g_usbControlTransferExecute, g_usbControlTransferComplete,
         reinterpret_cast<void *>(asyncContext), &asyncContext->work);
-    FinishTrace(HITRACE_TAG_USB);
     napi_queue_async_work(env, asyncContext->work);
 
     return result;
 }
 
 static auto g_bulkTransferExecute = [](napi_env env, void *data) {
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "NAPI:g_bulkTransferExecute");
     USBBulkTransferAsyncContext *asyncContext = reinterpret_cast<USBBulkTransferAsyncContext *>(data);
     std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
     if (asyncContext->endpoint.GetDirection() == USB_ENDPOINT_DIR_OUT) {
@@ -2054,10 +2049,8 @@ static napi_value PipeBulkTransfer(napi_env env, napi_callback_info info)
     napi_value resource = nullptr;
     napi_create_string_utf8(env, "PipeBulkTransfer", NAPI_AUTO_LENGTH, &resource);
 
-    StartTrace(HITRACE_TAG_USB, "NAPI:napi_create_async_work");
     napi_status status = napi_create_async_work(env, nullptr, resource, g_bulkTransferExecute, g_bulkTransferComplete,
         reinterpret_cast<void *>(asyncContext), &asyncContext->work);
-    FinishTrace(HITRACE_TAG_USB);
     if (status != napi_ok) {
         USB_HILOGE(MODULE_JS_NAPI, "create async work failed");
         return result;
