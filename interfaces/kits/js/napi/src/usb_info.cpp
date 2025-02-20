@@ -2228,7 +2228,6 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
         res = napi_call_function(asyncCBWork->env, nullptr, resultJsCb, PARAM_COUNT_2, argv, &result);
         if (res != napi_ok) {
             USB_HILOGE(MODULE_JS_NAPI, "napi_call_function failed, res: %{public}d", res);
-            delete asyncCBWork;
         }
         napi_close_handle_scope(asyncCBWork->env, scope);
     };
