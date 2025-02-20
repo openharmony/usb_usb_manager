@@ -2257,6 +2257,32 @@ static void GetUSBTransferInfo(USBTransferInfo &obj, USBTransferAsyncContext *as
     obj.userData = static_cast<uint64_t>(ptrValue);
 }
 
+static bool CreateAndWriteAshmem(USBTransferAsyncContext *asyncContext, HDI::Usb::V1_2::USBTransferInfo &obj)
+{
+    StartTrace(HITRACE_TAG_USB, "NAPI:Ashmem::CreateAshmem");
+    asyncContext->ashmem = Ashmem::CreateAshmem(asyncContext->name.c_str(), asyncContext->length);
+    FinishTrace(HITRACE_TAG_USB);
+    if (asyncContext->ashmem == nullptr) {
+        USB_HILOGE(MODULE_JS_NAPI, "Ashmem::CreateAshmem failed");
+        return false;
+    }
+    uint8_t endpointId = static_cast<uint8_t>(asyncContext->endpoint) & USB_ENDPOINT_DIR_MASK;
+    if (endpointId == USB_ENDPOINT_DIR_OUT) {
+        std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
+        obj.length = static_cast<int32_t>(bufferData.size());
+        asyncContext->ashmem->MapReadAndWriteAshmem();
+        StartTrace(HITRACE_TAG_USB, "NAPI:WriteToAshmem");
+        if (!asyncContext->ashmem->WriteToAshmem(asyncContext->buffer, bufferData.size(), 0)) {
+            FinishTrace(HITRACE_TAG_USB);
+            asyncContext->ashmem->CloseAshmem();
+            USB_HILOGE(MODULE_JS_NAPI, "napi UsbSubmitTransfer Failed to UsbSubmitTransfer to ashmem.");
+            return false;
+        }
+        FinishTrace(HITRACE_TAG_USB);
+    }
+    return true;
+}
+
 static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
 {
     HITRACE_METER_NAME(HITRACE_TAG_USB, "NAPI:UsbSubmitTransfer");
@@ -2276,26 +2302,8 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
     asyncContext->env = env;
     HDI::Usb::V1_2::USBTransferInfo obj;
     GetUSBTransferInfo(obj, asyncContext);
-    StartTrace(HITRACE_TAG_USB, "NAPI:Ashmem::CreateAshmem");
-    asyncContext->ashmem = Ashmem::CreateAshmem(asyncContext->name.c_str(), asyncContext->length);
-    FinishTrace(HITRACE_TAG_USB);
-    if (asyncContext->ashmem == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "Ashmem::CreateAshmem failed");
+    if (!CreateAndWriteAshmem(asyncContext, obj)) {
         return nullptr;
-    }
-    uint8_t endpointId = static_cast<uint8_t>(asyncContext->endpoint) & USB_ENDPOINT_DIR_MASK;
-    if (endpointId == USB_ENDPOINT_DIR_OUT) {
-        std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
-        obj.length = static_cast<int32_t>(bufferData.size());
-        asyncContext->ashmem->MapReadAndWriteAshmem();
-        StartTrace(HITRACE_TAG_USB, "NAPI:WriteToAshmem");
-        if (!asyncContext->ashmem->WriteToAshmem(asyncContext->buffer, bufferData.size(), 0)) {
-            FinishTrace(HITRACE_TAG_USB);
-            asyncContext->ashmem->CloseAshmem();
-            USB_HILOGE(MODULE_JS_NAPI, "napi UsbSubmitTransfer Failed to UsbSubmitTransfer to ashmem.");
-            return nullptr;
-        }
-        FinishTrace(HITRACE_TAG_USB);
     }
     static auto func = [] (const TransferCallbackInfo &info,
         const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo, uint64_t userData) -> void {
