@@ -1678,7 +1678,6 @@ static std::tuple<bool, USBDevicePipe, PipeControlParam, int32_t> GetControlTran
 
 static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_USB, "NAPI:PipeControlTransfer");
     if (!HasFeature(FEATURE_HOST)) {
         ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
     }
@@ -1841,7 +1840,6 @@ static std::tuple<bool, USBDevicePipe, UsbPipeControlParam, int32_t> GetUsbContr
 
 static napi_value PipeUsbControlTransfer(napi_env env, napi_callback_info info)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_USB, "NAPI:PipeUsbControlTransfer");
     if (!HasFeature(FEATURE_HOST)) {
         ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
     }
