@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,15 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "napi_common.h"
 
-#ifndef NAPI_COMMON_H
-#include "napi/native_api.h"
-EXTERN_C_START
 /*
- * function for module exports
+ * Module definition
  */
-napi_value UsbInit(napi_env env, napi_value exports);
-napi_value SerialInit(napi_env env, napi_value exports);
-EXTERN_C_END
-#define NAPI_COMMON_H
-#endif // NAPI_COMMON_H
+static napi_module g_module = {.nm_version = 1,
+    .nm_flags = 0,
+    .nm_filename = "serial",
+    .nm_register_func = SerialInit,
+    .nm_modname = "serial",
+    .nm_priv = nullptr,
+    .reserved = {nullptr}
+};
+
+/*
+ * Module registration
+ */
+extern "C" __attribute__((constructor)) void RegisterModule(void)
+{
+    napi_module_register(&g_module);
+}

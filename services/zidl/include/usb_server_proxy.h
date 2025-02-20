@@ -106,6 +106,17 @@ public:
     int32_t GetSupportedModes(int32_t portId, int32_t &supportedModes) override;
     int32_t SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole) override;
 #endif // USB_MANAGER_FEATURE_PORT
+    int32_t SerialOpen(int32_t portId, sptr<IRemoteObject> serialRemote) override;
+    int32_t SerialClose(int32_t portId) override;
+    int32_t SerialRead(int32_t portId, uint8_t *buffData, uint32_t size, uint32_t timeout) override;
+    int32_t SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size, uint32_t timeout) override;
+    int32_t SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute) override;
+    int32_t SerialSetAttribute(int32_t portId, const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute) override;
+    int32_t SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList) override;
+    bool HasSerialRight(int32_t portId) override;
+    int32_t AddSerialRight(uint32_t tokenId, int32_t portId) override;
+    int32_t CancelSerialRight(int32_t portId) override;
+    int32_t RequestSerialRight(int32_t portId) override;
 private:
     static inline BrokerDelegator<UsbServerProxy> delegator_;
 #ifdef USB_MANAGER_FEATURE_HOST
@@ -129,6 +140,8 @@ private:
 #if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
     bool ReadFileDescriptor(MessageParcel &data, int &fd);
 #endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
+    int32_t ParseSerialPort(MessageParcel &reply,
+                            std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPorts);
 };
 } // namespace USB
 } // namespace OHOS
