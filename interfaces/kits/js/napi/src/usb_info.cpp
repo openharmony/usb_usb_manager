@@ -1708,6 +1708,7 @@ static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
             delete asyncContext;
             return nullptr;
         }
+
         errno_t ret = memcpy_s(nativeArrayBuffer, controlParam.dataLength, controlParam.data, controlParam.dataLength);
         if (ret != EOK) {
             USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed");
@@ -1727,6 +1728,7 @@ static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
 
     napi_value resource = nullptr;
     napi_create_string_utf8(env, "PipeControlTransfer", NAPI_AUTO_LENGTH, &resource);
+
     napi_create_async_work(env, nullptr, resource, g_controlTransferExecute, g_controlTransferComplete,
         reinterpret_cast<void *>(asyncContext), &asyncContext->work);
     napi_queue_async_work(env, asyncContext->work);
@@ -1870,6 +1872,7 @@ static napi_value PipeUsbControlTransfer(napi_env env, napi_callback_info info)
             delete asyncContext;
             return nullptr;
         }
+
         errno_t ret = memcpy_s(nativeArrayBuffer, controlParam.dataLength, controlParam.data, controlParam.dataLength);
         if (ret != EOK) {
             USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed");
@@ -1889,6 +1892,7 @@ static napi_value PipeUsbControlTransfer(napi_env env, napi_callback_info info)
 
     napi_value resource = nullptr;
     napi_create_string_utf8(env, "PipeUsbControlTransfer", NAPI_AUTO_LENGTH, &resource);
+
     napi_create_async_work(env, nullptr, resource, g_usbControlTransferExecute, g_usbControlTransferComplete,
         reinterpret_cast<void *>(asyncContext), &asyncContext->work);
     napi_queue_async_work(env, asyncContext->work);
@@ -2376,6 +2380,7 @@ static napi_value UsbCancelTransfer(napi_env env, napi_callback_info info)
         ThrowBusinessError(env, OHEC_COMMON_PARAM_ERROR, "BusinessError 401:Parameter error.");
         return nullptr;
     }
+
     StartTrace(HITRACE_TAG_USB, "NAPI:pipe.UsbCancelTransfer");
     int32_t ret = asyncContext->pipe.UsbCancelTransfer(asyncContext->endpoint);
     FinishTrace(HITRACE_TAG_USB);
