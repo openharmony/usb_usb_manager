@@ -2417,13 +2417,13 @@ bool UsbService::HasSerialRight(int32_t portId)
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbRightManager_ is nullptr", __func__);
-        return UEC_SERVICE_INVALID_VALUE;
+        return false;
     }
 
     int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
-        return ret;
+        return false;
     }
 
     std::string deviceName;
