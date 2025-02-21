@@ -37,8 +37,9 @@ constexpr int32_t PARAM_COUNT_THR = 3;
 constexpr int32_t DECIMAL_BASE = 10;
 constexpr uint32_t CMD_INDEX = 1;
 constexpr uint32_t PARAM_INDEX = 2;
-constexpr uint32_t DELAY_CONNECT_INTERVAL = 300;
+constexpr uint32_t DELAY_CONNECT_INTERVAL = 1000;
 constexpr uint32_t DELAY_DISCONN_INTERVAL = 1400;
+constexpr uint32_t DELAY_RESTOREDIALOG_INTERVAL = 2000;
 const std::map<std::string_view, uint32_t> UsbDeviceManager::FUNCTION_MAPPING_N2C = {
     {UsbSrvSupport::FUNCTION_NAME_NONE, UsbSrvSupport::FUNCTION_NONE},
     {UsbSrvSupport::FUNCTION_NAME_ACM, UsbSrvSupport::FUNCTION_ACM},
@@ -310,13 +311,8 @@ int32_t UsbDeviceManager::GetCurrentFunctions()
     return currentFunctions_;
 }
 
-#ifdef USB_MANAGER_PASS_THROUGH
-void UsbDeviceManager::HandleEvent(int32_t status)
+void UsbDeviceManager::ProcessStatus(int32_t status, bool &curConnect)
 {
-    if (usbDeviceInterface_ == nullptr) {
-        return;
-    }
-    bool curConnect = false;
     switch (status) {
         case ACT_UPDEVICE:
             curConnect = true;
@@ -328,33 +324,52 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             break;
         case ACT_ACCESSORYUP:
         case ACT_ACCESSORYDOWN:
-        case ACT_ACCESSORYSEND:
+        case ACT_ACCESSORYSEND: {
+            isDisableDialog_ = true;
+            USB_HILOGI(MODULE_SERVICE, "disable dialog success");
+            delayDisconn_.Unregister(delayAccTimerId_);
+            auto accTask = [&]() {
+                isDisableDialog_ = false;
+                USB_HILOGI(MODULE_SERVICE, "restore dialog to available success");
+            };
+            delayAccTimerId_ = delayDisconn_.Register(accTask, DELAY_RESTOREDIALOG_INTERVAL, true);
             ProcessFunctionSwitchWindow(false);
             return;
+        }
         default:
             USB_HILOGE(MODULE_USB_SERVICE, "invalid status %{public}d", status);
             return;
     }
+}
+
+#ifdef USB_MANAGER_PASS_THROUGH
+void UsbDeviceManager::HandleEvent(int32_t status)
+{
+    if (usbDeviceInterface_ == nullptr) {
+        return;
+    }
+    bool curConnect = false;
+    ProcessStatus(status, curConnect);
     delayDisconn_.Unregister(delayDisconnTimerId_);
     if (curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             connected_ = true;
             GetCurrentFunctions(currentFunctions_);
-            ProcessFuncChange(connected_, currentFunctions_);
+            ProcessFuncChange(connected_, currentFunctions_, isDisableDialog_);
         };
         delayDisconnTimerId_ = delayDisconn_.Register(task, DELAY_CONNECT_INTERVAL, true);
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             connected_ = false;
-            uint32_t functions = static_cast<uint32_t>(currentFunctions_);
-            if ((functions & USB_FUNCTION_MTP) != 0 || (functions & USB_FUNCTION_PTP) != 0) {
-                functions = functions & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
-                USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}u", functions);
-                functions = functions == 0 ? USB_FUNCTION_STORAGE : functions;
-                usbDeviceInterface_->SetCurrentFunctions(functions);
+            if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_MTP) != 0 ||
+                (static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_PTP) != 0) {
+                currentFunctions_ = static_cast<uint32_t>(currentFunctions_) &
+                    (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
+                USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
+                currentFunctions_ = currentFunctions_ == 0 ? USB_FUNCTION_STORAGE : currentFunctions_;
+                usbDeviceInterface_->SetCurrentFunctions(currentFunctions_);
             }
-            ProcessFuncChange(connected_, functions);
-            currentFunctions_ = static_cast<int32_t>(functions);
+            ProcessFuncChange(connected_, currentFunctions_);
             return;
         };
         delayDisconnTimerId_ = delayDisconn_.Register(task, DELAY_DISCONN_INTERVAL, true);
@@ -369,44 +384,27 @@ void UsbDeviceManager::HandleEvent(int32_t status)
         return;
     }
     bool curConnect = false;
-    switch (status) {
-        case ACT_UPDEVICE:
-            curConnect = true;
-            gadgetConnected_ = true;
-            break;
-        case ACT_DOWNDEVICE:
-            curConnect = false;
-            gadgetConnected_ = false;
-            break;
-        case ACT_ACCESSORYUP:
-        case ACT_ACCESSORYDOWN:
-        case ACT_ACCESSORYSEND:
-            ProcessFunctionSwitchWindow(false);
-            return;
-        default:
-            USB_HILOGE(MODULE_USB_SERVICE, "invalid status %{public}d", status);
-            return;
-    }
+    ProcessStatus(status, curConnect);
     delayDisconn_.Unregister(delayDisconnTimerId_);
     if (curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             connected_ = true;
             GetCurrentFunctions(currentFunctions_);
-            ProcessFuncChange(connected_, currentFunctions_);
+            ProcessFuncChange(connected_, currentFunctions_, isDisableDialog_);
         };
         delayDisconnTimerId_ = delayDisconn_.Register(task, DELAY_CONNECT_INTERVAL, true);
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             connected_ = false;
-            uint32_t functions = static_cast<uint32_t>(currentFunctions_);
-            if ((functions & USB_FUNCTION_MTP) != 0 || (functions & USB_FUNCTION_PTP) != 0) {
-                functions = functions & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
-                USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}u", functions);
-                functions = functions == 0 ? USB_FUNCTION_STORAGE : functions;
-                usbd_->SetCurrentFunctions(functions);
+            if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_MTP) != 0 ||
+                (static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_PTP) != 0) {
+                currentFunctions_ = static_cast<uint32_t>(currentFunctions_) &
+                    (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
+                USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
+                currentFunctions_ = currentFunctions_ == 0 ? USB_FUNCTION_STORAGE : currentFunctions_;
+                usbd_->SetCurrentFunctions(currentFunctions_);
             }
-            ProcessFuncChange(connected_, functions);
-            currentFunctions_ = static_cast<int32_t>(functions);
+            ProcessFuncChange(connected_, currentFunctions_);
             return;
         };
         delayDisconnTimerId_ = delayDisconn_.Register(task, DELAY_DISCONN_INTERVAL, true);
@@ -418,17 +416,27 @@ void UsbDeviceManager::HandleEvent(int32_t status)
 
 int32_t UsbDeviceManager::UserChangeProcess()
 {
-    if ((currentFunctions_ & USB_FUNCTION_MTP) != 0 || (currentFunctions_ & USB_FUNCTION_PTP) != 0) {
-        currentFunctions_ = currentFunctions_ & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
-        currentFunctions_ = currentFunctions_ == 0 ? USB_FUNCTION_STORAGE : currentFunctions_;
+    USB_HILOGI(MODULE_SERVICE, "%{public}s: in", __func__);
+    int32_t ret = HDF_FAILURE;
+    if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_MTP) != 0 ||
+        (static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_PTP) != 0) {
+        uint32_t func = static_cast<uint32_t>(currentFunctions_) & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
+        func = func == 0 ? USB_FUNCTION_STORAGE : func;
         USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
+        int32_t funcs = static_cast<int32_t>(func);
 #ifdef USB_MANAGER_PASS_THROUGH
-        return usbDeviceInterface_->SetCurrentFunctions(currentFunctions_);
+        ret = usbDeviceInterface_->SetCurrentFunctions(funcs);
 #else
-        return usbd_->SetCurrentFunctions(currentFunctions_);
+        ret = usbd_->SetCurrentFunctions(funcs);
 #endif // USB_MANAGER_PASS_THROUGH
+        if (ret == ERR_OK && funcs != currentFunctions_) {
+            currentFunctions_ = funcs;
+            ReportFuncChangeSysEvent(currentFunctions_, funcs);
+            BroadcastFuncChange(connected_, currentFunctions_);
+        }
     }
-    return UEC_OK;
+    ProcessFunctionNotifier(connected_, currentFunctions_);
+    return ret;
 }
 
 void UsbDeviceManager::BroadcastFuncChange(bool connected, int32_t currentFunc)
@@ -460,10 +468,12 @@ void UsbDeviceManager::BroadcastFuncChange(bool connected, int32_t currentFunc)
     ReportDevicePlugSysEvent(currentFunc, connected);
 }
 
-void UsbDeviceManager::ProcessFuncChange(bool connected, int32_t currentFunc)
+void UsbDeviceManager::ProcessFuncChange(bool connected, int32_t currentFunc, bool isDisableDialog)
 {
     BroadcastFuncChange(connected, currentFunc);
-    ProcessFunctionSwitchWindow(connected);
+    if (!isDisableDialog) {
+        ProcessFunctionSwitchWindow(connected);
+    }
     ProcessFunctionNotifier(connected, 0);
 }
 

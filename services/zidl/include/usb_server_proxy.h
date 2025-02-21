@@ -25,6 +25,7 @@
 #include "usb_interface_type.h"
 #include "usb_service_ipc_interface_code.h"
 #include "v1_2/usb_types.h"
+
 namespace OHOS {
 namespace USB {
 class UsbServerProxy : public IRemoteProxy<IUsbSrv> {
@@ -54,7 +55,7 @@ public:
     int32_t ControlTransfer(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbCtrlTransfer &ctrl,
         std::vector<uint8_t> &bufferData) override;
     int32_t UsbControlTransfer(const HDI::Usb::V1_0::UsbDev &dev,
-        const HDI::Usb::V1_2::UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData) override;
+        const HDI::Usb::V1_1::UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData) override;
     int32_t SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex) override;
     int32_t GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &configIndex) override;
     int32_t SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t altIndex) override;
@@ -70,7 +71,6 @@ public:
     int32_t UsbCancelTransfer(const HDI::Usb::V1_0::UsbDev &dev, const int32_t &endpoint) override;
     int32_t UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &dev, HDI::Usb::V1_2::USBTransferInfo &info,
         const sptr<IRemoteObject> &cb, sptr<Ashmem> &ashmem) override;
-	
     int32_t RegBulkCallback(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe,
         const sptr<IRemoteObject> &cb) override;
     int32_t UnRegBulkCallback(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe) override;

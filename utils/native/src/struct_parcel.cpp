@@ -83,12 +83,6 @@ UsbIsoVecParcel *UsbIsoVecParcel::Unmarshalling(Parcel &in)
         return nullptr;
     }
 
-    if (vecSize > UINT32_MAX || vecSize < 0) {
-        delete (usbIsoVecParcel);
-        usbIsoVecParcel = nullptr;
-        return nullptr;
-    }
-
     for (uint32_t index = 0; index < vecSize; index++) {
         sptr<UsbIsoParcel> usbIsoParcel = in.ReadParcelable<UsbIsoParcel>();
         if (usbIsoParcel == nullptr) {
