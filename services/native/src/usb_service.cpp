@@ -1168,7 +1168,7 @@ bool UsbService::CheckDevicePermission(uint8_t busNum, uint8_t devAddr)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
-bool UsbService::HasRight(std::string deviceName)
+bool UsbService::HasRight(const std::string deviceName)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbRightManager HasRight");
     if (usbRightManager_ == nullptr) {
@@ -1205,7 +1205,7 @@ bool UsbService::HasRight(std::string deviceName)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
-int32_t UsbService::RequestRight(std::string deviceName)
+int32_t UsbService::RequestRight(const std::string deviceName)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbRightManager RequestRight");
     if (usbRightManager_ == nullptr) {
@@ -1236,7 +1236,7 @@ int32_t UsbService::RequestRight(std::string deviceName)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
-int32_t UsbService::RemoveRight(std::string deviceName)
+int32_t UsbService::RemoveRight(const std::string deviceName)
 {
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");

@@ -92,9 +92,9 @@ public:
         sptr<Ashmem> &ashmem) = 0;
     virtual int32_t BulkCancel(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe) = 0;
 
-    virtual bool HasRight(std::string deviceName) = 0;
-    virtual int32_t RequestRight(std::string deviceName) = 0;
-    virtual int32_t RemoveRight(std::string deviceName) = 0;
+    virtual bool HasRight(const std::string deviceName) = 0;
+    virtual int32_t RequestRight(const std::string deviceName) = 0;
+    virtual int32_t RemoveRight(const std::string deviceName) = 0;
     virtual int32_t AddRight(const std::string &bundleName, const std::string &deviceName) = 0;
     virtual int32_t AddAccessRight(const std::string &tokenId, const std::string &deviceName) = 0;
 #endif // USB_MANAGER_FEATURE_HOST

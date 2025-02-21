@@ -632,7 +632,7 @@ bool UsbRightManager::VerifyPermission()
 {
     AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     int32_t ret = AccessTokenKit::VerifyAccessToken(tokenId, USB_MANAGE_ACCESS_USB_DEVICE);
-    if (ret == PermissionState::PERMISSION_DENIED) {
+    if (ret == PermissionState::PERMISSION_GRANTED) {
         USB_HILOGW(MODULE_USB_SERVICE, "no permission");
         return false;
     }

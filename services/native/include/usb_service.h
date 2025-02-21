@@ -146,9 +146,9 @@ public:
     int32_t BulkCancel(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe) override;
 
     bool CheckDevicePermission(uint8_t busNum, uint8_t devAddr);
-    bool HasRight(std::string deviceName) override;
-    int32_t RequestRight(std::string deviceName) override;
-    int32_t RemoveRight(std::string deviceName) override;
+    bool HasRight(const std::string deviceName) override;
+    int32_t RequestRight(const std::string deviceName) override;
+    int32_t RemoveRight(const std::string deviceName) override;
     int32_t AddRight(const std::string &bundleName, const std::string &deviceName) override;
     int32_t AddAccessRight(const std::string &tokenId, const std::string &deviceName) override;
 #endif // USB_MANAGER_FEATURE_HOST

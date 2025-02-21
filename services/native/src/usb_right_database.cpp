@@ -40,6 +40,8 @@ UsbRightDataBase::UsbRightDataBase()
 
 std::shared_ptr<UsbRightDataBase> UsbRightDataBase::GetInstance()
 {
+    static std::mutex instanceMutex;
+    std::lock_guard<std::mutex> guard(instanceMutex);
     if (instance_ == nullptr) {
         USB_HILOGI(MODULE_USB_SERVICE, "reset to new instance");
         instance_.reset(new UsbRightDataBase());
