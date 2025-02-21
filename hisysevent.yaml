@@ -51,3 +51,24 @@ USB_MANAGE_TRANSFOR_FAULT:
   INFT_ID: {type: INT32, desc: interface id}
   ENDPOINTT_ID: {type: INT32, desc: endpoint id}
   FAIL_REASON: {type: INT32, desc: fail reason}
+
+SERIAL_OPERATE:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: UsbManager, desc: serial open or close }
+  INTFACE_NAME: {type: STRING, desc: interface name}
+  PORT_ID: {type: INT32, desc: portId}
+  TOKEN_ID: {type: UINT32, desc: tokenId}
+
+SERIAL_OPERATE_SET_ATTRIBUTE:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: UsbManager, desc: set serial attribute }
+  PORT_ID: {type: INT32, desc: portId}
+  TOKEN_ID: {type: UINT32, desc: tokenId}
+  ATTRIBUTE_BAUDRATE: {type: INT32, desc: baudrate}
+  ATTRIBUTE_STOPBITS: {type: UINT8, desc: stopBits}
+  ATTRIBUTE_PARITY: {type: UINT8, desc: parity}
+  ATTRIBUTE_DATABITS: {type: UINT8, desc: dataBits}
+
+SERIAL_OPERATE_FAULT:
+  __BASE: {type: FAULT, level: CRITICAL, tag: UsbManager, desc: serial interface happen fault}
+  INTFACE_NAME: {type: STRING, desc: interface name}
+  PORT_ID: {type: INT32, desc: portId}
+  FAIL_REASON: {type: INT32, desc: fail reason}

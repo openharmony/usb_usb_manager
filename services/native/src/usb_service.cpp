@@ -61,11 +61,11 @@ constexpr uint32_t UNLOAD_SA_TIMER_INTERVAL = 30 * 1000;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 #endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
 #ifdef USB_MANAGER_FEATURE_HOST
-constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
 constexpr const pid_t ROOT_UID = 0;
 constexpr const pid_t EDM_UID = 3057;
 #endif // USB_MANAGER_FEATURE_HOST
 constexpr int32_t APIVERSION_16 = 16;
+constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
 
 } // namespace
 auto g_serviceInstance = DelayedSpSingleton<UsbService>::GetInstance();

@@ -50,6 +50,9 @@ private:
     bool CheckTokenIdValidity(int32_t portId);
     void UpdateSerialPortMap(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList);
     int32_t CheckPortAndTokenId(int32_t portId);
+    void ReportSerialOperateSysEvent(std::string interfaceName, int32_t portId, uint32_t tokenId);
+    void ReportSerialOperateSetAttributeSysEvent(int32_t portId, uint32_t tokenId,
+        const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute);
     std::map<int32_t, uint32_t> portTokenMap_;
     std::map<int32_t, OHOS::HDI::Usb::Serial::V1_0::SerialPort> serialPortMap_;
     sptr<OHOS::HDI::Usb::Serial::V1_0::ISerialInterface> serial_ = nullptr;

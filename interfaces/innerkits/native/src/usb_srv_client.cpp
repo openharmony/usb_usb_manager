@@ -20,6 +20,7 @@
 #include "iservice_registry.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
+#include "hisysevent.h"
 #include "usb_common.h"
 #include "usb_device.h"
 #include "usb_errors.h"
@@ -997,6 +998,7 @@ int32_t UsbSrvClient::SerialOpen(int32_t portId)
     int32_t ret = proxy_->SerialOpen(portId, serialRemote);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialOpen failed ret = %{public}d!", ret);
+        ReportSerialOperateFaultSysEvent("SerialOpen", portId, ret);
     }
     return ret;
 }
@@ -1008,6 +1010,7 @@ int32_t UsbSrvClient::SerialClose(int32_t portId)
     int32_t ret = proxy_->SerialClose(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialClose failed ret = %{public}d!", ret);
+        ReportSerialOperateFaultSysEvent("SerialClose", portId, ret);
     }
     return ret;
 }
@@ -1019,6 +1022,7 @@ int32_t UsbSrvClient::SerialRead(int32_t portId, uint8_t *buffData, uint32_t siz
     int32_t ret = proxy_->SerialRead(portId, buffData, size, timeout);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialRead failed ret = %{public}d!", ret);
+        ReportSerialOperateFaultSysEvent("SerialRead", portId, ret);
     }
 
     return ret;
@@ -1031,6 +1035,7 @@ int32_t UsbSrvClient::SerialWrite(int32_t portId, const std::vector<uint8_t>& da
     int32_t ret = proxy_->SerialWrite(portId, data, size, timeout);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialWrite failed ret = %{public}d!", ret);
+        ReportSerialOperateFaultSysEvent("SerialWrite", portId, ret);
     }
     return ret;
 }
@@ -1042,6 +1047,7 @@ int32_t UsbSrvClient::SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial:
     int32_t ret = proxy_->SerialGetAttribute(portId, attribute);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialGetAttribute failed ret = %{public}d!", ret);
+        ReportSerialOperateFaultSysEvent("SerialGetAttribute", portId, ret);
     }
     return ret;
 }
@@ -1054,6 +1060,7 @@ int32_t UsbSrvClient::SerialSetAttribute(int32_t portId,
     int32_t ret = proxy_->SerialSetAttribute(portId, attribute);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialSetAttribute failed ret = %{public}d!", ret);
+        ReportSerialOperateFaultSysEvent("SerialSetAttribute", portId, ret);
     }
     return ret;
 }
@@ -1083,6 +1090,7 @@ int32_t UsbSrvClient::CancelSerialRight(int32_t portId)
     int32_t ret = proxy_->CancelSerialRight(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::CancelSerialRight failed ret = %{public}d !", ret);
+        ReportSerialOperateFaultSysEvent("CancelSerialRight", portId, ret);
     }
     return ret;
 }
@@ -1094,6 +1102,7 @@ int32_t UsbSrvClient::RequestSerialRight(int32_t portId)
     int32_t ret = proxy_->RequestSerialRight(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::RequestSerialRight failed ret = %{public}d !", ret);
+        ReportSerialOperateFaultSysEvent("RequestSerialRight", portId, ret);
     }
     return ret;
 }
@@ -1105,8 +1114,19 @@ int32_t UsbSrvClient::AddSerialRight(uint32_t tokenId, int32_t portId)
     int32_t ret = proxy_->AddSerialRight(tokenId, portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::AddSerialRight failed ret = %{public}d!", ret);
+        ReportSerialOperateFaultSysEvent("AddSerialRight", portId, ret);
     }
     return ret;
+}
+
+void UsbSrvClient::ReportSerialOperateFaultSysEvent(std::string interfaceName, int32_t portId,
+    int32_t faultReason)
+{
+    USB_HILOGI(MODULE_USB_INNERKIT, "serial interface happen fault");
+    HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::USB, "SERIAL_OPERATE_FAULT",
+        HiviewDFX::HiSysEvent::EventType::FAULT, "INTFACE_NAME", interfaceName,
+        "PORT_ID", portId,
+        "FAIL_REASON", faultReason);
 }
 } // namespace USB
 } // namespace OHOS

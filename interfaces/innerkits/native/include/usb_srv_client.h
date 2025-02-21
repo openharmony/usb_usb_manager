@@ -135,6 +135,7 @@ private:
     int32_t Connect();
     int32_t ConnectUnLocked();
     void ResetProxy(const wptr<IRemoteObject> &remote);
+    void ReportSerialOperateFaultSysEvent(std::string interfaceName, int32_t portId, int32_t faultReason);
     sptr<IUsbSrv> proxy_ = nullptr;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ = nullptr;
     std::mutex mutex_;
