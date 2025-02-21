@@ -1576,7 +1576,6 @@ static napi_value PipeGetFileDescriptor(napi_env env, napi_callback_info info)
 }
 
 static auto g_controlTransferExecute = [](napi_env env, void *data) {
-    HITRACE_METER_NAME(HITRACE_TAG_USB, "NAPI:g_controlTransferExecute");
     USBControlTransferAsyncContext *asyncContext = (USBControlTransferAsyncContext *)data;
     std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
     if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
@@ -1737,7 +1736,6 @@ static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
 }
 
 static auto g_usbControlTransferExecute = [](napi_env env, void *data) {
-    HITRACE_METER_NAME(HITRACE_TAG_USB, "NAPI:g_usbControlTransferExecute");
     USBDeviceControlTransferAsyncContext *asyncContext = (USBDeviceControlTransferAsyncContext *)data;
     std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
     if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT && asyncContext->buffer != nullptr) {
@@ -1901,7 +1899,6 @@ static napi_value PipeUsbControlTransfer(napi_env env, napi_callback_info info)
 }
 
 static auto g_bulkTransferExecute = [](napi_env env, void *data) {
-    HITRACE_METER_NAME(HITRACE_TAG_USB, "NAPI:g_bulkTransferExecute");
     USBBulkTransferAsyncContext *asyncContext = reinterpret_cast<USBBulkTransferAsyncContext *>(data);
     std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
     if (asyncContext->endpoint.GetDirection() == USB_ENDPOINT_DIR_OUT) {
@@ -2024,7 +2021,6 @@ static bool GetBulkTransferParams(napi_env env, napi_callback_info info, USBBulk
 
 static napi_value PipeBulkTransfer(napi_env env, napi_callback_info info)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_USB, "NAPI:PipeBulkTransfer");
     if (!HasFeature(FEATURE_HOST)) {
         ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
     }
