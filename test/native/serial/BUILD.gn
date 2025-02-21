@@ -30,7 +30,7 @@ ohos_unittest("test_serial") {
   module_out_path = module_output_path
   sources = [
     "src/grant_sys_permission.cpp",
-    "src/serial_test.cpp"
+    "src/serial_test.cpp",
   ]
 
   configs = [
@@ -69,7 +69,7 @@ ohos_unittest("test_serialright") {
   module_out_path = module_output_path
   sources = [
     "src/grant_sys_permission.cpp",
-    "src/serial_right_test.cpp"
+    "src/serial_right_test.cpp",
   ]
 
   configs = [
