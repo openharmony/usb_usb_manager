@@ -2240,6 +2240,7 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
     };
     if (napi_status::napi_ok != napi_send_event(asyncCBWork->env, task, napi_eprio_immediate)) {
         USB_HILOGE(MODULE_JS_NAPI, "OnJsCallbackVolumeEvent: Failed to SendEvent");
+        delete asyncCBWork;
     }
 }
 
