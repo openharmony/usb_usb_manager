@@ -561,13 +561,13 @@ int32_t UsbService::SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t con
 // LCOV_EXCL_START
 int32_t UsbService::ManageGlobalInterface(bool disable)
 {
-    if (PreCallFunction() != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
-        return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
-    }
     if (!IsCallerValid()) {
         USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
         return UEC_SERVICE_INVALID_OPERATION;
+    }
+    if (PreCallFunction() != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
+        return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
     return usbHostManager_->ManageGlobalInterface(disable);
 }
@@ -576,13 +576,13 @@ int32_t UsbService::ManageGlobalInterface(bool disable)
 // LCOV_EXCL_START
 int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disable)
 {
-    if (PreCallFunction() != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
-        return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
-    }
     if (!IsCallerValid()) {
         USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
         return UEC_SERVICE_INVALID_OPERATION;
+    }
+    if (PreCallFunction() != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
+        return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
     return usbHostManager_->ManageDevice(vendorId, productId, disable);
 }
@@ -591,13 +591,13 @@ int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disab
 // LCOV_EXCL_START
 int32_t UsbService::ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
-    if (PreCallFunction() != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
-        return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
-    }
     if (!IsCallerValid()) {
         USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
         return UEC_SERVICE_INVALID_OPERATION;
+    }
+    if (PreCallFunction() != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
+        return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
     return usbHostManager_->ManageInterfaceType(disableType, disable);
 }
@@ -1166,6 +1166,7 @@ bool UsbService::CheckDevicePermission(uint8_t busNum, uint8_t devAddr)
     }
     return true;
 }
+// LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
 bool UsbService::HasRight(const std::string deviceName)
@@ -1423,17 +1424,6 @@ int32_t UsbService::PreCallFunction()
     return UEC_OK;
 }
 // LCOV_EXCL_STOP
-
-bool UsbService::IsCallerValid()
-{
-    OHOS::Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
-    auto callerTokenType = OHOS::Security::AccessToken::AccessTokenKit::GetTokenType(callerToken);
-    if (callerTokenType == OHOS::Security::AccessToken::TypeATokenTypeEnum::TOKEN_NATIVE) {
-        pid_t callerUid = IPCSkeleton::GetCallingUid();
-        return callerUid == ROOT_UID || callerUid == EDM_UID;
-    }
-    return false;
-}
 #endif // USB_MANAGER_FEATURE_HOST
 
 #ifdef USB_MANAGER_FEATURE_DEVICE
@@ -2169,6 +2159,18 @@ int32_t UsbService::DeviceEvent(const HDI::Usb::V1_0::USBDeviceInfo &info)
 }
 // LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
+bool UsbService::IsCallerValid()
+{
+    OHOS::Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
+    auto callerTokenType = OHOS::Security::AccessToken::AccessTokenKit::GetTokenType(callerToken);
+    if (callerTokenType == OHOS::Security::AccessToken::TypeATokenTypeEnum::TOKEN_NATIVE) {
+        pid_t callerUid = IPCSkeleton::GetCallingUid();
+        return callerUid == ROOT_UID || callerUid == EDM_UID;
+    }
+    return false;
+}
+// LCOV_EXCL_STOP
 bool UsbService::InitSerial()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);

@@ -103,9 +103,9 @@ public:
     int32_t UsbAttachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid) override;
     int32_t UsbDetachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid) override;
     int32_t ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t interfaceId, uint8_t endpointId) override;
+
     bool AddDevice(uint8_t busNum, uint8_t devAddr);
     bool DelDevice(uint8_t busNum, uint8_t devAddr);
-
     int32_t GetDevices(std::vector<UsbDevice> &deviceList) override;
     int32_t GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &dev);
     int32_t GetDeviceInfoDescriptor(
@@ -236,12 +236,12 @@ private:
     void WaitUsbdService();
     int32_t PreCallFunction();
     int32_t InitUsbRight();
+    bool IsCallerValid();
     void DumpHelp(int32_t fd);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     bool InitSerial();
     int32_t GetDeviceVidPidSerialNumber(int32_t portId, std::string& deviceName, std::string& strDesc);
     void UpdateDeviceVidPidMap(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList);
-    bool IsCallerValid();
     bool DoDump(int fd, const std::vector<std::string> &argList);
     void FreeTokenId(int32_t portId, uint32_t tokenId);
     int32_t ValidateUsbSerialManagerAndPort(int32_t portId);
