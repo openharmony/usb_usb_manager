@@ -132,7 +132,7 @@ int32_t UsbAccessoryManager::SetCurrentFunctions(int32_t funcs)
 #endif // USB_MANAGER_V2_0
 }
 
-int32_t UsbAccessoryManager::GetCurrentFunctions(int32_t funcs)
+int32_t UsbAccessoryManager::GetCurrentFunctions(int32_t &funcs)
 {
 #ifdef USB_MANAGER_V2_0
     if (usbDeviceInterface_ == nullptr) {
@@ -336,11 +336,12 @@ void UsbAccessoryManager::HandleEvent(int32_t status, bool delayProcess)
 {
 #ifdef USB_MANAGER_V2_0
     if (usbDeviceInterface_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager::usbDeviceInterface_ is nullptr");
         return;
     }
 #else
     if (usbdImpl_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager::usbd_ is nullptr");
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager::usbdImpl_ is nullptr");
         return;
     }
 #endif // USB_MANAGER_V2_0

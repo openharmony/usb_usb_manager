@@ -18,6 +18,7 @@
 #include <string>
 #include <set>
 #include <thread>
+#include <ipc_skeleton.h>
 
 #include "usb_host_manager.h"
 #include "common_event_data.h"
@@ -38,6 +39,7 @@
 #include "usb_descriptor_parser.h"
 #include "usbd_transfer_callback_impl.h"
 #include "usb_napi_errors.h"
+#include "accesstoken_kit.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::EventFwk;
@@ -49,6 +51,7 @@ namespace USB {
 constexpr int32_t CLASS_PRINT_LENGTH = 2;
 constexpr int32_t USAGE_IN_INTERFACE_CLASS = 0;
 constexpr uint8_t DES_USAGE_IN_INTERFACE = 0x02;
+constexpr int LAST_FIVE = 5;
 std::map<int32_t, DeviceClassUsage> deviceUsageMap = {
     {0x00, {DeviceClassUsage(2, "Use class information in the Interface Descriptors")}},
     {0x01, {DeviceClassUsage(2, "Audio")}},
@@ -1238,13 +1241,17 @@ void UsbHostManager::ReportHostPlugSysEvent(const std::string &event, const UsbD
     if (dev.GetClass() == USAGE_IN_INTERFACE_CLASS) {
         GetDeviceDescription(intfBaseClass, deviceUsageDes, deviceUsage);
     }
+    std::string snNum;
+    if (dev.GetmSerial().length() > LAST_FIVE) {
+        snNum = dev.GetmSerial().substr(dev.GetmSerial().length() - LAST_FIVE);
+    }
     USB_HILOGI(MODULE_SERVICE, "Host mode Indicates the insertion and removal information");
     HiSysEventWrite(HiSysEvent::Domain::USB, "PLUG_IN_OUT_HOST_MODE", HiSysEvent::EventType::BEHAVIOR,
-        "DEVICE_NAME", dev.GetName(), "DEVICE_PROTOCOL", dev.GetProtocol(),
+        "DEVICE_NAME", dev.GetProductName(), "DEVICE_PROTOCOL", dev.GetProtocol(),
         "DEVICE_SUBCLASS", dev.GetSubclass(), "DEVICE_CLASS", dev.GetClass(),
         "DEVICE_CLASS_DESCRIPTION", deviceUsageDes, "INTERFACE_CLASS_DESCRIPTION", extUsageDes,
         "VENDOR_ID", dev.GetVendorId(), "PRODUCT_ID", dev.GetProductId(),
-        "VERSION", dev.GetVersion(), "EVENT_NAME", event);
+        "VERSION", dev.GetVersion(), "EVENT_NAME", event, "SN_NUM", snNum);
 }
 
 static std::string BcdToString(const std::vector<uint8_t> &bcd)

@@ -121,10 +121,22 @@ private:
     int32_t DoSetPortRole(MessageParcel &data, MessageParcel &reply, MessageOption &option);
     int32_t WriteUsbPort(MessageParcel &reply, const UsbPort &port);
 #endif // USB_MANAGER_FEATURE_PORT
-
 #if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
     bool WriteFileDescriptor(MessageParcel &data, int fd);
 #endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
+    bool StubSerial(uint32_t code, int32_t &result, MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoSerialOpen(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoSerialClose(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoSerialRead(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoSerialWrite(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoSerialGetAttribute(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoSerialSetAttribute(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoSerialGetPortList(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoHasSerialRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoAddSerialRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoCancelSerialRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t DoRequestSerialRight(MessageParcel &data, MessageParcel &reply, MessageOption &option);
+    int32_t WriteSerialPort(MessageParcel &reply, const OHOS::HDI::Usb::Serial::V1_0::SerialPort &port);
 };
 } // namespace USB
 } // namespace OHOS

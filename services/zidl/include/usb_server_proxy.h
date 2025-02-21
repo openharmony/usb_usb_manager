@@ -25,6 +25,7 @@
 #include "usb_interface_type.h"
 #include "usb_service_ipc_interface_code.h"
 #include "v1_2/usb_types.h"
+
 namespace OHOS {
 namespace USB {
 class UsbServerProxy : public IRemoteProxy<IUsbSrv> {
@@ -54,7 +55,7 @@ public:
     int32_t ControlTransfer(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbCtrlTransfer &ctrl,
         std::vector<uint8_t> &bufferData) override;
     int32_t UsbControlTransfer(const HDI::Usb::V1_0::UsbDev &dev,
-        const HDI::Usb::V1_2::UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData) override;
+        const HDI::Usb::V1_1::UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData) override;
     int32_t SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex) override;
     int32_t GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &configIndex) override;
     int32_t SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t altIndex) override;
@@ -70,7 +71,6 @@ public:
     int32_t UsbCancelTransfer(const HDI::Usb::V1_0::UsbDev &dev, const int32_t &endpoint) override;
     int32_t UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &dev, HDI::Usb::V1_2::USBTransferInfo &info,
         const sptr<IRemoteObject> &cb, sptr<Ashmem> &ashmem) override;
-	
     int32_t RegBulkCallback(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe,
         const sptr<IRemoteObject> &cb) override;
     int32_t UnRegBulkCallback(const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe) override;
@@ -106,6 +106,17 @@ public:
     int32_t GetSupportedModes(int32_t portId, int32_t &supportedModes) override;
     int32_t SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole) override;
 #endif // USB_MANAGER_FEATURE_PORT
+    int32_t SerialOpen(int32_t portId, sptr<IRemoteObject> serialRemote) override;
+    int32_t SerialClose(int32_t portId) override;
+    int32_t SerialRead(int32_t portId, uint8_t *buffData, uint32_t size, uint32_t timeout) override;
+    int32_t SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size, uint32_t timeout) override;
+    int32_t SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute) override;
+    int32_t SerialSetAttribute(int32_t portId, const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute) override;
+    int32_t SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList) override;
+    bool HasSerialRight(int32_t portId) override;
+    int32_t AddSerialRight(uint32_t tokenId, int32_t portId) override;
+    int32_t CancelSerialRight(int32_t portId) override;
+    int32_t RequestSerialRight(int32_t portId) override;
 private:
     static inline BrokerDelegator<UsbServerProxy> delegator_;
 #ifdef USB_MANAGER_FEATURE_HOST
@@ -129,6 +140,8 @@ private:
 #if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
     bool ReadFileDescriptor(MessageParcel &data, int &fd);
 #endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
+    int32_t ParseSerialPort(MessageParcel &reply,
+                            std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPorts);
 };
 } // namespace USB
 } // namespace OHOS
