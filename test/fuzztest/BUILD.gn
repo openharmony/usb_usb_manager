@@ -1112,6 +1112,229 @@ ohos_fuzztest("UsbMgrCancelTransferFuzzTest") {
   ]
 }
 
+ohos_fuzztest("UsbMgrSerialOpenFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file = "${usb_manager_path}/test/fuzztest/usbmgrserialopen_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources = [ "usbmgrserialopen_fuzzer/usbmgrserialopen_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrSerialCloseFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrserialclose_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources = [ "usbmgrserialclose_fuzzer/usbmgrserialclose_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrSerialGetAttributeFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrserialgetattribute_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources =
+      [ "usbmgrserialgetattribute_fuzzer/usbmgrserialgetattribute_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrSerialSetAttributeFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrserialsetattribute_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources =
+      [ "usbmgrserialsetattribute_fuzzer/usbmgrserialsetattribute_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrSerialGetPortListFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrserialgetportlist_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources =
+      [ "usbmgrserialgetportlist_fuzzer/usbmgrserialgetportlist_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrSerialWriteFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrserialwrite_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources = [ "usbmgrserialwrite_fuzzer/usbmgrserialwrite_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrSerialReadFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file = "${usb_manager_path}/test/fuzztest/usbmgrserialread_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources = [ "usbmgrserialread_fuzzer/usbmgrserialread_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrRequestSerialRightFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrrequestserialright_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources =
+      [ "usbmgrrequestserialright_fuzzer/usbmgrrequestserialright_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrCancelSerialRightFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrcancelserialright_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources =
+      [ "usbmgrcancelserialright_fuzzer/usbmgrcancelserialright_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrHasSerialRightFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrhasserialright_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources = [ "usbmgrhasserialright_fuzzer/usbmgrhasserialright_fuzzer.cpp" ]
+}
+
 group("fuzztest") {
   testonly = true
   deps = []
@@ -1122,6 +1345,7 @@ group("fuzztest") {
       ":UsbMgrBulkReadFuzzTest",
       ":UsbMgrBulkTransferFuzzTest",
       ":UsbMgrBulkWriteFuzzTest",
+      ":UsbMgrCancelSerialRightFuzzTest",
       ":UsbMgrCancelTransferFuzzTest",
       ":UsbMgrClaimInterfaceFuzzTest",
       ":UsbMgrClearHaltFuzzTest",
@@ -1135,6 +1359,7 @@ group("fuzztest") {
       ":UsbMgrGetInterfaceStatusFuzzTest",
       ":UsbMgrGetRawDescriptorsFuzzTest",
       ":UsbMgrHasRightFuzzTest",
+      ":UsbMgrHasSerialRightFuzzTest",
       ":UsbMgrManageDeviceFuzzTest",
       ":UsbMgrManageGlobalInterfaceFuzzTest",
       ":UsbMgrManageManageInterfaceTypeFuzzTest",
@@ -1146,7 +1371,15 @@ group("fuzztest") {
       ":UsbMgrRequestInitializeFuzzTest",
       ":UsbMgrRequestQueueFuzzTest",
       ":UsbMgrRequestRightFuzzTest",
+      ":UsbMgrRequestSerialRightFuzzTest",
       ":UsbMgrResetDeviceFuzzTest",
+      ":UsbMgrSerialCloseFuzzTest",
+      ":UsbMgrSerialGetAttributeFuzzTest",
+      ":UsbMgrSerialGetPortListFuzzTest",
+      ":UsbMgrSerialOpenFuzzTest",
+      ":UsbMgrSerialReadFuzzTest",
+      ":UsbMgrSerialSetAttributeFuzzTest",
+      ":UsbMgrSerialWriteFuzzTest",
       ":UsbMgrSetConfigurationFuzzTest",
       ":UsbMgrSetInterfaceFuzzTest",
       ":UsbMgrSubmitTransferFuzzTest",
