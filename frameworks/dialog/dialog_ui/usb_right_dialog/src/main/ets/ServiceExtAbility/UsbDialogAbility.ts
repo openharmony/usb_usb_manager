@@ -24,7 +24,7 @@ class UsbDialogStub extends rpc.RemoteObject {
   constructor(des) {
     super(des);
   }
-  onRemoteRequest(code, data, reply, option): boolean { 
+  onRemoteRequest(code, data, reply, option): boolean {
     return true;
   }
 }
@@ -50,7 +50,7 @@ export default class UsbDialogAbility extends extension {
 
   onConnect(want): rpc.RemoteObject {
     console.log('onConnect want: ' + JSON.stringify(want));
-    if (!want.parameters.bundleName || !want.parameters.deviceName || !want.parameters.tokenId) {
+    if (!want.parameters || !want.parameters.bundleName || !want.parameters.deviceName || !want.parameters.tokenId) {
       console.error('onConnect code:1 failed. bundleName|deviceName|tokenId');
       return new UsbDialogStub('UsbRightDialog');
     }
@@ -107,8 +107,8 @@ export default class UsbDialogAbility extends extension {
         console.info('Succeeded in hiding the non-system floating windows.');
       });
       console.log('UsbDialogAbility window create successfully');
-    } catch {
-      console.info('UsbDialogAbility window create failed');
+    } catch (error) {
+      console.error('UsbDialogAbility window create failed. Error:' + JSON.stringify(error));
     }
   }
 };

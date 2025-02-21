@@ -17,7 +17,6 @@
 #define USBD_BULK_CALLBACK_H
 
 #include "ipc_object_stub.h"
-#include "v1_2/usb_types.h"
 
 namespace OHOS::USB {
 class UsbdBulkCallBack : public OHOS::IPCObjectStub {

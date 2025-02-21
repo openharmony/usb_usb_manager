@@ -222,7 +222,7 @@ void UsbConnectionNotifier::GetHapString()
         return;
     }
     std::map<std::string, std::string> configs;
-    OHOS::Global::I18n::LocaleInfo locale(Global::I18n::LocaleConfig::GetSystemLocale(), configs);
+    OHOS::Global::I18n::LocaleInfo locale(Global::I18n::LocaleConfig::GetEffectiveLanguage(), configs);
     resConfig->SetLocaleInfo(locale.GetLanguage().c_str(), locale.GetScript().c_str(), locale.GetRegion().c_str());
     resourceManager->UpdateResConfig(*resConfig);
     if (!resourceManager->AddResource(HAP_PATH.c_str())) {

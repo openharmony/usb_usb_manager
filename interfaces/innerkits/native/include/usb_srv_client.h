@@ -85,7 +85,7 @@ public:
     {
         return SEVVERSION;
     }
-    
+
     int32_t UsbCancelTransfer(USBDevicePipe &pip, const int32_t &endpoint);
     int32_t UsbSubmitTransfer(USBDevicePipe &pip, HDI::Usb::V1_2::USBTransferInfo &info,
         const TransferCallback &cb, sptr<Ashmem> &ashmem);

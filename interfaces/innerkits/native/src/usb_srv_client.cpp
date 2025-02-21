@@ -40,7 +40,10 @@ UsbSrvClient::UsbSrvClient()
     Connect();
     serialRemote = new SerialDeathMonitor();
 }
-UsbSrvClient::~UsbSrvClient() {}
+UsbSrvClient::~UsbSrvClient()
+{
+    USB_HILOGE(MODULE_USB_INNERKIT, "~UsbSrvClient!");
+}
 
 UsbSrvClient& UsbSrvClient::GetInstance()
 {
