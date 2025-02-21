@@ -59,7 +59,7 @@ public:
 private:
     void GetAccessoryInfo(std::vector<std::string> &accessorys);
     int32_t SetCurrentFunctions(int32_t funcs);
-    int32_t GetCurrentFunctions(int32_t funcs);
+    int32_t GetCurrentFunctions(int32_t &funcs);
     void ProcessHandle(int32_t curAccStatus);
     int32_t ProcessAccessoryStart(int32_t curFunc, int32_t curAccStatus);
     int32_t ProcessAccessoryStop(int32_t curFunc, int32_t curAccStatus);
