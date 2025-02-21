@@ -540,19 +540,19 @@ int32_t UsbSrvClient::ResetDevice(const UsbDevice &device, USBDevicePipe &pipe)
     return UEC_SERVICE_HOST_NOT_SUPPORT;
 }
 
-bool UsbSrvClient::HasRight(std::string deviceName)
+bool UsbSrvClient::HasRight(const std::string deviceName)
 {
     USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
     return false;
 }
 
-int32_t UsbSrvClient::RequestRight(std::string deviceName)
+int32_t UsbSrvClient::RequestRight(const std::string deviceName)
 {
     USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
     return UEC_SERVICE_HOST_NOT_SUPPORT;
 }
 
-int32_t UsbSrvClient::RemoveRight(std::string deviceName)
+int32_t UsbSrvClient::RemoveRight(const std::string deviceName)
 {
     USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: host feature is not supported.", __FUNCTION__);
     return UEC_SERVICE_HOST_NOT_SUPPORT;
