@@ -53,23 +53,20 @@ USB_MANAGE_TRANSFOR_FAULT:
   ENDPOINTT_ID: {type: INT32, desc: endpoint id}
   FAIL_REASON: {type: INT32, desc: fail reason}
 
-SERIAL_OPERATE:
-  __BASE: {type: BEHAVIOR, level: MINOR, tag: UsbManager, desc: serial open or close }
-  INTFACE_NAME: {type: STRING, desc: interface name}
-  PORT_ID: {type: INT32, desc: portId}
-  TOKEN_ID: {type: UINT32, desc: tokenId}
+USB_SERIAL_OPERATION:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: UsbManager, desc: the behavior of the usb serial}
+  OPERATION_TYPE: {type: STRING, desc: the operation type may be open close set}
+  CLIENT_NAME: {type: STRING, desc: the client with its bundle name}
+  PORT_VID: {type: INT32, desc: the uid of the usb serial device}
+  PORT_PID: {type: INT32, desc: the pid of the usb serial device}
+  PORT_SN: {type: INT32, desc: the last four digits of serial num of the usb serial device}
+  ATTRIBUTE_BAUD_RATE: {type: INT32, desc: baud rate}
+  ATTRIBUTE_STOP_BIT: {type: UINT8, desc: stop bit}
+  ATTRIBUTE_PARITY_CHECK: {type: UINT8, desc: parity check}
+  ATTRIBUTE_DATA_BIT: {type: UINT8, desc: data bit}
 
-SERIAL_OPERATE_SET_ATTRIBUTE:
-  __BASE: {type: BEHAVIOR, level: MINOR, tag: UsbManager, desc: set serial attribute }
-  PORT_ID: {type: INT32, desc: portId}
-  TOKEN_ID: {type: UINT32, desc: tokenId}
-  ATTRIBUTE_BAUDRATE: {type: INT32, desc: baudrate}
-  ATTRIBUTE_STOPBITS: {type: UINT8, desc: stopBits}
-  ATTRIBUTE_PARITY: {type: UINT8, desc: parity}
-  ATTRIBUTE_DATABITS: {type: UINT8, desc: dataBits}
-
-SERIAL_OPERATE_FAULT:
-  __BASE: {type: FAULT, level: CRITICAL, tag: UsbManager, desc: serial interface happen fault}
-  INTFACE_NAME: {type: STRING, desc: interface name}
-  PORT_ID: {type: INT32, desc: portId}
-  FAIL_REASON: {type: INT32, desc: fail reason}
+USB_SERIAL_OPERATION_FAULT:
+  __BASE: {type: FAULT, level: CRITICAL, tag: UsbManager, desc: serial port operation fault}
+  OPERATION_TYPE_NAME: {type: STRING, desc: the name of operation type}
+  FAIL_REASON: {type: INT32, desc: the failed reason}
+  FAIL_DESCRIPTION: {type: STRING, desc: the failed reason description}

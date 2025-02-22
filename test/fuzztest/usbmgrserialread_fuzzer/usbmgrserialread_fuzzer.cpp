@@ -27,7 +27,7 @@ using OHOS::USB::UsbSrvClient;
 namespace OHOS {
 namespace SERIAL {
 template<typename T>
-std::shared_ptr<T> make_shared_array(size_t size)
+std::shared_ptr<T> MakeSharedArray(size_t size)
 {
     if (size == 0) {
         return NULL;
@@ -51,7 +51,7 @@ bool UsbMgrSerialReadFuzzTest(const uint8_t* data, size_t size)
     const int32_t portId = *reinterpret_cast<const int32_t *>(data);
     const uint32_t timeout = *reinterpret_cast<const uint32_t *>(data + sizeof(int32_t));
     const uint32_t readSize = *reinterpret_cast<const size_t *>(data + sizeof(int32_t) + sizeof(uint32_t));
-    std::shared_ptr<uint8_t> buffer = make_shared_array<uint8_t>(readSize);
+    std::shared_ptr<uint8_t> buffer = MakeSharedArray<uint8_t>(readSize);
     if (usbSrvClient.SerialRead(portId, buffer.get(), readSize, timeout) != OK) {
         return false;
     }

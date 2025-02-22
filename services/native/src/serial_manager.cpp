@@ -113,7 +113,6 @@ int32_t SerialManager::SerialOpen(int32_t portId)
     }
 
     portTokenMap_[portId] = tokenId;
-    ReportSerialOperateSysEvent("SerialOpen", portId, tokenId);
     return ret;
 }
 
@@ -140,9 +139,7 @@ int32_t SerialManager::SerialClose(int32_t portId)
         return ErrorCodeWrap(ret);
     }
 
-    uint32_t tokenId = portTokenMap_[portId];
     portTokenMap_.erase(portId);
-    ReportSerialOperateSysEvent("SerialClose", portId, tokenId);
     return ret;
 }
 
@@ -219,8 +216,6 @@ int32_t SerialManager::SerialSetAttribute(int32_t portId,
         return ErrorCodeWrap(ret);
     }
 
-    uint32_t tokenId = portTokenMap_[portId];
-    ReportSerialOperateSetAttributeSysEvent(portId, tokenId, attribute);
     return ret;
 }
 
@@ -399,28 +394,6 @@ void SerialManager::ListGetDumpHelp(int32_t fd)
     dprintf(fd, "serial -g : Gets the properties of all ports\n");
     dprintf(fd, "serial \"-g [port number]\": Gets the properties of the specified port\n");
     dprintf(fd, "------------------------------------------------\n");
-}
-
-void SerialManager::ReportSerialOperateSysEvent(std::string interfaceName, int32_t portId, uint32_t tokenId)
-{
-    USB_HILOGI(MODULE_USB_SERVICE, "serial open or close");
-    HiSysEventWrite(HiSysEvent::Domain::USB, "SERIAL_OPERATE",
-        HiSysEvent::EventType::BEHAVIOR, "INTFACE_NAME", interfaceName,
-        "PORT_ID", portId,
-        "TOKEN_ID", tokenId);
-}
-
-void SerialManager::ReportSerialOperateSetAttributeSysEvent(int32_t portId, uint32_t tokenId,
-    const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute)
-{
-    USB_HILOGI(MODULE_USB_SERVICE, "set serial attribute");
-    HiSysEventWrite(HiSysEvent::Domain::USB, "SERIAL_OPERATE_SET_ATTRIBUTE",
-        HiSysEvent::EventType::BEHAVIOR, "PORT_ID", portId,
-        "TOKEN_ID", tokenId,
-        "ATTRIBUTE_BAUDRATE", attribute.baudrate,
-        "ATTRIBUTE_STOPBITS", attribute.stopBits,
-        "ATTRIBUTE_PARITY", attribute.parity,
-        "ATTRIBUTE_DATABITS", attribute.dataBits);
 }
 }  //namespace SERIAL
 }  //namespace OHOS

@@ -77,7 +77,6 @@ ohos_shared_library("usbsrv_client") {
     "drivers_interface_usb:usb_idl_headers_1.1",
     "drivers_interface_usb:usb_idl_headers_1.2",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
