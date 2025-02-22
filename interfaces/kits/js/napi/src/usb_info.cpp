@@ -64,6 +64,13 @@ const int32_t USB_TRANSFER_ADD_ZERO_PACKET = 3;
 const int32_t TRANSFER_TYPE_ISOCHRONOUS = 1;
 const int32_t TRANSFER_TYPE_BULK = 2;
 const int32_t TRANSFER_TYPE_INTERRUPT = 3;
+const int32_t TRANSFER_COMPLETED = 0;
+const int32_t TRANSFER_ERROR = 1;
+const int32_t TRANSFER_TIMED_OUT = 2;
+const int32_t TRANSFER_CANCELED = 3;
+const int32_t TRANSFER_STALL = 4;
+const int32_t TRANSFER_NO_DEVICE =5;
+const int32_t TRANSFER_OVERFLOW = 6;
 
 enum UsbManagerFeature {
     FEATURE_HOST = 0,
@@ -2424,6 +2431,24 @@ static napi_value NapiCreateTypeEnum(napi_env env)
     return object;
 }
 
+static napi_value NapiCreateStatusEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "TRANSFER_COMPLETED", TRANSFER_COMPLETED);
+    SetEnumProperty(env, object, "TRANSFER_ERROR", TRANSFER_ERROR);
+    SetEnumProperty(env, object, "TRANSFER_TIMED_OUT", TRANSFER_TIMED_OUT);
+    SetEnumProperty(env, object, "TRANSFER_CANCELED", TRANSFER_CANCELED);
+    SetEnumProperty(env, object, "TRANSFER_STALL", TRANSFER_STALL);
+    SetEnumProperty(env, object, "TRANSFER_NO_DEVICE", TRANSFER_NO_DEVICE);
+    SetEnumProperty(env, object, "TRANSFER_OVERFLOW", TRANSFER_OVERFLOW);
+    return object;
+}
+
 static napi_value PipeClose(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
@@ -2511,6 +2536,7 @@ static napi_value DeclareEnum(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_PROPERTY("STORAGE", ToInt32Value(env, STORAGE)),
         DECLARE_NAPI_STATIC_PROPERTY("UsbTransferFlags", NapiCreateFlagsEnum(env)),
         DECLARE_NAPI_STATIC_PROPERTY("UsbEndpointTransferType", NapiCreateTypeEnum(env)),
+        DECLARE_NAPI_STATIC_PROPERTY("UsbTransferStatus", NapiCreateStatusEnum(env)),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     return exports;
