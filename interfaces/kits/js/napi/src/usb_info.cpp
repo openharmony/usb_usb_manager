@@ -69,7 +69,7 @@ const int32_t TRANSFER_ERROR = 1;
 const int32_t TRANSFER_TIMED_OUT = 2;
 const int32_t TRANSFER_CANCELED = 3;
 const int32_t TRANSFER_STALL = 4;
-const int32_t TRANSFER_NO_DEVICE =5;
+const int32_t TRANSFER_NO_DEVICE = 5;
 const int32_t TRANSFER_OVERFLOW = 6;
 
 enum UsbManagerFeature {
