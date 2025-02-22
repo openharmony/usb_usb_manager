@@ -2633,7 +2633,6 @@ void UsbService::ReportUsbSerialOperationSysEvent(int32_t portId, const std::str
         "ATTRIBUTE_STOP_BIT", attribute.stopBits,
         "ATTRIBUTE_PARITY_CHECK", attribute.parity,
         "ATTRIBUTE_DATA_BIT", attribute.dataBits);
-    
 }
 
 void UsbService::ReportUsbSerialOperationFaultSysEvent(int32_t portId, const std::string &operationType,
