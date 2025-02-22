@@ -395,5 +395,16 @@ void SerialManager::ListGetDumpHelp(int32_t fd)
     dprintf(fd, "serial \"-g [port number]\": Gets the properties of the specified port\n");
     dprintf(fd, "------------------------------------------------\n");
 }
+
+bool SerialManager::GetSerialPort(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialPort& serialPort)
+{
+    if (serialPortMap_.find(portId) == serialPortMap_.end()) {
+        USB_HILOGI(MODULE_USB_SERVICE, "serialPort not found");
+        return false;
+    }
+
+    serialPort = serialPortMap_[portId];
+    return true;
+}
 }  //namespace SERIAL
 }  //namespace OHOS

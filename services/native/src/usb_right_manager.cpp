@@ -499,10 +499,7 @@ bool UsbRightManager::ShowSerialDialog(const int32_t portId, const uint32_t toke
         appName = bundleName;
     }
 
-    std::string productName;
-    if (!GetProductName(busDev, productName)) {
-        productName = busDev;
-    }
+    std::string productName = "COM" + std::to_string(portId);
 
     AAFwk::Want want;
     want.SetElementName("com.usb.right", "UsbServiceExtAbility");
