@@ -2517,6 +2517,90 @@ static napi_value ToInt32Value(napi_env env, int32_t value)
     return staticValue;
 }
 
+static napi_value PowerRoleTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "NONE", NONE);
+    SetEnumProperty(env, object, "SOURCE", SOURCE);
+    SetEnumProperty(env, object, "SINK", SINK);
+    return object;
+}
+
+static napi_value DataRoleTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "HOST", HOST);
+    SetEnumProperty(env, object, "DEVICE", DEVICE);
+    return object;
+}
+
+static napi_value PortModeTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "UFP", UFP);
+    SetEnumProperty(env, object, "DFP", DRP);
+    SetEnumProperty(env, object, "DRP", DRP);
+    SetEnumProperty(env, object, "NUM_MODES", NUM_MODES);
+    return object;
+}
+
+static napi_value USBRequestTargetTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "USB_REQUEST_TARGET_DEVICE", USB_REQUEST_TARGET_DEVICE);
+    SetEnumProperty(env, object, "USB_REQUEST_TARGET_INTERFACE", USB_REQUEST_TARGET_INTERFACE);
+    SetEnumProperty(env, object, "USB_REQUEST_TARGET_ENDPOINT", USB_REQUEST_TARGET_ENDPOINT);
+    SetEnumProperty(env, object, "USB_REQUEST_TARGET_OTHER", USB_REQUEST_TARGET_OTHER);
+    return object;
+}
+
+static napi_value USBControlRequestTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "USB_REQUEST_TYPE_STANDARD", USB_REQUEST_TYPE_STANDARD);
+    SetEnumProperty(env, object, "USB_REQUEST_TYPE_CLASS", USB_REQUEST_TYPE_CLASS);
+    SetEnumProperty(env, object, "USB_REQUEST_TYPE_VENDOR", USB_REQUEST_TYPE_VENDOR);
+    return object;
+}
+
+static napi_value USBRequestDirectionEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "USB_REQUEST_DIR_TO_DEVICE", USB_REQUEST_DIR_TO_DEVICE);
+    SetEnumProperty(env, object, "USB_REQUEST_DIR_FROM_DEVICE", USB_REQUEST_DIR_FROM_DEVICE);
+    return object;
+}
+
 static napi_value DeclareEnum(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
@@ -2524,31 +2608,37 @@ static napi_value DeclareEnum(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_PROPERTY("NONE", ToInt32Value(env, NONE)),
         DECLARE_NAPI_STATIC_PROPERTY("SOURCE", ToInt32Value(env, SOURCE)),
         DECLARE_NAPI_STATIC_PROPERTY("SINK", ToInt32Value(env, SINK)),
+        DECLARE_NAPI_STATIC_PROPERTY("PowerRoleType", PowerRoleTypeEnum(env)),
 
         /* Declare Enum DataRoleType */
         DECLARE_NAPI_STATIC_PROPERTY("HOST", ToInt32Value(env, HOST)),
         DECLARE_NAPI_STATIC_PROPERTY("DEVICE", ToInt32Value(env, DEVICE)),
+        DECLARE_NAPI_STATIC_PROPERTY("DataRoleType", DataRoleTypeEnum(env)),
 
         /* Declare Enum PortModeType */
         DECLARE_NAPI_STATIC_PROPERTY("UFP", ToInt32Value(env, UFP)),
         DECLARE_NAPI_STATIC_PROPERTY("DFP", ToInt32Value(env, DFP)),
         DECLARE_NAPI_STATIC_PROPERTY("DRP", ToInt32Value(env, DRP)),
         DECLARE_NAPI_STATIC_PROPERTY("NUM_MODES", ToInt32Value(env, NUM_MODES)),
+        DECLARE_NAPI_STATIC_PROPERTY("PortModeType", PortModeTypeEnum(env)),
 
         /* Declare Enum USBRequestTargetType */
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_TARGET_DEVICE", ToInt32Value(env, USB_REQUEST_TARGET_DEVICE)),
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_TARGET_INTERFACE", ToInt32Value(env, USB_REQUEST_TARGET_INTERFACE)),
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_TARGET_ENDPOINT", ToInt32Value(env, USB_REQUEST_TARGET_ENDPOINT)),
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_TARGET_OTHER", ToInt32Value(env, USB_REQUEST_TARGET_OTHER)),
+        DECLARE_NAPI_STATIC_PROPERTY("USBRequestTargetType", USBRequestTargetTypeEnum(env)),
 
         /* Declare Enum USBControlRequestType */
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_TYPE_STANDARD", ToInt32Value(env, USB_REQUEST_TYPE_STANDARD)),
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_TYPE_CLASS", ToInt32Value(env, USB_REQUEST_TYPE_CLASS)),
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_TYPE_VENDOR", ToInt32Value(env, USB_REQUEST_TYPE_VENDOR)),
+        DECLARE_NAPI_STATIC_PROPERTY("USBControlRequestType", USBControlRequestTypeEnum(env)),
 
         /* Declare Enum USBRequestDirection */
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_DIR_TO_DEVICE", ToInt32Value(env, USB_REQUEST_DIR_TO_DEVICE)),
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_DIR_FROM_DEVICE", ToInt32Value(env, USB_REQUEST_DIR_FROM_DEVICE)),
+        DECLARE_NAPI_STATIC_PROPERTY("USBRequestDirection", USBRequestDirectionEnum(env)),
 
         /* Declare Enum FunctionType */
         DECLARE_NAPI_STATIC_PROPERTY("ACM", ToInt32Value(env, ACM)),
