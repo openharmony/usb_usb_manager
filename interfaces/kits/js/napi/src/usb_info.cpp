@@ -2553,7 +2553,7 @@ static napi_value PortModeTypeEnum(napi_env env)
         return nullptr;
     }
     SetEnumProperty(env, object, "UFP", UFP);
-    SetEnumProperty(env, object, "DFP", DRP);
+    SetEnumProperty(env, object, "DFP", DFP);
     SetEnumProperty(env, object, "DRP", DRP);
     SetEnumProperty(env, object, "NUM_MODES", NUM_MODES);
     return object;
