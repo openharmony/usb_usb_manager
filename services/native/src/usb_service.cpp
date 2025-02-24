@@ -1827,8 +1827,7 @@ bool UsbService::GetCallingInfo(std::string &bundleName, std::string &tokenId, i
     bundleName = hapTokenInfoRes.bundleName;
     tokenId = std::to_string((uint32_t)token);
     userId = hapTokenInfoRes.userID;
-    USB_HILOGD(MODULE_USB_SERVICE, "ret: %{public}d, app: %{public}s, user: %{public}d",
-        ret, bundleName.c_str(), hapTokenInfoRes.userID);
+    USB_HILOGD(MODULE_USB_SERVICE, "ret: %{public}d, app: %{public}s,", ret, bundleName.c_str());
     return true;
 }
 // LCOV_EXCL_STOP
