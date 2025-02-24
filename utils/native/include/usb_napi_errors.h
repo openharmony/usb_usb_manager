@@ -26,6 +26,7 @@ enum UsbJsErrCode : int32_t {
     OHEC_COMMON_PERMISSION_NOT_ALLOWED = 201,
     OHEC_COMMON_NORMAL_APP_NOT_ALLOWED = 202,
     OHEC_COMMON_PARAM_ERROR = 401,
+    CAPABILITY_NOT_SUPPORT = 801,
 
     UEC_COMMON_BASE = 14400000,
     UEC_COMMON_HAS_NO_RIGHT = UEC_COMMON_BASE + 1,
@@ -46,10 +47,6 @@ enum UsbJsErrCode : int32_t {
     USB_SUBMIT_TRANSFER_OTHER_ERROR = 14400010,
     USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR = 14400011,
     USB_SUBMIT_TRANSFER_IO_ERROR = 14400012,
-
-    UEC_COMMON_HOST_NOT_SUPPORT = 14400013,
-    UEC_COMMON_DEVICE_NOT_SUPPORT = 14400014,
-    UEC_COMMON_PORT_NOT_SUPPORT = 14400015,
 };
 
 const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
@@ -58,6 +55,7 @@ const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
         "The application does not have the permission required to call the API."},
     {OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "BusinessError 202:Permission denied. Normal application uses system api."   },
     {OHEC_COMMON_PARAM_ERROR,       "BusinessError 401:Parameter error."                                         },
+    {CAPABILITY_NOT_SUPPORT, "BusinessError 801:Capability not supported."},
     {UEC_COMMON_HAS_NO_RIGHT, "BusinessError 14400001:Permission denied."                                  },
     {UEC_COMMON_HDC_NOT_ALLOWED,    "BusinessError 14400002:Permission denied. The HDC is disabled by the system."},
     {UEC_COMMON_PORTROLE_SWITCH_NOT_ALLOWED,
@@ -78,10 +76,6 @@ const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
     {USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR,
         "BusinessError 14400011:The transfer is not in progress, or is already complete or cancelled."},
     {USB_SUBMIT_TRANSFER_IO_ERROR, "BusinessError 14400012:Transmission I/O error."},
-
-    {UEC_COMMON_HOST_NOT_SUPPORT, "BusinessError 14400013:Host feature is not supported."},
-    {UEC_COMMON_DEVICE_NOT_SUPPORT, "BusinessError 14400014:Device feature is not supported."},
-    {UEC_COMMON_PORT_NOT_SUPPORT, "BusinessError 14400015:Port feature is not supported."},
 };
 
 void ThrowBusinessError(const napi_env &env, int32_t errCode, const std::string &errMsg);
