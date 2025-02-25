@@ -471,16 +471,19 @@ void UsbDeviceManager::BroadcastFuncChange(bool connected, int32_t currentFunc)
 
 void UsbDeviceManager::ProcessFuncChange(bool connected, int32_t currentFunc, bool isDisableDialog)
 {
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: connected %{public}d, currentFunc %{public}d, isDisableDialog "
+                                   "%{public}d", __func__, connected, currentFunc, isDisableDialog);
     BroadcastFuncChange(connected, currentFunc);
     if (!isDisableDialog) {
         ProcessFunctionSwitchWindow(connected);
     }
-    ProcessFunctionNotifier(connected, 0);
+    ProcessFunctionNotifier(connected, currentFunc);
 }
 
 void UsbDeviceManager::ProcessFunctionNotifier(bool connected, int32_t func)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: connected %{public}d, func %{public}d", __func__, connected, func);
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: connected %{public}d, func %{public}d, hasHdcNotifier_ %{public}d",
+               __func__, connected, func, hasHdcNotifier_);
     uint32_t func_uint = static_cast<uint32_t>(func);
     if (connected) {
         if (func_uint & USB_FUNCTION_MTP) {
@@ -490,8 +493,21 @@ void UsbDeviceManager::ProcessFunctionNotifier(bool connected, int32_t func)
         } else {
             UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_CHARGE);
         }
+
+        if ((func_uint & USB_FUNCTION_HDC) && !hasHdcNotifier_) {
+            UsbConnectionNotifier::GetInstance()->SendHdcNotification();
+            hasHdcNotifier_ = true;
+        }
+        if (!(func_uint & USB_FUNCTION_HDC) && hasHdcNotifier_) {
+            UsbConnectionNotifier::GetInstance()->CancelHdcNotification();
+            hasHdcNotifier_ = false;
+        }
     } else {
         UsbConnectionNotifier::GetInstance()->CancelNotification();
+        if (hasHdcNotifier_) {
+            UsbConnectionNotifier::GetInstance()->CancelHdcNotification();
+            hasHdcNotifier_ = false;
+        }
     }
 }
 

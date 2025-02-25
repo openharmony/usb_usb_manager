@@ -115,6 +115,20 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"USB_hdc_notifier_title",
+            "value":"已连接 USB 调试",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hdc_notifier_content",
+            "value":"点击可停用 USB 调试。",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

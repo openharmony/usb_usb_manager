@@ -37,6 +37,7 @@ using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 static const std::string NOTIFICATION_NAME = "usb_service";
+static const std::string NOTIFICATION_NAME_ONE = "usb_service1";
 static int32_t g_uid = 1018;
 constexpr int32_t USER_ID = 100;
 static const std::string BUNDLE_NAME = "com.usb.right";
@@ -47,6 +48,7 @@ static const std::string HAP_PATH = "/system/app/usb_right_dialog/usb_right_dial
 static const std::string ICON_NAME = "icon";
 constexpr std::int32_t BUNDLE_MGR_SERVICE_SA_ID = 401;
 constexpr std::int32_t NOTIFICATION_ID_ZERO = 0;
+constexpr std::int32_t NOTIFICATION_ID_ONE = 1;
 
 enum SUPPORTED_FUNC : int32_t {
     SUPPORTED_FUNC_NONE = -1,
@@ -199,9 +201,9 @@ void UsbConnectionNotifier::GetHapIcon()
     decodeOpts.desiredPixelFormat = Media::PixelFormat::BGRA_8888;
     if (imageSource) {
         auto pixelMapPtr = imageSource->CreatePixelMap(decodeOpts, errorCode);
-        icon = std::shared_ptr<Media::PixelMap>(pixelMapPtr.release());
+        icon_ = std::shared_ptr<Media::PixelMap>(pixelMapPtr.release());
     }
-    if (errorCode != 0 || !icon) {
+    if (errorCode != 0 || !icon_) {
         USB_HILOGE(MODULE_USB_SERVICE, "Get icon failed");
     }
     return;
@@ -258,6 +260,26 @@ void UsbConnectionNotifier::SetWantAgent(OHOS::Notification::NotificationRequest
     request.SetWantAgent(wantAgent);
 }
 
+void UsbConnectionNotifier::SetWantAgentHdc(OHOS::Notification::NotificationRequest &request)
+{
+    USB_TRACE;
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
+    auto want = std::make_shared<AAFwk::Want>();
+    want->SetElementName("com.huawei.hmos.settings", "com.huawei.hmos.settings.MainAbility");
+    want->SetFlags(AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION);
+    want->SetUri("developer_options_settings");
+    std::vector<std::shared_ptr<AAFwk::Want>> wants;
+    wants.push_back(want);
+
+    std::vector<AbilityRuntime::WantAgent::WantAgentConstant::Flags> flags;
+    flags.push_back(AbilityRuntime::WantAgent::WantAgentConstant::Flags::CONSTANT_FLAG);
+
+    AbilityRuntime::WantAgent::WantAgentInfo wantAgentInfo(
+        0, AbilityRuntime::WantAgent::WantAgentConstant::OperationType::START_ABILITY, flags, wants, nullptr);
+    auto wantAgent = AbilityRuntime::WantAgent::WantAgentHelper::GetWantAgent(wantAgentInfo);
+    request.SetWantAgent(wantAgent);
+}
+
 void UsbConnectionNotifier::SendNotification(std::string func)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: func %{public}s", __func__, func.c_str());
@@ -285,8 +307,8 @@ void UsbConnectionNotifier::SendNotification(std::string func)
     request_.SetRemoveAllowed(true);
     request_.SetTapDismissed(false);
     request_.SetGroupName(NOTIFICATION_NAME);
-    if (icon.has_value()) {
-        request_.SetLittleIcon(icon.value());
+    if (icon_.has_value()) {
+        request_.SetLittleIcon(icon_.value());
     }
     SetWantAgent(request_);
     StartTrace(HITRACE_TAG_HDF, "Helper::PublishNotification");
@@ -321,5 +343,46 @@ int32_t UsbConnectionNotifier::GetSupportedFunctions()
 
     return static_cast<int32_t>(mtp | ptp);
 }
+
+void UsbConnectionNotifier::SendHdcNotification()
+{
+    USB_TRACE;
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
+
+    GetHapString();
+    std::shared_ptr<OHOS::Notification::NotificationNormalContent> normalContent =
+            std::make_shared<OHOS::Notification::NotificationNormalContent>();
+    normalContent->SetTitle(notifierMap[USB_HDC_NOTIFIER_TITLE]);
+    normalContent->SetText(notifierMap[USB_HDC_NOTIFIER_CONTENT]);
+    std::shared_ptr<OHOS::Notification::NotificationContent> content =
+            std::make_shared<OHOS::Notification::NotificationContent>(normalContent);
+
+    requestHdc_.SetNotificationId(NOTIFICATION_ID_ONE);
+    requestHdc_.SetContent(content);
+    requestHdc_.SetCreatorUid(g_uid);
+    requestHdc_.SetUnremovable(true);
+    requestHdc_.SetRemoveAllowed(true);
+    requestHdc_.SetTapDismissed(false);
+    requestHdc_.SetGroupName(NOTIFICATION_NAME_ONE);
+    if (icon_.has_value()) {
+        requestHdc_.SetLittleIcon(icon_.value());
+    }
+    SetWantAgentHdc(requestHdc_);
+    StartTrace(HITRACE_TAG_HDF, "Helper::PublishNotification");
+    int32_t result = OHOS::Notification::NotificationHelper::PublishNotification(requestHdc_);
+    FinishTrace(HITRACE_TAG_HDF);
+    USB_HILOGI(MODULE_USB_SERVICE, "PublishNotification result : %{public}d", result);
+}
+
+void UsbConnectionNotifier::CancelHdcNotification()
+{
+    USB_TRACE;
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
+    int32_t notificationId = requestHdc_.GetNotificationId();
+    int32_t result = OHOS::Notification::NotificationHelper::CancelNotification(notificationId);
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: notificationId %{public}d, result %{public}d", __func__,
+               notificationId, result);
+}
+
 } // namespace USB
 } // namespace OHOS
