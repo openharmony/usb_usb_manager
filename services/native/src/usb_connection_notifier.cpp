@@ -42,6 +42,9 @@ static int32_t g_uid = 1018;
 constexpr int32_t USER_ID = 100;
 static const std::string BUNDLE_NAME = "com.usb.right";
 static const std::string SET_BUNDLE_NAME = "com.usb.right";
+static const std::string SETTING_BUNDLE_NAME = "com.huawei.hmos.settings";
+static const std::string SETTING_BUNDLE_NAME_ABILITY = "com.huawei.hmos.settings.MainAbility";
+static const std::string SETTING_BUNDLE_NAME_URL = "developer_options_settings";
 static const std::string BUNDLE_NAME_KEY = "EntryAbility";
 static const std::string URI = "";
 static const std::string HAP_PATH = "/system/app/usb_right_dialog/usb_right_dialog.hap";
@@ -265,9 +268,9 @@ void UsbConnectionNotifier::SetWantAgentHdc(OHOS::Notification::NotificationRequ
     USB_TRACE;
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
     auto want = std::make_shared<AAFwk::Want>();
-    want->SetElementName("com.huawei.hmos.settings", "com.huawei.hmos.settings.MainAbility");
+    want->SetElementName(SETTING_BUNDLE_NAME, SETTING_BUNDLE_NAME_ABILITY);
     want->SetFlags(AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION);
-    want->SetUri("developer_options_settings");
+    want->SetUri(SETTING_BUNDLE_NAME_URL);
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
     wants.push_back(want);
 
