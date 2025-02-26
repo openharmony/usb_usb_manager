@@ -74,12 +74,47 @@
             "name":"USB_func_mtp_tip2",
             "value":"ཡིག་ཆ་དོ་དམ་ཆས་ཁྲོད་ཀྱི་༼%s༽ཡི་ནང་དོན་ཁོ་ན་འཆར།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_tip",
             "value":"ཡིག་ཆ་དོ་དམ་ཆས་ཁྲོད་ཀྱི་༼ངའི་ཁ་པར་༽གྱི་ནང་དོན་ཁོ་ན་འཆར།",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_my_tablet",
+            "value":"ངའི་ངོས་ལེབ་",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_charge_notifier",
+            "value":"USB བརྒྱུད་ནས་གློག་གསོག་བཞིན་པ།",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_more_notifier",
+            "value":"བརྡབས་ནས་གདམ་ག་དེ་བས་མང་བར་ལྟ་ཞིབ་བྱེད།",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_ptp_notifier",
+            "value":"USB བརྒྱུད་ནས་འདྲ་པར་བཤར་ལྟ་བྱེད་བཞིན་པ།",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_mtp_notifier",
+            "value":"USB སྦྲེལ་ཟིན། (ཡིག་ཆ)",
             "attr":{
                 "priority":"LT"
             }

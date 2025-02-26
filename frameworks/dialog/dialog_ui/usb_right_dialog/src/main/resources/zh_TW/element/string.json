@@ -74,7 +74,7 @@
             "name":"USB_func_mtp_tip2",
             "value":"只顯示檔案管理員中「%s」的內容",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -85,31 +85,38 @@
             }
         },
         {
-            "name":"USB_func_charge_notifier",
-            "value":"通過 USB 充電",
+            "name":"USB_my_tablet",
+            "value":"我的平板電腦",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_charge_notifier",
+            "value":"正在透過 USB 充電",
+            "attr":{
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_more_notifier",
-            "value":"輕觸檢視更多選項",
+            "value":"輕觸可顯示更多選項",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp_notifier",
-            "value":"通過 USB 瀏覽相片",
+            "value":"透過 USB 為相片瀏覽",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_notifier",
-            "value":"通過 USB 傳輸檔案",
+            "value":"透過 USB 為檔案傳輸",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]
