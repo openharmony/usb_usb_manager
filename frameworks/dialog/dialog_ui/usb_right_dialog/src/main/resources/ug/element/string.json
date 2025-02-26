@@ -74,12 +74,47 @@
             "name":"USB_func_mtp_tip2",
             "value":"پەقەت ھۆججەت باشقۇرغۇچنىڭ «%s» قىسقۇچىدىكى مەزمۇنلار كۆرۈنىدۇ.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_tip",
             "value":"پەقەت ھۆججەت باشقۇرغۇچنىڭ «يانفونۇم» قىسقۇچىدىكى مەزمۇنلار كۆرۈنىدۇ.",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_my_tablet",
+            "value":"تاختا كومپيۇتېرىم",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_charge_notifier",
+            "value":"\u200fUSB ئارقىلىق توكلىنىۋاتىدۇ",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_more_notifier",
+            "value":"چېكىپ باشقا تاللانمىلارنى كۆرۈڭ.",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_ptp_notifier",
+            "value":"\u200fUSB ئۇلاق (رەسىم)",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_mtp_notifier",
+            "value":"\u200fUSB ئۇلاق (ھۆججەت)",
             "attr":{
                 "priority":"LT"
             }
