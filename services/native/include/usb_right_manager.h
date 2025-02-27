@@ -89,19 +89,25 @@ private:
     static sem_t waitDialogDisappear_;
     class UsbAbilityConn : public AAFwk::AbilityConnectionStub {
         void OnAbilityConnectDone(const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject,
-            int32_t resultCode) override
+            int32_t resultCode) override;
+        void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode) override;
+        sptr<IRemoteObject> remoteObject_ = nullptr;
+    public:
+        UsbAbilityConn()
         {
-            USB_HILOGI(MODULE_USB_SERVICE, "connect done");
+            USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
         }
-        void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode) override
+        ~UsbAbilityConn()
         {
-            USB_HILOGI(MODULE_USB_SERVICE, "disconnect done");
-            sem_post(&waitDialogDisappear_);
+            USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
         }
+        void CloseDialog();
     };
 
     std::mutex dialogRunning_;
-
+    sptr<UsbAbilityConn> usbAbilityConn_ = nullptr;
+    static std::map<std::string, std::string> usbDialogParams_;
+    static std::mutex usbDialogParamsMutex_;
     bool IsAppInstalled(int32_t uid, const std::string &bundleName);
     void GetCurrentUserId(int32_t &uid);
     bool GetBundleInstallAndUpdateTime(
@@ -115,6 +121,8 @@ private:
     int32_t CleanUpRightNormalExpired(int32_t uid);
     int32_t CleanUpRightAppReinstalled(int32_t uid, uint32_t &totalApps, uint32_t &deleteApps);
     int32_t TidyUpRight(uint32_t choose);
+    bool UnShowUsbDialog();
+    int32_t ConnectAbility();
 };
 
 } // namespace USB

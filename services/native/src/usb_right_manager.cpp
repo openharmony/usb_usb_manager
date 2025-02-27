@@ -52,6 +52,7 @@ constexpr int32_t USB_RIGHT_USERID_CONSOLE = 0;
 constexpr int32_t DECIMAL_BASE = 10;
 constexpr int32_t MAX_RETRY_TIMES = 30;
 constexpr int32_t RETRY_INTERVAL_SECONDS = 1;
+constexpr int32_t MESSAGE_PARCEL_KEY_SIZE = 3;
 const std::string USB_MANAGE_ACCESS_USB_DEVICE = "ohos.permission.MANAGE_USB_CONFIG";
 const std::string DEVELOPERMODE_STATE = "const.security.developermode.state";
 const std::string DEFAULT_SERIAL_BUNDLE_NAME = "com.example.serial";
@@ -69,6 +70,8 @@ constexpr uint32_t TIGHT_UP_USB_RIGHT_RECORD_ALL =
         TIGHT_UP_USB_RIGHT_RECORD_EXPIRED | TIGHT_UP_USB_RIGHT_RECORD_APP_REINSTALLED);
 
 sem_t UsbRightManager::waitDialogDisappear_ {0};
+std::mutex UsbRightManager::usbDialogParamsMutex_;
+std::map<std::string, std::string> UsbRightManager::usbDialogParams_ = {};
 
 class RightSubscriber : public CommonEventSubscriber {
 public:
@@ -197,14 +200,39 @@ bool UsbRightManager::GetUserAgreementByDiag(const std::string &busDev, const st
     return HasRight(deviceName, bundleName, tokenId, userId);
 }
 
-bool UsbRightManager::ShowUsbDialog(
-    const std::string &busDev, const std::string &deviceName, const std::string &bundleName, const std::string &tokenId)
+int32_t UsbRightManager::ConnectAbility()
 {
+    if (usbAbilityConn_ == nullptr) {
+        USB_HILOGI(MODULE_SERVICE, "new UsbAbilityConn");
+        usbAbilityConn_ = sptr<UsbAbilityConn>(new (std::nothrow) UsbAbilityConn());
+    }
+
     auto abmc = AAFwk::AbilityManagerClient::GetInstance();
     if (abmc == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetInstance failed");
-        return false;
+        return USB_RIGHT_FAILURE;
     }
+
+    AAFwk::Want want;
+    want.SetElementName("com.ohos.sceneboard", "com.ohos.sceneboard.systemdialog");
+    auto ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
+    if (ret != ERR_OK) {
+        want.SetElementName("com.ohos.systemui", "com.ohos.systemui.dialog");
+        auto ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
+        if (ret != ERR_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "ConnectServiceExtensionAbility systemui failed, ret: %{public}d", ret);
+            usbAbilityConn_ = nullptr;
+            return ret;
+        }
+    }
+    return USB_RIGHT_OK;
+}
+
+bool UsbRightManager::ShowUsbDialog(
+    const std::string &busDev, const std::string &deviceName, const std::string &bundleName, const std::string &tokenId)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s deviceName %{public}s bundleName %{public}s tokenId %{public}s",
+               __func__, deviceName.c_str(), bundleName.c_str(), tokenId.c_str());
 
     std::string appName;
     if (!GetAppName(bundleName, appName)) {
@@ -215,28 +243,26 @@ bool UsbRightManager::ShowUsbDialog(
     if (!GetProductName(busDev, productName)) {
         productName = busDev;
     }
-
-    AAFwk::Want want;
-    want.SetElementName("com.usb.right", "UsbServiceExtAbility");
-    want.SetParam("bundleName", bundleName);
-    want.SetParam("deviceName", busDev);
-    want.SetParam("tokenId", tokenId);
-    want.SetParam("appName", appName);
-    want.SetParam("productName", productName);
-
-    sptr<UsbAbilityConn> usbAbilityConn_ = new (std::nothrow) UsbAbilityConn();
-    if (usbAbilityConn_ == nullptr) {
-        USB_HILOGE(MODULE_SERVICE, "the UsbAbilityConn() construct failed");
-        return false;
+    
+    {
+        std::lock_guard<std::mutex> lock(usbDialogParamsMutex_);
+        usbDialogParams_.clear();
+        usbDialogParams_["bundleName"] = bundleName;
+        usbDialogParams_["deviceName"] = busDev;
+        usbDialogParams_["tokenId"] = tokenId;
+        usbDialogParams_["appName"] = appName;
+        usbDialogParams_["productName"] = productName;
     }
+
     sem_init(&waitDialogDisappear_, 1, 0);
-    auto ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
+    auto ret = ConnectAbility();
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
         return false;
     }
     /* Waiting for the user to click */
     sem_wait(&waitDialogDisappear_);
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s success", __func__);
     return true;
 }
 
@@ -443,11 +469,8 @@ bool UsbRightManager::GetAccessoryName(const USBAccessory &access, std::string &
 bool UsbRightManager::ShowUsbDialog(const USBAccessory &access, const std::string &seriaValue,
     const std::string &bundleName, const std::string &tokenId)
 {
-    auto abmc = AAFwk::AbilityManagerClient::GetInstance();
-    if (abmc == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetInstance failed");
-        return false;
-    }
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s seriaValue %{public}s bundleName %{public}s tokenId %{public}s",
+               __func__, seriaValue.c_str(), bundleName.c_str(), tokenId.c_str());
 
     std::string appName;
     if (!GetAppName(bundleName, appName)) {
@@ -459,69 +482,60 @@ bool UsbRightManager::ShowUsbDialog(const USBAccessory &access, const std::strin
         accessoryName = seriaValue;
     }
 
-    AAFwk::Want want;
-    want.SetElementName("com.usb.right", "UsbServiceExtAbility");
-    want.SetParam("bundleName", bundleName);
-    want.SetParam("deviceName", seriaValue);
-    want.SetParam("tokenId", tokenId);
-    want.SetParam("appName", appName);
-    want.SetParam("productName", accessoryName);
-    want.SetParam("accessory", access.GetJsonString());
-
-    sptr<UsbAbilityConn> usbAbilityConn_ = new (std::nothrow) UsbAbilityConn();
-    if (usbAbilityConn_ == nullptr) {
-        USB_HILOGE(MODULE_SERVICE, "the UsbAbilityConn() construct failed");
-        return false;
+    {
+        std::lock_guard <std::mutex> lock(usbDialogParamsMutex_);
+        usbDialogParams_.clear();
+        usbDialogParams_["bundleName"] = bundleName;
+        usbDialogParams_["deviceName"] = seriaValue;
+        usbDialogParams_["tokenId"] = tokenId;
+        usbDialogParams_["appName"] = appName;
+        usbDialogParams_["productName"] = accessoryName;
+        usbDialogParams_["accessory"] = access.GetJsonString();
     }
+    
     sem_init(&waitDialogDisappear_, 1, 0);
-    auto ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
+    auto ret = ConnectAbility();
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
         return false;
     }
     /* Waiting for the user to click */
     sem_wait(&waitDialogDisappear_);
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s success", __func__);
     return true;
 }
 
 bool UsbRightManager::ShowSerialDialog(const int32_t portId, const uint32_t tokenId, const std::string &bundleName,
     const std::string &busDev)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "ShowSerialDialog start");
-    auto abmc = AAFwk::AbilityManagerClient::GetInstance();
-    if (abmc == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetInstance failed");
-        return false;
-    }
+    USB_HILOGI(MODULE_USB_SERVICE,
+               "%{public}s portId %{public}d tokenId %{public}d bundleName %{public}s busDev %{public}s",
+               __func__, portId, tokenId, bundleName.c_str(), busDev.c_str());
 
     std::string appName;
     if (!GetAppName(bundleName, appName)) {
         appName = bundleName;
     }
 
-    std::string productName = "COM" + std::to_string(portId);
-
-    AAFwk::Want want;
-    want.SetElementName("com.usb.right", "UsbServiceExtAbility");
-    want.SetParam("portId", portId);
-
     int32_t castId = static_cast<int32_t>(tokenId);
     if (castId < 0) {
-        USB_HILOGE(MODULE_SERVICE, "tokenId cast failed");
+        USB_HILOGE(MODULE_SERVICE, "tokenId cast failed %{public}d", castId);
         return false;
     }
-    want.SetParam("tokenId", castId);
-    want.SetParam("bundleName", DEFAULT_SERIAL_BUNDLE_NAME);
-    want.SetParam("deviceName", DEFAULT_SERIAL_DEVICE_NAME);
-    want.SetParam("appName", appName);
-    want.SetParam("productName", productName);
-    sptr<UsbAbilityConn> usbAbilityConn_ = new (std::nothrow) UsbAbilityConn();
-    if (usbAbilityConn_ == nullptr) {
-        USB_HILOGE(MODULE_SERVICE, "the UsbAbilityConn() construct failed");
-        return false;
+
+    {
+        std::lock_guard <std::mutex> lock(usbDialogParamsMutex_);
+        usbDialogParams_.clear();
+        usbDialogParams_["portId"] = portId;
+        usbDialogParams_["tokenId"] = castId;
+        usbDialogParams_["bundleName"] = DEFAULT_SERIAL_BUNDLE_NAME;
+        usbDialogParams_["deviceName"] = DEFAULT_SERIAL_DEVICE_NAME;
+        usbDialogParams_["appName"] = appName;
+        usbDialogParams_["productName"] = "COM" + std::to_string(portId);
     }
+
     sem_init(&waitDialogDisappear_, 1, 0);
-    auto ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
+    auto ret = ConnectAbility();
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
         return false;
@@ -996,6 +1010,113 @@ bool UsbRightManager::IsAllDigits(const std::string &bundleName)
         }
     }
     return true;
+}
+
+bool UsbRightManager::UnShowUsbDialog()
+{
+    if (usbAbilityConn_ == nullptr) {
+        return true;
+    }
+
+    auto abmc = AAFwk::AbilityManagerClient::GetInstance();
+    if (abmc == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetInstance failed");
+        return false;
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "unshow usb dialog window");
+    usbAbilityConn_->CloseDialog();
+
+    auto ret = abmc->DisconnectAbility(usbAbilityConn_);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_SERVICE, "DisconnectAbility failed %{public}d", ret);
+        return false;
+    }
+    USB_HILOGD(MODULE_USB_SERVICE, "unshow usb dialog window success");
+    return true;
+}
+
+void UsbRightManager::UsbAbilityConn::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
+                                                           const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s UsbAbilityConn", __func__);
+    if (remoteObject == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "remoteObject is nullptr");
+        return;
+    }
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    data.WriteInt32(MESSAGE_PARCEL_KEY_SIZE);
+    data.WriteString16(u"bundleName");
+    data.WriteString16(u"com.usb.right");
+    data.WriteString16(u"abilityName");
+    data.WriteString16(u"UsbServiceExtAbility");
+    data.WriteString16(u"parameters");
+    cJSON* paramJson = cJSON_CreateObject();
+
+    {
+        std::lock_guard <std::mutex> lock(usbDialogParamsMutex_);
+        for (auto it : usbDialogParams_) {
+            cJSON_AddStringToObject(paramJson, it.first.c_str(), it.second.c_str());
+        }
+    }
+
+    std::string uiExtensionTypeStr = "sysDialog/common";
+    cJSON_AddStringToObject(paramJson, "ability.want.params.uiExtensionType", uiExtensionTypeStr.c_str());
+
+    char *pParamJson = cJSON_PrintUnformatted(paramJson);
+    cJSON_Delete(paramJson);
+    paramJson = nullptr;
+    if (!pParamJson) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Print paramJson error");
+        return;
+    }
+    std::string paramStr(pParamJson);
+    data.WriteString16(Str8ToStr16(paramStr));
+    cJSON_free(pParamJson);
+    pParamJson = NULL;
+
+    const uint32_t cmdCode = 1;
+    int32_t ret = remoteObject->SendRequest(cmdCode, data, reply, option);
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s ret %{public}d", __func__, ret);
+    if (ret != ERR_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "send request failed: %{public}d", ret);
+        return;
+    }
+    if (!reply.ReadInt32(ret) || ret != ERR_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "show dialog failed: %{public}d", ret);
+        return;
+    }
+    remoteObject_ = remoteObject;
+}
+
+void UsbRightManager::UsbAbilityConn::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
+                                                              int32_t resultCode)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "disconnect done");
+    sem_post(&waitDialogDisappear_);
+    remoteObject_ = nullptr;
+}
+
+void UsbRightManager::UsbAbilityConn::CloseDialog()
+{
+    if (remoteObject_ == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "CloseDialog: disconnected");
+        return;
+    }
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    const uint32_t cmdCode = 3;
+    int32_t ret = remoteObject_->SendRequest(cmdCode, data, reply, option);
+    int32_t replyCode = -1;
+    bool success = false;
+    if (ret == ERR_OK) {
+        success = reply.ReadInt32(replyCode);
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "CloseDialog: ret=%{public}d, %{public}d, %{public}d", ret, success, replyCode);
 }
 } // namespace USB
 } // namespace OHOS

@@ -55,7 +55,8 @@
         "label": "$string:UsbDialogAbility_label",
         "visible": true,
         "exported": false,
-        "type": "service"
+        "extensionProcessMode": "instance",
+        "type": "sysDialog/common"
       },
       {
         "name": "UsbFunctionSwitchExtAbility",

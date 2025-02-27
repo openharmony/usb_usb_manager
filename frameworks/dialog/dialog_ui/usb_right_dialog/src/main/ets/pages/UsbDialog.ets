@@ -16,6 +16,7 @@
 import { AlertDialog } from '@ohos.arkui.advanced.Dialog'
 import usbMgr from '@ohos.usbManager'
 import serialManager from '@ohos.usbManager.serial'
+import { terminateDialog } from '../util/DialogUtil';
 
 @Entry
 @Component
@@ -68,18 +69,14 @@ struct IndexHapComponent {
 
   closeDialog() {
     console.info('USBRight close dialog');
-    this.confirmDialogController.close()
-    try {
-      globalThis.window.destroy()
-      globalThis.extensionContext.terminateSelf()
-    } catch (err) {
-      console.error('USBRight ConfirmDialog closeDialog error!', err);
-    }
+    terminateDialog();
   }
 
   aboutToAppear(): void {
     console.info('USBRight show dialog', JSON.stringify(globalThis.want));
-    this.confirmDialogController.open();
+    setTimeout(() => {
+        this.confirmDialogController.open();
+    });
   }
 
   build() {
