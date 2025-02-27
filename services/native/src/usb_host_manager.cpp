@@ -853,14 +853,14 @@ int32_t UsbHostManager::UsbCancelTransfer(const HDI::Usb::V1_0::UsbDev &devInfo,
 #ifdef USB_MANAGER_PASS_THROUGH
     if (usbHostInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager::UsbCancelTransfer usbHostInterface_ is nullptr");
-        return UEC_SERVICE_INVALID_VALUE;
+        return OHEC_COMMON_PARAM_ERROR;
     }
     const HDI::Usb::V2_0::UsbDev &usbDev_ = reinterpret_cast<const HDI::Usb::V2_0::UsbDev &>(devInfo);
     return usbHostInterface_->UsbCancelTransfer(usbDev_, endpoint);
 #else
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager::usbd_ is nullptr");
-        return UEC_SERVICE_INVALID_VALUE;
+        return OHEC_COMMON_PARAM_ERROR;
     }
     int32_t ret = usbd_->UsbCancelTransfer(devInfo, endpoint);
     if (ret != UEC_OK) {
@@ -874,17 +874,17 @@ int32_t UsbHostManager::UsbCancelTransfer(const HDI::Usb::V1_0::UsbDev &devInfo,
 int32_t UsbHostManager::UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, HDI::Usb::V1_2::USBTransferInfo &info,
     const sptr<IRemoteObject> &cb, sptr<Ashmem> &ashmem)
 {
-    int32_t ret = UEC_SERVICE_INVALID_VALUE;
+    int32_t ret = OHEC_COMMON_PARAM_ERROR;
 #ifdef USB_MANAGER_PASS_THROUGH
     if (usbHostInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager::UsbSubmitTransfer usbHostInterface_ is nullptr");
-        return UEC_SERVICE_INVALID_VALUE;
+        return OHEC_COMMON_PARAM_ERROR;
     }
     sptr<UsbHostManager::UsbSubmitTransferDeathRecipient> submitRecipient =
         new UsbSubmitTransferDeathRecipient(devInfo, info.endpoint, this, cb);
     if (!cb->AddDeathRecipient(submitRecipient)) {
         USB_HILOGE(MODULE_USB_SERVICE, "add DeathRecipient failed");
-        return UEC_SERVICE_INVALID_VALUE;
+        return OHEC_COMMON_PARAM_ERROR;
     }
     sptr<UsbTransferCallbackImpl> callbackImpl = new UsbTransferCallbackImpl(cb);
     const HDI::Usb::V2_0::UsbDev &usbDev_ = reinterpret_cast<const HDI::Usb::V2_0::UsbDev &>(devInfo);
@@ -893,13 +893,13 @@ int32_t UsbHostManager::UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo,
 #else
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager::UsbSubmitTransfer usbd_ is nullptr");
-        return UEC_SERVICE_INVALID_VALUE;
+        return OHEC_COMMON_PARAM_ERROR;
     }
     sptr<UsbHostManager::UsbSubmitTransferDeathRecipient> submitRecipient =
         new UsbSubmitTransferDeathRecipient(devInfo, info.endpoint, this, cb);
     if (!cb->AddDeathRecipient(submitRecipient)) {
         USB_HILOGE(MODULE_USB_SERVICE, "add DeathRecipient failed");
-        return UEC_SERVICE_INVALID_VALUE;
+        return OHEC_COMMON_PARAM_ERROR;
     }
     sptr<UsbdTransferCallbackImpl> callbackImpl = new UsbdTransferCallbackImpl(cb);
     ret = usbd_->UsbSubmitTransfer(devInfo, info, callbackImpl, ashmem);

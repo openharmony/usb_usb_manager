@@ -1038,11 +1038,11 @@ int32_t UsbService::UsbCancelTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, con
 {
     USB_HILOGI(MODULE_USBD, "UsbService UsbCancelTransfer enter");
     if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
-        return UEC_SERVICE_PERMISSION_DENIED;
+        return UEC_COMMON_HAS_NO_RIGHT;
     }
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
-        return UEC_SERVICE_INVALID_VALUE;
+        return OHEC_COMMON_PARAM_ERROR;
     }
     int32_t ret = usbHostManager_->UsbCancelTransfer(devInfo, endpoint);
     if (ret != UEC_OK) {
@@ -1059,18 +1059,18 @@ int32_t UsbService::UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, HDI
     USB_HILOGI(MODULE_USBD, "UsbService UsbSubmitTransfer enter");
     if (cb == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService UsbSubmitTransfer cb is nullptr");
-        return UEC_SERVICE_INVALID_VALUE;
+        return OHEC_COMMON_PARAM_ERROR;
     }
     if (ashmem == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService UsbSubmitTransfer error ashmem");
-        return UEC_SERVICE_INVALID_VALUE;
+        return OHEC_COMMON_PARAM_ERROR;
     }
     if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
-        return UEC_SERVICE_PERMISSION_DENIED;
+        return UEC_COMMON_HAS_NO_RIGHT;
     }
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
-        return UEC_SERVICE_INVALID_VALUE;
+        return OHEC_COMMON_PARAM_ERROR;
     }
     return usbHostManager_->UsbSubmitTransfer(devInfo, info, cb, ashmem);
 }
