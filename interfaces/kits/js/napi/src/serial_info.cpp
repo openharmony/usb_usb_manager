@@ -133,7 +133,7 @@ static napi_value SerialGetAttributeNapi(napi_env env, napi_callback_info info)
     }
     napi_value result = nullptr;
     napi_create_object(env, &result);
-    NapiUtil::SetValueUint32(env, "baudrate", serialAttribute.baudrate, result);
+    NapiUtil::SetValueUint32(env, "baudRate", serialAttribute.baudrate, result);
     NapiUtil::SetValueUint32(env, "dataBits", serialAttribute.dataBits, result);
     NapiUtil::SetValueUint32(env, "parity", serialAttribute.parity, result);
     NapiUtil::SetValueUint32(env, "stopBits", serialAttribute.stopBits, result);
