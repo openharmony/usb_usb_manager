@@ -65,6 +65,19 @@ const int32_t USB_TRANSFER_ADD_ZERO_PACKET = 3;
 const int32_t TRANSFER_TYPE_ISOCHRONOUS = 1;
 const int32_t TRANSFER_TYPE_BULK = 2;
 const int32_t TRANSFER_TYPE_INTERRUPT = 3;
+const int32_t TRANSFER_COMPLETED = 0;
+const int32_t TRANSFER_ERROR = 1;
+const int32_t TRANSFER_TIMED_OUT = 2;
+const int32_t TRANSFER_CANCELED = 3;
+const int32_t TRANSFER_STALL = 4;
+const int32_t TRANSFER_NO_DEVICE = 5;
+const int32_t TRANSFER_OVERFLOW = 6;
+const int32_t IO_ERROR = -1;
+const int32_t INVALID_PARAM = -2;
+const int32_t NO_DEVICE = -4;
+const int32_t NOT_FOUND = -5;
+const int32_t ERROR_BUSY = -6;
+const int32_t NO_MEM = -11;
 
 enum UsbManagerFeature {
     FEATURE_HOST = 0,
@@ -2284,6 +2297,28 @@ static void GetUSBTransferInfo(USBTransferInfo &obj, USBTransferAsyncContext *as
     obj.userData = static_cast<uint64_t>(ptrValue);
 }
 
+static int32_t UsbSubmitTransferErrorCode(int32_t &error)
+{
+    switch (error) {
+        case IO_ERROR:
+            return USB_SUBMIT_TRANSFER_IO_ERROR;
+        case INVALID_PARAM:
+            return OHEC_COMMON_PARAM_ERROR;
+        case NO_DEVICE:
+            return USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR;
+        case NOT_FOUND:
+            return USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR;
+        case ERROR_BUSY:
+            return USB_SUBMIT_TRANSFER_RESOURCE_BUSY_ERROR;
+        case NO_MEM:
+            return USB_SUBMIT_TRANSFER_NO_MEM_ERROR;
+        case UEC_SERVICE_PERMISSION_DENIED:
+            return UEC_COMMON_HAS_NO_RIGHT;
+        default:
+            return USB_SUBMIT_TRANSFER_OTHER_ERROR;
+    }
+}
+
 static bool CreateAndWriteAshmem(USBTransferAsyncContext *asyncContext, HDI::Usb::V1_2::USBTransferInfo &obj)
 {
     StartTrace(HITRACE_TAG_USB, "NAPI:Ashmem::CreateAshmem");
@@ -2344,6 +2379,7 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
     if (ret != napi_ok) {
         asyncContext->ashmem->CloseAshmem();
         delete asyncContext;
+        ret = UsbSubmitTransferErrorCode(ret);
         ThrowBusinessError(env, ret, "");
         return nullptr;
     }
@@ -2419,6 +2455,7 @@ static napi_value UsbCancelTransfer(napi_env env, napi_callback_info info)
     int32_t ret = asyncContext->pipe.UsbCancelTransfer(asyncContext->endpoint);
     FinishTrace(HITRACE_TAG_USB);
     if (ret != napi_ok) {
+        ret = UsbSubmitTransferErrorCode(ret);
         ThrowBusinessError(env, ret, "");
         return nullptr;
     }
@@ -2427,7 +2464,6 @@ static napi_value UsbCancelTransfer(napi_env env, napi_callback_info info)
 
 static void SetEnumProperty(napi_env env, napi_value object, const std::string &name, int32_t value)
 {
-    USB_HILOGE(MODULE_JS_NAPI, "UsbSubmitTransfer SetEnumProperty enter");
     if (name.empty()) {
         USB_HILOGE(MODULE_JS_NAPI, "Property name cannot be an empty string");
         return;
@@ -2472,6 +2508,24 @@ static napi_value NapiCreateTypeEnum(napi_env env)
     SetEnumProperty(env, object, "TRANSFER_TYPE_ISOCHRONOUS", TRANSFER_TYPE_ISOCHRONOUS);
     SetEnumProperty(env, object, "TRANSFER_TYPE_BULK", TRANSFER_TYPE_BULK);
     SetEnumProperty(env, object, "TRANSFER_TYPE_INTERRUPT", TRANSFER_TYPE_INTERRUPT);
+    return object;
+}
+
+static napi_value NapiCreateStatusEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "TRANSFER_COMPLETED", TRANSFER_COMPLETED);
+    SetEnumProperty(env, object, "TRANSFER_ERROR", TRANSFER_ERROR);
+    SetEnumProperty(env, object, "TRANSFER_TIMED_OUT", TRANSFER_TIMED_OUT);
+    SetEnumProperty(env, object, "TRANSFER_CANCELED", TRANSFER_CANCELED);
+    SetEnumProperty(env, object, "TRANSFER_STALL", TRANSFER_STALL);
+    SetEnumProperty(env, object, "TRANSFER_NO_DEVICE", TRANSFER_NO_DEVICE);
+    SetEnumProperty(env, object, "TRANSFER_OVERFLOW", TRANSFER_OVERFLOW);
     return object;
 }
 
@@ -2653,6 +2707,7 @@ static napi_value DeclareEnum(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_PROPERTY("STORAGE", ToInt32Value(env, STORAGE)),
         DECLARE_NAPI_STATIC_PROPERTY("UsbTransferFlags", NapiCreateFlagsEnum(env)),
         DECLARE_NAPI_STATIC_PROPERTY("UsbEndpointTransferType", NapiCreateTypeEnum(env)),
+        DECLARE_NAPI_STATIC_PROPERTY("UsbTransferStatus", NapiCreateStatusEnum(env)),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     return exports;
