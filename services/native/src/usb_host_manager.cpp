@@ -861,6 +861,7 @@ int32_t UsbHostManager::UsbCancelTransfer(const HDI::Usb::V1_0::UsbDev &devInfo,
     int32_t ret = usbd_->UsbCancelTransfer(devInfo, endpoint);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbCancelTransfer error ret:%{public}d", ret);
+        return ret;
     }
     return ret;
 #endif // USB_MANAGER_PASS_THROUGH
@@ -903,6 +904,7 @@ int32_t UsbHostManager::UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo,
         USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager UsbSubmitTransfer error ret:%{public}d", ret);
         cb->RemoveDeathRecipient(submitRecipient);
         submitRecipient.clear();
+        return ret;
     }
     return ret;
 }
