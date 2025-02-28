@@ -1038,7 +1038,7 @@ int32_t UsbService::UsbCancelTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, con
 {
     USB_HILOGI(MODULE_USBD, "UsbService UsbCancelTransfer enter");
     if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
-        return UEC_COMMON_HAS_NO_RIGHT;
+        return UEC_SERVICE_PERMISSION_DENIED;
     }
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
@@ -1066,7 +1066,7 @@ int32_t UsbService::UsbSubmitTransfer(const HDI::Usb::V1_0::UsbDev &devInfo, HDI
         return UEC_SERVICE_INVALID_VALUE;
     }
     if (!UsbService::CheckDevicePermission(devInfo.busNum, devInfo.devAddr)) {
-        return UEC_COMMON_HAS_NO_RIGHT;
+        return UEC_SERVICE_PERMISSION_DENIED;
     }
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
