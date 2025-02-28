@@ -2267,6 +2267,28 @@ static void GetUSBTransferInfo(USBTransferInfo &obj, USBTransferAsyncContext *as
     obj.userData = static_cast<uint64_t>(ptrValue);
 }
 
+static int32_t UsbSubmitTransferErrorCode(int32_t &error)
+{
+    switch (error) {
+        case IO_ERROR:
+            return USB_SUBMIT_TRANSFER_IO_ERROR;
+        case INVALID_PARAM:
+            return OHEC_COMMON_PARAM_ERROR;
+        case NO_DEVICE:
+            return USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR;
+        case NOT_FOUND:
+            return USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR;
+        case ERROR_BUSY:
+            return USB_SUBMIT_TRANSFER_RESOURCE_BUSY_ERROR;
+        case NO_MEM:
+            return USB_SUBMIT_TRANSFER_NO_MEM_ERROR;
+        case UEC_SERVICE_PERMISSION_DENIED:
+            return UEC_COMMON_HAS_NO_RIGHT;
+        default:
+            return USB_SUBMIT_TRANSFER_OTHER_ERROR;
+    }
+}
+
 static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
@@ -2317,28 +2339,6 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(timesUse->endTime - timesUse->beginTime);
     USB_HILOGE(MODULE_JS_NAPI, "UsbSubmitTransfer usedTime:%{public}lld ms", duration.count());
     return nullptr;
-}
-
-static int32_t UsbSubmitTransferErrorCode(int32_t &error)
-{
-    switch (error) {
-        case IO_ERROR:
-            return USB_SUBMIT_TRANSFER_IO_ERROR;
-        case INVALID_PARAM:
-            return OHEC_COMMON_PARAM_ERROR;
-        case NO_DEVICE:
-            return USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR;
-        case NOT_FOUND:
-            return USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR;
-        case ERROR_BUSY:
-            return USB_SUBMIT_TRANSFER_RESOURCE_BUSY_ERROR;
-        case NO_MEM:
-            return USB_SUBMIT_TRANSFER_NO_MEM_ERROR;
-        case UEC_SERVICE_PERMISSION_DENIED:
-            return UEC_COMMON_HAS_NO_RIGHT;
-        default:
-            return USB_SUBMIT_TRANSFER_OTHER_ERROR;
-    }
 }
 
 static bool ParseCancelParams(const napi_env &env, const napi_value &object,
