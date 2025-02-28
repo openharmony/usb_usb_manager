@@ -2383,7 +2383,6 @@ static napi_value UsbCancelTransfer(napi_env env, napi_callback_info info)
 
 static void SetEnumProperty(napi_env env, napi_value object, const std::string &name, int32_t value)
 {
-    USB_HILOGE(MODULE_JS_NAPI, "UsbSubmitTransfer SetEnumProperty enter");
     if (name.empty()) {
         USB_HILOGE(MODULE_JS_NAPI, "Property name cannot be an empty string");
         return;
