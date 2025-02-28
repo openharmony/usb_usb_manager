@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,23 +15,10 @@
 
 import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility';
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
-import extension from '@ohos.app.ability.ServiceExtensionAbility';
-import window from '@ohos.window';
-import display from '@ohos.display';
 import rpc from '@ohos.rpc';
-import abilityAccessCtrl from '@ohos.abilityAccessCtrl';
-import type { Permissions } from '@ohos.abilityAccessCtrl';
 import {terminateDialog} from '../util/DialogUtil';
 
 let TAG: string = 'UsbService';
-class UsbDialogStub extends rpc.RemoteObject {
-  constructor(des) {
-    super(des);
-  }
-  onRemoteRequest(code, data, reply, option): boolean {
-    return true;
-  }
-}
 
 const BG_COLOR = '#00000000';
 const COLOR_MODE_NOT_SET = -1;
