@@ -2381,6 +2381,7 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
         delete asyncContext;
         ret = UsbSubmitTransferErrorCode(ret);
         ThrowBusinessError(env, ret, "");
+        return nullptr;
     }
     timesUse->endTime = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(timesUse->endTime - timesUse->beginTime);
