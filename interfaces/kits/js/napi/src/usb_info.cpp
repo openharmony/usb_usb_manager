@@ -2317,6 +2317,8 @@ static int32_t UsbSubmitTransferErrorCode(int32_t &error)
         default:
             return USB_SUBMIT_TRANSFER_OTHER_ERROR;
     }
+}
+
 static bool CreateAndWriteAshmem(USBTransferAsyncContext *asyncContext, HDI::Usb::V1_2::USBTransferInfo &obj)
 {
     StartTrace(HITRACE_TAG_USB, "NAPI:Ashmem::CreateAshmem");
