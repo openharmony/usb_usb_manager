@@ -28,9 +28,9 @@
 using namespace OHOS::HDI::Usb::V1_2;
 namespace OHOS {
 namespace USB {
+constexpr int32_t MAX_SERIAL_WRITE_SIZE = 4096;
 #ifdef USB_MANAGER_FEATURE_HOST
 constexpr int32_t MAX_EDM_LIST_SIZE = 200;
-constexpr int32_t MAX_SERIAL_WRITE_SIZE = 4096;
 int32_t UsbServerStub::GetDeviceMessage(MessageParcel &data, uint8_t &busNum, uint8_t &devAddr)
 {
     if (!data.ReadUint8(busNum)) {

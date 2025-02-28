@@ -107,38 +107,44 @@
         },
         {
             "name":"USB_func_mtp_tip2",
-            "value":"For items under \"%s\" in Files."
+            "value":"For items under \"%s\" in Files.",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"USB_my_tablet",
-            "value":"My tablet"
+            "value":"My tablet",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"USB_func_charge_notifier",
             "value":"Charging via USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_notifier",
             "value":"File transfer via USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp_notifier",
-            "value":"photo browsing via USB",
+            "value":"Photo browsing via USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_more_notifier",
             "value":"Tap for more options.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]

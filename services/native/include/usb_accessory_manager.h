@@ -59,7 +59,7 @@ public:
 private:
     void GetAccessoryInfo(std::vector<std::string> &accessorys);
     int32_t SetCurrentFunctions(int32_t funcs);
-    int32_t GetCurrentFunctions(int32_t funcs);
+    int32_t GetCurrentFunctions(int32_t &funcs);
     void ProcessHandle(int32_t curAccStatus);
     int32_t ProcessAccessoryStart(int32_t curFunc, int32_t curAccStatus);
     int32_t ProcessAccessoryStop(int32_t curFunc, int32_t curAccStatus);
@@ -70,7 +70,7 @@ private:
     bool compare(const std::string &s1, const std::string &s2);
     USBAccessory accessory;
     int32_t accStatus_ {ACC_NONE};
-    int32_t eventStatus_ = {0};
+    int32_t eventStatus_ = 0;
     int32_t curDeviceFunc_ = {UsbSrvSupport::FUNCTION_NONE};
     int32_t lastDeviceFunc_ = {UsbSrvSupport::FUNCTION_NONE};
     int32_t accFd_ = {0};

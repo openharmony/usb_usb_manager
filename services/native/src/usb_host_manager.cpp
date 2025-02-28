@@ -18,6 +18,7 @@
 #include <string>
 #include <set>
 #include <thread>
+#include <ipc_skeleton.h>
 
 #include "usb_host_manager.h"
 #include "common_event_data.h"
@@ -38,6 +39,7 @@
 #include "usb_descriptor_parser.h"
 #include "usbd_transfer_callback_impl.h"
 #include "usb_napi_errors.h"
+#include "accesstoken_kit.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::EventFwk;

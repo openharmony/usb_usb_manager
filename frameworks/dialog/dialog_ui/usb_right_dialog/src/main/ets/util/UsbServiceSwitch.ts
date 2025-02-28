@@ -21,6 +21,9 @@ const USBFUNCTION_HDC: number = 4;
 const USBFUNCTION_MTP: number = 8;
 const USBFUNCTION_PTP: number = 16;
 const USBFUNCTION_STORAGE: number = 512;
+const supportedCompositeFuncs: Array<number> = [
+  USBFUNCTION_HDC
+]
 
 class UsbServiceSwitch {
   private curFunc: number = USBFUNCTION_NONE;
@@ -54,10 +57,10 @@ class UsbServiceSwitch {
       }
       console.log(TAG + 'choose: xfer file(NONE)');
     } else if (chooseId === USBFUNCTION_MTP) {
-      this.tarFunc = (this.tarFunc | USBFUNCTION_MTP) & (~USBFUNCTION_STORAGE);
+      this.tarFunc = supportedCompositeFuncs.includes(this.tarFunc) ?(this.tarFunc | USBFUNCTION_MTP) : USBFUNCTION_MTP;
       console.log(TAG + 'choose: xfer file(MTP)');
     } else if (chooseId === USBFUNCTION_PTP) {
-      this.tarFunc = (this.tarFunc | USBFUNCTION_PTP) & (~USBFUNCTION_STORAGE);
+      this.tarFunc = supportedCompositeFuncs.includes(this.tarFunc) ?(this.tarFunc | USBFUNCTION_PTP) : USBFUNCTION_PTP;
       console.log(TAG + 'choose: xfer pic(PTP)');
     } else {
       console.log(TAG + 'choose error');

@@ -72,18 +72,21 @@ private:
     void DumpSetFunc(int32_t fd, const std::string &args);
     void ReportFuncChangeSysEvent(int32_t currentFunctions, int32_t updateFunctions);
     void ReportDevicePlugSysEvent(int32_t currentFunctions, bool connected);
-    void ProcessFuncChange(bool connected, int32_t currentFunc);
+    void ProcessFuncChange(bool connected, int32_t currentFunc, bool isDisableDialog = false);
     void BroadcastFuncChange(bool connected, int32_t currentFunc);
+    void ProcessStatus(int32_t status, bool &curConnect);
     static constexpr uint32_t functionSettable_ = UsbSrvSupport::FUNCTION_HDC | UsbSrvSupport::FUNCTION_ACM |
         UsbSrvSupport::FUNCTION_ECM | UsbSrvSupport::FUNCTION_MTP | UsbSrvSupport::FUNCTION_PTP |
-        UsbSrvSupport::FUNCTION_RNDIS | UsbSrvSupport::FUNCTION_STORAGE;
+        UsbSrvSupport::FUNCTION_RNDIS | UsbSrvSupport::FUNCTION_NCM | UsbSrvSupport::FUNCTION_STORAGE;
     static const std::map<std::string_view, uint32_t> FUNCTION_MAPPING_N2C;
     int32_t currentFunctions_ {UsbSrvSupport::FUNCTION_HDC};
     bool connected_ {false};
     bool gadgetConnected_ {false};
+    bool isDisableDialog_ {false};
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
     Utils::Timer delayDisconn_ {"delayDisconnTimer"};
     uint32_t delayDisconnTimerId_ {UINT32_MAX};
+    uint32_t delayAccTimerId_ {UINT32_MAX};
     std::mutex functionMutex_;
 #ifdef USB_MANAGER_PASS_THROUGH
     sptr<HDI::Usb::V2_0::IUsbDeviceInterface> usbDeviceInterface_ = nullptr;

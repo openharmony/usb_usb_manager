@@ -49,6 +49,9 @@ constexpr int32_t PARAM_BUF_LEN = 128;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 constexpr int32_t USB_RIGHT_USERID_DEFAULT = 100;
 constexpr int32_t USB_RIGHT_USERID_CONSOLE = 0;
+constexpr int32_t DECIMAL_BASE = 10;
+constexpr int32_t MAX_RETRY_TIMES = 30;
+constexpr int32_t RETRY_INTERVAL_SECONDS = 1;
 const std::string USB_MANAGE_ACCESS_USB_DEVICE = "ohos.permission.MANAGE_USB_CONFIG";
 const std::string DEVELOPERMODE_STATE = "const.security.developermode.state";
 const std::string DEFAULT_SERIAL_BUNDLE_NAME = "com.example.serial";
@@ -75,6 +78,8 @@ public:
     {
         auto &want = data.GetWant();
         std::string wantAction = want.GetAction();
+
+        USB_HILOGD(MODULE_USB_SERVICE, "%{public}s wantAction %{public}s", __func__, wantAction.c_str());
         if (wantAction == CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED ||
             wantAction == CommonEventSupport::COMMON_EVENT_BUNDLE_REMOVED ||
             wantAction == CommonEventSupport::COMMON_EVENT_PACKAGE_FULLY_REMOVED) {
@@ -124,12 +129,18 @@ int32_t UsbRightManager::Init()
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
     CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     std::shared_ptr<RightSubscriber> subscriber = std::make_shared<RightSubscriber>(subscriberInfo);
-    bool ret = CommonEventManager::SubscribeCommonEvent(subscriber);
-    if (!ret) {
-        USB_HILOGW(MODULE_USB_SERVICE, "subscriber event for right manager failed: %{public}d", ret);
-        return UEC_SERVICE_INNER_ERR;
+    int32_t retryTimes = 0;
+    while (retryTimes < MAX_RETRY_TIMES) {
+        retryTimes++;
+        bool ret = CommonEventManager::SubscribeCommonEvent(subscriber);
+        if (!ret) {
+            USB_HILOGW(MODULE_USB_SERVICE, "subscriber event for right manager failed: %{public}d", ret);
+            sleep(RETRY_INTERVAL_SECONDS);
+            continue;
+        }
+        return UEC_OK;
     }
-    return UEC_OK;
+    return UEC_SERVICE_INNER_ERR;
 }
 
 bool UsbRightManager::HasRight(const std::string &deviceName, const std::string &bundleName,
@@ -258,6 +269,21 @@ int32_t UsbRightManager::RequestRight(const USBAccessory &access, const std::str
     return UEC_OK;
 }
 
+bool IsWithinUint64Range(const std::string &numberStr)
+{
+    if (numberStr.empty()) {
+        USB_HILOGE(MODULE_SERVICE, "numberStr is empty");
+        return false;
+    }
+    errno = 0;
+    uint64_t number = 0;
+    number = std::strtoull(numberStr.c_str(), nullptr, DECIMAL_BASE);
+    if (errno == ERANGE) {
+        USB_HILOGE(MODULE_SERVICE, "number is out of uint64_t range");
+        return false;
+    }
+    return true;
+}
 
 int32_t UsbRightManager::RequestRight(const int32_t portId, const SerialDeviceIdentity &serialDeviceIdentity,
     const std::string &bundleName, const std::string &tokenId, const int32_t &userId)
@@ -282,13 +308,12 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
         return false;
     }
     /* already checked system app/hap when call */
-    uint64_t tokenId = stoul(tokenIdStr, nullptr, 10);
-    if (errno == ERANGE) {
-        USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr is out of range");
+    if (!IsWithinUint64Range(tokenIdStr)) {
+        USB_HILOGE(MODULE_SERVICE, "tokenIdStr is out of uint64_t range");
         return false;
     }
     HapTokenInfo hapTokenInfoRes;
-    int32_t ret = AccessTokenKit::GetHapTokenInfo((AccessTokenID) tokenId, hapTokenInfoRes);
+    int32_t ret = AccessTokenKit::GetHapTokenInfo((AccessTokenID) std::stoul(tokenIdStr), hapTokenInfoRes);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetHapTokenInfo failed:ret:%{public}d", ret);
         return false;
@@ -474,10 +499,7 @@ bool UsbRightManager::ShowSerialDialog(const int32_t portId, const uint32_t toke
         appName = bundleName;
     }
 
-    std::string productName;
-    if (!GetProductName(busDev, productName)) {
-        productName = busDev;
-    }
+    std::string productName = "COM" + std::to_string(portId);
 
     AAFwk::Want want;
     want.SetElementName("com.usb.right", "UsbServiceExtAbility");
@@ -607,7 +629,7 @@ bool UsbRightManager::VerifyPermission()
 {
     AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     int32_t ret = AccessTokenKit::VerifyAccessToken(tokenId, USB_MANAGE_ACCESS_USB_DEVICE);
-    if (ret != PermissionState::PERMISSION_GRANTED) {
+    if (ret == PermissionState::PERMISSION_DENIED) {
         USB_HILOGW(MODULE_USB_SERVICE, "no permission");
         return false;
     }

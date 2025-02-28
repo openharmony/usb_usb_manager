@@ -39,6 +39,7 @@
 #include "usb_napi_errors.h"
 #include "usb_srv_client.h"
 #include "usb_accessory.h"
+#include "hitrace_meter.h"
 using namespace OHOS;
 using namespace OHOS::USB;
 using namespace OHOS::HDI::Usb::V1_0;
@@ -533,7 +534,8 @@ static void ParseAccessoryObj(const napi_env env, const napi_value accessoryObj,
 static napi_value CoreGetDevices(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {nullptr};
@@ -566,7 +568,8 @@ static napi_value CoreGetDevices(napi_env env, napi_callback_info info)
 static napi_value DeviceGetAccessoryList(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_DEVICE)) {
-        ThrowBusinessError(env, UEC_COMMON_DEVICE_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {nullptr};
@@ -598,7 +601,8 @@ static napi_value DeviceGetAccessoryList(napi_env env, napi_callback_info info)
 static napi_value CoreConnectDevice(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {nullptr};
@@ -630,7 +634,8 @@ static napi_value CoreConnectDevice(napi_env env, napi_callback_info info)
 static napi_value DeviceOpenAccessory(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_DEVICE)) {
-        ThrowBusinessError(env, UEC_COMMON_DEVICE_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {nullptr};
@@ -673,7 +678,8 @@ static napi_value DeviceOpenAccessory(napi_env env, napi_callback_info info)
 static napi_value DeviceCloseAccessory(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_DEVICE)) {
-        ThrowBusinessError(env, UEC_COMMON_DEVICE_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {nullptr};
@@ -704,7 +710,8 @@ static napi_value DeviceCloseAccessory(napi_env env, napi_callback_info info)
 static napi_value DeviceAddRight(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_2;
     napi_value argv[PARAM_COUNT_2] = {nullptr};
@@ -740,7 +747,8 @@ static napi_value DeviceAddRight(napi_env env, napi_callback_info info)
 static napi_value DeviceAddAccessoryRight(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_DEVICE)) {
-        ThrowBusinessError(env, UEC_COMMON_DEVICE_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_2;
     napi_value argv[PARAM_COUNT_2] = {nullptr};
@@ -786,7 +794,8 @@ static napi_value DeviceAddAccessoryRight(napi_env env, napi_callback_info info)
 static napi_value DeviceAddAccessRight(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_2;
     napi_value argv[PARAM_COUNT_2] = {nullptr};
@@ -822,7 +831,8 @@ static napi_value DeviceAddAccessRight(napi_env env, napi_callback_info info)
 static napi_value DeviceRemoveRight(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {nullptr};
@@ -850,7 +860,8 @@ static napi_value DeviceRemoveRight(napi_env env, napi_callback_info info)
 static napi_value DeviceCancelAccessoryRight(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_DEVICE)) {
-        ThrowBusinessError(env, UEC_COMMON_DEVICE_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {nullptr};
@@ -890,7 +901,8 @@ static napi_value DeviceCancelAccessoryRight(napi_env env, napi_callback_info in
 static napi_value CoreHasRight(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value args[PARAM_COUNT_1] = {nullptr};
@@ -915,7 +927,8 @@ static napi_value CoreHasRight(napi_env env, napi_callback_info info)
 static napi_value DeviceHasAccessoryRight(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_DEVICE)) {
-        ThrowBusinessError(env, UEC_COMMON_DEVICE_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value args[PARAM_COUNT_1] = {nullptr};
@@ -973,7 +986,8 @@ static auto g_requestRightComplete = [](napi_env env, napi_status status, void *
 static napi_value CoreRequestRight(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value args[PARAM_COUNT_1] = {nullptr};
@@ -1049,7 +1063,8 @@ static auto g_requestAccessoryRightComplete = [](napi_env env, napi_status statu
 static napi_value DeviceRequestAccessoryRight(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_DEVICE)) {
-        ThrowBusinessError(env, UEC_COMMON_DEVICE_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value args[PARAM_COUNT_1] = {nullptr};
@@ -1088,7 +1103,8 @@ static napi_value DeviceRequestAccessoryRight(napi_env env, napi_callback_info i
 static napi_value CoreUsbFunctionsFromString(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_DEVICE)) {
-        ThrowBusinessError(env, UEC_COMMON_DEVICE_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {nullptr};
@@ -1119,7 +1135,8 @@ static napi_value CoreUsbFunctionsFromString(napi_env env, napi_callback_info in
 static napi_value CoreUsbFunctionsToString(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_DEVICE)) {
-        ThrowBusinessError(env, UEC_COMMON_DEVICE_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {nullptr};
@@ -1180,7 +1197,8 @@ static auto g_setCurrentFunctionComplete = [](napi_env env, napi_status status, 
 static napi_value CoreSetCurrentFunctions(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_DEVICE)) {
-        ThrowBusinessError(env, UEC_COMMON_DEVICE_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {nullptr};
@@ -1219,7 +1237,8 @@ static napi_value CoreSetCurrentFunctions(napi_env env, napi_callback_info info)
 static napi_value CoreGetCurrentFunctions(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_DEVICE)) {
-        ThrowBusinessError(env, UEC_COMMON_DEVICE_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {nullptr};
@@ -1246,7 +1265,8 @@ static napi_value CoreGetCurrentFunctions(napi_env env, napi_callback_info info)
 static napi_value CoreGetPorts(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_PORT)) {
-        ThrowBusinessError(env, UEC_COMMON_PORT_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {nullptr};
@@ -1289,7 +1309,8 @@ static napi_value CoreGetPorts(napi_env env, napi_callback_info info)
 static napi_value PortGetSupportedModes(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_PORT)) {
-        ThrowBusinessError(env, UEC_COMMON_PORT_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value args[PARAM_COUNT_1] = {nullptr};
@@ -1353,7 +1374,8 @@ static auto g_setPortRoleComplete = [](napi_env env, napi_status status, void *d
 static napi_value PortSetPortRole(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_PORT)) {
-        ThrowBusinessError(env, UEC_COMMON_PORT_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_3;
     napi_value args[PARAM_COUNT_3] = {nullptr};
@@ -1403,7 +1425,8 @@ static napi_value PortSetPortRole(napi_env env, napi_callback_info info)
 static napi_value PipeClaimInterface(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_3;
     napi_value argv[PARAM_COUNT_3] = {nullptr};
@@ -1447,7 +1470,8 @@ static napi_value PipeClaimInterface(napi_env env, napi_callback_info info)
 static napi_value PipeReleaseInterface(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_2;
     napi_value argv[PARAM_COUNT_2] = {nullptr};
@@ -1479,7 +1503,8 @@ static napi_value PipeReleaseInterface(napi_env env, napi_callback_info info)
 static napi_value PipeSetInterface(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_2;
     napi_value argv[PARAM_COUNT_2] = {nullptr};
@@ -1510,7 +1535,8 @@ static napi_value PipeSetInterface(napi_env env, napi_callback_info info)
 static napi_value PipeSetConfiguration(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_2;
     napi_value argv[PARAM_COUNT_2] = {nullptr};
@@ -1541,7 +1567,8 @@ static napi_value PipeSetConfiguration(napi_env env, napi_callback_info info)
 static napi_value PipeGetRawDescriptors(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {nullptr};
@@ -1571,7 +1598,8 @@ static napi_value PipeGetRawDescriptors(napi_env env, napi_callback_info info)
 static napi_value PipeGetFileDescriptor(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {nullptr};
@@ -1697,7 +1725,8 @@ static std::tuple<bool, USBDevicePipe, PipeControlParam, int32_t> GetControlTran
 static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     auto [res, pipe, controlParam, timeOut] = GetControlTransferParam(env, info);
     if (!res) {
@@ -1722,7 +1751,6 @@ static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
     if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
         uint8_t *nativeArrayBuffer = new (std::nothrow) uint8_t[controlParam.dataLength];
         if (nativeArrayBuffer == nullptr) {
-            USB_HILOGE(MODULE_JS_NAPI, "new failed");
             delete asyncContext;
             return nullptr;
         }
@@ -1860,7 +1888,8 @@ static std::tuple<bool, USBDevicePipe, UsbPipeControlParam, int32_t> GetUsbContr
 static napi_value PipeUsbControlTransfer(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     auto [res, pipe, controlParam, timeOut] = GetUsbControlTransferParam(env, info);
     if (!res) {
@@ -1885,7 +1914,6 @@ static napi_value PipeUsbControlTransfer(napi_env env, napi_callback_info info)
     if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
         uint8_t *nativeArrayBuffer = new (std::nothrow) uint8_t[controlParam.dataLength];
         if (nativeArrayBuffer == nullptr) {
-            USB_HILOGE(MODULE_JS_NAPI, "new failed");
             delete asyncContext;
             return nullptr;
         }
@@ -2041,7 +2069,8 @@ static bool GetBulkTransferParams(napi_env env, napi_callback_info info, USBBulk
 static napi_value PipeBulkTransfer(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     auto asyncContext = new (std::nothrow) USBBulkTransferAsyncContext();
     if (asyncContext == nullptr) {
@@ -2253,6 +2282,7 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
     };
     if (napi_status::napi_ok != napi_send_event(asyncCBWork->env, task, napi_eprio_immediate)) {
         USB_HILOGE(MODULE_JS_NAPI, "OnJsCallbackVolumeEvent: Failed to SendEvent");
+        delete asyncCBWork;
     }
 }
 
@@ -2287,12 +2317,38 @@ static int32_t UsbSubmitTransferErrorCode(int32_t &error)
         default:
             return USB_SUBMIT_TRANSFER_OTHER_ERROR;
     }
+static bool CreateAndWriteAshmem(USBTransferAsyncContext *asyncContext, HDI::Usb::V1_2::USBTransferInfo &obj)
+{
+    StartTrace(HITRACE_TAG_USB, "NAPI:Ashmem::CreateAshmem");
+    asyncContext->ashmem = Ashmem::CreateAshmem(asyncContext->name.c_str(), asyncContext->length);
+    FinishTrace(HITRACE_TAG_USB);
+    if (asyncContext->ashmem == nullptr) {
+        USB_HILOGE(MODULE_JS_NAPI, "Ashmem::CreateAshmem failed");
+        return false;
+    }
+    uint8_t endpointId = static_cast<uint8_t>(asyncContext->endpoint) & USB_ENDPOINT_DIR_MASK;
+    if (endpointId == USB_ENDPOINT_DIR_OUT) {
+        std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
+        obj.length = static_cast<int32_t>(bufferData.size());
+        asyncContext->ashmem->MapReadAndWriteAshmem();
+        StartTrace(HITRACE_TAG_USB, "NAPI:WriteToAshmem");
+        if (!asyncContext->ashmem->WriteToAshmem(asyncContext->buffer, bufferData.size(), 0)) {
+            FinishTrace(HITRACE_TAG_USB);
+            asyncContext->ashmem->CloseAshmem();
+            USB_HILOGE(MODULE_JS_NAPI, "napi UsbSubmitTransfer Failed to UsbSubmitTransfer to ashmem.");
+            return false;
+        }
+        FinishTrace(HITRACE_TAG_USB);
+    }
+    return true;
 }
 
 static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "NAPI:UsbSubmitTransfer");
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     auto timesUse = std::make_shared<TimesUse>();
     timesUse->beginTime = std::chrono::steady_clock::now();
@@ -2307,28 +2363,17 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
     asyncContext->env = env;
     HDI::Usb::V1_2::USBTransferInfo obj;
     GetUSBTransferInfo(obj, asyncContext);
-    asyncContext->ashmem = Ashmem::CreateAshmem(asyncContext->name.c_str(), asyncContext->length);
-    if (asyncContext->ashmem == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "Ashmem::CreateAshmem failed");
+    if (!CreateAndWriteAshmem(asyncContext, obj)) {
         return nullptr;
-    }
-    uint8_t endpointId = static_cast<uint8_t>(asyncContext->endpoint) & USB_ENDPOINT_DIR_MASK;
-    if (endpointId == USB_ENDPOINT_DIR_OUT) {
-        std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
-        obj.length = static_cast<int32_t>(bufferData.size());
-        asyncContext->ashmem->MapReadAndWriteAshmem();
-        if (!asyncContext->ashmem->WriteToAshmem(asyncContext->buffer, bufferData.size(), 0)) {
-            asyncContext->ashmem->CloseAshmem();
-            USB_HILOGE(MODULE_JS_NAPI, "napi UsbSubmitTransfer Failed to UsbSubmitTransfer to ashmem.");
-            return nullptr;
-        }
     }
     static auto func = [] (const TransferCallbackInfo &info,
         const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo, uint64_t userData) -> void {
         USBTransferAsyncContext *asyncContext = reinterpret_cast<USBTransferAsyncContext *>(userData);
         return JsCallBack(asyncContext, info, isoInfo);
     };
+    StartTrace(HITRACE_TAG_USB, "NAPI:UsbSubmitTransfer");
     int32_t ret = asyncContext->pipe.UsbSubmitTransfer(obj, func, asyncContext->ashmem);
+    FinishTrace(HITRACE_TAG_USB);
     if (ret != napi_ok) {
         asyncContext->ashmem->CloseAshmem();
         delete asyncContext;
@@ -2387,8 +2432,10 @@ static bool GetCancelParamsFromJsObj(const napi_env &env, const napi_callback_in
 
 static napi_value UsbCancelTransfer(napi_env env, napi_callback_info info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_USB, "NAPI:UsbCancelTransfer");
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     auto asyncContext = std::make_shared<USBTransferAsyncContext>();
     if (asyncContext == nullptr) {
@@ -2401,7 +2448,9 @@ static napi_value UsbCancelTransfer(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
+    StartTrace(HITRACE_TAG_USB, "NAPI:pipe.UsbCancelTransfer");
     int32_t ret = asyncContext->pipe.UsbCancelTransfer(asyncContext->endpoint);
+    FinishTrace(HITRACE_TAG_USB);
     if (ret != napi_ok) {
         ret = UsbSubmitTransferErrorCode(ret);
         ThrowBusinessError(env, ret, "");
@@ -2480,7 +2529,8 @@ static napi_value NapiCreateStatusEnum(napi_env env)
 static napi_value PipeClose(napi_env env, napi_callback_info info)
 {
     if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(env, UEC_COMMON_HOST_NOT_SUPPORT, "");
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
     }
     size_t argc = PARAM_COUNT_1;
     napi_value argv[PARAM_COUNT_1] = {nullptr};
@@ -2518,6 +2568,90 @@ static napi_value ToInt32Value(napi_env env, int32_t value)
     return staticValue;
 }
 
+static napi_value PowerRoleTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "NONE", NONE);
+    SetEnumProperty(env, object, "SOURCE", SOURCE);
+    SetEnumProperty(env, object, "SINK", SINK);
+    return object;
+}
+
+static napi_value DataRoleTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "HOST", HOST);
+    SetEnumProperty(env, object, "DEVICE", DEVICE);
+    return object;
+}
+
+static napi_value PortModeTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "UFP", UFP);
+    SetEnumProperty(env, object, "DFP", DRP);
+    SetEnumProperty(env, object, "DRP", DRP);
+    SetEnumProperty(env, object, "NUM_MODES", NUM_MODES);
+    return object;
+}
+
+static napi_value USBRequestTargetTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "USB_REQUEST_TARGET_DEVICE", USB_REQUEST_TARGET_DEVICE);
+    SetEnumProperty(env, object, "USB_REQUEST_TARGET_INTERFACE", USB_REQUEST_TARGET_INTERFACE);
+    SetEnumProperty(env, object, "USB_REQUEST_TARGET_ENDPOINT", USB_REQUEST_TARGET_ENDPOINT);
+    SetEnumProperty(env, object, "USB_REQUEST_TARGET_OTHER", USB_REQUEST_TARGET_OTHER);
+    return object;
+}
+
+static napi_value USBControlRequestTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "USB_REQUEST_TYPE_STANDARD", USB_REQUEST_TYPE_STANDARD);
+    SetEnumProperty(env, object, "USB_REQUEST_TYPE_CLASS", USB_REQUEST_TYPE_CLASS);
+    SetEnumProperty(env, object, "USB_REQUEST_TYPE_VENDOR", USB_REQUEST_TYPE_VENDOR);
+    return object;
+}
+
+static napi_value USBRequestDirectionEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "USB_REQUEST_DIR_TO_DEVICE", USB_REQUEST_DIR_TO_DEVICE);
+    SetEnumProperty(env, object, "USB_REQUEST_DIR_FROM_DEVICE", USB_REQUEST_DIR_FROM_DEVICE);
+    return object;
+}
+
 static napi_value DeclareEnum(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
@@ -2525,31 +2659,37 @@ static napi_value DeclareEnum(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_PROPERTY("NONE", ToInt32Value(env, NONE)),
         DECLARE_NAPI_STATIC_PROPERTY("SOURCE", ToInt32Value(env, SOURCE)),
         DECLARE_NAPI_STATIC_PROPERTY("SINK", ToInt32Value(env, SINK)),
+        DECLARE_NAPI_STATIC_PROPERTY("PowerRoleType", PowerRoleTypeEnum(env)),
 
         /* Declare Enum DataRoleType */
         DECLARE_NAPI_STATIC_PROPERTY("HOST", ToInt32Value(env, HOST)),
         DECLARE_NAPI_STATIC_PROPERTY("DEVICE", ToInt32Value(env, DEVICE)),
+        DECLARE_NAPI_STATIC_PROPERTY("DataRoleType", DataRoleTypeEnum(env)),
 
         /* Declare Enum PortModeType */
         DECLARE_NAPI_STATIC_PROPERTY("UFP", ToInt32Value(env, UFP)),
         DECLARE_NAPI_STATIC_PROPERTY("DFP", ToInt32Value(env, DFP)),
         DECLARE_NAPI_STATIC_PROPERTY("DRP", ToInt32Value(env, DRP)),
         DECLARE_NAPI_STATIC_PROPERTY("NUM_MODES", ToInt32Value(env, NUM_MODES)),
+        DECLARE_NAPI_STATIC_PROPERTY("PortModeType", PortModeTypeEnum(env)),
 
         /* Declare Enum USBRequestTargetType */
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_TARGET_DEVICE", ToInt32Value(env, USB_REQUEST_TARGET_DEVICE)),
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_TARGET_INTERFACE", ToInt32Value(env, USB_REQUEST_TARGET_INTERFACE)),
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_TARGET_ENDPOINT", ToInt32Value(env, USB_REQUEST_TARGET_ENDPOINT)),
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_TARGET_OTHER", ToInt32Value(env, USB_REQUEST_TARGET_OTHER)),
+        DECLARE_NAPI_STATIC_PROPERTY("USBRequestTargetType", USBRequestTargetTypeEnum(env)),
 
         /* Declare Enum USBControlRequestType */
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_TYPE_STANDARD", ToInt32Value(env, USB_REQUEST_TYPE_STANDARD)),
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_TYPE_CLASS", ToInt32Value(env, USB_REQUEST_TYPE_CLASS)),
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_TYPE_VENDOR", ToInt32Value(env, USB_REQUEST_TYPE_VENDOR)),
+        DECLARE_NAPI_STATIC_PROPERTY("USBControlRequestType", USBControlRequestTypeEnum(env)),
 
         /* Declare Enum USBRequestDirection */
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_DIR_TO_DEVICE", ToInt32Value(env, USB_REQUEST_DIR_TO_DEVICE)),
         DECLARE_NAPI_STATIC_PROPERTY("USB_REQUEST_DIR_FROM_DEVICE", ToInt32Value(env, USB_REQUEST_DIR_FROM_DEVICE)),
+        DECLARE_NAPI_STATIC_PROPERTY("USBRequestDirection", USBRequestDirectionEnum(env)),
 
         /* Declare Enum FunctionType */
         DECLARE_NAPI_STATIC_PROPERTY("ACM", ToInt32Value(env, ACM)),
