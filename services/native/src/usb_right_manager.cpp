@@ -457,6 +457,7 @@ bool UsbRightManager::RemoveDeviceAllRight(const std::string &deviceName)
     USB_HILOGD(MODULE_USB_SERVICE, "device %{private}s detached, process right", deviceName.c_str());
     CleanUpRightTemporaryExpired(deviceName);
     TidyUpRight(TIGHT_UP_USB_RIGHT_RECORD_ALL);
+    UnShowUsbDialog();
     return true;
 }
 
