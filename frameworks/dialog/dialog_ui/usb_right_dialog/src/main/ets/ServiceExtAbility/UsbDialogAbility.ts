@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,103 +13,41 @@
  * limitations under the License.
  */
 
-import extension from '@ohos.app.ability.ServiceExtensionAbility';
-import window from '@ohos.window';
-import display from '@ohos.display';
+import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility';
+import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
 import rpc from '@ohos.rpc';
-import abilityAccessCtrl from '@ohos.abilityAccessCtrl';
-import type { Permissions } from '@ohos.abilityAccessCtrl';
+import {terminateDialog} from '../util/DialogUtil';
 
-class UsbDialogStub extends rpc.RemoteObject {
-  constructor(des) {
-    super(des);
-  }
-  onRemoteRequest(code, data, reply, option): boolean {
-    return true;
-  }
-}
+let TAG: string = 'UsbService';
 
 const BG_COLOR = '#00000000';
 const COLOR_MODE_NOT_SET = -1;
 
-export default class UsbDialogAbility extends extension {
+export default class UsbDialogAbility extends UIExtensionAbility {
   /**
    * Lifecycle function, called back when a service extension is started for initialization.
    */
-  onCreate(want): void {
-    console.log('onCreate want: ' + JSON.stringify(want));
+  onSessionCreate(want, session): void {
+    console.log(TAG + 'UsbDialogAbility onSessionCreate');
+    console.log(JSON.stringify(want));
+
     globalThis.extensionContext = this.context;
     globalThis.want = want;
     globalThis.windowNum = 0;
+
     try {
+      AppStorage.setOrCreate('session', session);
+      (session as UIExtensionContentSession)?.loadContent('pages/UsbDialog');
+      (session as UIExtensionContentSession)?.setWindowBackgroundColor(BG_COLOR);
       this.context?.getApplicationContext()?.setColorMode(COLOR_MODE_NOT_SET);
-    } catch (err) {
-      console.error('onCreate setColorMode failed: ' + JSON.stringify(err));
-    } 
-  }
-
-  onConnect(want): rpc.RemoteObject {
-    console.log('onConnect want: ' + JSON.stringify(want));
-    if (!want.parameters || !want.parameters.bundleName || !want.parameters.deviceName || !want.parameters.tokenId) {
-      console.error('onConnect code:1 failed. bundleName|deviceName|tokenId');
-      return new UsbDialogStub('UsbRightDialog');
-    }
-    display.getDefaultDisplay().then(dis => {
-      let navigationBarRect = {
-        left: 0,
-        top: 0,
-        width: dis.width,
-        height: dis.height
-      };
-      this.createWindow('UsbDialogAbility', window.WindowType.TYPE_FLOAT, navigationBarRect);
-    });
-    return new UsbDialogStub('UsbRightDialog');
-  }
-
-  onDisconnect(want): void {
-    console.log('onDisconnect');
-  }
-
-  /**
-   * Lifecycle function, called back when a service extension is started or recall.
-   */
-  onRequest(want, startId): void {
-    console.log('onRequest');
-  }
-  /**
-   * Lifecycle function, called back before a service extension is destroyed.
-   */
-  onDestroy(): void {
-    console.info('UsbDialogAbility onDestroy.');
-  }
-
-  private async createWindow(name: string, windowType: number, rect): Promise<void> {
-    console.log('create windows execute');
-    try {
-      let config = {name: name, windowType: windowType, ctx: globalThis.extensionContext};
-      const usbWin = await window.createWindow(config);
-      console.log('createWindow execute');
-      globalThis.window = usbWin;
-
-      await usbWin.moveTo(rect.left, rect.top);
-      await usbWin.resetSize(rect.width, rect.height);
-      await usbWin.loadContent('pages/UsbDialog');
-      console.log('loadContent execute');
-      await usbWin.setBackgroundColor(BG_COLOR);
-      await usbWin.showWindow();
-      console.log('show execute');
-      let shouldHide = true;
-      usbWin.hideNonSystemFloatingWindows(shouldHide, (err) => {
-        if (err.code) {
-          console.error('Failed to hide the non-system floating windows. Cause: ' + JSON.stringify(err));
-          return;
-        }
-        console.info('Succeeded in hiding the non-system floating windows.');
-      });
-      console.log('UsbDialogAbility window create successfully');
     } catch (error) {
-      console.error('UsbDialogAbility window create failed. Error:' + JSON.stringify(error));
+      console.error(TAG + 'UsbFunctionSwitchAbility onSessionCreate error: ' + error?.code);
+      terminateDialog();
     }
+  }
+
+  onSessionDestroy(session): void {
+    console.log(TAG + 'UsbDialogAbility onSessionDestroy');
   }
 };
 
