@@ -78,7 +78,7 @@ constexpr uint32_t EDM_SA_TIME_OUT_CODE = 9200007;
 constexpr int32_t BASECLASS_INDEX = 0;
 constexpr int32_t SUBCLASS_INDEX = 1;
 constexpr int32_t PROTOCAL_INDEX = 2;
-constexpr uint32_t STORAGE_BASE_CLASS = 8;
+constexpr int32_t STORAGE_BASE_CLASS = 8;
 constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
@@ -97,7 +97,11 @@ UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
     usbPortManager_ = std::make_shared<UsbPortManager>();
     usbDeviceManager_ = std::make_shared<UsbDeviceManager>();
     usbAccessoryManager_ = std::make_shared<UsbAccessoryManager>();
-    usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+    if (usbd_ == nullptr) {
+        usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+    } else {
+        USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
+    }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "IUsbInterface::Get inteface failed");
     }
@@ -105,13 +109,18 @@ UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
 
 UsbService::~UsbService() {}
 
+// LCOV_EXCL_START
 int32_t UsbService::SetUsbd(const sptr<OHOS::HDI::Usb::V1_1::IUsbInterface> &usbd)
 {
     if (usbd == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService usbd is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    usbd_ = usbd;
+    if (usbd_ == nullptr) {
+        usbd_ = usbd;
+    } else {
+        USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
+    }
 
     if (usbPortManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbPortManager_");
@@ -132,13 +141,17 @@ int32_t UsbService::SetUsbd(const sptr<OHOS::HDI::Usb::V1_1::IUsbInterface> &usb
     usbAccessoryManager_->SetUsbd(usbd);
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 UsbService::SystemAbilityStatusChangeListener::SystemAbilityStatusChangeListener(
     sptr<UsbServiceSubscriber> usbdSubscriber)
     : usbdSubscriber_(usbdSubscriber)
 {
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void UsbService::SystemAbilityStatusChangeListener::OnAddSystemAbility(
     int32_t systemAbilityId, const std::string &deviceId)
 {
@@ -156,7 +169,9 @@ void UsbService::SystemAbilityStatusChangeListener::OnRemoveSystemAbility(
         }
     }
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void UsbService::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "OnAddSystemAbility systemAbilityId:%{public}d", systemAbilityId);
@@ -165,7 +180,9 @@ void UsbService::OnAddSystemAbility(int32_t systemAbilityId, const std::string &
         Memory::MemMgrClient::GetInstance().SetCritical(getpid(), true, USB_SYSTEM_ABILITY_ID);
     }
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void UsbService::OnStart()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "usb_service OnStart enter");
@@ -217,7 +234,9 @@ void UsbService::OnStart()
     AddSystemAbilityListener(MEMORY_MANAGER_SA_ID);
     USB_HILOGE(MODULE_USB_SERVICE, "OnStart and add system ability success");
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool UsbService::Init()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "usb_service Init enter");
@@ -238,10 +257,16 @@ bool UsbService::Init()
     USB_HILOGI(MODULE_USB_SERVICE, "Init success");
     return true;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool UsbService::InitUsbd()
 {
-    usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+    if (usbd_ == nullptr) {
+        usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+    } else {
+        USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
+    }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, " get usbd_ is nullptr");
         return false;
@@ -263,7 +288,9 @@ bool UsbService::InitUsbd()
     USB_HILOGI(MODULE_USB_SERVICE, "entry InitUsbd ret: %{public}d", ret);
     return SUCCEEDED(ret);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void UsbService::OnStop()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "entry stop service %{public}d", ready_);
@@ -282,7 +309,9 @@ void UsbService::OnStop()
     usbd_->UnbindUsbdSubscriber(usbdSubscriber_);
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 0, USB_SYSTEM_ABILITY_ID);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool UsbService::IsCommonEventServiceAbilityExist()
 {
     sptr<ISystemAbilityManager> sm = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -299,7 +328,9 @@ bool UsbService::IsCommonEventServiceAbilityExist()
     }
     return true;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::OpenDevice(uint8_t busNum, uint8_t devAddr)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
@@ -318,7 +349,9 @@ int32_t UsbService::OpenDevice(uint8_t busNum, uint8_t devAddr)
 
     return ret;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 std::string UsbService::GetDeviceVidPidSerialNumber(std::string deviceName)
 {
     std::string strDesc = "test";
@@ -332,7 +365,9 @@ std::string UsbService::GetDeviceVidPidSerialNumber(std::string deviceName)
     }
     return strDesc;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::GetDeviceVidPidSerialNumber(std::string deviceName, std::string& strDesc)
 {
     int32_t isMatched = UEC_INTERFACE_INVALID_VALUE;
@@ -347,7 +382,9 @@ int32_t UsbService::GetDeviceVidPidSerialNumber(std::string deviceName, std::str
     }
     return isMatched;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool UsbService::CheckDevicePermission(uint8_t busNum, uint8_t devAddr)
 {
     std::string name = std::to_string(busNum) + "-" + std::to_string(devAddr);
@@ -357,7 +394,9 @@ bool UsbService::CheckDevicePermission(uint8_t busNum, uint8_t devAddr)
     }
     return true;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool UsbService::HasRight(std::string deviceName)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbRightManager HasRight");
@@ -392,7 +431,9 @@ bool UsbService::HasRight(std::string deviceName)
 
     return usbRightManager_->HasRight(deviceVidPidSerialNum, bundleName, USB_DEFAULT_TOKEN, userId);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::RequestRight(std::string deviceName)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbRightManager RequestRight");
@@ -421,7 +462,9 @@ int32_t UsbService::RequestRight(std::string deviceName)
     USB_HILOGI(MODULE_USB_SERVICE, "bundle=%{public}s, device=%{public}s", bundleName.c_str(), deviceName.c_str());
     return usbRightManager_->RequestRight(deviceName, deviceVidPidSerialNum, bundleName, tokenId, userId);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::RemoveRight(std::string deviceName)
 {
     if (usbRightManager_ == nullptr) {
@@ -458,7 +501,9 @@ int32_t UsbService::RemoveRight(std::string deviceName)
     USB_HILOGI(MODULE_USB_SERVICE, "RemoveRight done");
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::GetDevices(std::vector<UsbDevice> &deviceList)
 {
     std::map<std::string, UsbDevice *> devices;
@@ -477,10 +522,11 @@ int32_t UsbService::GetDevices(std::vector<UsbDevice> &deviceList)
     }
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::GetCurrentFunctions(int32_t &functions)
 {
-    std::lock_guard<std::mutex> guard(mutex_);
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
@@ -492,12 +538,14 @@ int32_t UsbService::GetCurrentFunctions(int32_t &functions)
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    std::lock_guard<std::mutex> guard(functionMutex_);
     return usbd_->GetCurrentFunctions(functions);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::SetCurrentFunctions(int32_t functions)
 {
-    std::lock_guard<std::mutex> guard(mutex_);
     USB_HILOGI(MODULE_USB_SERVICE, "func = %{public}d", functions);
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
@@ -513,16 +561,32 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbDeviceManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    usbDeviceManager_->UpdateFunctions(functions);
 
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-
-    return usbd_->SetCurrentFunctions(functions);
+    int32_t lastFunc;
+    std::lock_guard<std::mutex> guard(functionMutex_);
+    if (usbd_->GetCurrentFunctions(lastFunc) != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::get current functions fail");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (lastFunc == functions) {
+        USB_HILOGI(MODULE_USB_SERVICE, "UsbService::no change in functionality");
+        return UEC_OK;
+    }
+    ret = usbd_->SetCurrentFunctions(functions);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ set function error");
+        return ret;
+    }
+    usbDeviceManager_->UpdateFunctions(functions);
+    return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::UsbFunctionsFromString(std::string_view funcs)
 {
     if (usbRightManager_ == nullptr) {
@@ -535,7 +599,9 @@ int32_t UsbService::UsbFunctionsFromString(std::string_view funcs)
     USB_HILOGI(MODULE_USB_SERVICE, "calling UsbFunctionsFromString");
     return UsbDeviceManager::ConvertFromString(funcs);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 std::string UsbService::UsbFunctionsToString(int32_t funcs)
 {
     if (usbRightManager_ == nullptr) {
@@ -548,7 +614,9 @@ std::string UsbService::UsbFunctionsToString(int32_t funcs)
     USB_HILOGI(MODULE_USB_SERVICE, "calling UsbFunctionsToString");
     return UsbDeviceManager::ConvertToString(funcs);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::GetPorts(std::vector<UsbPort> &ports)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbPortManager getPorts");
@@ -565,7 +633,9 @@ int32_t UsbService::GetPorts(std::vector<UsbPort> &ports)
     }
     return usbPortManager_->GetPorts(ports);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::GetSupportedModes(int32_t portId, int32_t &supportedModes)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbPortManager getSupportedModes");
@@ -582,7 +652,9 @@ int32_t UsbService::GetSupportedModes(int32_t portId, int32_t &supportedModes)
     }
     return usbPortManager_->GetSupportedModes(portId, supportedModes);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbd getPorts");
@@ -604,7 +676,9 @@ int32_t UsbService::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataR
     }
     return ret;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::ClaimInterface(uint8_t busNum, uint8_t devAddr, uint8_t interface, uint8_t force)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
@@ -623,7 +697,9 @@ int32_t UsbService::ClaimInterface(uint8_t busNum, uint8_t devAddr, uint8_t inte
     }
     return ret;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t interface)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
@@ -637,7 +713,9 @@ int32_t UsbService::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t in
     }
     return usbd_->ReleaseInterface(dev, interface);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::BulkTransferRead(
     const UsbDev &devInfo, const UsbPipe &pipe, std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
@@ -655,7 +733,9 @@ int32_t UsbService::BulkTransferRead(
     }
     return ret;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::BulkTransferReadwithLength(const UsbDev &devInfo, const UsbPipe &pipe,
     int32_t length, std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
@@ -673,7 +753,9 @@ int32_t UsbService::BulkTransferReadwithLength(const UsbDev &devInfo, const UsbP
     }
     return ret;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::BulkTransferWrite(
     const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &bufferData, int32_t timeOut)
 {
@@ -691,7 +773,9 @@ int32_t UsbService::BulkTransferWrite(
     }
     return ret;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::ControlTransfer(const UsbDev &dev, const UsbCtrlTransfer &ctrl, std::vector<uint8_t> &bufferData)
 {
     if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
@@ -718,7 +802,9 @@ int32_t UsbService::ControlTransfer(const UsbDev &dev, const UsbCtrlTransfer &ct
     }
     return ret;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::UsbControlTransfer(
     const UsbDev &dev, const UsbCtrlTransferParams &ctrlParams, std::vector<uint8_t> &bufferData)
 {
@@ -748,7 +834,9 @@ int32_t UsbService::UsbControlTransfer(
     }
     return ret;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
@@ -762,7 +850,9 @@ int32_t UsbService::SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t con
     }
     return usbd_->SetConfig(dev, configIndex);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &configIndex)
 {
     const UsbDev dev = {busNum, devAddr};
@@ -777,7 +867,9 @@ int32_t UsbService::GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &co
 
     return usbd_->GetConfig(dev, configIndex);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, uint8_t altIndex)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
@@ -791,7 +883,9 @@ int32_t UsbService::SetInterface(uint8_t busNum, uint8_t devAddr, uint8_t interf
     }
     return usbd_->SetInterface(dev, interfaceid, altIndex);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::GetRawDescriptor(uint8_t busNum, uint8_t devAddr, std::vector<uint8_t> &bufferData)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
@@ -809,7 +903,9 @@ int32_t UsbService::GetRawDescriptor(uint8_t busNum, uint8_t devAddr, std::vecto
     }
     return ret;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::GetFileDescriptor(uint8_t busNum, uint8_t devAddr, int32_t &fd)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
@@ -827,7 +923,9 @@ int32_t UsbService::GetFileDescriptor(uint8_t busNum, uint8_t devAddr, int32_t &
     }
     return ret;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::RequestQueue(const UsbDev &dev, const UsbPipe &pipe, const std::vector<uint8_t> &clientData,
     const std::vector<uint8_t> &bufferData)
 {
@@ -845,7 +943,9 @@ int32_t UsbService::RequestQueue(const UsbDev &dev, const UsbPipe &pipe, const s
     }
     return ret;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::RequestWait(
     const UsbDev &dev, int32_t timeOut, std::vector<uint8_t> &clientData, std::vector<uint8_t> &bufferData)
 {
@@ -863,7 +963,9 @@ int32_t UsbService::RequestWait(
     }
     return ret;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::RequestCancel(uint8_t busNum, uint8_t devAddr, uint8_t interfaceId, uint8_t endpointId)
 {
     const UsbDev dev = {busNum, devAddr};
@@ -872,13 +974,15 @@ int32_t UsbService::RequestCancel(uint8_t busNum, uint8_t devAddr, uint8_t inter
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    if (!UsbService::CheckDevicePermission(dev.busNum, dev.devAddr)) {
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
     return usbd_->RequestCancel(dev, pipe);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::Close(uint8_t busNum, uint8_t devAddr)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
@@ -892,7 +996,9 @@ int32_t UsbService::Close(uint8_t busNum, uint8_t devAddr)
     }
     return usbd_->CloseDevice(dev);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 std::string UsbService::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, uint8_t idx)
 {
     const UsbDev dev = {busNum, devAddr};
@@ -912,9 +1018,9 @@ std::string UsbService::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, 
         USB_HILOGE(MODULE_USB_SERVICE, "get string[%{public}hhu] failed ret:%{public}d", idx, ret);
         return strDesc;
     }
-    size_t length = strV.size();
+    uint32_t length = strV.size();
     if ((length < DESCRIPTOR_VALUE_START_OFFSET) || (strV[1] != DESCRIPTOR_TYPE_STRING)) {
-        USB_HILOGI(MODULE_USB_SERVICE, "type or length error, len:%{public}zu", length);
+        USB_HILOGI(MODULE_USB_SERVICE, "type or length error, len:%{public}u", length);
         return strDesc;
     }
 
@@ -927,12 +1033,9 @@ std::string UsbService::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, 
     for (uint32_t i = 0; i < length - DESCRIPTOR_VALUE_START_OFFSET; ++i) {
         tbuf[i] = strV[i + DESCRIPTOR_VALUE_START_OFFSET];
     }
-    size_t bufLen = (length - DESCRIPTOR_VALUE_START_OFFSET) / HALF;
-    size_t wstrLen = wcslen((wchar_t*)tbuf) <= bufLen ? wcslen((wchar_t*)tbuf) : bufLen;
-    std::wstring wstr(reinterpret_cast<wchar_t *>(tbuf), wstrLen);
+    std::wstring wstr(reinterpret_cast<wchar_t *>(tbuf), (length - DESCRIPTOR_VALUE_START_OFFSET) / HALF);
     strDesc = std::string(wstr.begin(), wstr.end());
-    USB_HILOGI(MODULE_USB_SERVICE, "getString idx:%{public}d length:%{public}zu, str: %{public}s",
-        idx, strDesc.length(), strDesc.c_str());
+    USB_HILOGI(MODULE_USB_SERVICE, "getString idx:%{public}d length:%{public}d", idx, length);
     delete[] tbuf;
     return strDesc;
 }
@@ -1029,7 +1132,9 @@ int32_t UsbService::GetConfigDescriptor(UsbDevice &dev, std::vector<uint8_t> &de
     USB_HILOGI(MODULE_USB_SERVICE, "FillDevStrings ret=%{public}d", ret);
     return ret;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &dev)
 {
     const UsbDev uDev = {busNum, devAddr};
@@ -1039,25 +1144,38 @@ int32_t UsbService::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &de
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    int32_t res = UEC_OK;
     int32_t ret = usbd_->OpenDevice(uDev);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "OpenDevice failed ret=%{public}d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceInfo OpenDevice failed ret=%{public}d", ret);
         return ret;
     }
 
     ret = GetDeviceInfoDescriptor(uDev, descriptor, dev);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceInfoDescriptor ret=%{public}d", ret);
+        res = usbd_->CloseDevice(uDev);
+        if (res != UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceInfo CloseDevice failed res=%{public}d", res);
+            return res;
+        }
+        return ret;
     }
-    ret = GetConfigDescriptor(dev, descriptor);
-    if (ret != UEC_OK) {
+    res = GetConfigDescriptor(dev, descriptor);
+    if (res != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetConfigDescriptor ret=%{public}d", ret);
+    }
+    ret = usbd_->CloseDevice(uDev);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceInfo CloseDevice failed ret=%{public}d", ret);
         return ret;
     }
 
-    return UEC_OK;
+    return res;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGlobalDisabled)
 {
     if (remote == nullptr) {
@@ -1085,9 +1203,10 @@ int32_t UsbService::GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGloba
     reply.ReadBool(IsGlobalDisabled);
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
-int32_t UsbService::GetEdmStroageTypePolicy(sptr<IRemoteObject> remote,
-    std::vector<UsbDeviceType> &disableType)
+// LCOV_EXCL_START
+int32_t UsbService::GetEdmStroageTypePolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceType> &disableType)
 {
     if (remote == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "Remote is nullpter.");
@@ -1121,9 +1240,10 @@ int32_t UsbService::GetEdmStroageTypePolicy(sptr<IRemoteObject> remote,
     }
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
-int32_t UsbService::GetEdmTypePolicy(sptr<IRemoteObject> remote,
-    std::vector<UsbDeviceType> &disableType)
+// LCOV_EXCL_START
+int32_t UsbService::GetEdmTypePolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceType> &disableType)
 {
     if (remote == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "Remote is nullpter.");
@@ -1152,7 +1272,7 @@ int32_t UsbService::GetEdmTypePolicy(sptr<IRemoteObject> remote,
         USB_HILOGE(MODULE_USB_SERVICE, "EdmTypeList size=[%{public}d] is too large", size);
         return UEC_SERVICE_EDM_DEVICE_SIZE_EXCEED;
     }
-    USB_HILOGE(MODULE_USB_SERVICE, "GetEdmTypePolicy return size:%{public}d", size);
+    USB_HILOGI(MODULE_USB_SERVICE, "GetEdmTypePolicy return size:%{public}d", size);
     for (int32_t i = 0; i < size; i++) {
         UsbDeviceType usbDeviceType;
         usbDeviceType.baseClass = reply.ReadInt32();
@@ -1178,7 +1298,6 @@ int32_t UsbService::GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::vecto
     data.WriteInt32(WITHOUT_USERID);
     data.WriteString("");
     data.WriteInt32(WITHOUT_ADMIN);
-
     uint32_t funcCode = (1 << EMD_MASK_CODE) | ALLOWED_USB_DEVICES;
     int32_t ErrCode = remote->SendRequest(funcCode, data, reply, option);
     int32_t ret = ERR_INVALID_VALUE;
@@ -1204,6 +1323,7 @@ int32_t UsbService::GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::vecto
     return UEC_OK;
 }
 
+// LCOV_EXCL_START
 int32_t UsbService::GetEdmPolicy(bool &IsGlobalDisabled, std::vector<UsbDeviceType> &disableType,
     std::vector<UsbDeviceId> &trustUsbDeviceIds)
 {
@@ -1240,7 +1360,9 @@ int32_t UsbService::GetEdmPolicy(bool &IsGlobalDisabled, std::vector<UsbDeviceTy
     }
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::GetUsbPolicy(bool &IsGlobalDisabled, std::vector<UsbDeviceType> &disableType,
     std::vector<UsbDeviceId> &trustUsbDeviceIds)
 {
@@ -1265,7 +1387,9 @@ int32_t UsbService::GetUsbPolicy(bool &IsGlobalDisabled, std::vector<UsbDeviceTy
     }
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
     std::map<std::string, UsbDevice *> devices;
@@ -1293,7 +1417,9 @@ int32_t UsbService::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> 
     }
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void UsbService::ExecuteManageDeviceType(const std::vector<UsbDeviceType> &disableType, bool disable,
     const std::unordered_map<InterfaceType, std::vector<int32_t>> &map, bool isDev)
 {
@@ -1337,7 +1463,9 @@ void UsbService::ExecuteManageDeviceType(const std::vector<UsbDeviceType> &disab
         }
     }
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whiteList)
 {
     std::map<std::string, UsbDevice *> devices;
@@ -1398,8 +1526,8 @@ void UsbService::ExecuteStrategy(UsbDevice *devInfo)
         return;
     }
 
-    if (disableType.empty()) {
-            ret = ExecuteManageInterfaceType(disableType, true);
+    if (!disableType.empty()) {
+        ret = ExecuteManageInterfaceType(disableType, true);
         if (ret != UEC_OK) {
             USB_HILOGE(MODULE_USB_SERVICE, "ExecuteManageInterfaceType failed");
         }
@@ -1418,6 +1546,7 @@ void UsbService::ExecuteStrategy(UsbDevice *devInfo)
     return;
 }
 
+// LCOV_EXCL_START
 bool UsbService::AddDevice(uint8_t busNum, uint8_t devAddr)
 {
     UsbDevice *devInfo = new (std::nothrow) UsbDevice();
@@ -1451,7 +1580,9 @@ bool UsbService::AddDevice(uint8_t busNum, uint8_t devAddr)
     ExecuteStrategy(devInfo);
     return true;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 bool UsbService::DelDevice(uint8_t busNum, uint8_t devAddr)
 {
     USB_HILOGI(MODULE_USBD, "entry");
@@ -1482,6 +1613,7 @@ bool UsbService::DelDevice(uint8_t busNum, uint8_t devAddr)
 
     return usbHostManager_->DelDevice(busNum, devAddr);
 }
+// LCOV_EXCL_STOP
 
 int32_t UsbService::InitUsbRight()
 {
@@ -1495,6 +1627,7 @@ int32_t UsbService::InitUsbRight()
         return ret;
     }
     std::vector<std::string> devices;
+    std::lock_guard<std::mutex> guard(mutex_);
     for (auto it = deviceVidPidMap_.begin(); it != deviceVidPidMap_.end(); ++it) {
         devices.push_back(it->second);
     }
@@ -1506,6 +1639,7 @@ int32_t UsbService::InitUsbRight()
     return ret;
 }
 
+// LCOV_EXCL_START
 void UsbService::UpdateUsbPort(int32_t portId, int32_t powerRole, int32_t dataRole, int32_t mode)
 {
     if (usbPortManager_ == nullptr) {
@@ -1515,7 +1649,9 @@ void UsbService::UpdateUsbPort(int32_t portId, int32_t powerRole, int32_t dataRo
 
     usbPortManager_->UpdatePort(portId, powerRole, dataRole, mode);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void UsbService::UpdateDeviceState(int32_t status)
 {
     if (usbDeviceManager_ == nullptr) {
@@ -1531,6 +1667,7 @@ void UsbService::UpdateDeviceState(int32_t status)
     }
     usbAccessoryManager_->HandleEvent(status);
 }
+// LCOV_EXCL_STOP
 
 bool UsbService::GetBundleName(std::string &bundleName)
 {
@@ -1684,6 +1821,7 @@ int32_t UsbService::BulkWrite(const UsbDev &devInfo, const UsbPipe &pipe, sptr<A
     return ret;
 }
 
+// LCOV_EXCL_START
 int32_t UsbService::BulkCancel(const UsbDev &devInfo, const UsbPipe &pipe)
 {
     if (usbd_ == nullptr) {
@@ -1701,7 +1839,9 @@ int32_t UsbService::BulkCancel(const UsbDev &devInfo, const UsbPipe &pipe)
     }
     return ret;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::AddRight(const std::string &bundleName, const std::string &deviceName)
 {
     if (usbRightManager_ == nullptr) {
@@ -1732,7 +1872,9 @@ int32_t UsbService::AddRight(const std::string &bundleName, const std::string &d
     USB_HILOGI(MODULE_USB_SERVICE, "AddRight done");
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::AddAccessRight(const std::string &tokenId, const std::string &deviceName)
 {
     if (usbRightManager_ == nullptr) {
@@ -1756,7 +1898,9 @@ int32_t UsbService::AddAccessRight(const std::string &tokenId, const std::string
     USB_HILOGI(MODULE_USB_SERVICE, "AddRight done");
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
 {
     if (fd < 0) {
@@ -1793,6 +1937,7 @@ int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
     }
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
 void UsbService::DumpHelp(int32_t fd)
 {
@@ -1809,6 +1954,7 @@ void UsbService::DumpHelp(int32_t fd)
     usbPortManager_->GetDumpHelp(fd);
 }
 
+// LCOV_EXCL_START
 void UsbService::UnLoadSelf(UnLoadSaType type)
 {
     if (OHOS::system::GetBoolParameter("const.security.developermode.state", true)) {
@@ -1857,7 +2003,9 @@ void UsbService::UnLoadSelf(UnLoadSaType type)
     }
     unloadSelfTimerId_ = unloadSelfTimer_.Register(task, UNLOAD_SA_TIMER_INTERVAL, true);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 void UsbService::UsbdDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
 {
     auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -1871,15 +2019,23 @@ void UsbService::UsbdDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &obj
         USB_HILOGE(MODULE_USB_SERVICE, "unload failed");
     }
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 sptr<UsbService> UsbService::GetGlobalInstance()
 {
     return g_serviceInstance;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::PreCallFunction()
 {
-    usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+    if (usbd_ == nullptr) {
+        usbd_ = OHOS::HDI::Usb::V1_1::IUsbInterface::Get();
+    } else {
+        USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
+    }
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
@@ -1899,9 +2055,15 @@ int32_t UsbService::PreCallFunction()
     }
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::ManageGlobalInterface(bool disable)
 {
+    if (!IsCallerValid()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
+        return UEC_SERVICE_INVALID_OPERATION;
+    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
@@ -1909,9 +2071,15 @@ int32_t UsbService::ManageGlobalInterface(bool disable)
 
     return ManageGlobalInterfaceImpl(disable);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disable)
 {
+    if (!IsCallerValid()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
+        return UEC_SERVICE_INVALID_OPERATION;
+    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
@@ -1919,16 +2087,24 @@ int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disab
 
     return ManageDeviceImpl(vendorId, productId, disable);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
+    if (!IsCallerValid()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
+        return UEC_SERVICE_INVALID_OPERATION;
+    }
     if (PreCallFunction() != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
     return ExecuteManageInterfaceType(disableType, disable);
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::ManageGlobalInterfaceImpl(bool disable)
 {
     if (usbHostManager_ == nullptr) {
@@ -1945,13 +2121,19 @@ int32_t UsbService::ManageGlobalInterfaceImpl(bool disable)
     for (auto it = devices.begin(); it != devices.end(); ++it) {
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         uint8_t configIndex = 0;
+        if (usbd_->OpenDevice(dev) != UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "OpenDeevicefailed.");
+            continue;
+        }
         if (usbd_->GetConfig(dev, configIndex)) {
             USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
+            usbd_->CloseDevice(dev);
             continue;
         }
         USBConfig configs;
         if (it->second->GetConfig(static_cast<uint8_t>(configIndex) - 1, configs)) {
             USB_HILOGW(MODULE_USB_SERVICE, "get device config info failed.");
+            usbd_->CloseDevice(dev);
             continue;
         }
 
@@ -1960,10 +2142,15 @@ int32_t UsbService::ManageGlobalInterfaceImpl(bool disable)
             ManageInterface(dev, interfaces[i].GetId(), disable);
             std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
         }
+        if (usbd_->CloseDevice(dev) != UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "closedevice failed.");
+        }
     }
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool disable)
 {
     if (usbHostManager_ == nullptr) {
@@ -1982,13 +2169,19 @@ int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool d
         if ((it->second->GetVendorId() == vendorId) && (it->second->GetProductId() == productId)) {
             UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
             uint8_t configIndex = 0;
+            if (usbd_->OpenDevice(dev) != UEC_OK) {
+                USB_HILOGE(MODULE_USB_SERVICE, "OpenDeevicefailed.");
+                continue;
+            }
             if (usbd_->GetConfig(dev, configIndex)) {
                 USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
+                usbd_->CloseDevice(dev);
                 continue;
             }
             USBConfig configs;
             if (it->second->GetConfig(static_cast<uint8_t>(configIndex) - 1, configs)) {
                 USB_HILOGW(MODULE_USB_SERVICE, "get device config info failed.");
+                usbd_->CloseDevice(dev);
                 continue;
             }
             std::vector<UsbInterface> interfaces = configs.GetInterfaces();
@@ -1996,11 +2189,16 @@ int32_t UsbService::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool d
                 ManageInterface(dev, interfaces[i].GetId(), disable);
                 std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
             }
+            if (usbd_->CloseDevice(dev) != UEC_OK) {
+                USB_HILOGE(MODULE_USB_SERVICE, "closedevice failed.");
+            }
         }
     }
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable)
 {
     if (usbHostManager_ == nullptr || usbd_ == nullptr) {
@@ -2018,13 +2216,19 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
     for (auto it = devices.begin(); it != devices.end(); ++it) {
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         uint8_t configIndex = 0;
+        if (usbd_->OpenDevice(dev) != UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "OpenDeevicefailed.");
+            continue;
+        }
         if (usbd_->GetConfig(dev, configIndex)) {
             USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
+            usbd_->CloseDevice(dev);
             continue;
         }
         USBConfig configs;
         if (it->second->GetConfig(static_cast<uint8_t>(configIndex) - 1, configs)) {
             USB_HILOGW(MODULE_USB_SERVICE, "get device config info failed.");
+            usbd_->CloseDevice(dev);
             continue;
         }
         std::vector<UsbInterface> interfaces = configs.GetInterfaces();
@@ -2037,17 +2241,19 @@ int32_t UsbService::ManageInterfaceTypeImpl(InterfaceType interfaceType, bool di
                 iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
                     ManageInterface(dev, interfaces[i].GetId(), disable);
                     USB_HILOGI(MODULE_USB_SERVICE, "size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
-                        devices.size(), (int32_t)interfaceType, disable);
+                        devices.size(), static_cast<int32_t>(interfaceType), disable);
                     std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
             }
         }
         if (usbd_->CloseDevice(dev) != UEC_OK) {
-            USB_HILOGI(MODULE_USB_SERVICE, "closedevice failed.");
+            USB_HILOGE(MODULE_USB_SERVICE, "closedevice failed.");
         }
     }
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::ManageDeviceTypeImpl(InterfaceType interfaceType, bool disable)
 {
     auto iterInterface = g_typeMap.find(interfaceType);
@@ -2071,20 +2277,24 @@ int32_t UsbService::ManageDeviceTypeImpl(InterfaceType interfaceType, bool disab
     }
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t interfaceId, bool disable)
 {
-    if (!IsCallerValid()) {
-        USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
-        return UEC_SERVICE_INVALID_OPERATION;
-    }
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    return usbd_->ManageInterface(dev, interfaceId, disable);
+    int32_t ret = usbd_->ManageInterface(dev, interfaceId, disable);
+    if (ret != 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "ManageInterface failed ret=%{public}d", ret);
+    }
+    return ret;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid, bool &unactivated)
 {
     if (PreCallFunction() != UEC_OK) {
@@ -2103,7 +2313,9 @@ int32_t UsbService::GetInterfaceActiveStatus(uint8_t busNum, uint8_t devAddr, ui
     }
     return ret;
 }
+// LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &speed)
 {
     if (PreCallFunction() != UEC_OK) {
@@ -2123,6 +2335,7 @@ int32_t UsbService::GetDeviceSpeed(uint8_t busNum, uint8_t devAddr, uint8_t &spe
     USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceSpeedImpl:%{public}u", speed);
     return ret;
 }
+// LCOV_EXCL_STOP
 
 bool UsbService::GetDeviceProductName(const std::string &deviceName, std::string &productName)
 {
