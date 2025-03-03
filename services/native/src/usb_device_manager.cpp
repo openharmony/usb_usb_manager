@@ -86,7 +86,11 @@ int32_t UsbDeviceManager::SetUsbd(const sptr<IUsbInterface> &usbd)
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager usbd is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    usbd_ = usbd;
+    if (usbd_ == nullptr) {
+        usbd_ = usbd;
+    } else {
+        USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
+    }
     return UEC_OK;
 }
 
@@ -156,6 +160,8 @@ std::string UsbDeviceManager::ConvertToString(uint32_t function)
 
 void UsbDeviceManager::UpdateFunctions(int32_t func)
 {
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: func %{public}d, currentFunctions_ %{public}d", __func__, func,
+        currentFunctions_);
     if (func == currentFunctions_) {
         return;
     }
@@ -180,7 +186,6 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             curConnect = true;
             gadgetConnected_ = true;
             break;
-
         case ACT_DOWNDEVICE:
             curConnect = false;
             gadgetConnected_ = false;
