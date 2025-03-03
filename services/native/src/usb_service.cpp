@@ -62,7 +62,7 @@ constexpr uint32_t UNLOAD_SA_TIMER_INTERVAL = 30 * 1000;
 #if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 #endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
-constexpr int32_t APIVERSION_16 = 16;
+constexpr int32_t API_VERSION_ID_18 = 18;
 constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
 constexpr const pid_t ROOT_UID = 0;
 constexpr const pid_t EDM_UID = 3057;
@@ -1501,7 +1501,7 @@ std::string UsbService::UsbFunctionsToString(int32_t funcs)
     }
     if (!usbRightManager_->VerifyPermission()) {
         int32_t apiVersion = GetHapApiVersion();
-        if (apiVersion < APIVERSION_16) {
+        if (apiVersion < API_VERSION_ID_18) {
             return PERMISSION_DENIED_SYSAPI;
         }
         return SYS_APP_PERMISSION_DENIED_SYSAPI;
@@ -1840,7 +1840,7 @@ int32_t UsbService::CheckSysApiPermission()
     }
     if (!usbRightManager_->VerifyPermission()) {
         int32_t apiVersion = GetHapApiVersion();
-        if (apiVersion < APIVERSION_16) {
+        if (apiVersion < API_VERSION_ID_18) {
             return UEC_SERVICE_PERMISSION_DENIED_SYSAPI;
         }
         return UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED;
@@ -1856,7 +1856,7 @@ int32_t UsbService::GetHapApiVersion()
     int32_t ret = OHOS::Security::AccessToken::AccessTokenKit::GetHapTokenInfo(token, hapTokenInfoRes);
     if (ret != ERR_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetHapTokenInfo failed, ret: %{public}d", ret);
-        return APIVERSION_16;
+        return API_VERSION_ID_18;
     }
     int32_t hapApiVersion = hapTokenInfoRes.apiVersion;
     USB_HILOGD(MODULE_USB_SERVICE, "API check hapApiVersion = %{public}d", hapApiVersion);
