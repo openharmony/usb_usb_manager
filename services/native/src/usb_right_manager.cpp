@@ -49,6 +49,8 @@ constexpr int32_t PARAM_BUF_LEN = 128;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 constexpr int32_t USB_RIGHT_USERID_DEFAULT = 100;
 constexpr int32_t USB_RIGHT_USERID_CONSOLE = 0;
+constexpr int32_t MAX_RETRY_TIMES = 30;
+constexpr int32_t RETRY_INTERVAL_SECONDS = 1;
 const std::string USB_MANAGE_ACCESS_USB_DEVICE = "ohos.permission.MANAGE_USB_CONFIG";
 const std::string DEVELOPERMODE_STATE = "const.security.developermode.state";
 enum UsbRightTightUpChoose : uint32_t {
@@ -73,6 +75,8 @@ public:
     {
         auto &want = data.GetWant();
         std::string wantAction = want.GetAction();
+
+        USB_HILOGD(MODULE_USB_SERVICE, "%{public}s wantAction %{public}s", __func__, wantAction.c_str());
         if (wantAction == CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED ||
             wantAction == CommonEventSupport::COMMON_EVENT_BUNDLE_REMOVED ||
             wantAction == CommonEventSupport::COMMON_EVENT_PACKAGE_FULLY_REMOVED) {
@@ -120,12 +124,18 @@ int32_t UsbRightManager::Init()
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
     CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     std::shared_ptr<RightSubscriber> subscriber = std::make_shared<RightSubscriber>(subscriberInfo);
-    bool ret = CommonEventManager::SubscribeCommonEvent(subscriber);
-    if (!ret) {
-        USB_HILOGW(MODULE_USB_SERVICE, "subscriber event for right manager failed: %{public}d", ret);
-        return UEC_SERVICE_INNER_ERR;
+    int32_t retryTimes = 0;
+    while (retryTimes < MAX_RETRY_TIMES) {
+        retryTimes++;
+        bool ret = CommonEventManager::SubscribeCommonEvent(subscriber);
+        if (!ret) {
+            USB_HILOGW(MODULE_USB_SERVICE, "subscriber event for right manager failed: %{public}d", ret);
+            sleep(RETRY_INTERVAL_SECONDS);
+            continue;
+        }
+        return UEC_OK;
     }
-    return UEC_OK;
+    return UEC_SERVICE_INNER_ERR;
 }
 
 bool UsbRightManager::HasRight(const std::string &deviceName, const std::string &bundleName,

@@ -102,8 +102,8 @@ void UsbSrvClient::UsbSrvDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> 
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvDeathRecipient::OnRemoteDied failed, remote is nullptr.");
         return;
     }
-    UsbSrvClient::GetInstance().ResetProxy(remote);
     USB_HILOGI(MODULE_USB_INNERKIT, "UsbSrvDeathRecipient::Recv death notice.");
+    UsbSrvClient::GetInstance().ResetProxy(remote);
 }
 
 int32_t UsbSrvClient::OpenDevice(const UsbDevice &device, USBDevicePipe &pipe)
