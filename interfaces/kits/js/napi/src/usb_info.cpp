@@ -2601,6 +2601,28 @@ static napi_value USBRequestDirectionEnum(napi_env env)
     return object;
 }
 
+static napi_value FunctionTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "ACM", ACM);
+    SetEnumProperty(env, object, "ECM", ECM);
+    SetEnumProperty(env, object, "HDC", HDC);
+    SetEnumProperty(env, object, "MTP", MTP);
+    SetEnumProperty(env, object, "PTP", PTP);
+    SetEnumProperty(env, object, "RNDIS", RNDIS);
+    SetEnumProperty(env, object, "MIDI", MIDI);
+    SetEnumProperty(env, object, "AUDIO_SOURCE", AUDIO_SOURCE);
+    SetEnumProperty(env, object, "NCM", NCM);
+    SetEnumProperty(env, object, "STORAGE", STORAGE);
+    SetEnumProperty(env, object, "MIDI", MIDI);
+    return object;
+}
+
 static napi_value DeclareEnum(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
@@ -2651,6 +2673,7 @@ static napi_value DeclareEnum(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_PROPERTY("AUDIO_SOURCE", ToInt32Value(env, AUDIO_SOURCE)),
         DECLARE_NAPI_STATIC_PROPERTY("NCM", ToInt32Value(env, NCM)),
         DECLARE_NAPI_STATIC_PROPERTY("STORAGE", ToInt32Value(env, STORAGE)),
+        DECLARE_NAPI_STATIC_PROPERTY("FunctionType", FunctionTypeEnum(env)),
         DECLARE_NAPI_STATIC_PROPERTY("UsbTransferFlags", NapiCreateFlagsEnum(env)),
         DECLARE_NAPI_STATIC_PROPERTY("UsbEndpointTransferType", NapiCreateTypeEnum(env)),
     };
