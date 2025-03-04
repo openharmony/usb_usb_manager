@@ -59,7 +59,7 @@ private:
     void BroadcastFuncChange(bool connected, int32_t currentFunc);
     static constexpr uint32_t functionSettable_ = UsbSrvSupport::FUNCTION_HDC | UsbSrvSupport::FUNCTION_ACM |
         UsbSrvSupport::FUNCTION_ECM | UsbSrvSupport::FUNCTION_MTP | UsbSrvSupport::FUNCTION_PTP |
-        UsbSrvSupport::FUNCTION_RNDIS | UsbSrvSupport::FUNCTION_STORAGE;
+        UsbSrvSupport::FUNCTION_RNDIS | UsbSrvSupport::FUNCTION_NCM | UsbSrvSupport::FUNCTION_STORAGE;
     static const std::map<std::string_view, uint32_t> FUNCTION_MAPPING_N2C;
     int32_t currentFunctions_ {UsbSrvSupport::FUNCTION_HDC};
     bool connected_ {false};
