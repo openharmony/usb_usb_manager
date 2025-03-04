@@ -625,7 +625,7 @@ static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
     napi_valuetype type;
     napi_typeof(env, tokenId, &type);
     if (!CheckAndThrowOnError(env, type == napi_number, SYSPARAM_INVALID_INPUT,
-        "The type of tokenId must be uint32_t.")) {
+        "The type of tokenId must be int32_t.")) {
         return nullptr;
     }
     int32_t tokenIdValue = 0;
