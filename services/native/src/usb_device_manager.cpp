@@ -508,7 +508,7 @@ bool UsbDeviceManager::SetSettingsDataHdcStatus(uint32_t func_uint)
     OHOS::Uri uri(
         "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=HDC_STATUS");
     if (func_uint & USB_FUNCTION_HDC) {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: func is = %{public}d (USB_FUNCTION_HDC)", __func__, func);
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: func is = %{public}d (USB_FUNCTION_HDC)", __func__, func_uint);
         hdcStatus = "true";
         if (!datashareHelper->Update(uri, "HDC_STATUS", hdcStatus)) {
             USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS is update failed!", __func__);
@@ -516,7 +516,7 @@ bool UsbDeviceManager::SetSettingsDataHdcStatus(uint32_t func_uint)
         }
         return true;
     } else {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: func is = %{public}d", __func__, func);
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: func is = %{public}d", __func__, func_uint);
         hdcStatus = "false";
         if (datashareHelper->Update(uri, "HDC_STATUS", hdcStatus)) {
             USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS is update failed!", __func__);
