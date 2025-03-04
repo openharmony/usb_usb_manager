@@ -504,7 +504,6 @@ bool UsbDeviceManager::SetSettingsDataHdcStatus(uint32_t func_uint)
 {
     auto datashareHelper = std::make_shared<UsbSettingDataShare>();
     std::string hdcStatus {"false"};
-    bool resp = false;
     OHOS::Uri uri(
         "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=HDC_STATUS");
     if (func_uint & USB_FUNCTION_HDC) {
