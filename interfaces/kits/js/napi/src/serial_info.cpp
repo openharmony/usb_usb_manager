@@ -169,7 +169,7 @@ bool ParseSetAttributeInterfaceParams(napi_env env, napi_callback_info info,
         "The type of arg1 must be SerialAttribute.")) {
         return false;
     }
-    NapiUtil::JsObjectToUint(env, obj, "baudrate", serialAttribute.baudrate);
+    NapiUtil::JsObjectToUint(env, obj, "baudRate", serialAttribute.baudrate);
     NapiUtil::JsObjectToUint(env, obj, "dataBits", serialAttribute.dataBits);
     NapiUtil::JsObjectToUint(env, obj, "parity", serialAttribute.parity);
     NapiUtil::JsObjectToUint(env, obj, "stopBits", serialAttribute.stopBits);
@@ -628,8 +628,8 @@ static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
         "The type of tokenId must be uint32_t.")) {
         return nullptr;
     }
-    uint32_t tokenIdValue = 0;
-    napi_get_value_uint32(env, tokenId, &tokenIdValue);
+    int32_t tokenIdValue = 0;
+    napi_get_value_int32(env, tokenId, &tokenIdValue);
     if (!CheckAndThrowOnError(env, (tokenIdValue != 0), SYSPARAM_INVALID_INPUT, "Failed to get tokenId.")) {
         return nullptr;
     }
