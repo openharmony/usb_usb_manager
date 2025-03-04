@@ -24,13 +24,13 @@
 #include "usb_common.h"
 #include "usb_port.h"
 #include "v1_0/iusb_interface.h"
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
 #include "v2_0/iusb_port_interface.h"
 #include "usb_manager_subscriber.h"
 #include "mem_mgr_proxy.h"
 #include "mem_mgr_client.h"
 #include "system_ability_definition.h"
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
 
 namespace OHOS {
 namespace USB {
@@ -41,12 +41,12 @@ public:
 
     void Init();
     void Init(int32_t test);
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
     bool InitUsbPortInterface();
     void Stop();
     int32_t BindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSubscriber> &subscriber);
     int32_t UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSubscriber> &subscriber);
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
     int32_t SetUsbd(const sptr<HDI::Usb::V1_0::IUsbInterface> &usbd);
     int32_t GetPorts(std::vector<UsbPort> &ports);
     int32_t GetSupportedModes(int32_t portId, int32_t &supportedModes);
@@ -69,10 +69,10 @@ private:
     std::mutex mutex_;
     std::map<int32_t, UsbPort> portMap_;
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
     sptr<HDI::Usb::V2_0::IUsbPortInterface> usbPortInterface_ = nullptr;
     sptr<UsbManagerSubscriber> usbManagerSubscriber_;
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
 };
 } // namespace USB
 } // namespace OHOS

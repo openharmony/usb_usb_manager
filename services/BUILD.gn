@@ -59,7 +59,10 @@ ohos_shared_library("usbservice") {
 
   defines = []
   if (usb_manager_pass_through) {
-    defines += [ "USB_MANAGER_PASS_THROUGH" ]
+    defines += [
+      "USB_MANAGER_PASS_THROUGH",
+      "USB_MANAGER_V2_0",
+    ]
     sources += [ "native/src/usb_manager_subscriber.cpp" ]
   }
   if (usb_manager_feature_host) {

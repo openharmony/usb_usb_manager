@@ -61,12 +61,12 @@ const std::string BASE_64_CHARS =
 UsbAccessoryManager::UsbAccessoryManager()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbAccessoryManager::Init start");
-#ifndef USB_MANAGER_PASS_THROUGH
+#ifndef USB_MANAGER_V2_0
     usbdImpl_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
     if (usbdImpl_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::Get inteface failed");
     }
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
     uint32_t ret = antiShakeDelayTimer_.Setup();
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "set up antiShakeDelayTimer_ failed %{public}u", ret);
@@ -85,7 +85,7 @@ UsbAccessoryManager::~UsbAccessoryManager()
     antiShakeDelayTimer_.Shutdown();
 }
 
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
 bool UsbAccessoryManager::InitUsbAccessoryInterface()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbAccessoryManager::InitUsbAccessoryInterface start");
@@ -96,11 +96,11 @@ bool UsbAccessoryManager::InitUsbAccessoryInterface()
     }
     return true;
 }
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
 
 void UsbAccessoryManager::GetAccessoryInfo(std::vector<std::string> &accessorys)
 {
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
     if (usbDeviceInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
         return;
@@ -112,12 +112,12 @@ void UsbAccessoryManager::GetAccessoryInfo(std::vector<std::string> &accessorys)
         return;
     }
     usbdImpl_->GetAccessoryInfo(accessorys);
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
 }
 
 int32_t UsbAccessoryManager::SetCurrentFunctions(int32_t funcs)
 {
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
     if (usbDeviceInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
         return UEC_SERVICE_INVALID_VALUE;
@@ -129,12 +129,12 @@ int32_t UsbAccessoryManager::SetCurrentFunctions(int32_t funcs)
         return UEC_SERVICE_INVALID_VALUE;
     }
     return usbdImpl_->SetCurrentFunctions(funcs);
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
 }
 
 int32_t UsbAccessoryManager::GetCurrentFunctions(int32_t &funcs)
 {
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
     if (usbDeviceInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
         return UEC_SERVICE_INVALID_VALUE;
@@ -146,7 +146,7 @@ int32_t UsbAccessoryManager::GetCurrentFunctions(int32_t &funcs)
         return UEC_SERVICE_INVALID_VALUE;
     }
     return usbdImpl_->GetCurrentFunctions(funcs);
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
 }
 
 int32_t UsbAccessoryManager::SetUsbd(const sptr<OHOS::HDI::Usb::V1_2::IUsbInterface> usbd)
@@ -173,7 +173,7 @@ void UsbAccessoryManager::GetAccessoryList(const std::string &bundleName,
 int32_t UsbAccessoryManager::OpenAccessory(int32_t &fd)
 {
     int32_t ret = UEC_INTERFACE_INVALID_VALUE;
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
     if (usbDeviceInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
         return UEC_SERVICE_INVALID_VALUE;
@@ -185,7 +185,7 @@ int32_t UsbAccessoryManager::OpenAccessory(int32_t &fd)
         return UEC_SERVICE_INVALID_VALUE;
     }
     ret = usbdImpl_->OpenAccessory(fd);
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
     if (ret == UEC_OK) {
         accFd_ = fd;
         return ret;
@@ -198,7 +198,7 @@ int32_t UsbAccessoryManager::OpenAccessory(int32_t &fd)
 int32_t UsbAccessoryManager::CloseAccessory(int32_t fd)
 {
     int32_t ret = UEC_INTERFACE_INVALID_VALUE;
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
     if (usbDeviceInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
         return UEC_SERVICE_INVALID_VALUE;
@@ -210,7 +210,7 @@ int32_t UsbAccessoryManager::CloseAccessory(int32_t fd)
         return UEC_SERVICE_INVALID_VALUE;
     }
     ret = usbdImpl_->CloseAccessory(accFd_);
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "%{public}s, close ret: %{public}d, fd: %{public}d.", __func__, ret, fd);
         return ret;
@@ -334,7 +334,7 @@ int32_t UsbAccessoryManager::ProcessAccessorySend()
 
 void UsbAccessoryManager::HandleEvent(int32_t status, bool delayProcess)
 {
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
     if (usbDeviceInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager::usbDeviceInterface_ is nullptr");
         return;
@@ -344,7 +344,7 @@ void UsbAccessoryManager::HandleEvent(int32_t status, bool delayProcess)
         USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager::usbdImpl_ is nullptr");
         return;
     }
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
     std::lock_guard<std::mutex> guard(mutexHandleEvent_);
     eventStatus_ = status;
     if (delayProcess) {
