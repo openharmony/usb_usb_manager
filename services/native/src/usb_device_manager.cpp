@@ -20,8 +20,10 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "usb_connection_notifier.h"
+#include "usb_settings_datashare.h"
 #include "hisysevent.h"
 #include "usb_errors.h"
+#include "uri.h"
 #include "usb_srv_support.h"
 #include "usbd_type.h"
 
@@ -482,6 +484,9 @@ void UsbDeviceManager::ProcessFunctionNotifier(bool connected, int32_t func)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: connected %{public}d, func %{public}d", __func__, connected, func);
     uint32_t func_uint = static_cast<uint32_t>(func);
+    if (!SetSettingsDataHdcStatus(func_uint)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS is set failed!", __func__);
+    }
     if (connected) {
         if (func_uint & USB_FUNCTION_MTP) {
             UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_MTP);
@@ -492,6 +497,32 @@ void UsbDeviceManager::ProcessFunctionNotifier(bool connected, int32_t func)
         }
     } else {
         UsbConnectionNotifier::GetInstance()->CancelNotification();
+    }
+}
+
+bool UsbDeviceManager::SetSettingsDataHdcStatus(uint32_t func_uint)
+{
+    auto datashareHelper = std::make_shared<UsbSettingDataShare>();
+    std::string hdcStatus {"false"};
+    bool resp = false;
+    OHOS::Uri uri(
+        "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=HDC_STATUS");
+    if (func_uint & USB_FUNCTION_HDC) {
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: func is = %{public}d (USB_FUNCTION_HDC)", __func__, func);
+        hdcStatus = "true";
+        if (!datashareHelper->Update(uri, "HDC_STATUS", hdcStatus)) {
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS is update failed!", __func__);
+            return false;
+        }
+        return true;
+    } else {
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: func is = %{public}d", __func__, func);
+        hdcStatus = "false";
+        if (datashareHelper->Update(uri, "HDC_STATUS", hdcStatus)) {
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS is update failed!", __func__);
+            return false;
+        }
+        return true;
     }
 }
 

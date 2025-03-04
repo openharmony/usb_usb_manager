@@ -165,7 +165,6 @@ bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
     }
     if (ShouldRejectShowWindow()) {
         USB_HILOGE(MODULE_USB_SERVICE, "OOBE is not ready!");
-        return false;
     }
     return ShowFunctionSwitchWindow();
 }

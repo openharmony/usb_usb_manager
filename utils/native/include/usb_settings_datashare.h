@@ -18,6 +18,8 @@
 
 #include "datashare_helper.h"
 #include "datashare_predicates.h"
+#include "datashare_result_set.h"
+#include "datashare_values_bucket.h"
 #include "system_ability_definition.h"
 #include "singleton.h"
 #include "uri.h"
@@ -28,10 +30,16 @@ class UsbSettingDataShare {
 public:
     UsbSettingDataShare();
     ~UsbSettingDataShare();
-    bool Query(Uri& uri, const std::string& key, std::string& values);
+    bool Query(Uri &uri, const std::string &key, std::string &values);
+    bool Insert(Uri uri, const std::string &key, std::string &value);
+    bool Update(Uri uri, const std::string &key, std::string &value);
+    
 private:
     std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper(int systemAbilityId);
     std::shared_ptr<DataShare::DataShareHelper> datashareHelper_ = nullptr;
+
+private:
+    const int32_t RDB_INVALID_VALUE = -1;
 };
 } // namespace USB
 } // namespace OHOS

@@ -62,7 +62,7 @@ std::shared_ptr<DataShare::DataShareHelper> UsbSettingDataShare::CreateDataShare
     return DataShare::DataShareHelper::Creator(remote, SETTINGS_DATASHARE_URI, SETTINGS_DATASHARE_EXT_URI);
 }
  
-bool UsbSettingDataShare::Query(Uri& uri, const std::string& key, std::string& value)
+bool UsbSettingDataShare::Query(Uri &uri, const std::string &key, std::string &value)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "start Query key = %{public}s", key.c_str());
     if (datashareHelper_ == nullptr) {
@@ -97,6 +97,58 @@ bool UsbSettingDataShare::Query(Uri& uri, const std::string& key, std::string& v
     result->GetString(columnIndex, value);
     result->Close();
     USB_HILOGI(MODULE_USB_SERVICE, "SettingUtils: query success");
+    return true;
+}
+
+bool UsbSettingDataShare::Insert(Uri uri, const std::string &key, std::string &value)  // 新增
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "start Insert key = %{public}s", key.c_str());
+    if (datashareHelper_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "query error, datashareHelper_ is nullptr");
+        return false;
+    }
+    DataShare::DataShareValuesBucket valuesBucket;
+    DataShare::DataShareValueObject keyObj(key);
+    DataShare::DataShareValueObject valueObj(value);
+    valuesBucket.Put(SETTINGS_DATA_COLUMN_KEYWORD, keyObj);
+    valuesBucket.Put(SETTINGS_DATA_COLUMN_VALUE, valueObj);
+    int32_t result = datashareHelper_->Insert(uri, valuesBucket);
+    if (result == RDB_INVALID_VALUE) {
+        datashareHelper_->Release();
+        return false;
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbSettingDataShare: insert success");
+    datashareHelper_->NotifyChange(uri);
+    datashareHelper_->Release();
+    return true;
+}
+
+bool UsbSettingDataShare::Update(Uri uri, const std::string &key, std::string &value)  // 修改
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "start Update key = %{public}s", key.c_str());
+    std::string queryValue = "";
+    if (Query(uri, key, queryValue) != true) {
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s is cannot Query!", key.c_str());
+        return Insert(uri, key, value);
+    }
+    if (datashareHelper_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "query error, datashareHelper_ is nullptr");
+        return false;
+    }
+    DataShare::DataShareValuesBucket valuesBucket;
+    DataShare::DataShareValueObject valueObj(value);
+    valuesBucket.Put(SETTINGS_DATA_COLUMN_VALUE, valueObj);
+    DataShare::DataSharePredicates predicates;
+    predicates.EqualTo(SETTINGS_DATA_COLUMN_KEYWORD, key);
+    int32_t result = datashareHelper_->Update(uri, predicates, valuesBucket);
+    if (result == RDB_INVALID_VALUE) {
+        USB_HILOGE(MODULE_USB_SERVICE, "fail to update %{public}s !", key.c_str());
+        datashareHelper_->Release();
+        return false;
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbSettingDataShare: update success");
+    datashareHelper_->NotifyChange(uri);
+    datashareHelper_->Release();
     return true;
 }
 } // namespace USB
