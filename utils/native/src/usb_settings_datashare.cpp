@@ -100,7 +100,7 @@ bool UsbSettingDataShare::Query(Uri &uri, const std::string &key, std::string &v
     return true;
 }
 
-bool UsbSettingDataShare::Insert(Uri uri, const std::string &key, std::string &value)  // 新增
+bool UsbSettingDataShare::Insert(Uri uri, const std::string &key, std::string &value)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "start Insert key = %{public}s", key.c_str());
     if (datashareHelper_ == nullptr) {
@@ -123,7 +123,7 @@ bool UsbSettingDataShare::Insert(Uri uri, const std::string &key, std::string &v
     return true;
 }
 
-bool UsbSettingDataShare::Update(Uri uri, const std::string &key, std::string &value)  // 修改
+bool UsbSettingDataShare::Update(Uri uri, const std::string &key, std::string &value)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "start Update key = %{public}s", key.c_str());
     std::string queryValue = "";

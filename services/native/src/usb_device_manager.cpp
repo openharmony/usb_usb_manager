@@ -517,7 +517,7 @@ bool UsbDeviceManager::SetSettingsDataHdcStatus(uint32_t func_uint)
     } else {
         USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: func is = %{public}d", __func__, func_uint);
         hdcStatus = "false";
-        if (datashareHelper->Update(uri, "HDC_STATUS", hdcStatus)) {
+        if (!datashareHelper->Update(uri, "HDC_STATUS", hdcStatus)) {
             USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS is update failed!", __func__);
             return false;
         }
