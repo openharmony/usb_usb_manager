@@ -74,6 +74,7 @@ private:
     void ReportDevicePlugSysEvent(int32_t currentFunctions, bool connected);
     void ProcessFuncChange(bool connected, int32_t currentFunc, bool isDisableDialog = false);
     void BroadcastFuncChange(bool connected, int32_t currentFunc);
+    bool SetSettingsDataHdcStatus(uint32_t func_uint);
     void ProcessStatus(int32_t status, bool &curConnect);
     static constexpr uint32_t functionSettable_ = UsbSrvSupport::FUNCTION_HDC | UsbSrvSupport::FUNCTION_ACM |
         UsbSrvSupport::FUNCTION_ECM | UsbSrvSupport::FUNCTION_MTP | UsbSrvSupport::FUNCTION_PTP |
