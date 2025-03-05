@@ -527,8 +527,8 @@ bool UsbRightManager::ShowSerialDialog(const int32_t portId, const uint32_t toke
     {
         std::lock_guard <std::mutex> lock(usbDialogParamsMutex_);
         usbDialogParams_.clear();
-        usbDialogParams_["portId"] = portId;
-        usbDialogParams_["tokenId"] = castId;
+        usbDialogParams_["portId"] = std::to_string(portId);
+        usbDialogParams_["tokenId"] = std::to_string(castId);
         usbDialogParams_["bundleName"] = DEFAULT_SERIAL_BUNDLE_NAME;
         usbDialogParams_["deviceName"] = DEFAULT_SERIAL_DEVICE_NAME;
         usbDialogParams_["appName"] = appName;
@@ -1058,9 +1058,12 @@ void UsbRightManager::UsbAbilityConn::OnAbilityConnectDone(const AppExecFwk::Ele
 
     {
         std::lock_guard <std::mutex> lock(usbDialogParamsMutex_);
+        std::string param = "";
         for (auto it : usbDialogParams_) {
             cJSON_AddStringToObject(paramJson, it.first.c_str(), it.second.c_str());
+            param += it.first + ":" + it.second + " ";
         }
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s param %{public}s", __func__, param.c_str());
     }
 
     std::string uiExtensionTypeStr = "sysDialog/common";
@@ -1073,6 +1076,7 @@ void UsbRightManager::UsbAbilityConn::OnAbilityConnectDone(const AppExecFwk::Ele
         USB_HILOGE(MODULE_USB_SERVICE, "Print paramJson error");
         return;
     }
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s pParamJson %{public}s", __func__, pParamJson);
     std::string paramStr(pParamJson);
     data.WriteString16(Str8ToStr16(paramStr));
     cJSON_free(pParamJson);
