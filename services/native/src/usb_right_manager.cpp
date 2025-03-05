@@ -527,8 +527,8 @@ bool UsbRightManager::ShowSerialDialog(const int32_t portId, const uint32_t toke
     {
         std::lock_guard <std::mutex> lock(usbDialogParamsMutex_);
         usbDialogParams_.clear();
-        usbDialogParams_["portId"] = portId;
-        usbDialogParams_["tokenId"] = castId;
+        usbDialogParams_["portId"] = std::to_string(portId);
+        usbDialogParams_["tokenId"] = std::to_string(castId);
         usbDialogParams_["bundleName"] = DEFAULT_SERIAL_BUNDLE_NAME;
         usbDialogParams_["deviceName"] = DEFAULT_SERIAL_DEVICE_NAME;
         usbDialogParams_["appName"] = appName;
