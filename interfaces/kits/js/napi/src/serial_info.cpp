@@ -393,7 +393,8 @@ static napi_value SerialReadSyncNapi(napi_env env, napi_callback_info info)
     }
 
     uint32_t actualSize = 0;
-    int32_t ret = g_usbClient.SerialRead(portIdValue, static_cast<uint8_t*>(bufferValue), bufferLength, actualSize, timeoutValue);
+    int32_t ret = g_usbClient.SerialRead(portIdValue, static_cast<uint8_t*>(bufferValue), bufferLength, actualSize,
+        timeoutValue);
     if (!CheckAndThrowOnError(env, (ret == 0), ErrorCodeConversion(ret), "SerialReadSync Failed.")) {
         return nullptr;
     }
@@ -693,7 +694,8 @@ static napi_value SerialRequestRightNapi(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, g_serialRequestRightExecute,
             g_serialRequestRightComplete, static_cast<void*>(asyncContext), &asyncContext->work));
     if (asyncContext->contextErrno) {
-        CheckAndThrowOnError(env, asyncContext->contextErrno == 1, asyncContext->contextErrno, "SerialAddRight failed.");
+        CheckAndThrowOnError(env, asyncContext->contextErrno == 1, asyncContext->contextErrno,
+            "SerialAddRight failed.");
     }
     napi_queue_async_work(env, asyncContext->work);
     return result;

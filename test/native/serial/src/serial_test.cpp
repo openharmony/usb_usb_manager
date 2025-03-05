@@ -137,7 +137,8 @@ HWTEST_F(SerialTest, SerialWrite_001, TestSize.Level1)
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
     UsbSrvClient::GetInstance().SerialOpen(VALID_PORTID);
     std::vector<uint8_t> data = { 't', 'e', 's', 't' };
-    int32_t ret = UsbSrvClient::GetInstance().SerialWrite(VALID_PORTID, data, data.size(), 0);
+    uint32_t actualSize = 0;
+    int32_t ret = UsbSrvClient::GetInstance().SerialWrite(VALID_PORTID, data, data.size(), actualSize, 0);
     EXPECT_EQ(ret, OK);
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
 }
@@ -153,7 +154,8 @@ HWTEST_F(SerialTest, SerialWrite_002, TestSize.Level1)
     UsbSrvClient::GetInstance().SerialClose(INVALID_PORTID);
     UsbSrvClient::GetInstance().SerialOpen(INVALID_PORTID);
     std::vector<uint8_t> data = { 't', 'e', 's', 't' };
-    int32_t ret = UsbSrvClient::GetInstance().SerialWrite(INVALID_PORTID, data, data.size(), 0);
+    uint32_t actualSize = 0;
+    int32_t ret = UsbSrvClient::GetInstance().SerialWrite(INVALID_PORTID, data, data.size(), actualSize, 0);
     EXPECT_EQ(ret, UEC_SERIAL_PORT_NOT_EXIST);
     UsbSrvClient::GetInstance().SerialClose(INVALID_PORTID);
 }
@@ -169,7 +171,8 @@ HWTEST_F(SerialTest, SerialRead_001, TestSize.Level1)
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
     UsbSrvClient::GetInstance().SerialOpen(VALID_PORTID);
     std::shared_ptr<uint8_t> data = make_shared_array<uint8_t>(ONE_KBYTE);
-    int32_t ret = UsbSrvClient::GetInstance().SerialRead(VALID_PORTID, data.get(), ONE_KBYTE, ONE_SECOND);
+    uint32_t actualSize = 0;
+    int32_t ret = UsbSrvClient::GetInstance().SerialRead(VALID_PORTID, data.get(), ONE_KBYTE, actualSize, ONE_SECOND);
     EXPECT_EQ(ret, UEC_INTERFACE_TIMED_OUT);
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
 }
@@ -185,7 +188,8 @@ HWTEST_F(SerialTest, SerialRead_002, TestSize.Level1)
     UsbSrvClient::GetInstance().SerialClose(INVALID_PORTID);
     UsbSrvClient::GetInstance().SerialOpen(INVALID_PORTID);
     std::shared_ptr<uint8_t> data = make_shared_array<uint8_t>(ONE_KBYTE);
-    int32_t ret = UsbSrvClient::GetInstance().SerialRead(INVALID_PORTID, data.get(), ONE_KBYTE, 0);
+    uint32_t actualSize = 0;
+    int32_t ret = UsbSrvClient::GetInstance().SerialRead(INVALID_PORTID, data.get(), ONE_KBYTE, actualSize, 0);
     EXPECT_EQ(ret, UEC_SERIAL_PORT_NOT_EXIST);
     UsbSrvClient::GetInstance().SerialClose(INVALID_PORTID);
 }
@@ -203,7 +207,8 @@ HWTEST_F(SerialTest, SerialRead_003, TestSize.Level1)
     std::cout << "请打开串口工具单次发送数据，输入回车继续" << std::endl;
     getchar();
     std::shared_ptr<uint8_t> data = make_shared_array<uint8_t>(ONE_KBYTE);
-    int32_t ret = UsbSrvClient::GetInstance().SerialRead(VALID_PORTID, data.get(), ONE_KBYTE, 0);
+    uint32_t actualSize = 0;
+    int32_t ret = UsbSrvClient::GetInstance().SerialRead(VALID_PORTID, data.get(), ONE_KBYTE, actualSize, 0);
     EXPECT_EQ(ret, 0);
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
 }
