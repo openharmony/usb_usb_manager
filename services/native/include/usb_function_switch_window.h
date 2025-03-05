@@ -41,6 +41,13 @@ enum UsbFunctionSwitchWindowAction : int32_t {
     FUNCTION_SWITCH_WINDOW_ACTION_FORBID,
 };
 
+enum SUPPORTED_FUNC : int32_t {
+    SUPPORTED_FUNC_NONE = -1,
+    SUPPORTED_FUNC_CHARGE = 0,
+    SUPPORTED_FUNC_MTP = 8,
+    SUPPORTED_FUNC_PTP = 16,
+};
+
 class UsbFunctionSwitchWindow {
 public:
     static std::shared_ptr<UsbFunctionSwitchWindow> GetInstance();
@@ -50,6 +57,7 @@ public:
     bool DismissFunctionSwitchWindow();
     int32_t SetCurrentFunctionLabel(int32_t func);
     int32_t RemoveCurrentFunctionLabel();
+    bool CheckDialogInstallStatus();
 private:
     UsbFunctionSwitchWindow();
     DISALLOW_COPY_AND_MOVE(UsbFunctionSwitchWindow);
@@ -64,8 +72,11 @@ private:
     };
     bool ShowFunctionSwitchWindow();
     bool UnShowFunctionSwitchWindow();
-    bool CheckDialogInstallStatus();
+    void SubscribeCommonEvent();
+    bool ShouldRejectShowWindow();
+    static void BootCompletedEventCallback(const char *key, const char *value, void *context);
     static std::shared_ptr<UsbFunctionSwitchWindow> instance_;
+    static int32_t GetSupportedFunctions();
     sptr<UsbFuncAbilityConn> usbFuncAbilityConn = nullptr;
     int32_t windowAction_ = UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_DEFAULT;
     static std::mutex insMutex_;
