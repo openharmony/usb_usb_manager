@@ -250,13 +250,14 @@ static napi_value SerialWriteSyncNapi(napi_env env, napi_callback_info info)
     std::vector<uint8_t> bufferVector(static_cast<uint8_t*>(bufferValue),
         static_cast<uint8_t*>(bufferValue) + bufferLength);
 
-    int32_t ret = g_usbClient.SerialWrite(portIdValue, bufferVector, bufferLength, timeoutValue);
+    uint32_t actualSize = 0;
+    int32_t ret = g_usbClient.SerialWrite(portIdValue, bufferVector, bufferLength, actualSize, timeoutValue);
     if (!CheckAndThrowOnError(env, (ret == 0), ErrorCodeConversion(ret), "SerialWrite Failed.")) {
         return nullptr;
     }
     
     napi_value result = nullptr;
-    napi_create_int32(env, ret, &result);
+    napi_create_int32(env, actualSize, &result);
     return result;
 }
 
@@ -276,12 +277,13 @@ static auto g_serialWriteExecute = [](napi_env env, void* data) {
     std::vector<uint8_t> bufferVector(static_cast<uint8_t*>(bufferValue),
         static_cast<uint8_t*>(bufferValue) + context->size);
 
-    int32_t ret = g_usbClient.SerialWrite(context->portId, bufferVector, context->size, context->timeout);
+    uint32_t actualSize = 0;
+    int32_t ret = g_usbClient.SerialWrite(context->portId, bufferVector, context->size, actualSize, context->timeout);
     if (ret != 0) {
         context->contextErrno = ErrorCodeConversion(ret);
     }
     
-    context->ret = ret;
+    context->ret = actualSize;
 };
 
 static auto g_serialWriteComplete = [](napi_env env, napi_status status, void *data) {
@@ -333,18 +335,6 @@ static napi_value SerialWriteNapi(napi_env env, napi_callback_info info)
         asyncContext, &asyncContext->work));
     napi_queue_async_work(env, asyncContext->work);
     return promise;
-}
-
-int32_t SerialReadHelper(int32_t portId, uint8_t *data, uint32_t size, uint32_t timeout)
-{
-    if (size == 0) {
-        USB_HILOGW(MODULE_JS_NAPI, "read data success, data empty !");
-        return HDF_SUCCESS;
-    }
-    int32_t ret = g_usbClient.SerialRead(portId, data, size, timeout);
-    
-    USB_HILOGI(MODULE_JS_NAPI, "data = %{public}s", data);
-    return ret;
 }
 
 bool ParseReadInterfaceParams(napi_env env, napi_callback_info info, int32_t& portIdValue,
@@ -402,38 +392,26 @@ static napi_value SerialReadSyncNapi(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    int32_t ret = g_usbClient.SerialRead(portIdValue, static_cast<uint8_t*>(bufferValue), bufferLength, timeoutValue);
+    uint32_t actualSize = 0;
+    int32_t ret = g_usbClient.SerialRead(portIdValue, static_cast<uint8_t*>(bufferValue), bufferLength, actualSize, timeoutValue);
     if (!CheckAndThrowOnError(env, (ret == 0), ErrorCodeConversion(ret), "SerialReadSync Failed.")) {
         return nullptr;
     }
 
     napi_value result = nullptr;
-    napi_create_int32(env, ret, &result);
+    napi_create_int32(env, actualSize, &result);
     return result;
 }
 
 static auto g_serialReadExecute = [](napi_env env, void* data) {
     SerialReadAsyncContext *context = static_cast<SerialReadAsyncContext *>(data);
-    std::future<int32_t> resp = std::async(std::launch::async, SerialReadHelper,
-        context->portId, static_cast<uint8_t*>(context->pData), context->size, context->timeout);
-    std::future_status status = std::future_status::deferred;
-    if (context->timeout == 0) {
-        resp.wait();
-    } else {
-        status = resp.wait_for(std::chrono::milliseconds(context->timeout));
-        context->contextErrno = (status != std::future_status::ready ? SERIAL_TIMED_OUT : 0);
-        if (context->contextErrno) {
-            USB_HILOGE(MODULE_JS_NAPI, "Read timeout!");
-            return;
-        }
-    }
-
-    int32_t ret = resp.get();
+    uint32_t actualSize = 0;
+    int32_t ret = g_usbClient.SerialRead(context->portId, static_cast<uint8_t*>(context->pData),
+        context->size, actualSize, context->timeout);
     if (ret != 0) {
         context->contextErrno = ErrorCodeConversion(ret);
     }
-
-    context->ret = ret;
+    context->ret = actualSize;
 };
 
 static auto g_serialReadComplete = [](napi_env env, napi_status status, void* data) {
@@ -573,7 +551,10 @@ static napi_value SerialHasRightNapi(napi_env env, napi_callback_info info)
         return nullptr;
     }
     napi_value result = nullptr;
-    bool ret = g_usbClient.HasSerialRight(portIdValue);
+    int32_t ret = g_usbClient.HasSerialRight(portIdValue);
+    if (!CheckAndThrowOnError(env, (ret == 0 || ret == 1), ErrorCodeConversion(ret), "SerialHasRight failed.")) {
+        return nullptr;
+    }
     napi_get_boolean(env, ret, &result);
     return result;
 }
@@ -654,8 +635,11 @@ static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
 static auto g_serialRequestRightExecute = [](napi_env env, void* data) {
     SerialRequestRightAsyncContext *asyncContext = static_cast<SerialRequestRightAsyncContext *>(data);
     int32_t ret = g_usbClient.RequestSerialRight(asyncContext->portIdValue);
-    if (ret) {
-        asyncContext->ret = ErrorCodeConversion(ret);
+    asyncContext->contextErrno = 0;
+    if (ret != 0 && ret != 1) {
+        USB_HILOGE(MODULE_JS_NAPI, "request right has error");
+        asyncContext->ret = ret;
+        asyncContext->contextErrno = ErrorCodeConversion(ret);
     } else {
         asyncContext->ret = ret;
     }
@@ -708,6 +692,9 @@ static napi_value SerialRequestRightNapi(napi_env env, napi_callback_info info)
     napi_create_string_utf8(env, "SerialRequestRight", NAPI_AUTO_LENGTH, &resourceName);
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, g_serialRequestRightExecute,
             g_serialRequestRightComplete, static_cast<void*>(asyncContext), &asyncContext->work));
+    if (asyncContext->contextErrno) {
+        CheckAndThrowOnError(env, asyncContext->contextErrno == 1, asyncContext->contextErrno, "SerialAddRight failed.");
+    }
     napi_queue_async_work(env, asyncContext->work);
     return result;
 }

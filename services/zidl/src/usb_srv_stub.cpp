@@ -1563,20 +1563,21 @@ int32_t UsbServerStub::DoSerialRead(MessageParcel &data, MessageParcel &reply, M
     HITRACE_METER_NAME(HITRACE_TAG_USB, "DoSerialRead");
     int32_t portId = 0;
     uint32_t buffSize = 0;
+    uint32_t actualSize = 0;
     uint32_t timeout = 0;
     READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Uint32, buffSize, UEC_SERVICE_READ_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Uint32, timeout, UEC_SERVICE_READ_PARCEL_ERROR);
     uint8_t *buffData = new uint8_t[buffSize]();
-    int32_t ret = SerialRead(portId, buffData, buffSize, timeout);
+    int32_t ret = SerialRead(portId, buffData, buffSize, actualSize, timeout);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "DoSerialRead failed. ret:%{public}d", ret);
         delete[] buffData;
         return ret;
     }
     
-    WRITE_PARCEL_WITH_RET(reply, Int32, buffSize, UEC_SERVICE_WRITE_PARCEL_ERROR);
-    for (uint32_t i = 0; i < buffSize; ++i) {
+    WRITE_PARCEL_WITH_RET(reply, Uint32, actualSize, UEC_SERVICE_WRITE_PARCEL_ERROR);
+    for (uint32_t i = 0; i < actualSize; ++i) {
         WRITE_PARCEL_WITH_RET(reply, Uint8, buffData[i], UEC_SERVICE_WRITE_PARCEL_ERROR);
     }
 
@@ -1588,30 +1589,31 @@ int32_t UsbServerStub::DoSerialWrite(MessageParcel &data, MessageParcel &reply, 
 {
     HITRACE_METER_NAME(HITRACE_TAG_USB, "DoSerialWrite");
     int32_t portId = 0;
-    int32_t actualDataSize = 0;
     uint32_t buffSize = 0;
+    uint32_t actualSize = 0;
     uint32_t timeout = 0;
     std::vector<uint8_t> dataList;
     READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
-    READ_PARCEL_WITH_RET(data, Int32, actualDataSize, UEC_SERVICE_READ_PARCEL_ERROR);
-    if (actualDataSize > MAX_SERIAL_WRITE_SIZE || actualDataSize < 0) {
-        USB_HILOGE(MODULE_USBD, "EDM list size actualDataSize: %{public}d", actualDataSize);
+    READ_PARCEL_WITH_RET(data, Uint32, buffSize, UEC_SERVICE_READ_PARCEL_ERROR);
+    if (buffSize > MAX_SERIAL_WRITE_SIZE || buffSize < 0) {
+        USB_HILOGE(MODULE_USBD, "The maximum data per write is: %{public}d", MAX_SERIAL_WRITE_SIZE);
         return UEC_SERVICE_READ_PARCEL_ERROR;
     }
 
     uint8_t tmp;
-    for (int32_t i = 0; i < actualDataSize; i++) {
+    for (int32_t i = 0; i < buffSize; i++) {
         READ_PARCEL_WITH_RET(data, Uint8, tmp, UEC_SERVICE_READ_PARCEL_ERROR);
         dataList.emplace_back(tmp);
     }
 
-    READ_PARCEL_WITH_RET(data, Uint32, buffSize, UEC_SERVICE_READ_PARCEL_ERROR);
     READ_PARCEL_WITH_RET(data, Uint32, timeout, UEC_SERVICE_READ_PARCEL_ERROR);
-    int32_t ret = SerialWrite(portId, dataList, buffSize, timeout);
+    int32_t ret = SerialWrite(portId, dataList, buffSize, actualSize, timeout);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "DoSerialWrite failed. ret:%{public}d", ret);
         return ret;
     }
+
+    WRITE_PARCEL_WITH_RET(reply, Uint32, actualSize, UEC_SERVICE_WRITE_PARCEL_ERROR);
 
     return ret;
 }
@@ -1695,7 +1697,7 @@ int32_t UsbServerStub::DoHasSerialRight(MessageParcel &data, MessageParcel &repl
 {
     int32_t portId = 0;
     READ_PARCEL_WITH_RET(data, Int32, portId, UEC_SERVICE_READ_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(reply, Bool, HasSerialRight(portId), UEC_SERVICE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(reply, Int32, HasSerialRight(portId), UEC_SERVICE_WRITE_PARCEL_ERROR);
 
     return UEC_OK;
 }

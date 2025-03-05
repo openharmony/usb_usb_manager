@@ -143,7 +143,8 @@ int32_t SerialManager::SerialClose(int32_t portId)
     return ret;
 }
 
-int32_t SerialManager::SerialRead(int32_t portId, uint8_t *buffData, uint32_t size, uint32_t timeout)
+int32_t SerialManager::SerialRead(int32_t portId, uint8_t *buffData,
+    uint32_t buffSize, uint32_t& actualSize, uint32_t timeout)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: start", __func__);
 
@@ -154,20 +155,22 @@ int32_t SerialManager::SerialRead(int32_t portId, uint8_t *buffData, uint32_t si
     }
 
     std::vector<uint8_t> data;
-    ret = serial_->SerialRead(portId, data, size, timeout);
-    if (ret != UEC_OK) {
+    ret = serial_->SerialRead(portId, data, buffSize, timeout);
+    if (ret < 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialRead failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
 
-    for (size_t i = 0; i < data.size(); i++) {
+    actualSize = ret;
+    for (size_t i = 0; i < actualSize; i++) {
         buffData[i] = data.at(i);
     }
 
-    return ret;
+    return UEC_OK;
 }
 
-int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size, uint32_t timeout)
+int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& data,
+    uint32_t buffSize, uint32_t& actualSize, uint32_t timeout)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: start", __func__);
     int32_t ret = CheckPortAndTokenId(portId);
@@ -176,12 +179,14 @@ int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& d
         return ret;
     }
 
-    ret = serial_->SerialWrite(portId, data, size, timeout);
-    if (ret != UEC_OK) {
+    ret = serial_->SerialWrite(portId, data, buffSize, timeout);
+    if (ret < 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialWrite failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
 
-    return ret;
+    actualSize = ret;
+    return UEC_OK;
 }
 
 int32_t SerialManager::SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute)

@@ -59,6 +59,8 @@ constexpr int32_t COMMEVENT_REGISTER_RETRY_TIMES = 10;
 constexpr int32_t COMMEVENT_REGISTER_WAIT_DELAY_US = 20000;
 constexpr int32_t SERVICE_STARTUP_MAX_TIME = 30;
 constexpr uint32_t UNLOAD_SA_TIMER_INTERVAL = 30 * 1000;
+constexpr const int32_t INT_TRUE = 1;
+constexpr const int32_t INT_FALSE = 0;
 #if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 #endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
@@ -2267,7 +2269,8 @@ int32_t UsbService::SerialClose(int32_t portId)
     return ret;
 }
 
-int32_t UsbService::SerialRead(int32_t portId, uint8_t *data, uint32_t size, uint32_t timeout)
+int32_t UsbService::SerialRead(int32_t portId, uint8_t *data,
+    uint32_t buffSize, uint32_t& actualSize, uint32_t timeout)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
     HITRACE_METER_NAME(HITRACE_TAG_USB, "SerialRead");
@@ -2278,14 +2281,15 @@ int32_t UsbService::SerialRead(int32_t portId, uint8_t *data, uint32_t size, uin
         return ret;
     }
 
-    ret = usbSerialManager_->SerialRead(portId, data, size, timeout);
+    ret = usbSerialManager_->SerialRead(portId, data, buffSize, actualSize, timeout);
     if (ret != UEC_OK) {
         ReportUsbSerialOperationFaultSysEvent(portId, "SerialRead", ret, "SerialRead failed");
     }
     return ret;
 }
 
-int32_t UsbService::SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size, uint32_t timeout)
+int32_t UsbService::SerialWrite(int32_t portId, const std::vector<uint8_t>& data,
+    uint32_t buffSize, uint32_t& actualSize, uint32_t timeout)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
     HITRACE_METER_NAME(HITRACE_TAG_USB, "SerialWrite");
@@ -2296,7 +2300,7 @@ int32_t UsbService::SerialWrite(int32_t portId, const std::vector<uint8_t>& data
         return ret;
     }
 
-    ret = usbSerialManager_->SerialWrite(portId, data, size, timeout);
+    ret = usbSerialManager_->SerialWrite(portId, data, buffSize, actualSize, timeout);
     if (ret != UEC_OK) {
         ReportUsbSerialOperationFaultSysEvent(portId, "SerialWrite", ret, "SerialWrite failed");
     }
@@ -2477,18 +2481,18 @@ int32_t UsbService::CancelSerialRight(int32_t portId)
     return UEC_OK;
 }
 
-bool UsbService::HasSerialRight(int32_t portId)
+int32_t UsbService::HasSerialRight(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbRightManager_ is nullptr", __func__);
-        return false;
+        return UEC_SERVICE_INVALID_VALUE;
     }
 
     int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
-        return false;
+        return ret;
     }
 
     std::string deviceName;
@@ -2497,12 +2501,12 @@ bool UsbService::HasSerialRight(int32_t portId)
     ret = GetDeviceVidPidSerialNumber(portId, deviceName, deviceVidPidSerialNum);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: can not find deviceName.", __func__);
-        return false;
+        return ret;
     }
 
     if (usbRightManager_->IsSystemAppOrSa()) {
         USB_HILOGW(MODULE_USB_SERVICE, "system app, bypass: dev=%{public}s ", deviceName.c_str());
-        return true;
+        return INT_TRUE;
     }
 
     std::string bundleName;
@@ -2510,18 +2514,18 @@ bool UsbService::HasSerialRight(int32_t portId)
     int32_t userId = USB_RIGHT_USERID_INVALID;
     if (!GetCallingInfo(bundleName, tokenId, userId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HasRight GetCallingInfo false", __func__);
-        return false;
+        return INT_FALSE;
     }
 
     USB_HILOGI(MODULE_USB_SERVICE, "bundle=%{public}s, device=%{public}s",
         bundleName.c_str(), deviceName.c_str());
     if (usbRightManager_->HasRight(deviceVidPidSerialNum, bundleName, tokenId, userId)) {
-        return true;
+        return INT_TRUE;
     } else if (usbRightManager_->HasRight(deviceVidPidSerialNum, bundleName, USB_DEFAULT_TOKEN, userId)) {
-        return true;
+        return INT_TRUE;
     }
 
-    return false;
+    return INT_FALSE;
 }
 
 int32_t UsbService::AddSerialRight(uint32_t tokenId, int32_t portId)

@@ -1015,11 +1015,12 @@ int32_t UsbSrvClient::SerialClose(int32_t portId)
     return ret;
 }
 
-int32_t UsbSrvClient::SerialRead(int32_t portId, uint8_t *buffData, uint32_t size, uint32_t timeout)
+int32_t UsbSrvClient::SerialRead(int32_t portId, uint8_t *buffData,
+    uint32_t buffSize, uint32_t& actualSize, uint32_t timeout)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "Calling SerialRead");
     RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
-    int32_t ret = proxy_->SerialRead(portId, buffData, size, timeout);
+    int32_t ret = proxy_->SerialRead(portId, buffData, buffSize, actualSize, timeout);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialRead failed ret = %{public}d!", ret);
     }
@@ -1027,11 +1028,12 @@ int32_t UsbSrvClient::SerialRead(int32_t portId, uint8_t *buffData, uint32_t siz
     return ret;
 }
 
-int32_t UsbSrvClient::SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size, uint32_t timeout)
+int32_t UsbSrvClient::SerialWrite(int32_t portId, const std::vector<uint8_t>& data,
+    uint32_t buffSize, uint32_t& actualSize, uint32_t timeout)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "Calling SerialWrite");
     RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
-    int32_t ret = proxy_->SerialWrite(portId, data, size, timeout);
+    int32_t ret = proxy_->SerialWrite(portId, data, buffSize, actualSize, timeout);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::SerialWrite failed ret = %{public}d!", ret);
     }
@@ -1072,7 +1074,7 @@ int32_t UsbSrvClient::SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0
     return ret;
 }
 
-bool UsbSrvClient::HasSerialRight(int32_t portId)
+int32_t UsbSrvClient::HasSerialRight(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "Calling HasSerialRight");
     RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
