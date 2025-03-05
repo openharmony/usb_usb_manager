@@ -1276,7 +1276,6 @@ static napi_value CoreGetPorts(napi_env env, napi_callback_info info)
     std::vector<UsbPort> ports;
     int32_t ret = g_usbClient.GetPorts(ports);
     napi_value result;
-    USB_HILOGI(MODULE_JS_NAPI, "get ports failed ret : %{public}d", ret);
     USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI), OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "");
     USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED),
         OHEC_COMMON_PERMISSION_NOT_ALLOWED, "");
@@ -1326,7 +1325,6 @@ static napi_value PortGetSupportedModes(napi_env env, napi_callback_info info)
     int32_t result = 0;
     napi_get_value_int32(env, args[INDEX_0], &id);
     int32_t ret = g_usbClient.GetSupportedModes(id, result);
-    USB_HILOGI(MODULE_JS_NAPI, "get supported modes failed ret = %{public}d", ret);
     USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI), OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "");
     USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED),
         OHEC_COMMON_PERMISSION_NOT_ALLOWED, "");
