@@ -44,8 +44,8 @@ struct IndexHapComponent {
                 console.info(`USBRight addDeviceAccessRight result:${res}`);
               } else {
                 console.info('SERIALRight allowed');
-                serialManager.addSerialRight(globalThis.want.parameters['tokenId'],
-                  globalThis.want.parameters['portId']);
+                serialManager.addSerialRight(Number(globalThis.want.parameters['tokenId']),
+                  Number(globalThis.want.parameters['portId']));
               }
             } else {
               let accessoryInfo: usbMgr.USBAccessory = JSON.parse(globalThis.want.parameters['accessory']);
