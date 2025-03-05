@@ -15,6 +15,8 @@
 
 #include "usb_function_switch_window.h"
 
+#include <parameters.h>
+#include <param_wrapper.h>
 #include <semaphore.h>
 #include <sys/types.h>
 #include <thread>
@@ -26,19 +28,36 @@
 #include "bundle_mgr_client.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "usb_settings_datashare.h"
+#include "os_account_manager.h"
 #include "usb_errors.h"
+#include "uri.h"
 
+#define DEFAULT_PARAM_VALUE "charge,mtp,ptp"
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::EventFwk;
 
 namespace OHOS {
 namespace USB {
-constexpr int32_t PARAM_BUF_LEN = 128;
 constexpr int32_t INVALID_USERID = -1;
 constexpr int32_t MESSAGE_PARCEL_KEY_SIZE = 3;
 constexpr int32_t MAX_RETRY_TIMES = 30;
 constexpr int32_t RETRY_INTERVAL_SECONDS = 1;
 constexpr uint32_t DELAY_CHECK_DIALOG = 1;
+
+class FuncSwitchSubscriber : public CommonEventSubscriber {
+public:
+    explicit FuncSwitchSubscriber(const CommonEventSubscribeInfo &sp) : CommonEventSubscriber(sp) {}
+    
+    void OnReceiveEvent(const CommonEventData &data) override
+    {
+        auto &want = data.GetWant();
+        std::string wantAction = want.GetAction();
+        if (wantAction == CommonEventSupport::COMMON_EVENT_BUNDLE_SCAN_FINISHED) {
+            UsbFunctionSwitchWindow::GetInstance()->CheckDialogInstallStatus();
+        }
+    }
+};
 
 std::shared_ptr<UsbFunctionSwitchWindow> UsbFunctionSwitchWindow::instance_;
 std::mutex UsbFunctionSwitchWindow::insMutex_;
@@ -62,6 +81,19 @@ UsbFunctionSwitchWindow::~UsbFunctionSwitchWindow()
     }
 }
 
+void UsbFunctionSwitchWindow::SubscribeCommonEvent()
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "subscriber bms scan finished.");
+    MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_BUNDLE_SCAN_FINISHED);
+    CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    std::shared_ptr<FuncSwitchSubscriber> subscriber = std::make_shared<FuncSwitchSubscriber>(subscriberInfo);
+    bool ret = CommonEventManager::SubscribeCommonEvent(subscriber);
+    if (!ret) {
+        USB_HILOGW(MODULE_USB_SERVICE, "subscriber event failed.");
+    }
+}
+
 int32_t UsbFunctionSwitchWindow::Init()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "init: window action=%{public}d,%{public}d", windowAction_, isDialogInstalled_);
@@ -73,7 +105,10 @@ int32_t UsbFunctionSwitchWindow::Init()
     checkDialogTimer_.Shutdown();
     // async check dialog install status
     auto task = [this]() {
-        CheckDialogInstallStatus();
+        bool checkRet = CheckDialogInstallStatus();
+        if (!checkRet) {
+            SubscribeCommonEvent();
+        }
         checkDialogTimer_.Unregister(checkDialogTimerId_);
         checkDialogTimer_.Shutdown();
     };
@@ -81,7 +116,10 @@ int32_t UsbFunctionSwitchWindow::Init()
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "set up timer failed %{public}u", ret);
         // fall back to sync
-        CheckDialogInstallStatus();
+        bool checkRet = CheckDialogInstallStatus();
+        if (!checkRet) {
+            SubscribeCommonEvent();
+        }
         return isDialogInstalled_ ? UEC_OK : ret;
     }
     checkDialogTimerId_ = checkDialogTimer_.Register(task, DELAY_CHECK_DIALOG, true);
@@ -91,17 +129,15 @@ int32_t UsbFunctionSwitchWindow::Init()
 bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "pop up function switch window");
-    char paramValue[PARAM_BUF_LEN] = { 0 };
-    const char defaultValue[PARAM_BUF_LEN] = { 0 };
-    std::lock_guard<std::mutex> guard(opMutex_);
-    int32_t ret = GetParameter("persist.usb.setting.gadget_conn_prompt", defaultValue, paramValue, sizeof(paramValue));
-    if (ret < 0) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetParameter fail");
+    bool isPromptEnabled = OHOS::system::GetBoolParameter("persist.usb.setting.gadget_conn_prompt", true);
+    if (!isPromptEnabled) {
+        USB_HILOGE(MODULE_USB_SERVICE, "gadget_conn_prompt is false");
         return false;
     }
-    ret = strcmp(paramValue, "true");
-    if (ret != 0) {
-        USB_HILOGE(MODULE_USB_SERVICE, "not allow open");
+    int32_t supportedFuncs = GetSupportedFunctions();
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: supportedFuncs %{public}d", __func__, supportedFuncs);
+    if (supportedFuncs < 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "no supported functions: %{public}d", supportedFuncs);
         return false;
     }
     if (windowAction_ == UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_FORBID) {
@@ -109,6 +145,20 @@ bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
         return false;
     }
     windowAction_ = UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_SHOW;
+
+    isPromptEnabled = OHOS::system::GetBoolParameter("bootevent.boot.completed", false);
+    if (!isPromptEnabled) {
+        USB_HILOGE(MODULE_USB_SERVICE, "boot.completed is false!");
+        int ret = WatchParameter("bootevent.boot.completed", BootCompletedEventCallback, this);
+        if (ret != 0) {
+            USB_HILOGI(MODULE_USB_SERVICE, "watchParameter is failed!");
+        }
+        return false;
+    }
+    if (ShouldRejectShowWindow()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "OOBE is not ready!");
+        return false;
+    }
     return ShowFunctionSwitchWindow();
 }
 
@@ -122,6 +172,22 @@ bool UsbFunctionSwitchWindow::DismissFunctionSwitchWindow()
     }
     windowAction_ = UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_DISMISS;
     return UnShowFunctionSwitchWindow();
+}
+
+int32_t UsbFunctionSwitchWindow::GetSupportedFunctions()
+{
+    std::string supportedFuncStr = "";
+    (void)OHOS::system::GetStringParameter("const.usb_manager.supported_functions",
+        supportedFuncStr, DEFAULT_PARAM_VALUE);
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: supportedFuncStr %{public}s", __func__, supportedFuncStr.c_str());
+
+    if (supportedFuncStr.find("none") != std::string::npos) {
+        return SUPPORTED_FUNC_NONE;
+    }
+    uint32_t mtp = supportedFuncStr.find("mtp") != std::string::npos ? SUPPORTED_FUNC_MTP : 0;
+    uint32_t ptp = supportedFuncStr.find("ptp") != std::string::npos ? SUPPORTED_FUNC_PTP : 0;
+
+    return static_cast<int32_t>(mtp | ptp);
 }
 
 void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
@@ -143,6 +209,9 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     data.WriteString16(u"UsbFunctionSwitchExtAbility");
     data.WriteString16(u"parameters");
     cJSON* paramJson = cJSON_CreateObject();
+    int32_t supportedFuncs = GetSupportedFunctions();
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: supportedFuncs %{public}d", __func__, supportedFuncs);
+    cJSON_AddStringToObject(paramJson, "supportedFuncs", std::to_string(supportedFuncs).c_str());
     std::string uiExtensionTypeStr = "sysDialog/common";
     cJSON_AddStringToObject(paramJson, "ability.want.params.uiExtensionType", uiExtensionTypeStr.c_str());
     char *pParamJson = cJSON_PrintUnformatted(paramJson);
@@ -160,7 +229,7 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     const uint32_t cmdCode = 1;
     int32_t ret = remoteObject->SendRequest(cmdCode, data, reply, option);
     if (ret != ERR_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "send request is failed: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "send request failed: %{public}d", ret);
         return;
     }
     if (!reply.ReadInt32(ret) || ret != ERR_OK) {
@@ -271,11 +340,81 @@ bool UsbFunctionSwitchWindow::CheckDialogInstallStatus()
         }
 
         if (windowAction_ == UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_SHOW) {
-            ShowFunctionSwitchWindow();
+            if (OHOS::system::GetBoolParameter("bootevent.boot.completed", false)) {
+                ShowFunctionSwitchWindow();
+            }
         }
         return true;
     }
     USB_HILOGE(MODULE_USB_SERVICE, "dialog is not installed");
+    return false;
+}
+
+void UsbFunctionSwitchWindow::BootCompletedEventCallback(const char *key, const char *value, void *context)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "testParameterChange key: %{public}s, value: %{public}s!", key, value);
+    if (!OHOS::system::GetBoolParameter("bootevent.boot.completed", false)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: boot.completed is false!", __func__);
+        return;
+    }
+    if (context == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: context is null!", __func__);
+        return;
+    }
+    auto eventSwitchWindow = reinterpret_cast<UsbFunctionSwitchWindow*>(context);
+    if (eventSwitchWindow == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "get eventSwitchWindow is null!");
+        return;
+    }
+
+    if (eventSwitchWindow->ShouldRejectShowWindow()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: OOBE is not ready!", __func__);
+        return;
+    }
+    bool ret = eventSwitchWindow->ShowFunctionSwitchWindow();
+    if (!ret) {
+        USB_HILOGE(MODULE_USB_SERVICE, "watchParameter to ShowFunctionSwitchWindow is failed!");
+    }
+}
+
+bool UsbFunctionSwitchWindow::ShouldRejectShowWindow()
+{
+    auto datashareHelper = std::make_shared<UsbSettingDataShare>();
+    std::string device_provisioned {"0"};
+    OHOS::Uri uri(
+        "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=device_provisioned");
+    bool resp = datashareHelper->Query(uri, "device_provisioned", device_provisioned);
+    if (resp && device_provisioned != "1") {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: device_provisioned is = 0", __func__);
+        return true;
+    }
+ 
+    std::string user_setup_complete {"0"};
+    std::vector<int> activedOsAccountIds;
+    OHOS::AccountSA::OsAccountManager::QueryActiveOsAccountIds(activedOsAccountIds);
+    if (activedOsAccountIds.empty()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: activedOsAccountIds is empty", __func__);
+        return true;
+    }
+    int userId = activedOsAccountIds[0];
+    OHOS::Uri uri_setup(
+        "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_SECURE_"
+        + std::to_string(userId) + "?Proxy=true&key=user_setup_complete");
+    bool resp_userSetup = datashareHelper->Query(uri_setup, "user_setup_complete", user_setup_complete);
+    if (resp_userSetup && user_setup_complete != "1") {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: user_setup_complete is = 0", __func__);
+        return true;
+    }
+ 
+    std::string is_ota_finished {"0"};
+    OHOS::Uri uri_ota(
+        "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_SECURE_"
+        + std::to_string(userId) + "?Proxy=true&key=is_ota_finished");
+    bool resp_ota = datashareHelper->Query(uri_ota, "is_ota_finished", is_ota_finished);
+    if (resp_ota && is_ota_finished == "0") {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: is_ota_finished is = 0", __func__);
+        return true;
+    }
     return false;
 }
 } // namespace USB

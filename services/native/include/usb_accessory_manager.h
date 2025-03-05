@@ -61,7 +61,7 @@ private:
     bool compare(const std::string &s1, const std::string &s2);
     USBAccessory accessory;
     int32_t accStatus_ {ACC_NONE};
-    int32_t eventStatus_;
+    int32_t eventStatus_ = 0;
     int32_t curDeviceFunc_ = {UsbSrvSupport::FUNCTION_NONE};
     int32_t lastDeviceFunc_ = {UsbSrvSupport::FUNCTION_NONE};
     int32_t accFd_ = {0};
