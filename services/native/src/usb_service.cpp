@@ -2269,8 +2269,8 @@ int32_t UsbService::SerialClose(int32_t portId)
     return ret;
 }
 
-int32_t UsbService::SerialRead(int32_t portId, uint8_t *data,
-    uint32_t buffSize, uint32_t& actualSize, uint32_t timeout)
+int32_t UsbService::SerialRead(int32_t portId, uint8_t *bufferData,
+    uint32_t bufferSize, uint32_t& actualSize, uint32_t timeout)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
     HITRACE_METER_NAME(HITRACE_TAG_USB, "SerialRead");
@@ -2281,7 +2281,7 @@ int32_t UsbService::SerialRead(int32_t portId, uint8_t *data,
         return ret;
     }
 
-    ret = usbSerialManager_->SerialRead(portId, data, buffSize, actualSize, timeout);
+    ret = usbSerialManager_->SerialRead(portId, bufferData, bufferSize, actualSize, timeout);
     if (ret != UEC_OK) {
         ReportUsbSerialOperationFaultSysEvent(portId, "SerialRead", ret, "SerialRead failed");
     }
@@ -2289,7 +2289,7 @@ int32_t UsbService::SerialRead(int32_t portId, uint8_t *data,
 }
 
 int32_t UsbService::SerialWrite(int32_t portId, const std::vector<uint8_t>& data,
-    uint32_t buffSize, uint32_t& actualSize, uint32_t timeout)
+    uint32_t bufferSize, uint32_t& actualSize, uint32_t timeout)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
     HITRACE_METER_NAME(HITRACE_TAG_USB, "SerialWrite");
@@ -2300,7 +2300,7 @@ int32_t UsbService::SerialWrite(int32_t portId, const std::vector<uint8_t>& data
         return ret;
     }
 
-    ret = usbSerialManager_->SerialWrite(portId, data, buffSize, actualSize, timeout);
+    ret = usbSerialManager_->SerialWrite(portId, data, bufferSize, actualSize, timeout);
     if (ret != UEC_OK) {
         ReportUsbSerialOperationFaultSysEvent(portId, "SerialWrite", ret, "SerialWrite failed");
     }

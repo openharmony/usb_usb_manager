@@ -1785,7 +1785,7 @@ int32_t UsbServerProxy::SerialClose(int32_t portId)
     return ret;
 }
 
-int32_t UsbServerProxy::SerialRead(int32_t portId, uint8_t *buffData,
+int32_t UsbServerProxy::SerialRead(int32_t portId, uint8_t *bufferData,
     uint32_t bufferSize, uint32_t& actualSize, uint32_t timeout)
 {
     MessageOption option;
@@ -1816,7 +1816,7 @@ int32_t UsbServerProxy::SerialRead(int32_t portId, uint8_t *buffData,
         USB_HILOGI(MODULE_USB_INNERKIT, "ParseUsbPort : %{public}d", i);
         uint8_t tmp;
         READ_PARCEL_WITH_RET(reply, Uint8, tmp, UEC_INTERFACE_READ_PARCEL_ERROR);
-        buffData[i] = tmp;
+        bufferData[i] = tmp;
     }
     return ret;
 }

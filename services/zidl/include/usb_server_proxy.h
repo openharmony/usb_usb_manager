@@ -108,7 +108,7 @@ public:
 #endif // USB_MANAGER_FEATURE_PORT
     int32_t SerialOpen(int32_t portId, sptr<IRemoteObject> serialRemote) override;
     int32_t SerialClose(int32_t portId) override;
-    int32_t SerialRead(int32_t portId, uint8_t *buffData,
+    int32_t SerialRead(int32_t portId, uint8_t *bufferData,
         uint32_t bufferSize, uint32_t& actualSize, uint32_t timeout) override;
     int32_t SerialWrite(int32_t portId, const std::vector<uint8_t>& data,
         uint32_t bufferSize, uint32_t& actualSize, uint32_t timeout) override;

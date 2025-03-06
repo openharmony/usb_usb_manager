@@ -143,8 +143,8 @@ int32_t SerialManager::SerialClose(int32_t portId)
     return ret;
 }
 
-int32_t SerialManager::SerialRead(int32_t portId, uint8_t *buffData,
-    uint32_t buffSize, uint32_t& actualSize, uint32_t timeout)
+int32_t SerialManager::SerialRead(int32_t portId, uint8_t *bufferData,
+    uint32_t bufferSize, uint32_t& actualSize, uint32_t timeout)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: start", __func__);
 
@@ -155,7 +155,7 @@ int32_t SerialManager::SerialRead(int32_t portId, uint8_t *buffData,
     }
 
     std::vector<uint8_t> data;
-    ret = serial_->SerialRead(portId, data, buffSize, timeout);
+    ret = serial_->SerialRead(portId, data, bufferSize, timeout);
     if (ret < 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialRead failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
@@ -163,14 +163,14 @@ int32_t SerialManager::SerialRead(int32_t portId, uint8_t *buffData,
 
     actualSize = ret;
     for (size_t i = 0; i < actualSize; i++) {
-        buffData[i] = data.at(i);
+        bufferData[i] = data.at(i);
     }
 
     return UEC_OK;
 }
 
 int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& data,
-    uint32_t buffSize, uint32_t& actualSize, uint32_t timeout)
+    uint32_t bufferSize, uint32_t& actualSize, uint32_t timeout)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: start", __func__);
     int32_t ret = CheckPortAndTokenId(portId);
@@ -179,7 +179,7 @@ int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& d
         return ret;
     }
 
-    ret = serial_->SerialWrite(portId, data, buffSize, timeout);
+    ret = serial_->SerialWrite(portId, data, bufferSize, timeout);
     if (ret < 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialWrite failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
