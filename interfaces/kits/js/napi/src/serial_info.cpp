@@ -651,7 +651,7 @@ static auto g_serialRequestRightComplete = [](napi_env env, napi_status status, 
     napi_value result = nullptr;
     if (asyncContext->contextErrno) {
         USB_HILOGE(MODULE_JS_NAPI, "Failed to request serial right");
-        napi_get_boolean(env, false, &result);
+        napi_create_int32(env, asyncContext->contextErrno, &result);
         napi_reject_deferred(env, asyncContext->deferred, result);
     } else {
         napi_get_boolean(env, !asyncContext->ret, &result);
@@ -693,10 +693,6 @@ static napi_value SerialRequestRightNapi(napi_env env, napi_callback_info info)
     napi_create_string_utf8(env, "SerialRequestRight", NAPI_AUTO_LENGTH, &resourceName);
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, g_serialRequestRightExecute,
             g_serialRequestRightComplete, static_cast<void*>(asyncContext), &asyncContext->work));
-    if (asyncContext->contextErrno) {
-        CheckAndThrowOnError(env, asyncContext->contextErrno == 1, asyncContext->contextErrno,
-            "SerialAddRight failed.");
-    }
     napi_queue_async_work(env, asyncContext->work);
     return result;
 }
