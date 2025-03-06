@@ -1786,7 +1786,7 @@ int32_t UsbServerProxy::SerialClose(int32_t portId)
 }
 
 int32_t UsbServerProxy::SerialRead(int32_t portId, uint8_t *buffData,
-    uint32_t buffSize, uint32_t& actualSize, uint32_t timeout)
+    uint32_t bufferSize, uint32_t& actualSize, uint32_t timeout)
 {
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
@@ -1800,7 +1800,7 @@ int32_t UsbServerProxy::SerialRead(int32_t portId, uint8_t *buffData,
         return UEC_INTERFACE_WRITE_PARCEL_ERROR;
     }
     WRITE_PARCEL_WITH_RET(data, Int32, portId, UEC_INTERFACE_WRITE_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(data, Uint32, buffSize, UEC_INTERFACE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(data, Uint32, bufferSize, UEC_INTERFACE_WRITE_PARCEL_ERROR);
     WRITE_PARCEL_WITH_RET(data, Uint32, timeout, UEC_INTERFACE_WRITE_PARCEL_ERROR);
     int32_t ret = remote->SendRequest(static_cast<int32_t>(UsbInterfaceCode::USB_FUN_SERIAL_READ),
         data, reply, option);
@@ -1822,7 +1822,7 @@ int32_t UsbServerProxy::SerialRead(int32_t portId, uint8_t *buffData,
 }
 
 int32_t UsbServerProxy::SerialWrite(int32_t portId, const std::vector<uint8_t>& data,
-    uint32_t buffSize, uint32_t& actualSize, uint32_t timeout)
+    uint32_t bufferSize, uint32_t& actualSize, uint32_t timeout)
 {
     MessageOption option;
     sptr<IRemoteObject> remote = Remote();
@@ -1836,9 +1836,9 @@ int32_t UsbServerProxy::SerialWrite(int32_t portId, const std::vector<uint8_t>& 
         return UEC_INTERFACE_WRITE_PARCEL_ERROR;
     }
     WRITE_PARCEL_WITH_RET(mData, Int32, portId, UEC_INTERFACE_WRITE_PARCEL_ERROR);
-    WRITE_PARCEL_WITH_RET(mData, Uint32, buffSize, UEC_INTERFACE_WRITE_PARCEL_ERROR);
+    WRITE_PARCEL_WITH_RET(mData, Uint32, bufferSize, UEC_INTERFACE_WRITE_PARCEL_ERROR);
 
-    for (size_t i = 0; i < buffSize; i++) {
+    for (size_t i = 0; i < bufferSize; i++) {
         WRITE_PARCEL_WITH_RET(mData, Uint8, data.at(i), UEC_INTERFACE_WRITE_PARCEL_ERROR);
     }
 
