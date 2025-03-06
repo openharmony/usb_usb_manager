@@ -204,7 +204,8 @@ HWTEST_F(SerialTest, SerialRead_003, TestSize.Level1)
 {
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
     UsbSrvClient::GetInstance().SerialOpen(VALID_PORTID);
-    std::cout << "请打开串口工具单次发送数据，输入回车继续" << std::endl;
+    std::cout << "Please open the serial port tool to send data in ";
+    std::cout << "a single transmission, and press Enter to continue" << std::endl;
     getchar();
     std::shared_ptr<uint8_t> data = make_shared_array<uint8_t>(ONE_KBYTE);
     uint32_t actualSize = 0;
