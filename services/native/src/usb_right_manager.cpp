@@ -215,10 +215,10 @@ int32_t UsbRightManager::ConnectAbility()
 
     AAFwk::Want want;
     want.SetElementName("com.ohos.sceneboard", "com.ohos.sceneboard.systemdialog");
-    auto ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
+    int32_t ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
     if (ret != ERR_OK) {
         want.SetElementName("com.ohos.systemui", "com.ohos.systemui.dialog");
-        auto ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
+        int32_t ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
         if (ret != ERR_OK) {
             USB_HILOGE(MODULE_USB_SERVICE, "ConnectServiceExtensionAbility systemui failed, ret: %{public}d", ret);
             usbAbilityConn_ = nullptr;
@@ -255,7 +255,7 @@ bool UsbRightManager::ShowUsbDialog(
     }
 
     sem_init(&waitDialogDisappear_, 1, 0);
-    auto ret = ConnectAbility();
+    int32_t ret = ConnectAbility();
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
         return false;
@@ -401,7 +401,7 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
         USB_HILOGE(MODULE_USB_SERVICE, "helper is nullptr, false");
         return false;
     }
-    auto ret = helper->AddOrUpdateRightRecord(userId, deviceName, bundleName, tokenId, info);
+    int32_t ret = helper->AddOrUpdateRightRecord(userId, deviceName, bundleName, tokenId, info);
     if (ret < 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "add or update failed: %{public}s/%{public}s/%{public}d, ret=%{public}d",
             deviceName.c_str(), bundleName.c_str(), userId, ret);
@@ -495,7 +495,7 @@ bool UsbRightManager::ShowUsbDialog(const USBAccessory &access, const std::strin
     }
     
     sem_init(&waitDialogDisappear_, 1, 0);
-    auto ret = ConnectAbility();
+    int32_t ret = ConnectAbility();
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
         return false;
@@ -536,7 +536,7 @@ bool UsbRightManager::ShowSerialDialog(const int32_t portId, const uint32_t toke
     }
 
     sem_init(&waitDialogDisappear_, 1, 0);
-    auto ret = ConnectAbility();
+    int32_t ret = ConnectAbility();
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
         return false;
@@ -613,7 +613,7 @@ bool UsbRightManager::GetAppName(const std::string &bundleName, std::string &app
     }
 
     BundleResourceInfo info;
-    auto ret = resMgr->GetBundleResourceInfo(bundleName, (uint32_t)ResourceFlag::GET_RESOURCE_INFO_WITH_LABEL, info);
+    int32_t ret = resMgr->GetBundleResourceInfo(bundleName, (uint32_t)ResourceFlag::GET_RESOURCE_INFO_WITH_LABEL, info);
     if (ret != ERR_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetAppName: get res info failed: %{public}d", ret);
         return false;
@@ -1027,7 +1027,7 @@ bool UsbRightManager::UnShowUsbDialog()
     USB_HILOGI(MODULE_USB_SERVICE, "unshow usb dialog window");
     usbAbilityConn_->CloseDialog();
 
-    auto ret = abmc->DisconnectAbility(usbAbilityConn_);
+    int32_t ret = abmc->DisconnectAbility(usbAbilityConn_);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_SERVICE, "DisconnectAbility failed %{public}d", ret);
         return false;
