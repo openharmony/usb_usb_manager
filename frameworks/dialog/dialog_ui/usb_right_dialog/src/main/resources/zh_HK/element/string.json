@@ -38,7 +38,80 @@
         },
         {
             "name":"usb_right_content",
-            "value":"允許 %1$s 使用 %2$s？"
+            "value":"允許 %1$s 使用 %2$s？",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_mtp",
+            "value":"傳輸檔案",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_ptp",
+            "value":"傳輸圖片",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_ptp_tip",
+            "value":"只顯示圖片庫中的圖片和影片",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip2",
+            "value":"只顯示檔案管理器中「%s」的內容",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip",
+            "value":"只顯示檔案管理器中「我的手機」之內容",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_my_tablet",
+            "value":"我的平板電腦",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_charge_notifier",
+            "value":"通過 USB 充電",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_more_notifier",
+            "value":"輕觸檢視更多選項",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_ptp_notifier",
+            "value":"通過 USB 瀏覽相片",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_mtp_notifier",
+            "value":"通過 USB 傳輸檔案",
+            "attr":{
+                "priority":"LT"
+            }
         }
     ]
 }

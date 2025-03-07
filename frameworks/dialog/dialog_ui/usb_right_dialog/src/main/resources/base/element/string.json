@@ -70,7 +70,80 @@
         },
         {
             "name":"usb_right_title",
-            "value":"USB access authorization"
+            "value":"USB access authorization",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_mtp",
+            "value":"Transfer files",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_ptp",
+            "value":"Transfer images",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip",
+            "value":"For items under \"My phone\" in Files.",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_ptp_tip",
+            "value":"For images and videos in Gallery.",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip2",
+            "value":"For items under \"%s\" in Files.",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_my_tablet",
+            "value":"My tablet",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_charge_notifier",
+            "value":"Charging via USB",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_mtp_notifier",
+            "value":"File transfer via USB",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_ptp_notifier",
+            "value":"Photo browsing via USB",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_more_notifier",
+            "value":"Tap for more options.",
+            "attr":{
+                "priority":"LT"
+            }
         }
     ]
 }
