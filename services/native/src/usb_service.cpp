@@ -731,7 +731,8 @@ bool UsbService::DelDevice(uint8_t busNum, uint8_t devAddr)
             int32_t fd = iter->second;
             int res = close(fd);
             openedFds_.erase(iter);
-            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:%{public}d close %{public}d ret = %{public}d", __func__, __LINE__, fd, res);
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:%{public}d close %{public}d ret = %{public}d",
+                __func__, __LINE__, fd, res);
         } else {
             USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:%{public}d not opened", __func__, __LINE__);
         }
@@ -838,7 +839,8 @@ int32_t UsbService::GetFileDescriptor(uint8_t busNum, uint8_t devAddr, int32_t &
         if (iter != openedFds_.end()) {
             int32_t oldFd = iter->second;
             int res = close(oldFd);
-            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:%{public}d close old %{public}d ret = %{public}d", __func__, __LINE__, oldFd, res);
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:%{public}d close old %{public}d ret = %{public}d",
+                __func__, __LINE__, oldFd, res);
         } else {
             USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:%{public}d first time get fd", __func__, __LINE__);
         }
