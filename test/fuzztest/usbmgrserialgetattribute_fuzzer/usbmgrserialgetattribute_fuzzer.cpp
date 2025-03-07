@@ -17,7 +17,7 @@
 
 #include "usb_srv_client.h"
 #include "v1_0/serial_types.h"
-
+#include "usb_serial_type.h"
 namespace {
 constexpr int32_t OK = 0;
 }
@@ -30,8 +30,8 @@ bool UsbMgrSerialGetAttributeFuzzTest(const uint8_t* data, size_t size)
         return false;
     }
     auto &usbSrvClient = UsbSrvClient::GetInstance();
-    struct OHOS::HDI::Usb::Serial::V1_0::SerialAttribute info;
-    const int32_t portId = *reinterpret_cast<const int32_t *>(data);
+    struct UsbSerialAttr info;
+    int32_t portId = *reinterpret_cast<const int32_t *>(data);
 
     if (usbSrvClient.SerialGetAttribute(portId, info) != OK) {
         return false;

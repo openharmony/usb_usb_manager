@@ -340,7 +340,11 @@ ohos_fuzztest("UsbMgrAttachKernelDriverFuzzTest") {
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
     "${usb_manager_path}/services:usbservice",
   ]
-
+  defines = [
+    "USB_MANAGER_FEATURE_HOST",
+    "USB_MANAGER_FEATURE_DEVICE",
+    "USB_MANAGER_FEATURE_PORT",
+  ]
   external_deps = [
     "ability_base:want",
     "ability_runtime:ability_manager",
@@ -376,7 +380,11 @@ ohos_fuzztest("UsbMgrDetachKernelDriverFuzzTest") {
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
     "${usb_manager_path}/services:usbservice",
   ]
-
+  defines = [
+    "USB_MANAGER_FEATURE_HOST",
+    "USB_MANAGER_FEATURE_DEVICE",
+    "USB_MANAGER_FEATURE_PORT",
+  ]
   external_deps = [
     "ability_base:want",
     "ability_runtime:ability_manager",
@@ -847,6 +855,12 @@ ohos_fuzztest("UsbMgrFuzzTest") {
     "${usb_manager_path}/services:usbservice",
   ]
 
+  defines = [
+    "USB_MANAGER_FEATURE_HOST",
+    "USB_MANAGER_FEATURE_DEVICE",
+    "USB_MANAGER_FEATURE_PORT",
+  ]
+
   external_deps = [
     "ability_runtime:ability_manager",
     "c_utils:utils",
@@ -871,7 +885,11 @@ ohos_fuzztest("UsbMgrExFuzzTest") {
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
     "${usb_manager_path}/services:usbservice",
   ]
-
+  defines = [
+    "USB_MANAGER_FEATURE_HOST",
+    "USB_MANAGER_FEATURE_DEVICE",
+    "USB_MANAGER_FEATURE_PORT",
+  ]
   external_deps = [
     "ability_base:want",
     "ability_runtime:ability_manager",

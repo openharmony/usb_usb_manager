@@ -17,7 +17,7 @@
 
 #include <vector>
 #include "usb_srv_client.h"
-
+#include "usb_serial_type.h"
 namespace {
 constexpr int32_t OK = 0;
 }
@@ -27,7 +27,7 @@ namespace SERIAL {
 bool UsbMgrSerialGetPortListFuzzTest(const uint8_t* data, size_t size)
 {
     auto &usbSrvClient = UsbSrvClient::GetInstance();
-    std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort> portInfo;
+    std::vector<UsbSerialPort> portInfo;
     if (usbSrvClient.SerialGetPortList(portInfo) != OK || portInfo.size() == 0) {
         return false;
     }

@@ -36,7 +36,7 @@
 #include "usb_errors.h"
 
 #include "usb_srv_client.h"
-#include "v1_0/iserial_interface.h"
+#include "usb_serial_type.h"
 
 using namespace OHOS;
 using namespace OHOS::USB;
@@ -82,7 +82,7 @@ static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort> g_portIds;
+    std::vector<UsbSerialPort> g_portIds;
     int32_t ret = g_usbClient.SerialGetPortList(g_portIds);
     if (!CheckAndThrowOnError(env, (ret == 0), ErrorCodeConversion(ret), "get portlist failed")) {
         return nullptr;
@@ -92,11 +92,11 @@ static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
     for (uint32_t i = 0; i < g_portIds.size(); ++i) {
         napi_value portObj;
         napi_create_object(env, &portObj);
-        NapiUtil::SetValueInt32(env, "portId", g_portIds[i].portId, portObj);
-        std::string deviceName = std::to_string(g_portIds[i].deviceInfo.busNum) + "-" +
-            std::to_string(g_portIds[i].deviceInfo.devAddr);
+        NapiUtil::SetValueInt32(env, "portId", g_portIds[i].portId_, portObj);
+        std::string deviceName = std::to_string(g_portIds[i].busNum_) + "-" +
+            std::to_string(g_portIds[i].devAddr_);
         NapiUtil::SetValueUtf8String(env, "deviceName", deviceName, portObj);
-        USB_HILOGI(MODULE_JS_NAPI, "portId: %{public}d", g_portIds[i].portId);
+        USB_HILOGI(MODULE_JS_NAPI, "portId: %{public}d", g_portIds[i].portId_);
         USB_HILOGI(MODULE_JS_NAPI, "deviceName: %{public}s", deviceName.c_str());
         napi_set_element(env, result, i, portObj);
     }
@@ -126,22 +126,22 @@ static napi_value SerialGetAttributeNapi(napi_env env, napi_callback_info info)
     if (!CheckAndThrowOnError(env, (portIdValue != -1), SYSPARAM_INVALID_INPUT, "Failed to get portId.")) {
         return nullptr;
     }
-    OHOS::HDI::Usb::Serial::V1_0::SerialAttribute serialAttribute;
+    UsbSerialAttr serialAttribute;
     int32_t ret = g_usbClient.SerialGetAttribute(portIdValue, serialAttribute);
     if (!CheckAndThrowOnError(env, (ret == 0), ErrorCodeConversion(ret), "Failed to get attribute.")) {
         return nullptr;
     }
     napi_value result = nullptr;
     napi_create_object(env, &result);
-    NapiUtil::SetValueUint32(env, "baudRate", serialAttribute.baudrate, result);
-    NapiUtil::SetValueUint32(env, "dataBits", serialAttribute.dataBits, result);
-    NapiUtil::SetValueUint32(env, "parity", serialAttribute.parity, result);
-    NapiUtil::SetValueUint32(env, "stopBits", serialAttribute.stopBits, result);
+    NapiUtil::SetValueUint32(env, "baudRate", serialAttribute.baudRate_, result);
+    NapiUtil::SetValueUint32(env, "dataBits", serialAttribute.stopBits_, result);
+    NapiUtil::SetValueUint32(env, "parity", serialAttribute.parity_, result);
+    NapiUtil::SetValueUint32(env, "stopBits", serialAttribute.dataBits_, result);
     return result;
 }
 
 bool ParseSetAttributeInterfaceParams(napi_env env, napi_callback_info info,
-    int32_t& portIdValue, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& serialAttribute)
+    int32_t& portIdValue, UsbSerialAttr& serialAttribute)
 {
     USB_HILOGI(MODULE_JS_NAPI, "ParseSetAttributeInterfaceParams start");
     size_t argc = ARGC_2;
@@ -169,17 +169,17 @@ bool ParseSetAttributeInterfaceParams(napi_env env, napi_callback_info info,
         "The type of arg1 must be SerialAttribute.")) {
         return false;
     }
-    NapiUtil::JsObjectToUint(env, obj, "baudRate", serialAttribute.baudrate);
-    NapiUtil::JsObjectToUint(env, obj, "dataBits", serialAttribute.dataBits);
-    NapiUtil::JsObjectToUint(env, obj, "parity", serialAttribute.parity);
-    NapiUtil::JsObjectToUint(env, obj, "stopBits", serialAttribute.stopBits);
+    NapiUtil::JsObjectToUint(env, obj, "baudRate", serialAttribute.baudRate_);
+    NapiUtil::JsObjectToUint(env, obj, "dataBits", serialAttribute.stopBits_);
+    NapiUtil::JsObjectToUint(env, obj, "parity", serialAttribute.parity_);
+    NapiUtil::JsObjectToUint(env, obj, "stopBits", serialAttribute.dataBits_);
     return true;
 }
 
 static napi_value SerialSetAttributeNapi(napi_env env, napi_callback_info info)
 {
     USB_HILOGI(MODULE_JS_NAPI, "SerialSetAttributeNapi start");
-    OHOS::HDI::Usb::Serial::V1_0::SerialAttribute serialAttribute;
+    UsbSerialAttr serialAttribute;
     int32_t portIdValue = -1;
     if (!ParseSetAttributeInterfaceParams(env, info, portIdValue, serialAttribute)) {
         return nullptr;
@@ -391,14 +391,19 @@ static napi_value SerialReadSyncNapi(napi_env env, napi_callback_info info)
         "The type of buffer must be an array of uint8_t.")) {
         return nullptr;
     }
-
+    std::vector<uint8_t> bufferData;
     uint32_t actualSize = 0;
-    int32_t ret = g_usbClient.SerialRead(portIdValue, static_cast<uint8_t*>(bufferValue), bufferLength, actualSize,
+    int32_t ret = g_usbClient.SerialRead(portIdValue, bufferData, bufferLength, actualSize,
         timeoutValue);
     if (!CheckAndThrowOnError(env, (ret == 0), ErrorCodeConversion(ret), "SerialReadSync Failed.")) {
         return nullptr;
     }
-
+    ret = memcpy_s(bufferValue, bufferLength, bufferData.data(), bufferData.size());
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_JS_NAPI,
+            "serial read sync, memcpy_s failed size: %{public}u, bufferSize: %{public}u, ret: %{public}d",
+            bufferLength, bufferData.size(), ret);
+    }
     napi_value result = nullptr;
     napi_create_int32(env, actualSize, &result);
     return result;
@@ -407,10 +412,16 @@ static napi_value SerialReadSyncNapi(napi_env env, napi_callback_info info)
 static auto g_serialReadExecute = [](napi_env env, void* data) {
     SerialReadAsyncContext *context = static_cast<SerialReadAsyncContext *>(data);
     uint32_t actualSize = 0;
-    int32_t ret = g_usbClient.SerialRead(context->portId, static_cast<uint8_t*>(context->pData),
+    std::vector<uint8_t> bufferData;
+    int32_t ret = g_usbClient.SerialRead(context->portId, bufferData,
         context->size, actualSize, context->timeout);
     if (ret != 0) {
         context->contextErrno = ErrorCodeConversion(ret);
+    }
+    ret = memcpy_s(context->pData, context->size, bufferData.data(), bufferData.size());
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed size: %{public}u, bufferSize: %{public}u, ret: %{public}d",
+            context->size, bufferData.size(), ret);
     }
     context->ret = actualSize;
 };

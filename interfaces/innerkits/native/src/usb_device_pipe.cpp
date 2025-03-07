@@ -59,7 +59,7 @@ int32_t USBDevicePipe::ControlTransfer(const UsbCtrlTransfer &ctrl, std::vector<
     return UsbSrvClient::GetInstance().ControlTransfer(*this, ctrl, bufferData);
 }
 
-int32_t USBDevicePipe::UsbCancelTransfer(const int32_t &endpoint)
+int32_t USBDevicePipe::UsbCancelTransfer(int32_t &endpoint)
 {
     return UsbSrvClient::GetInstance().UsbCancelTransfer(*this, endpoint);
 }
@@ -102,6 +102,16 @@ uint8_t USBDevicePipe::GetBusNum() const
 }
 
 uint8_t USBDevicePipe::GetDevAddr() const
+{
+    return devAddr_;
+}
+
+uint8_t USBDevicePipe::GetBusNum()
+{
+    return busNum_;
+}
+
+uint8_t USBDevicePipe::GetDevAddr()
 {
     return devAddr_;
 }

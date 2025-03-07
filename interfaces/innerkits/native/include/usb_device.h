@@ -20,6 +20,8 @@
 #include <sstream>
 #include <vector>
 #include <map>
+#include "parcel.h"
+#include "string_ex.h"
 #include "cJSON.h"
 #include "iremote_object.h"
 #include "usb_config.h"
@@ -27,7 +29,8 @@
 
 namespace OHOS {
 namespace USB {
-class UsbDevice {
+constexpr uint32_t USB_CONFIG_MAX_NUM = 128;
+class UsbDevice : public Parcelable {
 public:
     UsbDevice(std::string name, std::string manufacturerName, std::string productName, std::string version,
         uint8_t devAddr, uint8_t busNum, int32_t vendorId, int32_t productId, int32_t baseClass, int32_t subClass,
@@ -46,7 +49,70 @@ public:
         this->protocol_ = protocol;
         this->configs_ = configs;
     }
+    bool Marshalling(Parcel &parcel) const override
+    {
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint8, parcel, this->busNum_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint8, parcel, this->devAddr_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->vendorId_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->productId_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->baseClass_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->subClass_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->protocol_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint8, parcel, this->iManufacturer_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint8, parcel, this->iProduct_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint8, parcel, this->iSerialNumber_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint8, parcel, this->bMaxPacketSize0_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint16, parcel, this->bcdUSB_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint16, parcel, this->bcdDevice_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(String, parcel, this->name_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(String, parcel, this->manufacturerName_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(String, parcel, this->productName_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(String, parcel, this->version_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(String, parcel, this->serial_);
 
+        uint32_t configCount = this->configs_.size();
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, configCount);
+        for (uint32_t i = 0; i < configCount && i < USB_CONFIG_MAX_NUM; i++) {
+            this->configs_[i].Marshalling(parcel);
+        }
+        return true;
+    }
+
+    static UsbDevice *Unmarshalling(Parcel &data)
+    {
+        UsbDevice *usbDevice = new (std::nothrow) UsbDevice;
+        if (usbDevice == nullptr) {
+            return nullptr;
+        }
+
+        usbDevice->busNum_ = data.ReadUint8();
+        usbDevice->devAddr_ = data.ReadUint8();
+        usbDevice->vendorId_ = data.ReadInt32();
+        usbDevice->productId_ = data.ReadInt32();
+        usbDevice->baseClass_ = data.ReadInt32();
+        usbDevice->subClass_ = data.ReadInt32();
+        usbDevice->protocol_ = data.ReadInt32();
+        usbDevice->iManufacturer_ = data.ReadUint8();
+        usbDevice->iProduct_ = data.ReadUint8();
+        usbDevice->iSerialNumber_ = data.ReadUint8();
+        usbDevice->bMaxPacketSize0_ = data.ReadUint8();
+        usbDevice->bcdUSB_ = data.ReadUint16();
+        usbDevice->bcdDevice_ = data.ReadUint16();
+        usbDevice->name_ = data.ReadString();
+        usbDevice->manufacturerName_ = data.ReadString();
+        usbDevice->productName_ = data.ReadString();
+        usbDevice->version_ = data.ReadString();
+        usbDevice->serial_ = data.ReadString();
+
+        uint32_t configCount = data.ReadUint32();
+        for (uint32_t i = 0; i < configCount && i < USB_CONFIG_MAX_NUM; i++) {
+            USBConfig *pConfig = USBConfig::Unmarshalling(data);
+            usbDevice->configs_.push_back(*pConfig);
+            delete pConfig;
+            pConfig = nullptr;
+        }
+        return usbDevice;
+    }
     explicit UsbDevice(const cJSON *device)
     {
         if (device == nullptr) {

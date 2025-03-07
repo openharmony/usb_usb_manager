@@ -26,7 +26,7 @@ const int32_t NUM_TWO = 2;
 const int32_t NUM_ONE = 1;
 constexpr size_t THRESHOLD = 10;
 namespace USB {
-    uint32_t Convert2Uint32(const uint8_t *ptr)
+    int32_t Convert2Uint32(const uint8_t *ptr)
     {
         if (ptr == nullptr) {
             return 0;
@@ -44,7 +44,7 @@ namespace USB {
         if (data == nullptr) {
             return false;
         }
-        uint32_t endPoint = Convert2Uint32(data);
+        int32_t endPoint = Convert2Uint32(data);
 
         auto[res, pipe, interface] = UsbMgrPrepareFuzzEnv();
         if (!res) {
