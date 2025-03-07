@@ -21,7 +21,7 @@
 #include <unordered_map>
 #include <iostream>
 #include <chrono>
-#include <shared_mutex>
+#include <mutex>
 #include <thread>
 
 #include "delayed_sp_singleton.h"
@@ -284,7 +284,7 @@ private:
     Utils::Timer unloadSelfTimer_ {"unLoadTimer"};
     uint32_t unloadSelfTimerId_ {UINT32_MAX};
     sptr<IRemoteObject::DeathRecipient> recipient_;
-    std::shared_mutex openedFdsMutex_;
+    std::mutex openedFdsMutex_;
     std::map<std::pair<uint8_t, uint8_t>, int32_t> openedFds_;
 };
 } // namespace USB
