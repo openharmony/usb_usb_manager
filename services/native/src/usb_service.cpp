@@ -725,7 +725,7 @@ bool UsbService::DelDevice(uint8_t busNum, uint8_t devAddr)
         }
     }
     {
-        std::lock_guard<std::shared_mutex> lock(openedFdsMutex_);
+        std::lock_guard<std::mutex> lock(openedFdsMutex_);
         auto iter = openedFds_.find({busNum, devAddr});
         if (iter != openedFds_.end()) {
             int32_t fd = iter->second;
@@ -833,7 +833,7 @@ int32_t UsbService::GetFileDescriptor(uint8_t busNum, uint8_t devAddr, int32_t &
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "get fd error ret:%{public}d", ret);
     } else {
-        std::lock_guard<std::shared_mutex> lock(openedFdsMutex_);
+        std::lock_guard<std::mutex> lock(openedFdsMutex_);
         auto iter = openedFds_.find({busNum, devAddr});
         if (iter != openedFds_.end()) {
             int32_t oldFd = iter->second;
