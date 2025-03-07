@@ -52,7 +52,8 @@ bool UsbMgrSerialReadFuzzTest(const uint8_t* data, size_t size)
     const uint32_t timeout = *reinterpret_cast<const uint32_t *>(data + sizeof(int32_t));
     const uint32_t readSize = *reinterpret_cast<const size_t *>(data + sizeof(int32_t) + sizeof(uint32_t));
     std::shared_ptr<uint8_t> buffer = MakeSharedArray<uint8_t>(readSize);
-    if (usbSrvClient.SerialRead(portId, buffer.get(), readSize, timeout) != OK) {
+    uint32_t actualSize = 0;
+    if (usbSrvClient.SerialRead(portId, buffer.get(), readSize, actualSize, timeout) != OK) {
         return false;
     }
     return true;
