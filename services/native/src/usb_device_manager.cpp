@@ -484,7 +484,7 @@ void UsbDeviceManager::ProcessFunctionNotifier(bool connected, int32_t func)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: connected %{public}d, func %{public}d", __func__, connected, func);
     uint32_t func_uint = static_cast<uint32_t>(func);
-    if (!SetSettingsDataHdcStatus(func_uint)) {
+    if (func_uint == 0 && !SetSettingsDataHdcStatus(func_uint)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS is set failed!", __func__);
     }
     if (connected) {
