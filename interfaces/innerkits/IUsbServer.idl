@@ -1,0 +1,93 @@
+/*
+ * Copyright 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import UsbServerTypes;
+sequenceable OHOS.IRemoteObject;
+sequenceable UsbDevice..OHOS.USB.UsbDevice;
+sequenceable UsbAccessory..OHOS.USB.USBAccessory;
+sequenceable UsbPort..OHOS.USB.UsbPort;
+sequenceable UsbEndpoint..OHOS.USB.USBEndpoint;
+sequenceable UsbSerialType..OHOS.USB.UsbSerialPort;
+sequenceable UsbSerialType..OHOS.USB.UsbSerialAttr;
+
+interface OHOS.USB.IUsbServer {
+    /* the function about UsbService */
+    void GetDevices([out]UsbDevice[] deviceList);
+    void OpenDevice([in]unsigned char busNum, [in]unsigned char devAddr);
+    void Close([in]unsigned char busNum, [in]unsigned char devAddr);
+    void ResetDevice([in]unsigned char busNum, [in]unsigned char devAddr);
+    void ClaimInterface([in]unsigned char busNum, [in]unsigned char devAddr, [in]unsigned char interfaceid, [in]unsigned char force);
+    void SetInterface([in]unsigned char busNum, [in]unsigned char devAddr, [in]unsigned char interfaceid, [in]unsigned char altIndex);
+    void ReleaseInterface([in]unsigned char busNum, [in]unsigned char devAddr, [in]unsigned char interfaceid);
+    void SetActiveConfig([in]unsigned char busNum, [in]unsigned char devAddr, [in]unsigned char configId);
+    void ManageGlobalInterface([in]boolean disable);
+    void ManageDevice([in]int vendorId, [in]int productId, [in]boolean disable);
+    void ManageInterfaceType([in]UsbDeviceTypeInfo[] disableType, [in]boolean disable);
+    void UsbAttachKernelDriver([in]unsigned char busNum, [in]unsigned char devAddr, [in]unsigned char interfaceid);
+    void UsbDetachKernelDriver([in]unsigned char busNum, [in]unsigned char devAddr, [in]unsigned char interfaceid);
+    void ClearHalt([in]unsigned char busNum, [in]unsigned char devAddr, [in]unsigned char interfaceid, [in]unsigned char endpointId);
+    void GetActiveConfig([in]unsigned char busNum, [in]unsigned char devAddr, [out]unsigned char configId);
+    void GetRawDescriptor([in]unsigned char busNum, [in]unsigned char devAddr, [out]unsigned char[] bufferData);
+    void GetFileDescriptor([in]unsigned char busNum, [in]unsigned char devAddr, [out]FileDescriptor fd);
+    void GetDeviceSpeed([in]unsigned char busNum, [in]unsigned char devAddr, [out]unsigned char speed);
+    void GetInterfaceActiveStatus([in]unsigned char busNum, [in]unsigned char devAddr, [in]unsigned char interfaceid, [out]boolean unactivated);
+    void BulkTransferRead([in]unsigned char busNum, [in]unsigned char devAddr, [in]USBEndpoint ep, [inout]unsigned char[] bufferData, [in]int timeOut);
+    void BulkTransferWrite([in]unsigned char busNum, [in]unsigned char devAddr, [in]USBEndpoint ep, [in]unsigned char[] bufferData, [in]int timeOut);
+    void BulkTransferReadwithLength([in]unsigned char busNum, [in]unsigned char devAddr, [in]USBEndpoint ep, [in]int length, [out]unsigned char[] bufferData, [in]int timeOut);
+    void ControlTransfer([in]unsigned char busNum, [in]unsigned char devAddr, [in]UsbCtlSetUp ctrlParams, [inout]unsigned char[] bufferData);
+    void UsbControlTransfer([in]unsigned char busNum, [in]unsigned char devAddr, [in]UsbCtlSetUp ctrlParams, [inout]unsigned char[] bufferData);
+    void RequestQueue([in]unsigned char busNum, [in]unsigned char devAddr, [in]USBEndpoint ep, [in]unsigned char[] clientData, [in]unsigned char[] bufferData);
+    void RequestWait([in]unsigned char busNum, [in]unsigned char devAddr, [in]int timeOut, [inout]unsigned char[] clientData, [inout]unsigned char[] bufferData);
+    void RequestCancel([in]unsigned char busNum, [in]unsigned char devAddr, [in]unsigned char interfaceid, [in]unsigned char endpointId);
+    void UsbCancelTransfer([in]unsigned char busNum, [in]unsigned char devAddr, [in]int endpoint);
+    void UsbSubmitTransfer([in]unsigned char busNum, [in]unsigned char devAddr, [in]UsbTransInfo info, [in]IRemoteObject cb, [in]FileDescriptor fd, [in] int memSize);
+    void RegBulkCallback([in]unsigned char busNum, [in]unsigned char devAddr, [in]USBEndpoint ep, [in]IRemoteObject cb);
+    void UnRegBulkCallback([in]unsigned char busNum, [in]unsigned char devAddr, [in]USBEndpoint ep);
+    void BulkRead([in]unsigned char busNum, [in]unsigned char devAddr, [in]USBEndpoint ep, [in]FileDescriptor ashmem, [in] int memSize);
+    void BulkWrite([in]unsigned char busNum, [in]unsigned char devAddr, [in]USBEndpoint ep, [in]FileDescriptor ashmem, [in] int memSize);
+    void BulkCancel([in]unsigned char busNum, [in]unsigned char devAddr, [in]USBEndpoint ep);
+    void HasRight([in]String deviceName, [out]boolean hasRight);
+    void RequestRight([in]String deviceName);
+    void RemoveRight([in]String deviceName);
+    void AddRight([in]String bundleName, [in]String deviceName);
+    void AddAccessRight([in]String tokenId, [in]String deviceName);
+
+    void GetCurrentFunctions([out] int funcs);
+    void SetCurrentFunctions([in] int funcs);
+    int UsbFunctionsFromString([in] String funcs);
+    String UsbFunctionsToString([in] int funcs);
+    void AddAccessoryRight([in] unsigned int tokenId, [in] USBAccessory access);
+    void HasAccessoryRight([in] USBAccessory access, [out] boolean checkResult);
+    void RequestAccessoryRight([in] USBAccessory access, [out] boolean checkResult);
+    void CancelAccessoryRight([in] USBAccessory access);
+    void GetAccessoryList([out] USBAccessory[] accessList);
+    void OpenAccessory([in] USBAccessory access, [out] FileDescriptor fd);
+    void CloseAccessory([in] int fd);
+
+    void GetPorts([out]UsbPort[] ports);
+    void GetSupportedModes([in] int portId, [out] int supportedModes);
+    void SetPortRole([in] int portId, [in] int powerRole, [in] int dataRole);
+
+    void SerialOpen([in] int portId, [in] IRemoteObject serialRemote);
+    void SerialClose([in] int portId);
+    void SerialRead([in] int portId, [out]unsigned char[] buffData, [in]unsigned int size, [out]unsigned int actualSize, [in]unsigned int timeout);
+    void SerialWrite([in] int portId, [in]unsigned char[] buffData, [in]unsigned int size, [out]unsigned int actualSize, [in]unsigned int timeout);
+    void SerialGetAttribute([in] int portId, [out]UsbSerialAttr attribute);
+    void SerialSetAttribute([in] int portId, [in]UsbSerialAttr attribute);
+    void SerialGetPortList([out] UsbSerialPort[] serialPortList);
+    void AddSerialRight([in] unsigned int tokenId, [in] int portId);
+    void HasSerialRight([in] int portId, [out]boolean hasRight);
+    void RequestSerialRight([in] int portId);
+    void CancelSerialRight([in] int portId);
+}

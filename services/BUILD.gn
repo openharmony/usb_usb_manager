@@ -20,7 +20,6 @@ config("usbsrv_private_config") {
 config("usbsrv_public_config") {
   include_dirs = [
     "native/include",
-    "${usb_manager_path}/services/zidl/include",
     "${usb_manager_path}/utils/native/include",
   ]
 }
@@ -38,7 +37,6 @@ ohos_shared_library("usbservice") {
 
   install_enable = true
   sources = [
-    "${usb_manager_path}/services/zidl/src/usb_srv_stub.cpp",
     "${utils_path}/native/src/usb_settings_datashare.cpp",
     "native/src/serial_manager.cpp",
     "native/src/usb_connection_notifier.cpp",
@@ -56,7 +54,7 @@ ohos_shared_library("usbservice") {
   ]
 
   public_configs = [ ":usbsrv_public_config" ]
-
+  deps = [ "${usb_manager_path}/interfaces/innerkits:usb_server_stub" ]
   defines = []
   if (usb_manager_pass_through) {
     defines += [

@@ -18,6 +18,7 @@
 
 #include <string>
 #include <vector>
+#include "parcel.h"
 #include "usb_common.h"
 
 namespace OHOS {
@@ -27,10 +28,34 @@ struct UsbPortStatus {
     int32_t currentPowerRole;
     int32_t currentDataRole;
 };
-struct UsbPort {
+struct UsbPort : public Parcelable {
     int32_t id;
     int32_t supportedModes;
     UsbPortStatus usbPortStatus;
+
+    bool Marshalling(Parcel &parcel) const override
+    {
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->id);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->supportedModes);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->usbPortStatus.currentMode);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->usbPortStatus.currentPowerRole);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->usbPortStatus.currentDataRole);
+        return true;
+    }
+
+    static UsbPort *Unmarshalling(Parcel &data)
+    {
+        UsbPort *usbPort = new (std::nothrow) UsbPort;
+        if (usbPort == nullptr) {
+            return nullptr;
+        }
+        usbPort->id = data.ReadInt32();
+        usbPort->supportedModes = data.ReadInt32();
+        usbPort->usbPortStatus.currentMode = data.ReadInt32();
+        usbPort->usbPortStatus.currentPowerRole = data.ReadInt32();
+        usbPort->usbPortStatus.currentDataRole = data.ReadInt32();
+        return usbPort;
+    }
 };
 } // namespace USB
 } // namespace OHOS

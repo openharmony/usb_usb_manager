@@ -21,13 +21,16 @@
 #include <mutex>
 #include <sstream>
 #include <vector>
+#include "parcel.h"
 #include "usb_common.h"
 #include "usb_interface.h"
 #include "cJSON.h"
 
 namespace OHOS {
 namespace USB {
-class USBConfig {
+constexpr uint32_t USB_INTERFACE_MAX_NUM = 128;
+
+class USBConfig : public Parcelable {
 public:
     USBConfig(uint32_t id, uint32_t attributes, std::string name, uint32_t maxPower,
         std::vector<UsbInterface> interfaces)
@@ -64,7 +67,46 @@ public:
 
     USBConfig() {}
     ~USBConfig() {}
+    bool Marshalling(Parcel &parcel) const override
+    {
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->id_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint32, parcel, this->attributes_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->maxPower_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint8, parcel, this->iConfiguration_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(String16, parcel, Str8ToStr16(this->name_));
 
+        uint32_t infCount = this->interfaces_.size();
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint32, parcel, infCount);
+
+        for (uint32_t i = 0; i < infCount && i < USB_INTERFACE_MAX_NUM; i++) {
+            this->interfaces_[i].Marshalling(parcel);
+        }
+        return true;
+    }
+
+    static USBConfig *Unmarshalling(Parcel &data)
+    {
+        USBConfig *usbConfig = new (std::nothrow) USBConfig;
+        if (usbConfig == nullptr) {
+            return nullptr;
+        }
+        usbConfig->id_ = data.ReadInt32();
+        usbConfig->attributes_ = data.ReadInt32();
+        usbConfig->maxPower_ = data.ReadInt32();
+        usbConfig->iConfiguration_ = data.ReadInt32();
+        usbConfig->name_ = Str16ToStr8(data.ReadString16());
+
+        uint32_t infCount = 0;
+        infCount = data.ReadUint32();
+
+        for (uint32_t i = 0; i < infCount && i < USB_INTERFACE_MAX_NUM; i++) {
+            UsbInterface *pInf = UsbInterface::Unmarshalling(data);
+            usbConfig->interfaces_.push_back(*pInf);
+            delete pInf;
+            pInf = nullptr;
+        }
+        return usbConfig;
+    }
     static int GetIntValue(const cJSON *jsonObject, const char *key)
     {
         cJSON *item = cJSON_GetObjectItem(jsonObject, key);

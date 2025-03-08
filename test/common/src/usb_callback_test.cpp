@@ -29,14 +29,12 @@
 #include "securec.h"
 #include "system_ability_definition.h"
 #include "usb_callback_test.h"
-#include "usb_common_test.h"
 #include "usb_errors.h"
 #include "usb_srv_client.h"
 
 using namespace OHOS;
 using namespace OHOS::USB;
 using namespace std;
-using namespace OHOS::USB::Common;
 
 int32_t UsbCallbackTest::OnBulkWriteCallback(int32_t status, int32_t actLength)
 {

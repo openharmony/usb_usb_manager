@@ -11,15 +11,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//build/config/components/idl_tool/idl.gni")
 import("./../../usbmgr.gni")
 
-config("usbsrv_private_config") {
-  include_dirs = [ "${usb_manager_path}/services/zidl/include" ]
+idl_gen_interface("usb_server_interface") {
+  sources = [ "IUsbServer.idl" ]
+  sources_common = [ "UsbServerTypes.idl" ]
+  log_domainid = "0xD002A03"
+  log_tag = "UsbSrvClient"
 }
 
 config("usbsrv_public_config") {
   include_dirs = [
     "native/include",
+    "${target_gen_dir}",
     "${usb_manager_path}/utils/native/include",
   ]
 }
@@ -30,19 +35,21 @@ ohos_shared_library("usbsrv_client") {
     ubsan = true
     boundary_sanitize = true
   }
-
+  output_values = get_target_outputs(":usb_server_interface")
   sources = [
-    "${usb_manager_path}/services/zidl/src/usb_srv_proxy.cpp",
     "native/src/usb_device_pipe.cpp",
     "native/src/usb_interface_type.cpp",
     "native/src/usb_request.cpp",
     "native/src/usb_srv_client.cpp",
     "native/src/usbd_bulk_callback.cpp",
   ]
-
+  sources += filter_include(output_values,
+                            [
+                              "*_proxy.cpp",
+                              "*_types.cpp",
+                            ])
   configs = [
     "${utils_path}:utils_config",
-    ":usbsrv_private_config",
     ":usbsrv_public_config",
   ]
 
@@ -61,7 +68,7 @@ ohos_shared_library("usbsrv_client") {
   if (usb_manager_feature_port) {
     defines += [ "USB_MANAGER_FEATURE_PORT" ]
   }
-
+  deps = [ ":usb_server_interface" ]
   public_configs = [ ":usbsrv_public_config" ]
   public_external_deps = [
     "cJSON:cjson",
@@ -82,5 +89,48 @@ ohos_shared_library("usbsrv_client") {
   ]
   subsystem_name = "usb"
   innerapi_tags = [ "platformsdk" ]
+  part_name = "usb_manager"
+}
+
+config("usbsrv_private_config") {
+  include_dirs = [ "native/include" ]
+}
+
+config("usb_inner_public_config") {
+  include_dirs = [
+    "${target_gen_dir}",
+    "${usb_manager_path}/services/native/include",
+    "${usb_manager_path}/utils/native/include",
+  ]
+}
+
+ohos_source_set("usb_server_stub") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  configs = [
+    "${utils_path}:utils_config",
+    ":usbsrv_private_config",
+  ]
+  public_configs = [ ":usb_inner_public_config" ]
+  output_values = get_target_outputs(":usb_server_interface")
+  sources = filter_include(output_values,
+                           [
+                             "*_stub.cpp",
+                             "*_types.cpp",
+                           ])
+  deps = [ ":usb_server_interface" ]
+  external_deps = [
+    "cJSON:cjson",
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.1",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "hilog:libhilog",
+    "ipc:ipc_single",
+    "samgr:samgr_proxy",
+  ]
+  subsystem_name = "usb"
   part_name = "usb_manager"
 }

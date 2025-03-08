@@ -42,21 +42,6 @@ constexpr int32_t ONE_SECOND = 1000;
 constexpr int32_t MAX_MEMORY = 8192;
 static std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort> g_portList;
 
-template<typename T>
-std::shared_ptr<T> make_shared_array(size_t size)
-{
-    if (size == 0) {
-        return NULL;
-    }
-    if (size > MAX_MEMORY) {
-        return NULL;
-    }
-    T* buffer = new (std::nothrow)T[size];
-    if (!buffer) {
-        return NULL;
-    }
-    return std::shared_ptr<T>(buffer, [] (T* p) { delete[] p; });
-}
 
 namespace OHOS {
 namespace SERIAL {
@@ -170,9 +155,9 @@ HWTEST_F(SerialTest, SerialRead_001, TestSize.Level1)
 {
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
     UsbSrvClient::GetInstance().SerialOpen(VALID_PORTID);
-    std::shared_ptr<uint8_t> data = make_shared_array<uint8_t>(ONE_KBYTE);
     uint32_t actualSize = 0;
-    int32_t ret = UsbSrvClient::GetInstance().SerialRead(VALID_PORTID, data.get(), ONE_KBYTE, actualSize, ONE_SECOND);
+    std::vector<uint8_t> data;
+    int32_t ret = UsbSrvClient::GetInstance().SerialRead(VALID_PORTID, data, ONE_KBYTE, actualSize, ONE_SECOND);
     EXPECT_EQ(ret, UEC_INTERFACE_TIMED_OUT);
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
 }
@@ -187,9 +172,9 @@ HWTEST_F(SerialTest, SerialRead_002, TestSize.Level1)
 {
     UsbSrvClient::GetInstance().SerialClose(INVALID_PORTID);
     UsbSrvClient::GetInstance().SerialOpen(INVALID_PORTID);
-    std::shared_ptr<uint8_t> data = make_shared_array<uint8_t>(ONE_KBYTE);
+    std::vector<uint8_t> data;
     uint32_t actualSize = 0;
-    int32_t ret = UsbSrvClient::GetInstance().SerialRead(INVALID_PORTID, data.get(), ONE_KBYTE, actualSize, 0);
+    int32_t ret = UsbSrvClient::GetInstance().SerialRead(INVALID_PORTID, data, ONE_KBYTE, actualSize, 0);
     EXPECT_EQ(ret, UEC_SERIAL_PORT_NOT_EXIST);
     UsbSrvClient::GetInstance().SerialClose(INVALID_PORTID);
 }
@@ -207,9 +192,9 @@ HWTEST_F(SerialTest, SerialRead_003, TestSize.Level1)
     std::cout << "Please open the serial port tool to send data in ";
     std::cout << "a single transmission, and press Enter to continue" << std::endl;
     getchar();
-    std::shared_ptr<uint8_t> data = make_shared_array<uint8_t>(ONE_KBYTE);
+    std::vector<uint8_t> data;
     uint32_t actualSize = 0;
-    int32_t ret = UsbSrvClient::GetInstance().SerialRead(VALID_PORTID, data.get(), ONE_KBYTE, actualSize, 0);
+    int32_t ret = UsbSrvClient::GetInstance().SerialRead(VALID_PORTID, data, ONE_KBYTE, actualSize, 0);
     EXPECT_EQ(ret, 0);
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
 }
