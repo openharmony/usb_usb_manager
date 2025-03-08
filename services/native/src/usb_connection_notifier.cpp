@@ -367,6 +367,7 @@ void UsbConnectionNotifier::SendHdcNotification()
     requestHdc_.SetRemoveAllowed(true);
     requestHdc_.SetTapDismissed(false);
     requestHdc_.SetGroupName(NOTIFICATION_NAME_ONE);
+    requestHdc_.SetSlotType(OHOS::Notification::NotificationConstant::SlotType::SERVICE_REMINDER);
     if (icon_.has_value()) {
         requestHdc_.SetLittleIcon(icon_.value());
     }
