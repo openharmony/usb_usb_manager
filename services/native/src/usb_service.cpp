@@ -726,6 +726,19 @@ bool UsbService::DelDevice(uint8_t busNum, uint8_t devAddr)
             }
         }
     }
+    {
+        std::lock_guard<std::mutex> lock(openedFdsMutex_);
+        auto iter = openedFds_.find({busNum, devAddr});
+        if (iter != openedFds_.end()) {
+            int32_t fd = iter->second;
+            int res = close(fd);
+            openedFds_.erase(iter);
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:%{public}d close %{public}d ret = %{public}d",
+                __func__, __LINE__, fd, res);
+        } else {
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:%{public}d not opened", __func__, __LINE__);
+        }
+    }
 
     return usbHostManager_->DelDevice(busNum, devAddr);
 }
@@ -821,7 +834,20 @@ int32_t UsbService::GetFileDescriptor(uint8_t busNum, uint8_t devAddr, int32_t &
     }
     int32_t ret = usbHostManager_->GetFileDescriptor(busNum, devAddr, fd);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "error ret:%{public}d", ret);
+        USB_HILOGE(MODULE_USB_SERVICE, "get fd error ret:%{public}d", ret);
+    } else {
+        std::lock_guard<std::mutex> lock(openedFdsMutex_);
+        auto iter = openedFds_.find({busNum, devAddr});
+        if (iter != openedFds_.end()) {
+            int32_t oldFd = iter->second;
+            int res = close(oldFd);
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:%{public}d close old %{public}d ret = %{public}d",
+                __func__, __LINE__, oldFd, res);
+        } else {
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:%{public}d first time get fd", __func__, __LINE__);
+        }
+        openedFds_[{busNum, devAddr}] = fd;
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:%{public}d opened %{public}d", __func__, __LINE__, fd);
     }
     return ret;
 }
