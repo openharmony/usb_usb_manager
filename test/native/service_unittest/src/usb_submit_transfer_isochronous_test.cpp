@@ -101,6 +101,7 @@ HWTEST_F(UsbSubmitTransferIsochronousTest, UsbSubmitTransferIsochronousWrite, Te
     ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferIsochronousWrite %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
+    UsbSrvClient.SetInterface(pipe, interface);
     sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
     ASSERT_NE(ashmem, nullptr);
     const uint8_t dataToWrite[TEN] = {0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55};
@@ -150,7 +151,7 @@ HWTEST_F(UsbSubmitTransferIsochronousTest, UsbSubmitTransferIsochronousRead, Tes
     USBEndpoint point = interface.GetEndpoints().front();
     ret = UsbSrvClient.ClaimInterface(pip, interface, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferIsochronousRead ClaimInterface ret%{public}d", ret);
-
+    UsbSrvClient.SetInterface(pip, interface);
     sptr<Ashmem> ashmem = Ashmem::CreateAshmem("usb_shared_memory", TEN);
     ASSERT_NE(ashmem, nullptr);
     ashmem->MapReadAndWriteAshmem();

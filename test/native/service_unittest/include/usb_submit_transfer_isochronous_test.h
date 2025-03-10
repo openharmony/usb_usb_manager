@@ -32,9 +32,9 @@ static constexpr int32_t TEN = 10;
 static constexpr int32_t TYPE_ISOCHRONOUS = 1;
 
 enum UsbIsochronousTestErrCode {
-    OHEC_COMMON_PARAM_ERROR = 401,
-    USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR = 14400011,
-    USB_SUBMIT_TRANSFER_IO_ERROR = 14400012,
+    OHEC_COMMON_PARAM_ERROR = -2,
+    USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR = -5,
+    USB_SUBMIT_TRANSFER_IO_ERROR = -1,
 };
 
 } // SubmitTransfer
