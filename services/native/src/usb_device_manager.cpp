@@ -473,11 +473,13 @@ void UsbDeviceManager::BroadcastFuncChange(bool connected, int32_t currentFunc)
 
 void UsbDeviceManager::ProcessFuncChange(bool connected, int32_t currentFunc, bool isDisableDialog)
 {
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: connected %{public}d, currentFunc %{public}d, isDisableDialog "
+                                   "%{public}d", __func__, connected, currentFunc, isDisableDialog);
     BroadcastFuncChange(connected, currentFunc);
     if (!isDisableDialog) {
         ProcessFunctionSwitchWindow(connected);
     }
-    ProcessFunctionNotifier(connected, 0);
+    ProcessFunctionNotifier(connected, currentFunc);
 }
 
 void UsbDeviceManager::ProcessFunctionNotifier(bool connected, int32_t func)
