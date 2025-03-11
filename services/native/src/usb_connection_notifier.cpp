@@ -52,6 +52,7 @@ static const std::string ICON_NAME = "icon";
 constexpr std::int32_t BUNDLE_MGR_SERVICE_SA_ID = 401;
 constexpr std::int32_t NOTIFICATION_ID_ZERO = 0;
 constexpr std::int32_t NOTIFICATION_ID_ONE = 1;
+constexpr std::uint32_t NOTIFICATION_STATUS_CLOSE_VIBRATION = 1<<4;
 
 enum SUPPORTED_FUNC : int32_t {
     SUPPORTED_FUNC_NONE = -1,
@@ -368,6 +369,7 @@ void UsbConnectionNotifier::SendHdcNotification()
     requestHdc_.SetTapDismissed(false);
     requestHdc_.SetGroupName(NOTIFICATION_NAME_ONE);
     requestHdc_.SetSlotType(OHOS::Notification::NotificationConstant::SlotType::SERVICE_REMINDER);
+    requestHdc_.SetNotificationControlFlags(NOTIFICATION_STATUS_CLOSE_VIBRATION);
     if (icon_.has_value()) {
         requestHdc_.SetLittleIcon(icon_.value());
     }
