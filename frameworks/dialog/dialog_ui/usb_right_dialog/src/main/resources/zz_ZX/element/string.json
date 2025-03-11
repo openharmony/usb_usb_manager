@@ -91,6 +91,14 @@
         {
             "name":"USB_func_mtp_notifier",
             "value":"[TS_1017358]_File transfer via USB"
+        },
+        {
+            "name":"USB_hdc_notifier_title",
+            "value":"[TS_1043344]_USB debugging started"
+        },
+        {
+            "name":"USB_hdc_notifier_content",
+            "value":"[TS_1043345]_Touch to disable USB debugging."
         }
     ]
 }
