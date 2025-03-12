@@ -322,7 +322,7 @@ int32_t UsbRightManager::RequestRight(const int32_t portId, const SerialDeviceId
     }
     if (!GetUserAgreementByDiag(portId, serialDeviceIdentity, bundleName, tokenId, userId)) {
         USB_HILOGW(MODULE_USB_SERVICE, "user don't agree");
-        return UEC_OK;
+        return UEC_SERVICE_PERMISSION_DENIED;
     }
     return UEC_OK;
 }

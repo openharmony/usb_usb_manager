@@ -82,7 +82,7 @@ struct UsbSerialAttr : public Parcelable {
         usbSerialAttr->baudRate_ = data.ReadUint32();
         usbSerialAttr->stopBits_ = data.ReadUint8();
         usbSerialAttr->parity_ = data.ReadUint8();
-        usbSerialAttr->dataBits_ = data.ReadInt32();
+        usbSerialAttr->dataBits_ = data.ReadUint8();
         return usbSerialAttr;
     }
 };

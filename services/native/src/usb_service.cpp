@@ -39,6 +39,7 @@
 #include "usb_napi_errors.h"
 #include "usb_port_manager.h"
 #include "usb_right_manager.h"
+#include "usb_right_db_helper.h"
 #include "tokenid_kit.h"
 #include "accesstoken_kit.h"
 #include "mem_mgr_proxy.h"
@@ -59,6 +60,8 @@ constexpr int32_t COMMEVENT_REGISTER_RETRY_TIMES = 10;
 constexpr int32_t COMMEVENT_REGISTER_WAIT_DELAY_US = 20000;
 constexpr int32_t SERVICE_STARTUP_MAX_TIME = 30;
 constexpr uint32_t UNLOAD_SA_TIMER_INTERVAL = 30 * 1000;
+constexpr const int32_t INT_TRUE = 1;
+constexpr const int32_t INT_FALSE = 0;
 #if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 #endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
@@ -2526,6 +2529,14 @@ int32_t UsbService::RequestSerialRight(int32_t portId)
             "usbRightManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
+    std::shared_ptr<UsbRightDbHelper> helper = OHOS::USB::UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: get dbHelper failed", __func__);
+        ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", UEC_SERIAL_DATEBASE_ERROR,
+            "get dbHelper failed");
+        return UEC_SERIAL_DATEBASE_ERROR;
+    }
     
     int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
@@ -2547,7 +2558,7 @@ int32_t UsbService::RequestSerialRight(int32_t portId)
 
     if (usbRightManager_->IsSystemAppOrSa()) {
         USB_HILOGW(MODULE_USB_SERVICE, "system app, bypass: dev=%{public}s", deviceName.c_str());
-        return UEC_OK;
+        return INT_TRUE;
     }
 
     std::string bundleName;
@@ -2566,12 +2577,13 @@ int32_t UsbService::RequestSerialRight(int32_t portId)
     SerialDeviceIdentity serialDeviceIdentity = { deviceName, deviceVidPidSerialNum };
     ret = usbRightManager_->RequestRight(portId, serialDeviceIdentity, bundleName, tokenId, userId);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE,
-            "%{public}s: RequestRight failed. ret = %{public}d", __func__, ret);
-        ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", ret, "RequestRight failed");
+        USB_HILOGW(MODULE_USB_SERVICE,
+            "%{public}s:user don't agree", __func__);
+        ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", ret, "user don't agree");
+        return INT_FALSE;
     }
 
-    return ret;
+    return INT_TRUE;
 }
 
 int32_t UsbService::CancelSerialRight(int32_t portId)
@@ -2582,6 +2594,14 @@ int32_t UsbService::CancelSerialRight(int32_t portId)
         ReportUsbSerialOperationFaultSysEvent(portId, "CancelSerialRight", UEC_SERVICE_INVALID_VALUE,
             "usbRightManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
+    }
+
+    std::shared_ptr<UsbRightDbHelper> helper = OHOS::USB::UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: get dbHelper failed", __func__);
+        ReportUsbSerialOperationFaultSysEvent(portId, "CancelSerialRight", UEC_SERIAL_DATEBASE_ERROR,
+            "get dbHelper failed");
+        return UEC_SERIAL_DATEBASE_ERROR;
     }
 
     int32_t ret = ValidateUsbSerialManagerAndPort(portId);
@@ -2633,24 +2653,22 @@ int32_t UsbService::CancelSerialRight(int32_t portId)
     return UEC_OK;
 }
 
-int32_t UsbService::HasSerialRight(int32_t portId, bool &hasRight)
-{
-    hasRight = HasSerialRight(portId);
-    return UEC_OK;
-}
-
-bool UsbService::HasSerialRight(int32_t portId)
+int32_t UsbService::HasSerialRight(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbRightManager_ is nullptr", __func__);
-        return false;
+        return UEC_SERVICE_INVALID_VALUE;
     }
-
+    std::shared_ptr<UsbRightDbHelper> helper = OHOS::USB::UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: get dbHelper failed", __func__);
+        return UEC_SERIAL_DATEBASE_ERROR;
+    }
     int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
-        return false;
+        return ret;
     }
 
     std::string deviceName;
@@ -2659,12 +2677,12 @@ bool UsbService::HasSerialRight(int32_t portId)
     ret = GetDeviceVidPidSerialNumber(portId, deviceName, deviceVidPidSerialNum);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: can not find deviceName.", __func__);
-        return false;
+        return ret;
     }
 
     if (usbRightManager_->IsSystemAppOrSa()) {
         USB_HILOGW(MODULE_USB_SERVICE, "system app, bypass: dev=%{public}s ", deviceName.c_str());
-        return true;
+        return INT_TRUE;
     }
 
     std::string bundleName;
@@ -2672,18 +2690,18 @@ bool UsbService::HasSerialRight(int32_t portId)
     int32_t userId = USB_RIGHT_USERID_INVALID;
     if (!GetCallingInfo(bundleName, tokenId, userId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HasRight GetCallingInfo false", __func__);
-        return false;
+        return INT_FALSE;
     }
 
     USB_HILOGI(MODULE_USB_SERVICE, "bundle=%{public}s, device=%{public}s",
         bundleName.c_str(), deviceName.c_str());
     if (usbRightManager_->HasRight(deviceVidPidSerialNum, bundleName, tokenId, userId)) {
-        return true;
+        return INT_TRUE;
     } else if (usbRightManager_->HasRight(deviceVidPidSerialNum, bundleName, USB_DEFAULT_TOKEN, userId)) {
-        return true;
+        return INT_TRUE;
     }
 
-    return false;
+    return INT_FALSE;
 }
 
 int32_t UsbService::AddSerialRight(uint32_t tokenId, int32_t portId)
@@ -2695,7 +2713,11 @@ int32_t UsbService::AddSerialRight(uint32_t tokenId, int32_t portId)
             "usbRightManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-
+    std::shared_ptr<UsbRightDbHelper> helper = OHOS::USB::UsbRightDbHelper::GetInstance();
+    if (helper == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: get dbHelper failed", __func__);
+        return UEC_SERIAL_DATEBASE_ERROR;
+    }
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE,
@@ -2706,7 +2728,12 @@ int32_t UsbService::AddSerialRight(uint32_t tokenId, int32_t portId)
 
     std::string deviceName;
     std::string deviceVidPidSerialNum;
-
+    ret = ValidateUsbSerialManagerAndPort(portId);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
+        ReportUsbSerialOperationFaultSysEvent(portId, "AddSerialRight", ret, "ValidateUsbSerialManagerAndPort failed");
+        return ret;
+    }
     ret = GetDeviceVidPidSerialNumber(portId, deviceName, deviceVidPidSerialNum);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: can not find deviceName.", __func__);
@@ -2716,9 +2743,9 @@ int32_t UsbService::AddSerialRight(uint32_t tokenId, int32_t portId)
 
     if (!usbRightManager_->AddDeviceRight(deviceVidPidSerialNum, std::to_string(tokenId).c_str())) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: AddDeviceRight failed", __func__);
-        ReportUsbSerialOperationFaultSysEvent(portId, "AddSerialRight", UEC_SERVICE_PERMISSION_DENIED,
+        ReportUsbSerialOperationFaultSysEvent(portId, "AddSerialRight", UEC_SERIAL_DATEBASE_ERROR,
             "AddDeviceRight failed");
-        return UEC_SERVICE_PERMISSION_DENIED;
+        return UEC_SERIAL_DATEBASE_ERROR;
     }
 
     USB_HILOGI(MODULE_USB_SERVICE, "AddRight done");
