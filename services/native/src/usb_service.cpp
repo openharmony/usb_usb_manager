@@ -2545,8 +2545,7 @@ int32_t UsbService::RequestSerialRight(int32_t portId)
     int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
-        ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", ret,
-            "ValidateUsbSerialManagerAndPort failed");
+        ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", ret, "invalid portId");
         return ret;
     }
     if ((ret = CheckDbAbility(portId)) != UEC_OK) {
@@ -2639,7 +2638,6 @@ int32_t UsbService::CancelSerialRight(int32_t portId)
     }
 
     if (usbRightManager_->RemoveDeviceRight(deviceVidPidSerialNum, bundleName, tokenId, userId)) {
-        USB_HILOGI(MODULE_USB_SERVICE, "RemoveDeviceRight done");
         return UEC_OK;
     }
 
@@ -2650,7 +2648,6 @@ int32_t UsbService::CancelSerialRight(int32_t portId)
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
-    USB_HILOGI(MODULE_USB_SERVICE, "RemoveRight done");
     return UEC_OK;
 }
 
