@@ -49,10 +49,11 @@ int32_t UsbManagerSubscriber::PortChangedEvent(const PortInfo &info)
     cJSON_AddNumberToObject(portJson, "powerRole", static_cast<double>(info.powerRole));
     cJSON_AddNumberToObject(portJson, "dataRole", static_cast<double>(info.dataRole));
     cJSON_AddNumberToObject(portJson, "mode", static_cast<double>(info.mode));
+    cJSON_AddNumberToObject(portJson, "supportedModes", static_cast<double>(info.supportedModes));
     auto jsonString = cJSON_PrintUnformatted(portJson);
     Want want;
     want.SetAction(CommonEventSupport::COMMON_EVENT_USB_PORT_CHANGED);
-    pms->UpdateUsbPort(info.portId, info.powerRole, info.dataRole, info.mode);
+    pms->UpdateUsbPort(info.portId, info.powerRole, info.dataRole, info.mode, info.supportedModes);
     CommonEventData data;
     data.SetData(jsonString);
     data.SetWant(want);
