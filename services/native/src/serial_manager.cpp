@@ -155,7 +155,7 @@ int32_t SerialManager::SerialRead(int32_t portId, std::vector<uint8_t> &data, ui
     }
 
     ret = serial_->SerialRead(portId, data, size, timeout);
-    if (ret != UEC_OK) {
+    if (ret < UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialRead failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
@@ -174,7 +174,7 @@ int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& d
     }
 
     ret = serial_->SerialWrite(portId, data, size, timeout);
-    if (ret != UEC_OK) {
+    if (ret < UEC_OK) {
         return ErrorCodeWrap(ret);
     }
     actualSize = ret;
