@@ -63,10 +63,13 @@ void SerialRightTest::TearDown(void) {}
  */
 HWTEST_F(SerialRightTest, HasSerialRight001, TestSize.Level1)
 {
+    bool hasRight = false;
     UsbSrvClient::GetInstance().CancelSerialRight(VALID_PORTID);
-    EXPECT_EQ(UsbSrvClient::GetInstance().HasSerialRight(VALID_PORTID), HAS_RIGHT);
+    UsbSrvClient::GetInstance().HasSerialRight(VALID_PORTID, hasRight);
+    EXPECT_EQ(hasRight, true);
     UsbSrvClient::GetInstance().RequestSerialRight(VALID_PORTID);
-    EXPECT_EQ(UsbSrvClient::GetInstance().HasSerialRight(VALID_PORTID), HAS_RIGHT);
+    UsbSrvClient::GetInstance().HasSerialRight(VALID_PORTID, hasRight);
+    EXPECT_EQ(hasRight, true);
 }
 
 /**
@@ -76,13 +79,12 @@ HWTEST_F(SerialRightTest, HasSerialRight001, TestSize.Level1)
  */
 HWTEST_F(SerialRightTest, HasSerialRight002, TestSize.Level1)
 {
-    int ret = UsbSrvClient::GetInstance().HasSerialRight(INVALID_PORTID);
-    EXPECT_NE(ret, HAS_RIGHT);
-    EXPECT_NE(ret, NO_RIGHT);
-    UsbSrvClient::GetInstance().RequestSerialRight(INVALID_PORTID);
-    ret = UsbSrvClient::GetInstance().HasSerialRight(INVALID_PORTID);
-    EXPECT_NE(ret, HAS_RIGHT);
-    EXPECT_NE(ret, NO_RIGHT);
+    bool hasRight = false;
+    int ret = UsbSrvClient::GetInstance().HasSerialRight(INVALID_PORTID, hasRight);
+    EXPECT_NE(ret, OK);
+    UsbSrvClient::GetInstance().RequestSerialRight(INVALID_PORTID, hasRight);
+    ret = UsbSrvClient::GetInstance().HasSerialRight(INVALID_PORTID, hasRight);
+    EXPECT_NE(ret, OK);
 }
 
 /**
