@@ -134,18 +134,25 @@ bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
         USB_HILOGE(MODULE_USB_SERVICE, "gadget_conn_prompt is false");
         return false;
     }
+    bool isTempDisablePrompt = OHOS::system::GetBoolParameter("usb.setting.gadget_conn_prompt", true);
+    if (!isTempDisablePrompt) {
+        USB_HILOGE(MODULE_USB_SERVICE, "temporarily close the pop up window");
+        return false;
+    }
     int32_t supportedFuncs = GetSupportedFunctions();
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: supportedFuncs %{public}d", __func__, supportedFuncs);
     if (supportedFuncs < 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "no supported functions: %{public}d", supportedFuncs);
         return false;
     }
+
+    std::lock_guard<std::mutex> guard(opMutex_);
     if (windowAction_ == UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_FORBID) {
         USB_HILOGI(MODULE_USB_SERVICE, "forbid: pop up function switch window");
         return false;
     }
     windowAction_ = UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_SHOW;
-
+ 
     isPromptEnabled = OHOS::system::GetBoolParameter("bootevent.boot.completed", false);
     if (!isPromptEnabled) {
         USB_HILOGE(MODULE_USB_SERVICE, "boot.completed is false!");
