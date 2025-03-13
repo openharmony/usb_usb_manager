@@ -152,7 +152,7 @@ bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
         return false;
     }
     windowAction_ = UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_SHOW;
- 
+
     isPromptEnabled = OHOS::system::GetBoolParameter("bootevent.boot.completed", false);
     if (!isPromptEnabled) {
         USB_HILOGE(MODULE_USB_SERVICE, "boot.completed is false!");
