@@ -2328,7 +2328,8 @@ int32_t UsbService::SerialOpen(int32_t portId, const sptr<IRemoteObject> &serial
         return ret;
     }
 
-    if (!HasSerialRight(portId)) {
+    bool hasRight = false;
+    if (!HasSerialRight(portId, hasRight)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: There are no permissions", __func__);
         ReportUsbSerialOperationFaultSysEvent(portId, "SerialOpen", UEC_SERVICE_PERMISSION_DENIED,
             "There are no permissions");
@@ -2656,9 +2657,10 @@ int32_t UsbService::CancelSerialRight(int32_t portId)
     return UEC_OK;
 }
 
-int32_t UsbService::HasSerialRight(int32_t portId)
+int32_t UsbService::HasSerialRight(int32_t portId, bool &hasRight)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
+    hasRight = false;
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbRightManager_ is nullptr", __func__);
         return UEC_SERVICE_INVALID_VALUE;
@@ -2683,7 +2685,8 @@ int32_t UsbService::HasSerialRight(int32_t portId)
 
     if (usbRightManager_->IsSystemAppOrSa()) {
         USB_HILOGW(MODULE_USB_SERVICE, "system app, bypass: dev=%{public}s ", deviceName.c_str());
-        return INT_TRUE;
+        hasRight = true;
+        return UEC_OK;
     }
 
     std::string bundleName;
@@ -2691,18 +2694,20 @@ int32_t UsbService::HasSerialRight(int32_t portId)
     int32_t userId = USB_RIGHT_USERID_INVALID;
     if (!GetCallingInfo(bundleName, tokenId, userId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HasRight GetCallingInfo false", __func__);
-        return INT_FALSE;
+        return UEC_SERVICE_INVALID_VALUE;
     }
 
     USB_HILOGI(MODULE_USB_SERVICE, "bundle=%{public}s, device=%{public}s",
         bundleName.c_str(), deviceName.c_str());
     if (usbRightManager_->HasRight(deviceVidPidSerialNum, bundleName, tokenId, userId)) {
-        return INT_TRUE;
+        hasRight = true;
+        return UEC_OK;
     } else if (usbRightManager_->HasRight(deviceVidPidSerialNum, bundleName, USB_DEFAULT_TOKEN, userId)) {
-        return INT_TRUE;
+        hasRight = true;
+        return UEC_OK;
     }
 
-    return INT_FALSE;
+    return UEC_OK;
 }
 
 int32_t UsbService::AddSerialRight(uint32_t tokenId, int32_t portId)

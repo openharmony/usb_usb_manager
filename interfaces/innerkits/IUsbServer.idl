@@ -87,7 +87,7 @@ interface OHOS.USB.IUsbServer {
     void SerialSetAttribute([in] int portId, [in]UsbSerialAttr attribute);
     void SerialGetPortList([out] UsbSerialPort[] serialPortList);
     void AddSerialRight([in] unsigned int tokenId, [in] int portId);
-    void HasSerialRight([in] int portId);
+    void HasSerialRight([in] int portId, [out]boolean hasRight);
     void RequestSerialRight([in] int portId);
     void CancelSerialRight([in] int portId);
 }

@@ -566,11 +566,12 @@ static napi_value SerialHasRightNapi(napi_env env, napi_callback_info info)
         return nullptr;
     }
     napi_value result = nullptr;
-    int32_t ret = g_usbClient.HasSerialRight(portIdValue);
-    if (!CheckAndThrowOnError(env, (ret == 0 || ret == 1), ErrorCodeConversion(ret), "SerialHasRight failed.")) {
+    bool hasRight = false;
+    int32_t ret = g_usbClient.HasSerialRight(portIdValue, hasRight);
+    if (!CheckAndThrowOnError(env, (ret == 0), ErrorCodeConversion(ret), "SerialHasRight failed.")) {
         return nullptr;
     }
-    napi_get_boolean(env, ret, &result);
+    napi_get_boolean(env, hasRight, &result);
     return result;
 }
 

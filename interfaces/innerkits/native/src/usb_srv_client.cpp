@@ -1134,11 +1134,16 @@ int32_t UsbSrvClient::SerialGetPortList(
     return ret;
 }
 
-int32_t UsbSrvClient::HasSerialRight(int32_t portId)
+int32_t UsbSrvClient::HasSerialRight(int32_t portId, bool &hasRight)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "Calling HasSerialRight");
     RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
-    return proxy_->HasSerialRight(portId);
+    int32_t ret = proxy_->HasSerialRight(portId, hasRight);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::HasSerialRight failed ret = %{public}d!", ret);
+        return ret;
+    }
+    return UEC_OK;
 }
 
 int32_t UsbSrvClient::CancelSerialRight(int32_t portId)
