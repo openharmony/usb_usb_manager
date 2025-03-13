@@ -50,7 +50,8 @@ void SerialTest::SetUpTestCase(void)
     GrantPermissionSysNative();
     UsbSrvClient::GetInstance().SerialGetPortList(g_portList);
     UsbSrvClient::GetInstance().RequestSerialRight(VALID_PORTID);
-    if (!UsbSrvClient::GetInstance().HasSerialRight(VALID_PORTID)) {
+    bool hasRight = false;
+    if (!UsbSrvClient::GetInstance().HasSerialRight(VALID_PORTID, hasRight) || !hasRight) {
         return;
     }
 }
