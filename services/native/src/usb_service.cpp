@@ -2329,7 +2329,8 @@ int32_t UsbService::SerialOpen(int32_t portId, const sptr<IRemoteObject> &serial
     }
 
     bool hasRight = false;
-    if (!HasSerialRight(portId, hasRight)) {
+    HasSerialRight(portId, hasRight);
+    if (!hasRight) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: There are no permissions", __func__);
         ReportUsbSerialOperationFaultSysEvent(portId, "SerialOpen", UEC_SERVICE_PERMISSION_DENIED,
             "There are no permissions");
