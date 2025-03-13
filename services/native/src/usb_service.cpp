@@ -2360,6 +2360,7 @@ int32_t UsbService::SerialOpen(int32_t portId, const sptr<IRemoteObject> &serial
 
     ret = usbSerialManager_->SerialOpen(portId);
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialOpen failed", __func__);
         ReportUsbSerialOperationFaultSysEvent(portId, "SerialOpen", ret, "SerialOpen failed");
         return ret;
     }
@@ -2381,6 +2382,7 @@ int32_t UsbService::SerialClose(int32_t portId)
     ReportUsbSerialOperationSysEvent(portId, "SerialClose");
     ret = usbSerialManager_->SerialClose(portId);
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialClose failed", __func__);
         ReportUsbSerialOperationFaultSysEvent(portId, "SerialClose", ret, "SerialClose failed");
     }
     return ret;
@@ -2400,6 +2402,7 @@ int32_t UsbService::SerialRead(int32_t portId, std::vector<uint8_t>& data, uint3
 
     ret = usbSerialManager_->SerialRead(portId, data, size, actualSize, timeout);
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialRead failed", __func__);
         ReportUsbSerialOperationFaultSysEvent(portId, "SerialRead", ret, "SerialRead failed");
     }
     return ret;
@@ -2419,6 +2422,7 @@ int32_t UsbService::SerialWrite(int32_t portId, const std::vector<uint8_t>& data
 
     ret = usbSerialManager_->SerialWrite(portId, data, size, actualSize, timeout);
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialWrite failed", __func__);
         ReportUsbSerialOperationFaultSysEvent(portId, "SerialWrite", ret, "SerialWrite failed");
     }
     return ret;
@@ -2457,6 +2461,7 @@ int32_t UsbService::SerialGetAttribute(int32_t portId, UsbSerialAttr& attributeI
     OHOS::HDI::Usb::Serial::V1_0::SerialAttribute serialAttr;
     ret = usbSerialManager_->SerialGetAttribute(portId, serialAttr);
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialGetAttribute failed", __func__);
         ReportUsbSerialOperationFaultSysEvent(portId, "SerialGetAttribute", ret, "SerialGetAttribute failed");
     }
     SerialAttributeChange(attributeInfo, serialAttr);
@@ -2478,6 +2483,7 @@ int32_t UsbService::SerialSetAttribute(int32_t portId,
     SerialAttributeChange(attributeInfo, serialAttr);
     ret = usbSerialManager_->SerialSetAttribute(portId, serialAttr);
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialSetAttribute failed", __func__);
         ReportUsbSerialOperationFaultSysEvent(portId, "SerialSetAttribute", ret, "SerialSetAttribute failed");
         return ret;
     }
@@ -2585,7 +2591,6 @@ int32_t UsbService::RequestSerialRight(int32_t portId)
     if (ret != UEC_OK) {
         USB_HILOGW(MODULE_USB_SERVICE,
             "%{public}s:user don't agree", __func__);
-        ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", ret, "user don't agree");
         return INT_FALSE;
     }
 
