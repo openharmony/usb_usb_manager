@@ -2625,7 +2625,7 @@ int32_t UsbService::CancelSerialRight(int32_t portId)
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
-    serialManager_->close(portId);
+    usbSerialManager_->close(portId);
     return UEC_OK;
 }
 
