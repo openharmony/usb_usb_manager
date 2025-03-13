@@ -33,8 +33,7 @@ using OHOS::USB::USB_MGR_LABEL;
 constexpr int32_t VALID_PORTID = 0;
 constexpr int32_t INVALID_PORTID = -1;
 constexpr int32_t OK = 0;
-constexpr int32_t HAS_RIGHT = 1;
-constexpr int32_t NO_RIGHT = 0;
+
 static std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort> g_portList;
 
 namespace OHOS {
