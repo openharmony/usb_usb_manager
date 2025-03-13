@@ -2617,19 +2617,15 @@ int32_t UsbService::CancelSerialRight(int32_t portId)
         return UEC_SERVICE_INVALID_VALUE;
     }
 
-    if (usbRightManager_->RemoveDeviceRight(deviceVidPidSerialNum, bundleName, tokenId, userId)) {
-        USB_HILOGI(MODULE_USB_SERVICE, "RemoveDeviceRight done");
-        return UEC_OK;
-    }
-
-    if (!usbRightManager_->RemoveDeviceRight(deviceVidPidSerialNum, bundleName, USB_DEFAULT_TOKEN, userId)) {
+    if (!usbRightManager_->RemoveDeviceRight(deviceVidPidSerialNum, bundleName, tokenId, userId) &&
+        !usbRightManager_->RemoveDeviceRight(deviceVidPidSerialNum, bundleName, USB_DEFAULT_TOKEN, userId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "RemoveDeviceRight failed");
         ReportUsbSerialOperationFaultSysEvent(portId, "CancelSerialRight", UEC_SERVICE_PERMISSION_DENIED,
             "RemoveDeviceRight failed");
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
-    USB_HILOGI(MODULE_USB_SERVICE, "RemoveRight done");
+    serialManager_->close(portId);
     return UEC_OK;
 }
 
