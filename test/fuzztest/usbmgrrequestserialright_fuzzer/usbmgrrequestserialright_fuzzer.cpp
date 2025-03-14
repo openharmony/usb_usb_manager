@@ -29,8 +29,9 @@ bool UsbMgrRequestSerialRightFuzzTest(const uint8_t* data, size_t size)
         return false;
     }
     auto &usbSrvClient = UsbSrvClient::GetInstance();
-    const int32_t portId = *reinterpret_cast<const int32_t *>(data);
-    if (usbSrvClient.RequestSerialRight(portId) != OK) {
+    bool hasRight = false;
+    const int32_t portId = *reinterpret_cast<const int32_t *>(data, hasRight);
+    if (usbSrvClient.RequestSerialRight(portId) != OK || !hasRight) {
         return false;
     }
     return true;
