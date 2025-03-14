@@ -60,8 +60,6 @@ constexpr int32_t COMMEVENT_REGISTER_RETRY_TIMES = 10;
 constexpr int32_t COMMEVENT_REGISTER_WAIT_DELAY_US = 20000;
 constexpr int32_t SERVICE_STARTUP_MAX_TIME = 30;
 constexpr uint32_t UNLOAD_SA_TIMER_INTERVAL = 30 * 1000;
-constexpr const int32_t INT_TRUE = 1;
-constexpr const int32_t INT_FALSE = 0;
 #if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 #endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
@@ -2541,9 +2539,10 @@ int32_t UsbService::CheckDbAbility(int32_t portId)
     }
 }
 
-int32_t UsbService::RequestSerialRight(int32_t portId)
+int32_t UsbService::RequestSerialRight(int32_t portId, bool &hasRight)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
+    hasRight = false;
     if (usbRightManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbRightManager_ is nullptr", __func__);
         ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", UEC_SERVICE_INVALID_VALUE,
@@ -2572,7 +2571,8 @@ int32_t UsbService::RequestSerialRight(int32_t portId)
 
     if (usbRightManager_->IsSystemAppOrSa()) {
         USB_HILOGW(MODULE_USB_SERVICE, "system app, bypass: dev=%{public}s", deviceName.c_str());
-        return INT_TRUE;
+        hasRight = true;
+        return UEC_OK;
     }
 
     std::string bundleName;
@@ -2589,14 +2589,13 @@ int32_t UsbService::RequestSerialRight(int32_t portId)
         bundleName.c_str(), deviceName.c_str(), tokenId.c_str());
     
     SerialDeviceIdentity serialDeviceIdentity = { deviceName, deviceVidPidSerialNum };
-    ret = usbRightManager_->RequestRight(portId, serialDeviceIdentity, bundleName, tokenId, userId);
-    if (ret != UEC_OK) {
-        USB_HILOGW(MODULE_USB_SERVICE,
-            "%{public}s:user don't agree", __func__);
-        return INT_FALSE;
+    if (usbRightManager_->RequestRight(portId, serialDeviceIdentity, bundleName, tokenId, userId) != UEC_OK) {
+        USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:user don't agree", __func__);
+        return UEC_OK;
     }
 
-    return INT_TRUE;
+    hasRight = true;
+    return UEC_OK;
 }
 
 int32_t UsbService::CancelSerialRight(int32_t portId)
