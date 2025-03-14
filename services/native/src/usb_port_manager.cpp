@@ -206,34 +206,27 @@ int32_t UsbPortManager::QueryPort()
     }
 
     for (size_t i = 0; i < portList.size(); i++) {
-        UsbPort* ports = reinterpret_cast<UsbPort*>(&portList[i]);
-        AddPort(*ports);
+        AddPortInfo(it.id, it.supportedModes,
+            it.usbPortStatus.currentMode, it.usbPortStatus.currentDataRole, it.usbPortStatus.currentPowerRole);
     }
 #else
-    int32_t portId = 0;
-    int32_t powerRole = 0;
-    int32_t dataRole = 0;
-    int32_t mode = 0;
     GetIUsbInterface();
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
+    int32_t portId = 0;
+    int32_t powerRole = 0;
+    int32_t dataRole = 0;
+    int32_t mode = 0;
     int32_t ret = usbd_->QueryPort(portId, powerRole, dataRole, mode);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s QueryPort failed", __func__);
         return ret;
     }
 
-    UsbPortStatus usbPortStatus;
-    UsbPort usbPort;
-    usbPortStatus.currentMode = mode;
-    usbPortStatus.currentDataRole = dataRole;
-    usbPortStatus.currentPowerRole = powerRole;
-    usbPort.id = portId;
-    usbPort.supportedModes = SUPPORTED_MODES;
-    usbPort.usbPortStatus = usbPortStatus;
-    AddPort(usbPort);
+    AddPortInfo(portId, SUPPORTED_MODES, mode, dataRole, powerRole);
 #endif // USB_MANAGER_V2_0
     return ret;
 }
@@ -276,6 +269,18 @@ void UsbPortManager::UpdatePort(int32_t portId, int32_t powerRole, int32_t dataR
         }
     }
     USB_HILOGE(MODULE_USB_SERVICE, "updatePort false");
+}
+
+void UsbPortManager::AddPortInfo(int32_t portId, int32_t supportedModes,
+    int32_t currentMode, int32_t currentDataRole, int32_t currentPowerRole)
+{
+    UsbPort usbPort;
+    usbPort.id = portId;
+    usbPort.supportedModes = supportedModes;
+    usbPort.usbPortStatus.currentMode = currentMode;
+    usbPort.usbPortStatus.currentDataRole = currentDataRole;
+    usbPort.usbPortStatus.currentPowerRole = currentPowerRole;
+    AddPort(usbPort);
 }
 
 void UsbPortManager::AddPort(UsbPort &port)
