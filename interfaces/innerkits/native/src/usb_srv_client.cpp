@@ -1157,11 +1157,11 @@ int32_t UsbSrvClient::CancelSerialRight(int32_t portId)
     return ret;
 }
 
-int32_t UsbSrvClient::RequestSerialRight(int32_t portId)
+int32_t UsbSrvClient::RequestSerialRight(int32_t portId, bool hasRight)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "Calling RequestSerialRight");
     RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
-    int32_t ret = proxy_->RequestSerialRight(portId);
+    int32_t ret = proxy_->RequestSerialRight(portId, hasRight);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::RequestSerialRight failed ret = %{public}d !", ret);
     }
