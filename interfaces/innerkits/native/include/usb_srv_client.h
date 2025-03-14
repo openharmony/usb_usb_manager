@@ -119,7 +119,7 @@ public:
     int32_t SerialSetAttribute(int32_t portId, const UsbSerialAttr& attribute);
     int32_t SerialGetPortList(
         std::vector<UsbSerialPort>& serialPortList);
-    int32_t HasSerialRight(int32_t portId);
+    int32_t HasSerialRight(int32_t portId, bool &hasRight);
     int32_t AddSerialRight(uint32_t tokenId, int32_t portId);
     int32_t CancelSerialRight(int32_t portId);
     int32_t RequestSerialRight(int32_t portId);

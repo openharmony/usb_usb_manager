@@ -33,8 +33,7 @@ using OHOS::USB::USB_MGR_LABEL;
 constexpr int32_t VALID_PORTID = 0;
 constexpr int32_t INVALID_PORTID = -1;
 constexpr int32_t OK = 0;
-constexpr int32_t HAS_RIGHT = 1;
-constexpr int32_t NO_RIGHT = 0;
+
 static std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort> g_portList;
 
 namespace OHOS {
@@ -63,10 +62,13 @@ void SerialRightTest::TearDown(void) {}
  */
 HWTEST_F(SerialRightTest, HasSerialRight001, TestSize.Level1)
 {
+    bool hasRight = false;
     UsbSrvClient::GetInstance().CancelSerialRight(VALID_PORTID);
-    EXPECT_EQ(UsbSrvClient::GetInstance().HasSerialRight(VALID_PORTID), HAS_RIGHT);
+    UsbSrvClient::GetInstance().HasSerialRight(VALID_PORTID, hasRight);
+    EXPECT_EQ(hasRight, true);
     UsbSrvClient::GetInstance().RequestSerialRight(VALID_PORTID);
-    EXPECT_EQ(UsbSrvClient::GetInstance().HasSerialRight(VALID_PORTID), HAS_RIGHT);
+    UsbSrvClient::GetInstance().HasSerialRight(VALID_PORTID, hasRight);
+    EXPECT_EQ(hasRight, true);
 }
 
 /**
@@ -76,13 +78,12 @@ HWTEST_F(SerialRightTest, HasSerialRight001, TestSize.Level1)
  */
 HWTEST_F(SerialRightTest, HasSerialRight002, TestSize.Level1)
 {
-    int ret = UsbSrvClient::GetInstance().HasSerialRight(INVALID_PORTID);
-    EXPECT_NE(ret, HAS_RIGHT);
-    EXPECT_NE(ret, NO_RIGHT);
-    UsbSrvClient::GetInstance().RequestSerialRight(INVALID_PORTID);
-    ret = UsbSrvClient::GetInstance().HasSerialRight(INVALID_PORTID);
-    EXPECT_NE(ret, HAS_RIGHT);
-    EXPECT_NE(ret, NO_RIGHT);
+    bool hasRight = false;
+    int ret = UsbSrvClient::GetInstance().HasSerialRight(INVALID_PORTID, hasRight);
+    EXPECT_NE(ret, OK);
+    UsbSrvClient::GetInstance().RequestSerialRight(INVALID_PORTID, hasRight);
+    ret = UsbSrvClient::GetInstance().HasSerialRight(INVALID_PORTID, hasRight);
+    EXPECT_NE(ret, OK);
 }
 
 /**

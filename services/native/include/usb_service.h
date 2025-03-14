@@ -187,7 +187,6 @@ public:
     int32_t SerialGetAttribute(int32_t portId, UsbSerialAttr& attribute) override;
     int32_t SerialSetAttribute(int32_t portId, const UsbSerialAttr& attribute) override;
     int32_t SerialGetPortList(std::vector<UsbSerialPort>& serialPortList) override;
-    bool HasSerialRight(int32_t portId);
     int32_t HasSerialRight(int32_t portId, bool &hasRight) override;
     int32_t AddSerialRight(uint32_t tokenId, int32_t portId) override;
     int32_t CancelSerialRight(int32_t portId) override;
@@ -253,6 +252,7 @@ private:
     bool DoDump(int fd, const std::vector<std::string> &argList);
     void FreeTokenId(int32_t portId, uint32_t tokenId);
     int32_t ValidateUsbSerialManagerAndPort(int32_t portId);
+    int32_t CheckDbAbility(int32_t portId);
     void ReportUsbSerialOperationSysEvent(int32_t portId, const std::string &operationType);
     void ReportUsbSerialOperationFaultSysEvent(int32_t portId, const std::string &operationType, int32_t failReason,
         const std::string &failDescription);

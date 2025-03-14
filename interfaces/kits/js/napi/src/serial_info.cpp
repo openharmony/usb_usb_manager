@@ -41,7 +41,6 @@
 using namespace OHOS;
 using namespace OHOS::USB;
 
-const int32_t ARGC_0 = 0;
 const int32_t ARGC_1 = 1;
 const int32_t ARGC_2 = 2;
 const int32_t ARGC_3 = 3;
@@ -54,6 +53,8 @@ int32_t ErrorCodeConversion(int32_t value)
         return SERIAL_SYSAPI_PERMISSION_DENIED;
     } else if (value == UEC_SERVICE_PERMISSION_DENIED) {
         return SERIAL_INTERFACE_PERMISSION_DENIED;
+    } else if (value == UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED) {
+        return SERIAL_SYSAPI_NOPERMISSION_CALL;
     } else if (value == UEC_SERIAL_PORT_REPEAT_OPEN || value == UEC_SERIAL_PORT_REPEAT_CLOSE
         || value == UEC_SERIAL_PORT_OCCUPIED) {
         return SERIAL_PORT_OCCUPIED;
@@ -65,6 +66,8 @@ int32_t ErrorCodeConversion(int32_t value)
         return SERIAL_IO_EXCEPTION;
     } else if (value == UEC_SERIAL_PORT_NOT_EXIST) {
         return SERIAL_PORT_NOT_EXIST;
+    } else if (value == UEC_SERIAL_DATEBASE_ERROR) {
+        return UEC_COMMON_RIGHT_DATABASE_ERROR;
     } else {
         return SERIAL_SERVICE_ABNORMAL;
     }
@@ -73,30 +76,22 @@ int32_t ErrorCodeConversion(int32_t value)
 static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
 {
     USB_HILOGI(MODULE_JS_NAPI, "SerialGetPortListNapi start");
-    size_t argc = ARGC_0;
-    if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr),
-        "Get call back info failed")) {
-        return nullptr;
-    }
-    if (!CheckAndThrowOnError(env, (argc == ARGC_0), SYSPARAM_INVALID_INPUT, "The function takes no arguments.")) {
-        return nullptr;
-    }
-
-    std::vector<UsbSerialPort> g_portIds;
-    int32_t ret = g_usbClient.SerialGetPortList(g_portIds);
-    if (!CheckAndThrowOnError(env, (ret == 0), ErrorCodeConversion(ret), "get portlist failed")) {
-        return nullptr;
-    }
+    std::vector<OHOS::USB::UsbSerialPort> portIds;
+    int32_t ret = g_usbClient.SerialGetPortList(portIds);
     napi_value result = nullptr;
     napi_create_array(env, &result);
-    for (uint32_t i = 0; i < g_portIds.size(); ++i) {
+    if (ret < 0) {
+        USB_HILOGE(MODULE_JS_NAPI, "SerialGetPortList failed");
+        return result;
+    }
+    for (uint32_t i = 0; i < portIds.size(); ++i) {
         napi_value portObj;
         napi_create_object(env, &portObj);
-        NapiUtil::SetValueInt32(env, "portId", g_portIds[i].portId_, portObj);
-        std::string deviceName = std::to_string(g_portIds[i].busNum_) + "-" +
-            std::to_string(g_portIds[i].devAddr_);
+        NapiUtil::SetValueInt32(env, "portId", portIds[i].portId_, portObj);
+        std::string deviceName = std::to_string(portIds[i].busNum_) + "-" +
+            std::to_string(portIds[i].devAddr_);
         NapiUtil::SetValueUtf8String(env, "deviceName", deviceName, portObj);
-        USB_HILOGI(MODULE_JS_NAPI, "portId: %{public}d", g_portIds[i].portId_);
+        USB_HILOGI(MODULE_JS_NAPI, "portId: %{public}d", portIds[i].portId_);
         USB_HILOGI(MODULE_JS_NAPI, "deviceName: %{public}s", deviceName.c_str());
         napi_set_element(env, result, i, portObj);
     }
@@ -110,6 +105,7 @@ static napi_value SerialGetAttributeNapi(napi_env env, napi_callback_info info)
     napi_value argv[ARGC_1] = {nullptr};
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
         "Get call back info failed")) {
+        CheckAndThrowOnError(env, false, SYSPARAM_INVALID_INPUT, "get arguments failed.");
         return nullptr;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
@@ -134,9 +130,9 @@ static napi_value SerialGetAttributeNapi(napi_env env, napi_callback_info info)
     napi_value result = nullptr;
     napi_create_object(env, &result);
     NapiUtil::SetValueUint32(env, "baudRate", serialAttribute.baudRate_, result);
-    NapiUtil::SetValueUint32(env, "dataBits", serialAttribute.stopBits_, result);
+    NapiUtil::SetValueUint32(env, "dataBits", serialAttribute.dataBits_, result);
     NapiUtil::SetValueUint32(env, "parity", serialAttribute.parity_, result);
-    NapiUtil::SetValueUint32(env, "stopBits", serialAttribute.dataBits_, result);
+    NapiUtil::SetValueUint32(env, "stopBits", serialAttribute.stopBits_, result);
     return result;
 }
 
@@ -148,6 +144,7 @@ bool ParseSetAttributeInterfaceParams(napi_env env, napi_callback_info info,
     napi_value argv[ARGC_2] = { nullptr };
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
         "Get call back info failed")) {
+        CheckAndThrowOnError(env, false, SYSPARAM_INVALID_INPUT, "get arguments failed.");
         return false;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_2), SYSPARAM_INVALID_INPUT, "The function takes 2 arguments.")) {
@@ -170,9 +167,9 @@ bool ParseSetAttributeInterfaceParams(napi_env env, napi_callback_info info,
         return false;
     }
     NapiUtil::JsObjectToUint(env, obj, "baudRate", serialAttribute.baudRate_);
-    NapiUtil::JsObjectToUint(env, obj, "dataBits", serialAttribute.stopBits_);
+    NapiUtil::JsObjectToUint(env, obj, "dataBits", serialAttribute.dataBits_);
     NapiUtil::JsObjectToUint(env, obj, "parity", serialAttribute.parity_);
-    NapiUtil::JsObjectToUint(env, obj, "stopBits", serialAttribute.dataBits_);
+    NapiUtil::JsObjectToUint(env, obj, "stopBits", serialAttribute.stopBits_);
     return true;
 }
 
@@ -200,6 +197,7 @@ bool ParseWriteInterfaceParams(napi_env env, napi_callback_info info,
     napi_value argv[ARGC_3] = {nullptr};
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
         "Get call back info failed")) {
+        CheckAndThrowOnError(env, false, SYSPARAM_INVALID_INPUT, "get arguments failed.");
         return false;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_2 || argc == ARGC_3), SYSPARAM_INVALID_INPUT,
@@ -242,7 +240,7 @@ static napi_value SerialWriteSyncNapi(napi_env env, napi_callback_info info)
     napi_typedarray_type arrayType;
     size_t bufferLength;
     void* bufferValue = nullptr;
-    NAPI_CALL(env, napi_get_typedarray_info(env, buffer, &arrayType, &bufferLength, &bufferValue, nullptr, nullptr));
+    napi_get_typedarray_info(env, buffer, &arrayType, &bufferLength, &bufferValue, nullptr, nullptr);
     if (!CheckAndThrowOnError(env, arrayType == napi_uint8_array, SYSPARAM_INVALID_INPUT,
         "The type of buffer must be an array of uint8_t.")) {
         return nullptr;
@@ -312,7 +310,7 @@ static napi_value SerialWriteNapi(napi_env env, napi_callback_info info)
     napi_typedarray_type arrayType;
     size_t bufferLength;
     void* bufferValue = nullptr;
-    NAPI_CALL(env, napi_get_typedarray_info(env, buffer, &arrayType, &bufferLength, &bufferValue, nullptr, nullptr));
+    napi_get_typedarray_info(env, buffer, &arrayType, &bufferLength, &bufferValue, nullptr, nullptr);
     if (!CheckAndThrowOnError(env, arrayType == napi_uint8_array, SYSPARAM_INVALID_INPUT,
         "The type of buffer must be an array of uint8_t.")) {
         return nullptr;
@@ -320,10 +318,11 @@ static napi_value SerialWriteNapi(napi_env env, napi_callback_info info)
     SerialWriteAsyncContext *asyncContext = new (std::nothrow) SerialWriteAsyncContext;
     if (asyncContext == nullptr) {
         USB_HILOGE(MODULE_JS_NAPI, "new SerialWriteAsyncContext failed!");
+        CheckAndThrowOnError(env, false, SYSPARAM_INVALID_INPUT, "asyncContext is null");
         return nullptr;
     }
     napi_value promise;
-    NAPI_CALL(env, napi_create_promise(env, &asyncContext->deferred, &promise));
+    napi_create_promise(env, &asyncContext->deferred, &promise);
     asyncContext->portId = portIdValue;
     asyncContext->timeout = timeoutValue;
     asyncContext->contextErrno = 0;
@@ -331,8 +330,8 @@ static napi_value SerialWriteNapi(napi_env env, napi_callback_info info)
     asyncContext->pData = bufferValue;
     napi_value resourceName;
     napi_create_string_utf8(env, "SerialWrite", NAPI_AUTO_LENGTH, &resourceName);
-    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, g_serialWriteExecute, g_serialWriteComplete,
-        asyncContext, &asyncContext->work));
+    napi_create_async_work(env, nullptr, resourceName, g_serialWriteExecute, g_serialWriteComplete, asyncContext,
+        &asyncContext->work);
     napi_queue_async_work(env, asyncContext->work);
     return promise;
 }
@@ -344,6 +343,7 @@ bool ParseReadInterfaceParams(napi_env env, napi_callback_info info, int32_t& po
     napi_value argv[ARGC_3] = {nullptr};
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
         "Get call back info failed")) {
+        CheckAndThrowOnError(env, false, SYSPARAM_INVALID_INPUT, "get arguments failed.");
         return false;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_2 || argc == ARGC_3), SYSPARAM_INVALID_INPUT,
@@ -386,7 +386,7 @@ static napi_value SerialReadSyncNapi(napi_env env, napi_callback_info info)
     napi_typedarray_type arrayType;
     size_t bufferLength;
     void* bufferValue = nullptr;
-    NAPI_CALL(env, napi_get_typedarray_info(env, buffer, &arrayType, &bufferLength, &bufferValue, nullptr, nullptr));
+    napi_get_typedarray_info(env, buffer, &arrayType, &bufferLength, &bufferValue, nullptr, nullptr);
     if (!CheckAndThrowOnError(env, arrayType == napi_uint8_array, SYSPARAM_INVALID_INPUT,
         "The type of buffer must be an array of uint8_t.")) {
         return nullptr;
@@ -452,14 +452,14 @@ static napi_value SerialReadNapi(napi_env env, napi_callback_info info)
     napi_typedarray_type arrayType;
     size_t bufferLength;
     void* bufferValue = nullptr;
-    NAPI_CALL(env, napi_get_typedarray_info(env, buffer, &arrayType, &bufferLength, &bufferValue, nullptr, nullptr));
+    napi_get_typedarray_info(env, buffer, &arrayType, &bufferLength, &bufferValue, nullptr, nullptr);
     if (!CheckAndThrowOnError(env, arrayType == napi_uint8_array, SYSPARAM_INVALID_INPUT,
         "The type of buffer must be an array of uint8_t.")) {
         return nullptr;
     }
     SerialReadAsyncContext *asyncContext = new (std::nothrow) SerialReadAsyncContext;
     napi_value promise;
-    NAPI_CALL(env, napi_create_promise(env, &asyncContext->deferred, &promise));
+    napi_create_promise(env, &asyncContext->deferred, &promise);
     asyncContext->portId = portIdValue;
     asyncContext->timeout = timeoutValue;
     asyncContext->contextErrno = 0;
@@ -467,8 +467,8 @@ static napi_value SerialReadNapi(napi_env env, napi_callback_info info)
     asyncContext->pData = bufferValue;
     napi_value resourceName;
     napi_create_string_utf8(env, "SerialRead", NAPI_AUTO_LENGTH, &resourceName);
-    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, g_serialReadExecute, g_serialReadComplete,
-        asyncContext, &asyncContext->work));
+    napi_create_async_work(env, nullptr, resourceName, g_serialReadExecute, g_serialReadComplete, asyncContext,
+        &asyncContext->work);
     napi_queue_async_work(env, asyncContext->work);
     return promise;
 }
@@ -480,6 +480,7 @@ static napi_value SerialOpenNapi(napi_env env, napi_callback_info info)
     napi_value argv[ARGC_1] = {nullptr};
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
         "Get call back info failed")) {
+        CheckAndThrowOnError(env, false, SYSPARAM_INVALID_INPUT, "get arguments failed.");
         return nullptr;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
@@ -513,6 +514,7 @@ static napi_value SerialCloseNapi(napi_env env, napi_callback_info info)
     napi_value argv[ARGC_1] = {nullptr};
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
         "Get call back info failed")) {
+        CheckAndThrowOnError(env, false, SYSPARAM_INVALID_INPUT, "get arguments failed.");
         return nullptr;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
@@ -545,6 +547,7 @@ static napi_value SerialHasRightNapi(napi_env env, napi_callback_info info)
     napi_value argv[ARGC_1] = {nullptr};
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
         "Get call back info failed")) {
+        CheckAndThrowOnError(env, false, SYSPARAM_INVALID_INPUT, "get arguments failed.");
         return nullptr;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
@@ -563,11 +566,12 @@ static napi_value SerialHasRightNapi(napi_env env, napi_callback_info info)
         return nullptr;
     }
     napi_value result = nullptr;
-    int32_t ret = g_usbClient.HasSerialRight(portIdValue);
-    if (!CheckAndThrowOnError(env, (ret == 0 || ret == 1), ErrorCodeConversion(ret), "SerialHasRight failed.")) {
+    bool hasRight = false;
+    int32_t ret = g_usbClient.HasSerialRight(portIdValue, hasRight);
+    if (!CheckAndThrowOnError(env, (ret == 0), ErrorCodeConversion(ret), "SerialHasRight failed.")) {
         return nullptr;
     }
-    napi_get_boolean(env, ret, &result);
+    napi_get_boolean(env, hasRight, &result);
     return result;
 }
 
@@ -578,6 +582,7 @@ static napi_value CancelSerialRightNapi(napi_env env, napi_callback_info info)
     napi_value argv[ARGC_1] = {nullptr};
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
         "Get call back info failed")) {
+        CheckAndThrowOnError(env, false, SYSPARAM_INVALID_INPUT, "get arguments failed.");
         return nullptr;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
@@ -609,6 +614,7 @@ static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
     napi_value argv[ARGC_2] = {nullptr};
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
         "Get call back info failed")) {
+        CheckAndThrowOnError(env, false, SYSPARAM_INVALID_INPUT, "can not get arguments.");
         return nullptr;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_2), SYSPARAM_INVALID_INPUT, "The function takes 2 arguments.")) {
@@ -665,7 +671,7 @@ static auto g_serialRequestRightComplete = [](napi_env env, napi_status status, 
         napi_create_int32(env, asyncContext->contextErrno, &result);
         napi_reject_deferred(env, asyncContext->deferred, result);
     } else {
-        napi_get_boolean(env, !asyncContext->ret, &result);
+        napi_get_boolean(env, asyncContext->ret, &result);
         napi_resolve_deferred(env, asyncContext->deferred, result);
     }
     napi_delete_async_work(env, asyncContext->work);
@@ -678,6 +684,7 @@ static napi_value SerialRequestRightNapi(napi_env env, napi_callback_info info)
     napi_value argv[ARGC_1] = {nullptr};
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
         "Get call back info failed")) {
+        CheckAndThrowOnError(env, false, SYSPARAM_INVALID_INPUT, "can not get arguments.");
         return nullptr;
     }
     if (!CheckAndThrowOnError(env, (argc == ARGC_1), SYSPARAM_INVALID_INPUT, "The function takes 1 arguments.")) {
@@ -699,11 +706,11 @@ static napi_value SerialRequestRightNapi(napi_env env, napi_callback_info info)
     asyncContext->portIdValue = portIdValue;
     asyncContext->contextErrno = 0;
     napi_value result = nullptr;
-    NAPI_CALL(env, napi_create_promise(env, &asyncContext->deferred, &result));
+    napi_create_promise(env, &asyncContext->deferred, &result);
     napi_value resourceName;
     napi_create_string_utf8(env, "SerialRequestRight", NAPI_AUTO_LENGTH, &resourceName);
-    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, g_serialRequestRightExecute,
-            g_serialRequestRightComplete, static_cast<void*>(asyncContext), &asyncContext->work));
+    napi_create_async_work(env, nullptr, resourceName, g_serialRequestRightExecute,
+        g_serialRequestRightComplete, static_cast<void*>(asyncContext), &asyncContext->work);
     napi_queue_async_work(env, asyncContext->work);
     return result;
 }

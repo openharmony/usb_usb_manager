@@ -29,6 +29,7 @@ napi_value CreateBusinessError(const napi_env &env, int32_t errCode, const std::
 
 enum SerialJsErrCode : int32_t {
     SYSPARAM_INVALID_INPUT = 401,
+    SERIAL_SYSAPI_NOPERMISSION_CALL = 201,
     SERIAL_SYSAPI_PERMISSION_DENIED = 202,
     SERIAL_SERVICE_ABNORMAL = 31400001,
     SERIAL_INTERFACE_PERMISSION_DENIED = 31400002,
@@ -36,12 +37,15 @@ enum SerialJsErrCode : int32_t {
     SERIAL_PORT_OCCUPIED = 31400004,
     SERIAL_PORT_NOT_OPEN = 31400005,
     SERIAL_TIMED_OUT = 31400006,
-    SERIAL_IO_EXCEPTION = 31400007
+    SERIAL_IO_EXCEPTION = 31400007,
+    UEC_COMMON_RIGHT_DATABASE_ERROR = 14400005,
 };
 
 #ifndef USB_NAPI_ERRORS_H
 const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
     {SYSPARAM_INVALID_INPUT, "BusinessError 401:Parameter error."},
+    {SERIAL_SYSAPI_NOPERMISSION_CALL,
+        "BusinessError 201:Permission denied. The application does not have the permission to call the API."},
     {SERIAL_SYSAPI_PERMISSION_DENIED, "BusinessError 202:Permission denied. Normal application uses system api."},
     {SERIAL_SERVICE_ABNORMAL, "BusinessError 31400001:The serial port service is abnormal."},
     {SERIAL_INTERFACE_PERMISSION_DENIED,
