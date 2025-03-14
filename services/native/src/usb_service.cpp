@@ -2589,11 +2589,9 @@ int32_t UsbService::RequestSerialRight(int32_t portId, bool &hasRight)
         bundleName.c_str(), deviceName.c_str(), tokenId.c_str());
     
     SerialDeviceIdentity serialDeviceIdentity = { deviceName, deviceVidPidSerialNum };
-    ret = usbRightManager_->RequestRight(portId, serialDeviceIdentity, bundleName, tokenId, userId);
-    if (ret != UEC_OK) {
-        USB_HILOGW(MODULE_USB_SERVICE,
-            "%{public}s:user don't agree", __func__);
-            return UEC_OK;
+    if (usbRightManager_->RequestRight(portId, serialDeviceIdentity, bundleName, tokenId, userId) != UEC_OK) {
+        USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:user don't agree", __func__);
+        return UEC_OK;
     }
 
     hasRight = true;
