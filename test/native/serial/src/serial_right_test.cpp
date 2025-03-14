@@ -34,7 +34,7 @@ constexpr int32_t VALID_PORTID = 0;
 constexpr int32_t INVALID_PORTID = -1;
 constexpr int32_t OK = 0;
 
-static std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort> g_portList;
+static std::vector<OHOS::USB::UsbSerialPort> g_portList;
 
 namespace OHOS {
 namespace SERIAL {
@@ -42,7 +42,7 @@ void SerialRightTest::SetUpTestCase(void)
 {
     UsbSrvClient::GetInstance().SerialGetPortList(g_portList);
     for (auto it : g_portList) {
-        UsbSrvClient::GetInstance().CancelSerialRight(it.portId);
+        UsbSrvClient::GetInstance().CancelSerialRight(it.portId_);
     }
 
     UsbSrvClient::GetInstance().SerialGetPortList(g_portList);
