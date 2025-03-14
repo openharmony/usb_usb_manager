@@ -652,14 +652,11 @@ static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
 
 static auto g_serialRequestRightExecute = [](napi_env env, void* data) {
     SerialRequestRightAsyncContext *asyncContext = static_cast<SerialRequestRightAsyncContext *>(data);
-    int32_t ret = g_usbClient.RequestSerialRight(asyncContext->portIdValue);
+    int32_t ret = g_usbClient.RequestSerialRight(asyncContext->portIdValue, asyncContext->hasRight);
     asyncContext->contextErrno = 0;
-    if (ret != 0 && ret != 1) {
+    if (ret != 0) {
         USB_HILOGE(MODULE_JS_NAPI, "request right has error");
-        asyncContext->ret = ret;
         asyncContext->contextErrno = ErrorCodeConversion(ret);
-    } else {
-        asyncContext->ret = ret;
     }
 };
 
@@ -671,7 +668,7 @@ static auto g_serialRequestRightComplete = [](napi_env env, napi_status status, 
         napi_create_int32(env, asyncContext->contextErrno, &result);
         napi_reject_deferred(env, asyncContext->deferred, result);
     } else {
-        napi_get_boolean(env, asyncContext->ret, &result);
+        napi_get_boolean(env, asyncContext->hasRight, &result);
         napi_resolve_deferred(env, asyncContext->deferred, result);
     }
     napi_delete_async_work(env, asyncContext->work);
@@ -705,6 +702,7 @@ static napi_value SerialRequestRightNapi(napi_env env, napi_callback_info info)
     SerialRequestRightAsyncContext* asyncContext = new (std::nothrow) SerialRequestRightAsyncContext;
     asyncContext->portIdValue = portIdValue;
     asyncContext->contextErrno = 0;
+    asyncContext->hasRight = false;
     napi_value result = nullptr;
     napi_create_promise(env, &asyncContext->deferred, &result);
     napi_value resourceName;

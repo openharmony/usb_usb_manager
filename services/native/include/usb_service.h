@@ -190,7 +190,7 @@ public:
     int32_t HasSerialRight(int32_t portId, bool &hasRight) override;
     int32_t AddSerialRight(uint32_t tokenId, int32_t portId) override;
     int32_t CancelSerialRight(int32_t portId) override;
-    int32_t RequestSerialRight(int32_t portId) override;
+    int32_t RequestSerialRight(int32_t portId, bool &hasRight) override;
 
 private:
 #ifdef USB_MANAGER_PASS_THROUGH
