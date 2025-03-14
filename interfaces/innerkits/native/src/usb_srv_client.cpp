@@ -1157,7 +1157,7 @@ int32_t UsbSrvClient::CancelSerialRight(int32_t portId)
     return ret;
 }
 
-int32_t UsbSrvClient::RequestSerialRight(int32_t portId, bool hasRight)
+int32_t UsbSrvClient::RequestSerialRight(int32_t portId, bool &hasRight)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "Calling RequestSerialRight");
     RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
