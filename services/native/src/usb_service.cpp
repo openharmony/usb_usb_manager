@@ -2644,17 +2644,15 @@ int32_t UsbService::CancelSerialRight(int32_t portId)
         return UEC_SERVICE_INVALID_VALUE;
     }
 
-    if (usbRightManager_->RemoveDeviceRight(deviceVidPidSerialNum, bundleName, tokenId, userId)) {
-        return UEC_OK;
-    }
-
-    if (!usbRightManager_->RemoveDeviceRight(deviceVidPidSerialNum, bundleName, USB_DEFAULT_TOKEN, userId)) {
+    if (!usbRightManager_->RemoveDeviceRight(deviceVidPidSerialNum, bundleName, tokenId, userId) &&
+        !usbRightManager_->RemoveDeviceRight(deviceVidPidSerialNum, bundleName, USB_DEFAULT_TOKEN, userId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "RemoveDeviceRight failed");
         ReportUsbSerialOperationFaultSysEvent(portId, "CancelSerialRight", UEC_SERVICE_PERMISSION_DENIED,
             "RemoveDeviceRight failed");
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
+    usbSerialManager_->SerialClose(portId);
     return UEC_OK;
 }
 
@@ -2815,12 +2813,12 @@ void UsbService::ReportUsbSerialOperationSysEvent(int32_t portId, const std::str
         return;
     }
 
-    HiSysEventWrite(HiSysEvent::Domain::USB, "USB_SERIAL_OPERATION",
+    HiSysEventWrite(HiSysEvent::Domain::USB, "SERIAL_OPERATION",
         HiSysEvent::EventType::BEHAVIOR, "OPERATION_TYPE_NAME", operationType,
         "CLIENT_NAME", bundleName,
         "PORT_VID", serialPort.deviceInfo.vid,
         "PORT_PID", serialPort.deviceInfo.pid,
-        "PORT_SN", serialPort.deviceInfo.serialNum,
+        "PORT_ID", serialPort.deviceInfo.serialNum,
         "ATTRIBUTE_BAUD_RATE", attribute.baudrate,
         "ATTRIBUTE_STOP_BIT", attribute.stopBits,
         "ATTRIBUTE_PARITY_CHECK", attribute.parity,
@@ -2831,7 +2829,7 @@ void UsbService::ReportUsbSerialOperationFaultSysEvent(int32_t portId, const std
     int32_t failReason, const std::string &failDescription)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "serial port operation fault");
-    HiSysEventWrite(HiSysEvent::Domain::USB, "USB_SERIAL_OPERATION_FAULT",
+    HiSysEventWrite(HiSysEvent::Domain::USB, "OPERATION_FAULT",
         HiSysEvent::EventType::FAULT, "OPERATION_TYPE_NAME", operationType,
         "FAIL_REASON", failReason,
         "FAIL_DESCRIPTION", failDescription);
