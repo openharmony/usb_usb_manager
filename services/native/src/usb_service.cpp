@@ -39,6 +39,7 @@
 #include "usb_napi_errors.h"
 #include "usb_port_manager.h"
 #include "usb_right_manager.h"
+#include "usb_right_db_helper.h"
 #include "usb_settings_datashare.h"
 #include "tokenid_kit.h"
 #include "accesstoken_kit.h"
@@ -1854,7 +1855,7 @@ int32_t UsbService::CancelAccessoryRight(const USBAccessory &access)
 
 bool UsbService::SetSettingsDataHdcStatus(int32_t func)
 {
-    uint32_t func_uint = static_cast<uint32_t>func;
+    uint32_t func_uint = static_cast<uint32_t>(func);
     auto datashareHelper = std::make_shared<UsbSettingDataShare>();
     std::string hdcStatus {"false"};
     OHOS::Uri uri(
