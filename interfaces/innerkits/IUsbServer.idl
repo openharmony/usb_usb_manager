@@ -20,6 +20,7 @@ sequenceable UsbPort..OHOS.USB.UsbPort;
 sequenceable UsbEndpoint..OHOS.USB.USBEndpoint;
 sequenceable UsbSerialType..OHOS.USB.UsbSerialPort;
 sequenceable UsbSerialType..OHOS.USB.UsbSerialAttr;
+sequenceable UsbBulkTransData..OHOS.USB.UsbBulkTransData;
 
 interface OHOS.USB.IUsbServer {
     /* the function about UsbService */
@@ -42,9 +43,9 @@ interface OHOS.USB.IUsbServer {
     [macrodef USB_MANAGER_FEATURE_HOST] void GetFileDescriptor([in]unsigned char busNum, [in]unsigned char devAddr, [out]FileDescriptor fd);
     [macrodef USB_MANAGER_FEATURE_HOST] void GetDeviceSpeed([in]unsigned char busNum, [in]unsigned char devAddr, [out]unsigned char speed);
     [macrodef USB_MANAGER_FEATURE_HOST] void GetInterfaceActiveStatus([in]unsigned char busNum, [in]unsigned char devAddr, [in]unsigned char interfaceid, [out]boolean unactivated);
-    [macrodef USB_MANAGER_FEATURE_HOST] void BulkTransferRead([in]unsigned char busNum, [in]unsigned char devAddr, [in]USBEndpoint ep, [inout]unsigned char[] bufferData, [in]int timeOut);
-    [macrodef USB_MANAGER_FEATURE_HOST] void BulkTransferWrite([in]unsigned char busNum, [in]unsigned char devAddr, [in]USBEndpoint ep, [in]unsigned char[] bufferData, [in]int timeOut);
-    [macrodef USB_MANAGER_FEATURE_HOST] void BulkTransferReadwithLength([in]unsigned char busNum, [in]unsigned char devAddr, [in]USBEndpoint ep, [in]int length, [out]unsigned char[] bufferData, [in]int timeOut);
+    [macrodef USB_MANAGER_FEATURE_HOST] void BulkTransferRead([in]unsigned char busNum, [in]unsigned char devAddr, [in]USBEndpoint ep, [out]UsbBulkTransData buffData, [in]int timeOut);
+    [macrodef USB_MANAGER_FEATURE_HOST] void BulkTransferWrite([in]unsigned char busNum, [in]unsigned char devAddr, [in]USBEndpoint ep, [in]UsbBulkTransData buffData, [in]int timeOut);
+    [macrodef USB_MANAGER_FEATURE_HOST] void BulkTransferReadwithLength([in]unsigned char busNum, [in]unsigned char devAddr, [in]USBEndpoint ep, [in]int length, [out]UsbBulkTransData buffData, [in]int timeOut);
     [macrodef USB_MANAGER_FEATURE_HOST] void ControlTransfer([in]unsigned char busNum, [in]unsigned char devAddr, [in]UsbCtlSetUp ctrlParams, [inout]unsigned char[] bufferData);
     [macrodef USB_MANAGER_FEATURE_HOST] void UsbControlTransfer([in]unsigned char busNum, [in]unsigned char devAddr, [in]UsbCtlSetUp ctrlParams, [inout]unsigned char[] bufferData);
     [macrodef USB_MANAGER_FEATURE_HOST] void RequestQueue([in]unsigned char busNum, [in]unsigned char devAddr, [in]USBEndpoint ep, [in]unsigned char[] clientData, [in]unsigned char[] bufferData);
