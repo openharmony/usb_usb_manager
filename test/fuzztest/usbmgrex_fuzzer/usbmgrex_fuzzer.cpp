@@ -71,7 +71,7 @@ enum class UsbInterfaceCode {
     USB_FUN_ATTACH_KERNEL_DRIVER,
     USB_FUN_DETACH_KERNEL_DRIVER,
 };
-const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbSrv";
+const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
 static uint32_t g_usbInterfaceCode = 0;
 static constexpr uint32_t g_usbInterfaceCodeCount = 43; // UsbInterfaceCode Count - 1
 

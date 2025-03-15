@@ -1276,7 +1276,6 @@ static napi_value CoreGetPorts(napi_env env, napi_callback_info info)
     std::vector<UsbPort> ports;
     int32_t ret = g_usbClient.GetPorts(ports);
     napi_value result;
-    USB_HILOGI(MODULE_JS_NAPI, "get ports failed ret : %{public}d", ret);
     USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI), OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "");
     USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED),
         OHEC_COMMON_PERMISSION_NOT_ALLOWED, "");
@@ -1326,7 +1325,6 @@ static napi_value PortGetSupportedModes(napi_env env, napi_callback_info info)
     int32_t result = 0;
     napi_get_value_int32(env, args[INDEX_0], &id);
     int32_t ret = g_usbClient.GetSupportedModes(id, result);
-    USB_HILOGI(MODULE_JS_NAPI, "get supported modes failed ret = %{public}d", ret);
     USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI), OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "");
     USB_ASSERT_RETURN_UNDEF(env, (ret != UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED),
         OHEC_COMMON_PERMISSION_NOT_ALLOWED, "");
@@ -2607,7 +2605,7 @@ static napi_value PortModeTypeEnum(napi_env env)
         return nullptr;
     }
     SetEnumProperty(env, object, "UFP", UFP);
-    SetEnumProperty(env, object, "DFP", DRP);
+    SetEnumProperty(env, object, "DFP", DFP);
     SetEnumProperty(env, object, "DRP", DRP);
     SetEnumProperty(env, object, "NUM_MODES", NUM_MODES);
     return object;
@@ -2652,6 +2650,28 @@ static napi_value USBRequestDirectionEnum(napi_env env)
     }
     SetEnumProperty(env, object, "USB_REQUEST_DIR_TO_DEVICE", USB_REQUEST_DIR_TO_DEVICE);
     SetEnumProperty(env, object, "USB_REQUEST_DIR_FROM_DEVICE", USB_REQUEST_DIR_FROM_DEVICE);
+    return object;
+}
+
+static napi_value FunctionTypeEnum(napi_env env)
+{
+    napi_value object = nullptr;
+    napi_status status = napi_create_object(env, &object);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        return nullptr;
+    }
+    SetEnumProperty(env, object, "ACM", ACM);
+    SetEnumProperty(env, object, "ECM", ECM);
+    SetEnumProperty(env, object, "HDC", HDC);
+    SetEnumProperty(env, object, "MTP", MTP);
+    SetEnumProperty(env, object, "PTP", PTP);
+    SetEnumProperty(env, object, "RNDIS", RNDIS);
+    SetEnumProperty(env, object, "MIDI", MIDI);
+    SetEnumProperty(env, object, "AUDIO_SOURCE", AUDIO_SOURCE);
+    SetEnumProperty(env, object, "NCM", NCM);
+    SetEnumProperty(env, object, "STORAGE", STORAGE);
+    SetEnumProperty(env, object, "MIDI", MIDI);
     return object;
 }
 
@@ -2705,6 +2725,7 @@ static napi_value DeclareEnum(napi_env env, napi_value exports)
         DECLARE_NAPI_STATIC_PROPERTY("AUDIO_SOURCE", ToInt32Value(env, AUDIO_SOURCE)),
         DECLARE_NAPI_STATIC_PROPERTY("NCM", ToInt32Value(env, NCM)),
         DECLARE_NAPI_STATIC_PROPERTY("STORAGE", ToInt32Value(env, STORAGE)),
+        DECLARE_NAPI_STATIC_PROPERTY("FunctionType", FunctionTypeEnum(env)),
         DECLARE_NAPI_STATIC_PROPERTY("UsbTransferFlags", NapiCreateFlagsEnum(env)),
         DECLARE_NAPI_STATIC_PROPERTY("UsbEndpointTransferType", NapiCreateTypeEnum(env)),
         DECLARE_NAPI_STATIC_PROPERTY("UsbTransferStatus", NapiCreateStatusEnum(env)),

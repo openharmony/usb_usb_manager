@@ -33,7 +33,7 @@ public:
     
     int32_t UsbSubmitTransfer(HDI::Usb::V1_2::USBTransferInfo &info, const TransferCallback &cb,
         sptr<Ashmem> &ashmem);
-    int32_t UsbCancelTransfer(const int32_t &endpoint);
+    int32_t UsbCancelTransfer(int32_t &endpoint);
     
     int32_t ControlTransfer(const HDI::Usb::V1_0::UsbCtrlTransfer &ctrl, std::vector<uint8_t> &bufferData);
     int32_t UsbControlTransfer(
@@ -46,7 +46,8 @@ public:
     void SetDevAddr(uint8_t devAddr);
     uint8_t GetBusNum() const;
     uint8_t GetDevAddr() const;
-
+    uint8_t GetBusNum();
+    uint8_t GetDevAddr();
 private:
     uint8_t busNum_ = UINT8_MAX;
     uint8_t devAddr_ = UINT8_MAX;

@@ -26,13 +26,13 @@
 #include "usb_srv_support.h"
 #include "v1_0/iusb_interface.h"
 #include "v1_0/iusbd_subscriber.h"
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
 #include "usb_manager_subscriber.h"
 #include "v2_0/iusb_device_interface.h"
 #include "mem_mgr_proxy.h"
 #include "mem_mgr_client.h"
 #include "system_ability_definition.h"
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
 
 #define USB_FUNCTION_HDC     (1 << 2)
 #define USB_FUNCTION_MTP     (1 << 3)
@@ -42,12 +42,12 @@ namespace OHOS {
 namespace USB {
 class UsbDeviceManager {
 public:
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
     bool InitUsbDeviceInterface();
     void Stop();
     int32_t BindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSubscriber> &subscriber);
     int32_t UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSubscriber> &subscriber);
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
     UsbDeviceManager();
     ~UsbDeviceManager();
     int32_t Init();
@@ -81,6 +81,7 @@ private:
     static const std::map<std::string_view, uint32_t> FUNCTION_MAPPING_N2C;
     int32_t currentFunctions_ {UsbSrvSupport::FUNCTION_HDC};
     bool connected_ {false};
+    bool hasHdcNotifier_ {false};
     bool gadgetConnected_ {false};
     bool isDisableDialog_ {false};
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
@@ -88,10 +89,10 @@ private:
     uint32_t delayDisconnTimerId_ {UINT32_MAX};
     uint32_t delayAccTimerId_ {UINT32_MAX};
     std::mutex functionMutex_;
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
     sptr<HDI::Usb::V2_0::IUsbDeviceInterface> usbDeviceInterface_ = nullptr;
     sptr<UsbManagerSubscriber> usbManagerSubscriber_;
-#endif // USB_MANAGER_PASS_THROUGH
+#endif // USB_MANAGER_V2_0
 };
 } // namespace USB
 } // namespace OHOS

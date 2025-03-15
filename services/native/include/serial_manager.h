@@ -34,8 +34,10 @@ public:
 
     int32_t SerialOpen(int32_t portId);
     int32_t SerialClose(int32_t portId);
-    int32_t SerialRead(int32_t portId, uint8_t *buffData, uint32_t size, uint32_t timeout);
-    int32_t SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size, uint32_t timeout);
+    int32_t SerialRead(int32_t portId, std::vector<uint8_t>& data, uint32_t size,
+        uint32_t &actualSize, uint32_t timeout);
+    int32_t SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size,
+        uint32_t &actualSize, uint32_t timeout);
     int32_t SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute);
     int32_t SerialSetAttribute(int32_t portId, const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute);
     int32_t SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList);

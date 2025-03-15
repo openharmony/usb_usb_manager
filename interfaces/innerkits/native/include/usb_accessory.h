@@ -20,6 +20,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include "parcel.h"
 #include "usb_common.h"
 #include "cJSON.h"
 
@@ -31,7 +32,7 @@ const int32_t ACC_VERSION_INDEX = 3;
 const int32_t ACC_SERIAL_NUMBER_INDEX = 4;
 namespace OHOS {
 namespace USB {
-class USBAccessory {
+class USBAccessory : public Parcelable {
 public:
     USBAccessory(const std::string &manufacturer, const std::string &product,
         const std::string &description, const std::string &version, const std::string &serialNumber)
@@ -57,7 +58,29 @@ public:
     }
 
     USBAccessory() {}
+    bool Marshalling(Parcel &parcel) const override
+    {
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(String, parcel, this->manufacturer_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(String, parcel, this->product_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(String, parcel, this->description_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(String, parcel, this->version_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(String, parcel, this->serialNumber_);
+        return true;
+    }
 
+    static USBAccessory *Unmarshalling(Parcel &data)
+    {
+        USBAccessory *usbAccessory = new (std::nothrow) USBAccessory;
+        if (usbAccessory == nullptr) {
+            return nullptr;
+        }
+        usbAccessory->manufacturer_ = data.ReadString();
+        usbAccessory->product_ = data.ReadString();
+        usbAccessory->description_ = data.ReadString();
+        usbAccessory->version_ = data.ReadString();
+        usbAccessory->serialNumber_ = data.ReadString();
+        return usbAccessory;
+    }
     static std::string GetStringValue(const cJSON *jsonObject, const char *key)
     {
         cJSON *item = cJSON_GetObjectItem(jsonObject, key);

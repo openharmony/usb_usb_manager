@@ -82,7 +82,7 @@ int32_t SerialManager::CheckPortAndTokenId(int32_t portId)
 
     if (!CheckTokenIdValidity(portId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: Application ID mismatch", __func__);
-        return OHOS::USB::UEC_SERIAL_PORT_OCCUPIED;
+        return OHOS::USB::UEC_SERIAL_PORT_NOT_OPEN;
     }
 
     return UEC_OK;
@@ -125,13 +125,13 @@ int32_t SerialManager::SerialClose(int32_t portId)
     }
 
     if (!IsPortStatus(portId)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: The port repeat close", __func__);
-        return OHOS::USB::UEC_SERIAL_PORT_REPEAT_CLOSE;
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: The port not open", __func__);
+        return OHOS::USB::UEC_SERIAL_PORT_NOT_OPEN;
     }
 
     if (!CheckTokenIdValidity(portId)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: The application is incorrect and cannot be closed", __func__);
-        return OHOS::USB::UEC_SERIAL_PORT_OCCUPIED;
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: The port not open", __func__);
+        return OHOS::USB::UEC_SERIAL_PORT_NOT_OPEN;
     }
 
     int32_t ret = serial_->SerialClose(portId);
@@ -143,7 +143,8 @@ int32_t SerialManager::SerialClose(int32_t portId)
     return ret;
 }
 
-int32_t SerialManager::SerialRead(int32_t portId, uint8_t *buffData, uint32_t size, uint32_t timeout)
+int32_t SerialManager::SerialRead(int32_t portId, std::vector<uint8_t> &data, uint32_t size,
+    uint32_t &actualSize, uint32_t timeout)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: start", __func__);
 
@@ -153,21 +154,17 @@ int32_t SerialManager::SerialRead(int32_t portId, uint8_t *buffData, uint32_t si
         return ret;
     }
 
-    std::vector<uint8_t> data;
     ret = serial_->SerialRead(portId, data, size, timeout);
-    if (ret != UEC_OK) {
+    if (ret < UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialRead failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
-
-    for (size_t i = 0; i < data.size(); i++) {
-        buffData[i] = data.at(i);
-    }
-
-    return ret;
+    actualSize = ret;
+    return UEC_OK;
 }
 
-int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size, uint32_t timeout)
+int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size,
+    uint32_t &actualSize, uint32_t timeout)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: start", __func__);
     int32_t ret = CheckPortAndTokenId(portId);
@@ -177,11 +174,11 @@ int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& d
     }
 
     ret = serial_->SerialWrite(portId, data, size, timeout);
-    if (ret != UEC_OK) {
+    if (ret < UEC_OK) {
         return ErrorCodeWrap(ret);
     }
-
-    return ret;
+    actualSize = ret;
+    return UEC_OK;
 }
 
 int32_t SerialManager::SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute)

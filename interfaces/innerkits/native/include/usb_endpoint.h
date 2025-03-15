@@ -19,12 +19,13 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include "parcel.h"
 #include "usb_common.h"
 #include "cJSON.h"
 
 namespace OHOS {
 namespace USB {
-class USBEndpoint {
+class USBEndpoint : public Parcelable {
 public:
     USBEndpoint(uint32_t address, uint32_t attributes, uint32_t interval, uint32_t maxPacketSize)
     {
@@ -48,7 +49,29 @@ public:
 
     USBEndpoint() {}
     ~USBEndpoint() {}
+    bool Marshalling(Parcel &parcel) const override
+    {
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint32, parcel, this->address_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint32, parcel, this->attributes_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->interval_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->maxPacketSize_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint8, parcel, this->interfaceId_);
+        return true;
+    }
 
+    static USBEndpoint *Unmarshalling(Parcel &data)
+    {
+        USBEndpoint *usbEndpoint = new (std::nothrow) USBEndpoint;
+        if (usbEndpoint == nullptr) {
+            return nullptr;
+        }
+        usbEndpoint->address_ = data.ReadUint32();
+        usbEndpoint->attributes_ = data.ReadUint32();
+        usbEndpoint->interval_ = data.ReadInt32();
+        usbEndpoint->maxPacketSize_ = data.ReadInt32();
+        usbEndpoint->interfaceId_ = data.ReadUint8();
+        return usbEndpoint;
+    }
     static int GetIntValue(const cJSON *jsonObject, const char *key)
     {
         cJSON *item = cJSON_GetObjectItem(jsonObject, key);

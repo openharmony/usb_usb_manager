@@ -33,7 +33,8 @@ bool UsbMgrSerialWriteFuzzTest(const uint8_t* data, size_t size)
     const int32_t portId = *reinterpret_cast<const int32_t *>(data);
     const uint32_t timeout = *reinterpret_cast<const uint32_t *>(data + sizeof(int32_t));
     std::vector<uint8_t> buffer(data, data + size);
-    if (usbSrvClient.SerialWrite(portId, buffer, size, timeout) != OK) {
+    uint32_t actualLen = 0;
+    if (usbSrvClient.SerialWrite(portId, buffer, size, actualLen, timeout) != OK) {
         return false;
     }
 

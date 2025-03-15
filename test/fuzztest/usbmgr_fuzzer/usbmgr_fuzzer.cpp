@@ -23,7 +23,7 @@ using namespace OHOS::USB;
 namespace OHOS {
 constexpr int32_t OFFSET = 4;
 constexpr size_t THRESHOLD = 10;
-const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbSrv";
+const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
 
 uint32_t Convert2Uint32(const uint8_t *ptr)
 {

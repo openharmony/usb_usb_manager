@@ -18,6 +18,7 @@
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
 #include "v1_0/serial_types.h"
+#include "usb_serial_type.h"
 #include "usb_srv_client.h"
 #include "usb_errors.h"
 #include "napi_util.h"
@@ -29,6 +30,7 @@ using namespace OHOS::HDI::Usb::Serial::V1_0;
 using namespace OHOS::Security::AccessToken;
 
 using OHOS::USB::UsbSrvClient;
+using OHOS::USB::UsbSerialAttr;
 using OHOS::USB::MODULE_USB_SERVICE;
 using OHOS::USB::USB_MGR_LABEL;
 using OHOS::USB::UEC_INTERFACE_TIMED_OUT;
@@ -39,24 +41,8 @@ constexpr int32_t INVALID_PORTID = -1;
 constexpr int32_t OK = 0;
 constexpr int32_t ONE_KBYTE = 1024;
 constexpr int32_t ONE_SECOND = 1000;
-constexpr int32_t MAX_MEMORY = 8192;
-static std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort> g_portList;
+static std::vector<OHOS::USB::UsbSerialPort> g_portList;
 
-template<typename T>
-std::shared_ptr<T> make_shared_array(size_t size)
-{
-    if (size == 0) {
-        return NULL;
-    }
-    if (size > MAX_MEMORY) {
-        return NULL;
-    }
-    T* buffer = new (std::nothrow)T[size];
-    if (!buffer) {
-        return NULL;
-    }
-    return std::shared_ptr<T>(buffer, [] (T* p) { delete[] p; });
-}
 
 namespace OHOS {
 namespace SERIAL {
@@ -64,8 +50,9 @@ void SerialTest::SetUpTestCase(void)
 {
     GrantPermissionSysNative();
     UsbSrvClient::GetInstance().SerialGetPortList(g_portList);
-    UsbSrvClient::GetInstance().RequestSerialRight(VALID_PORTID);
-    if (!UsbSrvClient::GetInstance().HasSerialRight(VALID_PORTID)) {
+    bool hasRight = false;
+    UsbSrvClient::GetInstance().RequestSerialRight(VALID_PORTID, hasRight);
+    if (!UsbSrvClient::GetInstance().HasSerialRight(VALID_PORTID, hasRight) || !hasRight) {
         return;
     }
 }
@@ -85,7 +72,7 @@ void SerialTest::TearDown(void) {}
 HWTEST_F(SerialTest, SerialGetPortList_001, TestSize.Level1)
 {
     EXPECT_NE(g_portList.size(), 0);
-    EXPECT_EQ(g_portList[0].portId, VALID_PORTID);
+    EXPECT_EQ(g_portList[0].portId_, VALID_PORTID);
 }
 
 /**
@@ -137,7 +124,8 @@ HWTEST_F(SerialTest, SerialWrite_001, TestSize.Level1)
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
     UsbSrvClient::GetInstance().SerialOpen(VALID_PORTID);
     std::vector<uint8_t> data = { 't', 'e', 's', 't' };
-    int32_t ret = UsbSrvClient::GetInstance().SerialWrite(VALID_PORTID, data, data.size(), 0);
+    uint32_t actualSize = 0;
+    int32_t ret = UsbSrvClient::GetInstance().SerialWrite(VALID_PORTID, data, data.size(), actualSize, 0);
     EXPECT_EQ(ret, OK);
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
 }
@@ -153,7 +141,8 @@ HWTEST_F(SerialTest, SerialWrite_002, TestSize.Level1)
     UsbSrvClient::GetInstance().SerialClose(INVALID_PORTID);
     UsbSrvClient::GetInstance().SerialOpen(INVALID_PORTID);
     std::vector<uint8_t> data = { 't', 'e', 's', 't' };
-    int32_t ret = UsbSrvClient::GetInstance().SerialWrite(INVALID_PORTID, data, data.size(), 0);
+    uint32_t actualSize = 0;
+    int32_t ret = UsbSrvClient::GetInstance().SerialWrite(INVALID_PORTID, data, data.size(), actualSize, 0);
     EXPECT_EQ(ret, UEC_SERIAL_PORT_NOT_EXIST);
     UsbSrvClient::GetInstance().SerialClose(INVALID_PORTID);
 }
@@ -168,8 +157,9 @@ HWTEST_F(SerialTest, SerialRead_001, TestSize.Level1)
 {
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
     UsbSrvClient::GetInstance().SerialOpen(VALID_PORTID);
-    std::shared_ptr<uint8_t> data = make_shared_array<uint8_t>(ONE_KBYTE);
-    int32_t ret = UsbSrvClient::GetInstance().SerialRead(VALID_PORTID, data.get(), ONE_KBYTE, ONE_SECOND);
+    uint32_t actualSize = 0;
+    std::vector<uint8_t> data;
+    int32_t ret = UsbSrvClient::GetInstance().SerialRead(VALID_PORTID, data, ONE_KBYTE, actualSize, ONE_SECOND);
     EXPECT_EQ(ret, UEC_INTERFACE_TIMED_OUT);
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
 }
@@ -184,8 +174,9 @@ HWTEST_F(SerialTest, SerialRead_002, TestSize.Level1)
 {
     UsbSrvClient::GetInstance().SerialClose(INVALID_PORTID);
     UsbSrvClient::GetInstance().SerialOpen(INVALID_PORTID);
-    std::shared_ptr<uint8_t> data = make_shared_array<uint8_t>(ONE_KBYTE);
-    int32_t ret = UsbSrvClient::GetInstance().SerialRead(INVALID_PORTID, data.get(), ONE_KBYTE, 0);
+    std::vector<uint8_t> data;
+    uint32_t actualSize = 0;
+    int32_t ret = UsbSrvClient::GetInstance().SerialRead(INVALID_PORTID, data, ONE_KBYTE, actualSize, 0);
     EXPECT_EQ(ret, UEC_SERIAL_PORT_NOT_EXIST);
     UsbSrvClient::GetInstance().SerialClose(INVALID_PORTID);
 }
@@ -200,10 +191,12 @@ HWTEST_F(SerialTest, SerialRead_003, TestSize.Level1)
 {
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
     UsbSrvClient::GetInstance().SerialOpen(VALID_PORTID);
-    std::cout << "请打开串口工具单次发送数据，输入回车继续" << std::endl;
+    std::cout << "Please open the serial port tool to send data in ";
+    std::cout << "a single transmission, and press Enter to continue" << std::endl;
     getchar();
-    std::shared_ptr<uint8_t> data = make_shared_array<uint8_t>(ONE_KBYTE);
-    int32_t ret = UsbSrvClient::GetInstance().SerialRead(VALID_PORTID, data.get(), ONE_KBYTE, 0);
+    std::vector<uint8_t> data;
+    uint32_t actualSize = 0;
+    int32_t ret = UsbSrvClient::GetInstance().SerialRead(VALID_PORTID, data, ONE_KBYTE, actualSize, 0);
     EXPECT_EQ(ret, 0);
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
 }
@@ -218,7 +211,7 @@ HWTEST_F(SerialTest, SerialGetAttribute_001, TestSize.Level1)
 {
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
     UsbSrvClient::GetInstance().SerialOpen(VALID_PORTID);
-    OHOS::HDI::Usb::Serial::V1_0::SerialAttribute attributeInfo;
+    UsbSerialAttr attributeInfo;
     int32_t ret = UsbSrvClient::GetInstance().SerialGetAttribute(VALID_PORTID, attributeInfo);
     EXPECT_EQ(ret, OK);
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
@@ -234,7 +227,7 @@ HWTEST_F(SerialTest, SerialGetAttribute_002, TestSize.Level1)
 {
     UsbSrvClient::GetInstance().SerialClose(INVALID_PORTID);
     UsbSrvClient::GetInstance().SerialOpen(INVALID_PORTID);
-    OHOS::HDI::Usb::Serial::V1_0::SerialAttribute attributeInfo;
+    UsbSerialAttr attributeInfo;
     int32_t ret = UsbSrvClient::GetInstance().SerialGetAttribute(INVALID_PORTID, attributeInfo);
     EXPECT_NE(ret, OK);
     UsbSrvClient::GetInstance().SerialClose(INVALID_PORTID);
@@ -250,11 +243,11 @@ HWTEST_F(SerialTest, SerialSetAttribute_001, TestSize.Level1)
 {
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
     UsbSrvClient::GetInstance().SerialOpen(VALID_PORTID);
-    OHOS::HDI::Usb::Serial::V1_0::SerialAttribute attributeInfo;
-    attributeInfo.baudrate = OHOS::HDI::Usb::Serial::V1_0::BAUDRATE_576000;
-    attributeInfo.dataBits = OHOS::HDI::Usb::Serial::V1_0::USB_ATTR_DATABIT_6;
-    attributeInfo.parity = OHOS::HDI::Usb::Serial::V1_0::USB_ATTR_PARITY_ODD;
-    attributeInfo.stopBits = OHOS::HDI::Usb::Serial::V1_0::USB_ATTR_STOPBIT_2;
+    UsbSerialAttr attributeInfo;
+    attributeInfo.baudRate_ = OHOS::HDI::Usb::Serial::V1_0::BAUDRATE_576000;
+    attributeInfo.dataBits_ = OHOS::HDI::Usb::Serial::V1_0::USB_ATTR_DATABIT_6;
+    attributeInfo.parity_ = OHOS::HDI::Usb::Serial::V1_0::USB_ATTR_PARITY_ODD;
+    attributeInfo.stopBits_ = OHOS::HDI::Usb::Serial::V1_0::USB_ATTR_STOPBIT_2;
     int32_t ret = UsbSrvClient::GetInstance().SerialSetAttribute(VALID_PORTID, attributeInfo);
     EXPECT_EQ(ret, OK);
     UsbSrvClient::GetInstance().SerialClose(VALID_PORTID);
@@ -270,11 +263,11 @@ HWTEST_F(SerialTest, SerialSetAttribute_002, TestSize.Level1)
 {
     UsbSrvClient::GetInstance().SerialClose(INVALID_PORTID);
     UsbSrvClient::GetInstance().SerialOpen(INVALID_PORTID);
-    OHOS::HDI::Usb::Serial::V1_0::SerialAttribute attributeInfo;
-    attributeInfo.baudrate = OHOS::HDI::Usb::Serial::V1_0::BAUDRATE_576000;
-    attributeInfo.dataBits = OHOS::HDI::Usb::Serial::V1_0::USB_ATTR_DATABIT_6;
-    attributeInfo.parity = OHOS::HDI::Usb::Serial::V1_0::USB_ATTR_PARITY_ODD;
-    attributeInfo.stopBits = OHOS::HDI::Usb::Serial::V1_0::USB_ATTR_STOPBIT_2;
+    UsbSerialAttr attributeInfo;
+    attributeInfo.baudRate_ = OHOS::HDI::Usb::Serial::V1_0::BAUDRATE_576000;
+    attributeInfo.dataBits_ = OHOS::HDI::Usb::Serial::V1_0::USB_ATTR_DATABIT_6;
+    attributeInfo.parity_ = OHOS::HDI::Usb::Serial::V1_0::USB_ATTR_PARITY_ODD;
+    attributeInfo.stopBits_ = OHOS::HDI::Usb::Serial::V1_0::USB_ATTR_STOPBIT_2;
     int32_t ret = UsbSrvClient::GetInstance().SerialSetAttribute(INVALID_PORTID, attributeInfo);
     EXPECT_NE(ret, OK);
     UsbSrvClient::GetInstance().SerialClose(INVALID_PORTID);

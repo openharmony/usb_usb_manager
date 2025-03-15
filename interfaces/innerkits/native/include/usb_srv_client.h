@@ -23,14 +23,14 @@
 #include <singleton.h>
 
 #include "iremote_object.h"
-#include "iusb_srv.h"
+#include "iusb_server.h"
 #include "usb_device.h"
 #include "usb_device_pipe.h"
 #include "usb_port.h"
 #include "usb_request.h"
 #include "usb_interface_type.h"
 #include "serial_death_monitor.h"
-
+#include "usb_server_types.h"
 namespace OHOS {
 namespace USB {
 constexpr uint8_t CLAIM_FORCE_1 = 1;
@@ -38,6 +38,7 @@ const std::string MAXVERSION = "001";
 const std::string SUBVERSION = "001";
 const std::string DLPVERSION = "025";
 const std::string SEVVERSION = MAXVERSION + "." + SUBVERSION + "." + DLPVERSION;
+
 
 class UsbSrvClient final {
 public:
@@ -57,22 +58,22 @@ public:
     int32_t SetCurrentFunctions(int32_t funcs);
     int32_t UsbFunctionsFromString(std::string_view funcs);
     std::string UsbFunctionsToString(int32_t funcs);
-    int32_t ClaimInterface(USBDevicePipe &pip, const UsbInterface &interface, bool force);
-    int32_t UsbAttachKernelDriver(USBDevicePipe &pip, const UsbInterface &interface);
-    int32_t UsbDetachKernelDriver(USBDevicePipe &pip, const UsbInterface &interface);
-    int32_t ReleaseInterface(USBDevicePipe &pip, const UsbInterface &interface);
-    int32_t BulkTransfer(USBDevicePipe &pip, const USBEndpoint &endpoint, std::vector<uint8_t> &bufferData,
+    int32_t ClaimInterface(USBDevicePipe &pipe, const UsbInterface &interface, bool force);
+    int32_t UsbAttachKernelDriver(USBDevicePipe &pipe, const UsbInterface &interface);
+    int32_t UsbDetachKernelDriver(USBDevicePipe &pipe, const UsbInterface &interface);
+    int32_t ReleaseInterface(USBDevicePipe &pipe, const UsbInterface &interface);
+    int32_t BulkTransfer(USBDevicePipe &pipe, const USBEndpoint &endpoint, std::vector<uint8_t> &bufferData,
         int32_t timeOut);
-    int32_t ControlTransfer(USBDevicePipe &pip, const HDI::Usb::V1_0::UsbCtrlTransfer &ctrl,
+    int32_t ControlTransfer(USBDevicePipe &pipe, const HDI::Usb::V1_0::UsbCtrlTransfer &ctrl,
         std::vector<uint8_t> &bufferData);
     int32_t UsbControlTransfer(USBDevicePipe &pipe, const HDI::Usb::V1_2::UsbCtrlTransferParams &ctrlParams,
         std::vector<uint8_t> &bufferData);
-    int32_t SetConfiguration(USBDevicePipe &pip, const USBConfig &config);
+    int32_t SetConfiguration(USBDevicePipe &pipe, const USBConfig &config);
     int32_t SetInterface(USBDevicePipe &pipe, const UsbInterface &interface);
     int32_t GetRawDescriptors(USBDevicePipe &pipe, std::vector<uint8_t> &bufferData);
     int32_t GetFileDescriptor(USBDevicePipe &pipe, int32_t &fd);
     bool Close(const USBDevicePipe &pip);
-    int32_t PipeRequestWait(USBDevicePipe &pip, int64_t timeOut, UsbRequest &req);
+    int32_t PipeRequestWait(USBDevicePipe &pipe, int64_t timeOut, UsbRequest &req);
 
     int32_t RequestInitialize(UsbRequest &request);
     int32_t RequestFree(UsbRequest &request);
@@ -86,14 +87,14 @@ public:
         return SEVVERSION;
     }
 
-    int32_t UsbCancelTransfer(USBDevicePipe &pip, const int32_t &endpoint);
-    int32_t UsbSubmitTransfer(USBDevicePipe &pip, HDI::Usb::V1_2::USBTransferInfo &info,
+    int32_t UsbCancelTransfer(USBDevicePipe &pipe, int32_t &endpoint);
+    int32_t UsbSubmitTransfer(USBDevicePipe &pipe, HDI::Usb::V1_2::USBTransferInfo &info,
         const TransferCallback &cb, sptr<Ashmem> &ashmem);
-    int32_t RegBulkCallback(USBDevicePipe &pip, const USBEndpoint &endpoint, const sptr<IRemoteObject> &cb);
-    int32_t UnRegBulkCallback(USBDevicePipe &pip, const USBEndpoint &endpoint);
-    int32_t BulkRead(USBDevicePipe &pip, const USBEndpoint &endpoint, sptr<Ashmem> &ashmem);
-    int32_t BulkWrite(USBDevicePipe &pip, const USBEndpoint &endpoint, sptr<Ashmem> &ashmem);
-    int32_t BulkCancel(USBDevicePipe &pip, const USBEndpoint &endpoint);
+    int32_t RegBulkCallback(USBDevicePipe &pipe, const USBEndpoint &endpoint, const sptr<IRemoteObject> &cb);
+    int32_t UnRegBulkCallback(USBDevicePipe &pipe, const USBEndpoint &endpoint);
+    int32_t BulkRead(USBDevicePipe &pipe, const USBEndpoint &endpoint, sptr<Ashmem> &ashmem);
+    int32_t BulkWrite(USBDevicePipe &pipe, const USBEndpoint &endpoint, sptr<Ashmem> &ashmem);
+    int32_t BulkCancel(USBDevicePipe &pipe, const USBEndpoint &endpoint);
     int32_t AddRight(const std::string &bundleName, const std::string &deviceName);
     int32_t AddAccessRight(const std::string &tokenId, const std::string &deviceName);
     int32_t ManageGlobalInterface(bool disable);
@@ -110,18 +111,26 @@ public:
 
     int32_t SerialOpen(int32_t portId);
     int32_t SerialClose(int32_t portId);
-    int32_t SerialRead(int32_t portId, uint8_t *buffData, uint32_t size, uint32_t timeout);
-    int32_t SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size, uint32_t timeout);
-    int32_t SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute);
-    int32_t SerialSetAttribute(int32_t portId, const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute);
-    int32_t SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList);
-    bool HasSerialRight(int32_t portId);
+    int32_t SerialRead(int32_t portId, std::vector<uint8_t> &data, uint32_t bufferSize,
+        uint32_t& actualSize, uint32_t timeout);
+    int32_t SerialWrite(int32_t portId, const std::vector<uint8_t>& data,
+        uint32_t bufferSize, uint32_t& actualSize, uint32_t timeout);
+    int32_t SerialGetAttribute(int32_t portId, UsbSerialAttr& attribute);
+    int32_t SerialSetAttribute(int32_t portId, const UsbSerialAttr& attribute);
+    int32_t SerialGetPortList(
+        std::vector<UsbSerialPort>& serialPortList);
+    int32_t HasSerialRight(int32_t portId, bool &hasRight);
     int32_t AddSerialRight(uint32_t tokenId, int32_t portId);
     int32_t CancelSerialRight(int32_t portId);
-    int32_t RequestSerialRight(int32_t portId);
+    int32_t RequestSerialRight(int32_t portId, bool &hasRight);
 private:
     UsbSrvClient();
     ~UsbSrvClient();
+    void UsbDeviceTypeChange(const std::vector<UsbDeviceType> &disableType,
+        std::vector<UsbDeviceTypeInfo> &deviceTypes);
+    void UsbCtrlTransferChange(const HDI::Usb::V1_0::UsbCtrlTransfer &param, UsbCtlSetUp &ctlSetup);
+    void UsbCtrlTransferChange(const HDI::Usb::V1_2::UsbCtrlTransferParams &param, UsbCtlSetUp &ctlSetup);
+    void UsbTransInfoChange(const HDI::Usb::V1_2::USBTransferInfo &param, UsbTransInfo &info);
     class UsbSrvDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         UsbSrvDeathRecipient() = default;
@@ -135,7 +144,7 @@ private:
     int32_t Connect();
     int32_t ConnectUnLocked();
     void ResetProxy(const wptr<IRemoteObject> &remote);
-    sptr<IUsbSrv> proxy_ = nullptr;
+    sptr<IUsbServer> proxy_ = nullptr;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ = nullptr;
     std::mutex mutex_;
     sptr<SerialDeathMonitor> serialRemote = nullptr;

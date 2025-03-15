@@ -26,21 +26,6 @@ constexpr int32_t MAX_MEMORY = 8192;
 using OHOS::USB::UsbSrvClient;
 namespace OHOS {
 namespace SERIAL {
-template<typename T>
-std::shared_ptr<T> MakeSharedArray(size_t size)
-{
-    if (size == 0) {
-        return NULL;
-    }
-    if (size > MAX_MEMORY) {
-        return NULL;
-    }
-    T* buffer = new (std::nothrow)T[size];
-    if (!buffer) {
-        return NULL;
-    }
-    return std::shared_ptr<T>(buffer, [] (T* p) { delete[] p; });
-}
 
 bool UsbMgrSerialReadFuzzTest(const uint8_t* data, size_t size)
 {
@@ -51,8 +36,9 @@ bool UsbMgrSerialReadFuzzTest(const uint8_t* data, size_t size)
     const int32_t portId = *reinterpret_cast<const int32_t *>(data);
     const uint32_t timeout = *reinterpret_cast<const uint32_t *>(data + sizeof(int32_t));
     const uint32_t readSize = *reinterpret_cast<const size_t *>(data + sizeof(int32_t) + sizeof(uint32_t));
-    std::shared_ptr<uint8_t> buffer = MakeSharedArray<uint8_t>(readSize);
-    if (usbSrvClient.SerialRead(portId, buffer.get(), readSize, timeout) != OK) {
+    std::vector<uint8_t> bufferData;
+    uint32_t actualLen = 0;
+    if (usbSrvClient.SerialRead(portId, bufferData, readSize, actualLen, timeout) != OK) {
         return false;
     }
     return true;

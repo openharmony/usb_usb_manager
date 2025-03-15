@@ -21,11 +21,14 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include "parcel.h"
 #include "usb_endpoint.h"
 
 namespace OHOS {
 namespace USB {
-class UsbInterface {
+constexpr uint32_t USB_ENDPOINT_MAX_NUM = 128;
+
+class UsbInterface : public Parcelable {
 public:
     UsbInterface(int32_t id,
                  int32_t protocol,
@@ -68,6 +71,48 @@ public:
     }
 
     UsbInterface() {}
+    bool Marshalling(Parcel &parcel) const override
+    {
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->id_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->protocol_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->klass_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->subClass_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->alternateSetting_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(String, parcel, this->name_);
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint8, parcel, this->iInterface_);
+
+        uint32_t epCount = this->endpoints_.size();
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint32, parcel, epCount);
+        for (uint32_t i = 0; i < epCount && i < USB_ENDPOINT_MAX_NUM; i++) {
+            this->endpoints_[i].Marshalling(parcel);
+        }
+        return true;
+    }
+
+    static UsbInterface *Unmarshalling(Parcel &data)
+    {
+        UsbInterface *usbInterface = new (std::nothrow) UsbInterface;
+        if (usbInterface == nullptr) {
+            return nullptr;
+        }
+        usbInterface->id_ = data.ReadInt32();
+        usbInterface->protocol_ = data.ReadInt32();
+        usbInterface->klass_ = data.ReadInt32();
+        usbInterface->subClass_ = data.ReadInt32();
+        usbInterface->alternateSetting_ = data.ReadInt32();
+        usbInterface->name_ = data.ReadString();
+        usbInterface->iInterface_ = data.ReadUint8();
+
+        uint32_t epCount = 0;
+        epCount = data.ReadUint32();
+        for (uint32_t i = 0; i < epCount && i < USB_ENDPOINT_MAX_NUM; i++) {
+            USBEndpoint *pEp = USBEndpoint::Unmarshalling(data);
+            usbInterface->endpoints_.push_back(*pEp);
+            delete pEp;
+            pEp = nullptr;
+        }
+        return usbInterface;
+    }
 
     static int GetIntValue(const cJSON *jsonObject, const char *key)
     {

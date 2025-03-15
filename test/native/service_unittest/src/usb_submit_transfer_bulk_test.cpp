@@ -418,6 +418,10 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbCancelTransferBulkWrite, TestSize.Level1)
     // 取消写操作
     ret = UsbSrvClient.UsbCancelTransfer(pip, transferInfo.endpoint);
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. UsbCancelTransferBulkWrite ret:%{public}d", __LINE__, ret);
+    if (ret == USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR) {
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}d line. Transfer has been canceled ret:%{public}d", __LINE__, ret);
+        ret = UEC_OK;
+    }
     ASSERT_EQ(ret, UEC_OK);
 
     bool close = UsbSrvClient.Close(pip);
