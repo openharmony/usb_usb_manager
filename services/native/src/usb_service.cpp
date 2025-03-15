@@ -39,10 +39,12 @@
 #include "usb_napi_errors.h"
 #include "usb_port_manager.h"
 #include "usb_right_manager.h"
+#include "usb_settings_datashare.h"
 #include "tokenid_kit.h"
 #include "accesstoken_kit.h"
 #include "mem_mgr_proxy.h"
 #include "mem_mgr_client.h"
+#include "uri.h"
 #include "usb_function_switch_window.h"
 #include "usbd_transfer_callback_impl.h"
 #include "hitrace_meter.h"
@@ -1442,7 +1444,11 @@ int32_t UsbService::GetCurrentFunctions(int32_t &functions)
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbDeviceManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    return usbDeviceManager_->GetCurrentFunctions(functions);
+    ret = usbDeviceManager_->GetCurrentFunctions(functions);
+    if (!SetSettingsDataHdcStatus(functions)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SetHdcStatus failed, function is: %{public}d", __func__, functions);
+    }
+    return ret;
 }
 // LCOV_EXCL_STOP
 
@@ -1727,6 +1733,32 @@ int32_t UsbService::CancelAccessoryRight(const USBAccessory &access)
 
     USB_HILOGI(MODULE_USB_SERVICE, "CancelAccessoryRight done");
     return UEC_OK;
+}
+
+bool UsbService::SetSettingsDataHdcStatus(int32_t func)
+{
+    uint32_t func_uint = static_cast<uint32_t>func;
+    auto datashareHelper = std::make_shared<UsbSettingDataShare>();
+    std::string hdcStatus {"false"};
+    OHOS::Uri uri(
+        "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=HDC_STATUS");
+    if (func_uint & USB_FUNCTION_HDC) {
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: func is = %{public}d (USB_FUNCTION_HDC)", __func__, func_uint);
+        hdcStatus = "true";
+        if (!datashareHelper->Update(uri, "HDC_STATUS", hdcStatus)) {
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS is update failed!", __func__);
+            return false;
+        }
+        return true;
+    } else {
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: func is = %{public}d", __func__, func_uint);
+        hdcStatus = "false";
+        if (!datashareHelper->Update(uri, "HDC_STATUS", hdcStatus)) {
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS is update failed!", __func__);
+            return false;
+        }
+        return true;
+    }
 }
 #endif // USB_MANAGER_FEATURE_DEVICE
 

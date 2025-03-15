@@ -50,16 +50,25 @@ std::shared_ptr<DataShare::DataShareHelper> UsbSettingDataShare::CreateDataShare
     USB_HILOGI(MODULE_USB_SERVICE, "CreateDataShareHelper start!");
     sptr<ISystemAbilityManager> saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (saManager == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetSystemAbilityManager failed!");
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: GetSystemAbilityManager failed!", __func__);
         return nullptr;
     }
     sptr<IRemoteObject> remote = saManager->GetSystemAbility(systemAbilityId);
     if (remote == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetSystemAbility Service Failed!");
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: GetSystemAbility Service Failed!", __func__);
         return nullptr;
     }
-    USB_HILOGI(MODULE_USB_SERVICE, "systemAbilityId = %{public}d", systemAbilityId);
-    return DataShare::DataShareHelper::Creator(remote, SETTINGS_DATASHARE_URI, SETTINGS_DATASHARE_EXT_URI);
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: systemAbilityId = %{public}d", __func__, systemAbilityId);
+    auto [ret, helper] = DataShare::DataShareHelper::Create(remote, SETTINGS_DATASHARE_URI, SETTINGS_DATASHARE_EXT_URI);
+    if (ret == DataShare::E_OK) {
+        return helper;
+    } else if (ret == DataShare::E_DATA_SHARE_NOT_READY) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: data is not ready!", __func__);
+        return nullptr;
+    } else {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: create datashare failed, ret = %{public}d.", __func__, ret);
+        return nullptr;
+    }
 }
  
 bool UsbSettingDataShare::Query(Uri &uri, const std::string &key, std::string &value)
@@ -77,13 +86,6 @@ bool UsbSettingDataShare::Query(Uri &uri, const std::string &key, std::string &v
     if (result == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "query error, result is nullptr");
         return false;
-    }
- 
-    int rowCount = 0;
-    result->GetRowCount(rowCount);
-    if (rowCount == 0) {
-        USB_HILOGE(MODULE_USB_SERVICE, "query success, but rowCount is 0");
-        return true;
     }
  
     if (result->GoToFirstRow() != DataShare::E_OK) {
