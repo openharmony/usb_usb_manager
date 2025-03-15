@@ -207,7 +207,7 @@ int32_t UsbPortManager::QueryPort()
         return ret;
     }
 
-    for (size_t i = 0; i < portList.size(); i++) {
+    for (const auto& it : portList) {
         AddPortInfo(it.id, it.supportedModes,
             it.usbPortStatus.currentMode, it.usbPortStatus.currentDataRole, it.usbPortStatus.currentPowerRole);
     }
