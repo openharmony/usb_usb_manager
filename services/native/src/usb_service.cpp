@@ -841,7 +841,7 @@ int32_t UsbService::GetFileDescriptor(uint8_t busNum, uint8_t devAddr, int32_t &
         auto iter = openedFds_.find({busNum, devAddr});
         if (iter != openedFds_.end()) {
             int32_t oldFd = iter->second;
-            if (iter != oldFd) {
+            if (fd != oldFd) {
                 int res = close(oldFd);
                 USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:%{public}d close old %{public}d ret = %{public}d",
                     __func__, __LINE__, oldFd, res);
