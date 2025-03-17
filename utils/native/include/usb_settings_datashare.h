@@ -33,12 +33,10 @@ public:
     bool Query(Uri &uri, const std::string &key, std::string &values);
     bool Insert(Uri uri, const std::string &key, std::string &value);
     bool Update(Uri uri, const std::string &key, std::string &value);
+    std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper(int systemAbilityId);
     
 private:
-    std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper(int systemAbilityId);
     std::shared_ptr<DataShare::DataShareHelper> datashareHelper_ = nullptr;
-
-private:
     const int32_t RDB_INVALID_VALUE = -1;
 };
 } // namespace USB
