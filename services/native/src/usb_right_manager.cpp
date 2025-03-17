@@ -167,6 +167,34 @@ bool UsbRightManager::HasRight(const std::string &deviceName, const std::string 
     return !helper->IsRecordExpired(userId, deviceName, bundleName, tokenId, nowTime);
 }
 
+int32_t UsbRightManager::ConnectAbility()
+{
+    if (usbAbilityConn_ == nullptr) {
+        USB_HILOGI(MODULE_SERVICE, "new UsbAbilityConn");
+        usbAbilityConn_ = sptr<UsbAbilityConn>(new (std::nothrow) UsbAbilityConn());
+    }
+
+    auto abmc = AAFwk::AbilityManagerClient::GetInstance();
+    if (abmc == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetInstance failed");
+        return USB_RIGHT_FAILURE;
+    }
+
+    AAFwk::Want want;
+    want.SetElementName("com.ohos.sceneboard", "com.ohos.sceneboard.systemdialog");
+    int32_t ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
+    if (ret != ERR_OK) {
+        want.SetElementName("com.ohos.systemui", "com.ohos.systemui.dialog");
+        int32_t ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
+        if (ret != ERR_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "ConnectServiceExtensionAbility systemui failed, ret: %{public}d", ret);
+            usbAbilityConn_ = nullptr;
+            return ret;
+        }
+    }
+    return USB_RIGHT_OK;
+}
+
 #ifdef USB_MANAGER_FEATURE_HOST
 int32_t UsbRightManager::RequestRight(const std::string &busDev, const std::string &deviceName,
     const std::string &bundleName, const std::string &tokenId, const int32_t &userId)
@@ -198,34 +226,6 @@ bool UsbRightManager::GetUserAgreementByDiag(const std::string &busDev, const st
     }
 
     return HasRight(deviceName, bundleName, tokenId, userId);
-}
-
-int32_t UsbRightManager::ConnectAbility()
-{
-    if (usbAbilityConn_ == nullptr) {
-        USB_HILOGI(MODULE_SERVICE, "new UsbAbilityConn");
-        usbAbilityConn_ = sptr<UsbAbilityConn>(new (std::nothrow) UsbAbilityConn());
-    }
-
-    auto abmc = AAFwk::AbilityManagerClient::GetInstance();
-    if (abmc == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetInstance failed");
-        return USB_RIGHT_FAILURE;
-    }
-
-    AAFwk::Want want;
-    want.SetElementName("com.ohos.sceneboard", "com.ohos.sceneboard.systemdialog");
-    int32_t ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
-    if (ret != ERR_OK) {
-        want.SetElementName("com.ohos.systemui", "com.ohos.systemui.dialog");
-        int32_t ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
-        if (ret != ERR_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "ConnectServiceExtensionAbility systemui failed, ret: %{public}d", ret);
-            usbAbilityConn_ = nullptr;
-            return ret;
-        }
-    }
-    return USB_RIGHT_OK;
 }
 
 bool UsbRightManager::ShowUsbDialog(
