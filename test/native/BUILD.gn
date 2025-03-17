@@ -18,6 +18,6 @@ group("usb_unittest_test") {
   testonly = true
   deps = [
     "${usb_manager_path}/test/fuzztest:fuzztest",
-    "${usb_manager_path}/test/native/service_unittest:unittest"
+    "${usb_manager_path}/test/native/service_unittest:unittest",
   ]
 }
