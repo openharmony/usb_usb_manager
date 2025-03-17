@@ -105,7 +105,7 @@ public:
             int32_t ret = UsbRightManager::CleanUpRightUserStopped(uid);
             USB_HILOGD(MODULE_USB_SERVICE, "on user %{public}d stopped, ret=%{public}d", uid, ret);
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_DATA_SHARE_READY) {
-            USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: COMMON_EVENT_DATA_SHARE_READY action is start!",__func__);
+            USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: COMMON_EVENT_DATA_SHARE_READY action is start!", __func__);
             int32_t func = 0;
             auto usbService = UsbService::GetGlobalInstance();
             if (usbService->GetCurrentFunctions(func) != UEC_OK) {
