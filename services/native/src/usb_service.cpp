@@ -276,6 +276,15 @@ void UsbService::OnStart()
         return;
     }
     (void)usbDeviceManager_->Init();
+    auto datashareHelper = std::make_shared<UsbSettingDataShare>();
+    if (datashareHelper->CreateDataShareHelper(USB_SYSTEM_ABILITY_ID) != nullptr) {
+        int32_t func = 0;
+        if(GetFunctionsNoCheckPermission(func) != UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: function is get failed!", __func__);
+        } else if (!SetSettingsDataHdcStatus(func)) {
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS is set failed, func is: %{public}d", __func__, func);
+        }
+    }
 #endif // USB_MANAGER_FEATURE_DEVICE
     (void)InitUsbRight();
     ready_ = true;
@@ -1554,11 +1563,7 @@ int32_t UsbService::GetCurrentFunctions(int32_t &functions)
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbDeviceManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    ret = usbDeviceManager_->GetCurrentFunctions(functions);
-    if (!SetSettingsDataHdcStatus(functions)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SetHdcStatus failed, function is: %{public}d", __func__, functions);
-    }
-    return ret;
+    return usbDeviceManager_->GetCurrentFunctions(functions);
 }
 // LCOV_EXCL_STOP
 
@@ -1583,6 +1588,9 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
     if (usbDeviceManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbDeviceManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (!SetSettingsDataHdcStatus(functions)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SetHdcStatus failed, function is: %{public}d", __func__, functions);
     }
     return usbDeviceManager_->SetCurrentFunctions(functions);
 }
@@ -1851,6 +1859,19 @@ int32_t UsbService::CancelAccessoryRight(const USBAccessory &access)
 
     USB_HILOGI(MODULE_USB_SERVICE, "CancelAccessoryRight done");
     return UEC_OK;
+}
+
+int32_t UsbService::GetFunctionsNoCheckPermission(int32_t &functions)
+{
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    if (usbDeviceManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbDeviceManager_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    return usbDeviceManager_->GetCurrentFunctions(functions);
 }
 
 bool UsbService::SetSettingsDataHdcStatus(int32_t func)

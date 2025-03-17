@@ -106,13 +106,12 @@ public:
             USB_HILOGD(MODULE_USB_SERVICE, "on user %{public}d stopped, ret=%{public}d", uid, ret);
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_DATA_SHARE_READY) {
             USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: COMMON_EVENT_DATA_SHARE_READY action is start!",__func__);
-            int32_t fun = 0;
+            int32_t func = 0;
             auto usbService = UsbService::GetGlobalInstance();
-            if (usbService->GetCurrentFunctions(fun) != UEC_OK) {
+            if (usbService->GetCurrentFunctions(func) != UEC_OK) {
                 USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: function is get failed!", __func__);
-            }
-            if (!usbService->SetSettingsDataHdcStatus(fun)) {
-                USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS is get failed!", __func__);
+            } else if (!usbService->SetSettingsDataHdcStatus(func)) {
+                USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS set failed, func is:%{public}d", __func__, func);
             }
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
 #ifdef USB_MANAGER_FEATURE_DEVICE
