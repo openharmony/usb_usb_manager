@@ -108,7 +108,7 @@ public:
             USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: COMMON_EVENT_DATA_SHARE_READY action is start!", __func__);
             int32_t func = 0;
             auto usbService = UsbService::GetGlobalInstance();
-            if (usbService->GetCurrentFunctions(func) != UEC_OK) {
+            if (usbService->GetFunctionsNoCheckPermission(func) != UEC_OK) {
                 USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: function is get failed!", __func__);
             } else if (!usbService->SetSettingsDataHdcStatus(func)) {
                 USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS set failed, func is:%{public}d", __func__, func);
