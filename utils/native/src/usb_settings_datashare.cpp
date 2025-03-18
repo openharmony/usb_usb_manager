@@ -127,15 +127,15 @@ bool UsbSettingDataShare::Insert(Uri uri, const std::string &key, std::string &v
 
 bool UsbSettingDataShare::Update(Uri uri, const std::string &key, std::string &value)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "start Update key = %{public}s", key.c_str());
-    std::string queryValue = "";
-    if (Query(uri, key, queryValue) != true) {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s is cannot Query!", key.c_str());
-        return Insert(uri, key, value);
-    }
     if (datashareHelper_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "query error, datashareHelper_ is nullptr");
         return false;
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "start Update key = %{public}s", key.c_str());
+    std::string queryValue = "";
+    if (!Query(uri, key, queryValue)) {
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s is cannot Query!", key.c_str());
+        return Insert(uri, key, value);
     }
     DataShare::DataShareValuesBucket valuesBucket;
     DataShare::DataShareValueObject valueObj(value);
