@@ -101,18 +101,12 @@ int32_t SerialManager::SerialOpen(int32_t portId)
         return OHOS::USB::UEC_SERIAL_PORT_REPEAT_OPEN;
     }
 
-    uint32_t tokenId;
-    if (GetTokenId(tokenId) != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: get tokenId failed", __func__);
-        return OHOS::USB::UEC_SERVICE_INVALID_VALUE;
-    }
-
     int32_t ret = serial_->SerialOpen(portId);
     if (ret != UEC_OK) {
         return ErrorCodeWrap(ret);
     }
 
-    portTokenMap_[portId] = tokenId;
+    portTokenMap_[portId] = IPCSkeleton::GetCallingTokenID();
     return ret;
 }
 
@@ -255,47 +249,17 @@ bool SerialManager::IsPortIdExist(int32_t portId)
 
 bool SerialManager::IsPortStatus(int32_t portId)
 {
-    if (portTokenMap_.find(portId) == portTokenMap_.end()) {
-        return false;
-    }
-
-    return true;
+    return portTokenMap_.find(portId) != portTokenMap_.end();
 }
 
 bool SerialManager::CheckTokenIdValidity(int32_t portId)
 {
-    uint32_t tokenId;
-    if (GetTokenId(tokenId) != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "get tokenId failed");
-        return false;
-    }
-
-    if (tokenId != portTokenMap_[portId]) {
+    if (IPCSkeleton::GetCallingTokenID() != portTokenMap_[portId]) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: The tokenId corresponding to the port is incorrect", __func__);
         return false;
     }
 
     return true;
-}
-
-
-int32_t SerialManager::GetTokenId(uint32_t &tokenId)
-{
-    USB_HILOGI(MODULE_USB_SERVICE, "GetTokenId start");
-    OHOS::Security::AccessToken::AccessTokenID token = IPCSkeleton::GetCallingTokenID();
-    OHOS::Security::AccessToken::HapTokenInfo hapTokenInfoRes;
-    int32_t ret = OHOS::Security::AccessToken::AccessTokenKit::GetHapTokenInfo(token, hapTokenInfoRes);
-    if (ret != ERR_OK) {
-        if (usbRightManager_->IsSystemAppOrSa()) {
-            tokenId = token;
-            return UEC_OK;
-        }
-        USB_HILOGE(MODULE_USB_SERVICE, "GetTokenId failed");
-        return OHOS::USB::UEC_SERVICE_INVALID_VALUE;
-    }
-
-    tokenId = token;
-    return ERR_OK;
 }
 
 void SerialManager::FreeTokenId(int32_t portId, uint32_t tokenId)

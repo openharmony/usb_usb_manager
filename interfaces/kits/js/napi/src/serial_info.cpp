@@ -49,28 +49,25 @@ static UsbSrvClient &g_usbClient = UsbSrvClient::GetInstance();
 
 int32_t ErrorCodeConversion(int32_t value)
 {
-    if (value == UEC_SERVICE_PERMISSION_DENIED_SYSAPI) {
-        return SERIAL_SYSAPI_PERMISSION_DENIED;
-    } else if (value == UEC_SERVICE_PERMISSION_DENIED) {
-        return SERIAL_INTERFACE_PERMISSION_DENIED;
-    } else if (value == UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED) {
-        return SERIAL_SYSAPI_NOPERMISSION_CALL;
-    } else if (value == UEC_SERIAL_PORT_REPEAT_OPEN || value == UEC_SERIAL_PORT_REPEAT_CLOSE
-        || value == UEC_SERIAL_PORT_OCCUPIED) {
-        return SERIAL_PORT_OCCUPIED;
-    } else if (value == UEC_SERIAL_DEVICENOTOPEN || value == UEC_SERIAL_PORT_NOT_OPEN) {
-        return SERIAL_PORT_NOT_OPEN;
-    } else if (value == UEC_INTERFACE_TIMED_OUT) {
-        return SERIAL_TIMED_OUT;
-    } else if (value == UEC_SERIAL_IO_EXCEPTION) {
-        return SERIAL_IO_EXCEPTION;
-    } else if (value == UEC_SERIAL_PORT_NOT_EXIST) {
-        return SERIAL_PORT_NOT_EXIST;
-    } else if (value == UEC_SERIAL_DATEBASE_ERROR) {
-        return UEC_COMMON_RIGHT_DATABASE_ERROR;
-    } else {
-        return SERIAL_SERVICE_ABNORMAL;
+    static const std::map<int32_t, int32_t> errorMap = {
+        {UEC_SERVICE_PERMISSION_DENIED_SYSAPI, SERIAL_SYSAPI_PERMISSION_DENIED},
+        {UEC_SERVICE_PERMISSION_DENIED, SERIAL_INTERFACE_PERMISSION_DENIED},
+        {UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED, SERIAL_SYSAPI_NOPERMISSION_CALL},
+        {UEC_SERIAL_PORT_REPEAT_OPEN, SERIAL_PORT_OCCUPIED},
+        {UEC_SERIAL_PORT_REPEAT_CLOSE, SERIAL_PORT_OCCUPIED},
+        {UEC_SERIAL_PORT_OCCUPIED, SERIAL_PORT_OCCUPIED},
+        {UEC_SERIAL_DEVICENOTOPEN, SERIAL_PORT_NOT_OPEN},
+        {UEC_SERIAL_PORT_NOT_OPEN, SERIAL_PORT_NOT_OPEN},
+        {UEC_INTERFACE_TIMED_OUT, SERIAL_TIMED_OUT},
+        {UEC_SERIAL_IO_EXCEPTION, SERIAL_IO_EXCEPTION},
+        {UEC_SERIAL_PORT_NOT_EXIST, SERIAL_PORT_NOT_EXIST},
+        {UEC_SERIAL_DATEBASE_ERROR, UEC_COMMON_RIGHT_DATABASE_ERROR}
+    };
+    auto it = errorMap.find(value);
+    if (it != errorMap.end()) {
+        return it->second;
     }
+    return SERIAL_SERVICE_ABNORMAL;
 }
 
 static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
@@ -166,10 +163,14 @@ bool ParseSetAttributeInterfaceParams(napi_env env, napi_callback_info info,
         "The type of arg1 must be SerialAttribute.")) {
         return false;
     }
-    NapiUtil::JsObjectToUint(env, obj, "baudRate", serialAttribute.baudRate_);
-    NapiUtil::JsObjectToUint(env, obj, "dataBits", serialAttribute.dataBits_);
-    NapiUtil::JsObjectToUint(env, obj, "parity", serialAttribute.parity_);
-    NapiUtil::JsObjectToUint(env, obj, "stopBits", serialAttribute.stopBits_);
+    bool result = NapiUtil::JsObjectToUint32(env, obj, "baudRate", serialAttribute.baudRate_) &&
+        NapiUtil::JsObjectToUint8(env, obj, "dataBits", serialAttribute.dataBits_) &&
+        NapiUtil::JsObjectToUint8(env, obj, "parity", serialAttribute.parity_) &&
+        NapiUtil::JsObjectToUint8(env, obj, "stopBits", serialAttribute.stopBits_);
+    if (!CheckAndThrowOnError(env, result == true, SYSPARAM_INVALID_INPUT,
+        "Parse attribute failed.")) {
+        return false;
+    }
     return true;
 }
 
@@ -322,7 +323,11 @@ static napi_value SerialWriteNapi(napi_env env, napi_callback_info info)
         return nullptr;
     }
     napi_value promise;
-    napi_create_promise(env, &asyncContext->deferred, &promise);
+    if (napi_create_promise(env, &asyncContext->deferred, &promise)) {
+        USB_HILOGE(MODULE_JS_NAPI, "create promise failed!");
+        CheckAndThrowOnError(env, false, SERIAL_SERVICE_ABNORMAL, "promise is null");
+        return nullptr;
+    }
     asyncContext->portId = portIdValue;
     asyncContext->timeout = timeoutValue;
     asyncContext->contextErrno = 0;
@@ -459,7 +464,11 @@ static napi_value SerialReadNapi(napi_env env, napi_callback_info info)
     }
     SerialReadAsyncContext *asyncContext = new (std::nothrow) SerialReadAsyncContext;
     napi_value promise;
-    napi_create_promise(env, &asyncContext->deferred, &promise);
+    if (napi_create_promise(env, &asyncContext->deferred, &promise)) {
+        USB_HILOGE(MODULE_JS_NAPI, "create promise failed!");
+        CheckAndThrowOnError(env, false, SERIAL_SERVICE_ABNORMAL, "promise is null");
+        return nullptr;
+    }
     asyncContext->portId = portIdValue;
     asyncContext->timeout = timeoutValue;
     asyncContext->contextErrno = 0;
@@ -704,7 +713,11 @@ static napi_value SerialRequestRightNapi(napi_env env, napi_callback_info info)
     asyncContext->contextErrno = 0;
     asyncContext->hasRight = false;
     napi_value result = nullptr;
-    napi_create_promise(env, &asyncContext->deferred, &result);
+    if (napi_create_promise(env, &asyncContext->deferred, &result)) {
+        USB_HILOGE(MODULE_JS_NAPI, "create promise failed!");
+        CheckAndThrowOnError(env, false, SERIAL_SERVICE_ABNORMAL, "promise is null");
+        return nullptr;
+    }
     napi_value resourceName;
     napi_create_string_utf8(env, "SerialRequestRight", NAPI_AUTO_LENGTH, &resourceName);
     napi_create_async_work(env, nullptr, resourceName, g_serialRequestRightExecute,
