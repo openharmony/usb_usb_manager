@@ -902,7 +902,7 @@ bool UsbService::GetDeviceProductName(const std::string &deviceName, std::string
 
 // LCOV_EXCL_START
 int32_t UsbService::BulkTransferRead(
-    uint8_t busNum, uint8_t devAddr, const USBEndpoint &ep, std::vector<uint8_t> &bufferData, int32_t timeOut)
+    uint8_t busNum, uint8_t devAddr, const USBEndpoint &ep, UsbBulkTransData &bufferData, int32_t timeOut)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
@@ -913,7 +913,7 @@ int32_t UsbService::BulkTransferRead(
     }
     HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
-    int32_t ret = usbHostManager_->BulkTransferRead(devInfo, pipe, bufferData, timeOut);
+    int32_t ret = usbHostManager_->BulkTransferRead(devInfo, pipe, bufferData.data_, timeOut);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkTransferRead error ret:%{public}d", ret);
     }
@@ -923,7 +923,7 @@ int32_t UsbService::BulkTransferRead(
 
 // LCOV_EXCL_START
 int32_t UsbService::BulkTransferReadwithLength(uint8_t busNum, uint8_t devAddr, const USBEndpoint &ep,
-    int32_t length, std::vector<uint8_t> &bufferData, int32_t timeOut)
+    int32_t length, UsbBulkTransData &bufferData, int32_t timeOut)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
@@ -934,7 +934,7 @@ int32_t UsbService::BulkTransferReadwithLength(uint8_t busNum, uint8_t devAddr, 
     }
     HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
-    int32_t ret = usbHostManager_->BulkTransferReadwithLength(devInfo, pipe, length, bufferData, timeOut);
+    int32_t ret = usbHostManager_->BulkTransferReadwithLength(devInfo, pipe, length, bufferData.data_, timeOut);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkTransferRead error ret:%{public}d", ret);
     }
@@ -944,7 +944,7 @@ int32_t UsbService::BulkTransferReadwithLength(uint8_t busNum, uint8_t devAddr, 
 
 // LCOV_EXCL_START
 int32_t UsbService::BulkTransferWrite(
-    uint8_t busNum, uint8_t devAddr, const USBEndpoint &ep, const std::vector<uint8_t> &bufferData, int32_t timeOut)
+    uint8_t busNum, uint8_t devAddr, const USBEndpoint &ep, const UsbBulkTransData &bufferData, int32_t timeOut)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
@@ -955,7 +955,7 @@ int32_t UsbService::BulkTransferWrite(
     }
     HDI::Usb::V1_0::UsbDev dev = {busNum, devAddr};
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
-    int32_t ret = usbHostManager_->BulkTransferWrite(dev, pipe, bufferData, timeOut);
+    int32_t ret = usbHostManager_->BulkTransferWrite(dev, pipe, bufferData.data_, timeOut);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "BulkTransferWrite error ret:%{public}d", ret);
     }
