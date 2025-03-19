@@ -1858,7 +1858,7 @@ int32_t UsbService::CancelAccessoryRight(const USBAccessory &access)
 bool UsbService::GetFunctionsNoCheckPermission()
 {
     auto datashareHelper = std::make_shared<UsbSettingDataShare>();
-    if (datashareHelper->CreateDataShareHelper(USB_SYSTEM_ABILITY_ID) != nullptr) {
+    if (datashareHelper->CreateDataShareHelper(USB_SYSTEM_ABILITY_ID) == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: datashare is not ready", __func__);
         return false;
     }
