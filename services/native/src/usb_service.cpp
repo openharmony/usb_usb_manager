@@ -40,10 +40,12 @@
 #include "usb_port_manager.h"
 #include "usb_right_manager.h"
 #include "usb_right_db_helper.h"
+#include "usb_settings_datashare.h"
 #include "tokenid_kit.h"
 #include "accesstoken_kit.h"
 #include "mem_mgr_proxy.h"
 #include "mem_mgr_client.h"
+#include "uri.h"
 #include "usb_function_switch_window.h"
 #include "usbd_transfer_callback_impl.h"
 #include "hitrace_meter.h"
@@ -274,6 +276,9 @@ void UsbService::OnStart()
         return;
     }
     (void)usbDeviceManager_->Init();
+    if (!GetFunctionsNoCheckPermission()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::OnStart update HDC_STATUS failed!");
+    }
 #endif // USB_MANAGER_FEATURE_DEVICE
     (void)InitUsbRight();
     ready_ = true;
@@ -1580,6 +1585,9 @@ int32_t UsbService::SetCurrentFunctions(int32_t functions)
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbDeviceManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    if (!SetSettingsDataHdcStatus(functions)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SetHdcStatus failed, function is: %{public}d", __func__, functions);
+    }
     return usbDeviceManager_->SetCurrentFunctions(functions);
 }
 // LCOV_EXCL_STOP
@@ -1847,6 +1855,65 @@ int32_t UsbService::CancelAccessoryRight(const USBAccessory &access)
 
     USB_HILOGI(MODULE_USB_SERVICE, "CancelAccessoryRight done");
     return UEC_OK;
+}
+
+bool UsbService::GetFunctionsNoCheckPermission()
+{
+    auto datashareHelper = std::make_shared<UsbSettingDataShare>();
+    if (datashareHelper->CreateDataShareHelper(USB_SYSTEM_ABILITY_ID) == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: datashare is not ready", __func__);
+        return false;
+    }
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: invalid usbRightManager_", __func__);
+        return false;
+    }
+    if (usbDeviceManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: UsbService::usbDeviceManager_ is nullptr", __func__);
+        return false;
+    }
+    
+    int32_t func = 0;
+    if (usbDeviceManager_->GetCurrentFunctions(func) != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: function is get failed!", __func__);
+    } else if (!SetSettingsDataHdcStatus(func)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS is set failed, func is: %{public}d", __func__, func);
+    }
+    return true;
+}
+
+bool UsbService::SetSettingsDataHdcStatus(int32_t func)
+{
+    uint32_t func_uint = static_cast<uint32_t>(func);
+    auto datashareHelper = std::make_shared<UsbSettingDataShare>();
+    std::string hdcStatus {"false"};
+    OHOS::Uri uri(
+        "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true&key=HDC_STATUS");
+    if (func_uint & USB_FUNCTION_HDC) {
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: func is = %{public}d (USB_FUNCTION_HDC)", __func__, func_uint);
+        if (datashareHelper->Query(uri, "HDC_STATUS", hdcStatus) && hdcStatus == "true") {
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS is already true!", __func__);
+            return true;
+        }
+        hdcStatus = "true";
+        if (!datashareHelper->Update(uri, "HDC_STATUS", hdcStatus)) {
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS is update failed!", __func__);
+            return false;
+        }
+        return true;
+    } else {
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: func is = %{public}d", __func__, func_uint);
+        if (datashareHelper->Query(uri, "HDC_STATUS", hdcStatus) && hdcStatus == "false") {
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS is already false!", __func__);
+            return false;
+        }
+        hdcStatus = "false";
+        if (!datashareHelper->Update(uri, "HDC_STATUS", hdcStatus)) {
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: HDC_STATUS is update failed!", __func__);
+            return false;
+        }
+        return true;
+    }
 }
 #endif // USB_MANAGER_FEATURE_DEVICE
 

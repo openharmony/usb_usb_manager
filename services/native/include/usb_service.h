@@ -171,6 +171,8 @@ public:
     int32_t HasAccessoryRight(const USBAccessory &access, bool &result) override;
     int32_t RequestAccessoryRight(const USBAccessory &access, bool &result) override;
     int32_t CancelAccessoryRight(const USBAccessory &access) override;
+    bool GetFunctionsNoCheckPermission();
+    bool SetSettingsDataHdcStatus(int32_t func_uint);
 #endif // USB_MANAGER_FEATURE_DEVICE
 #ifdef USB_MANAGER_FEATURE_PORT
     int32_t GetPorts(std::vector<UsbPort> &ports) override;
