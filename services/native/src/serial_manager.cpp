@@ -153,7 +153,7 @@ int32_t SerialManager::SerialRead(int32_t portId, std::vector<uint8_t> &data, ui
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialRead failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
-    actualSize = ret;
+    actualSize = static_cast<uint32_t>(ret);
     return UEC_OK;
 }
 
@@ -171,7 +171,7 @@ int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& d
     if (ret < UEC_OK) {
         return ErrorCodeWrap(ret);
     }
-    actualSize = ret;
+    actualSize = static_cast<uint32_t>(ret);
     return UEC_OK;
 }
 
@@ -313,8 +313,12 @@ void SerialManager::SerialGetAttributeDump(int32_t fd, const std::vector<std::st
             return;
         }
         size_t portCount = serialPortList.size();
-        for (size_t i = 0; i <portCount; ++i) {
-            int32_t portId = i;
+        for (size_t i = 0; i < portCount; ++i) {
+            if (i > INT32_MAX) {
+                USB_HILOGE(MODULE_USB_SERVICE, "SerialGetPortList port index out of range");
+                break;
+            }
+            int32_t portId = static_cast<int32_t>(i);
             ret = SerialGetAttribute(portId, attribute);
             if (ret != UEC_OK) {
                 SerialOpen(portId);

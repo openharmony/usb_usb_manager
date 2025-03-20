@@ -463,6 +463,9 @@ static napi_value SerialReadNapi(napi_env env, napi_callback_info info)
         return nullptr;
     }
     SerialReadAsyncContext *asyncContext = new (std::nothrow) SerialReadAsyncContext;
+    if (!CheckAndThrowOnError(env, asyncContext != nullptr, SYSPARAM_INVALID_INPUT, "Failed to create promise.")) {
+        return nullptr;
+    }
     napi_value promise;
     if (napi_create_promise(env, &asyncContext->deferred, &promise)) {
         USB_HILOGE(MODULE_JS_NAPI, "create promise failed!");
@@ -709,6 +712,9 @@ static napi_value SerialRequestRightNapi(napi_env env, napi_callback_info info)
         return nullptr;
     }
     SerialRequestRightAsyncContext* asyncContext = new (std::nothrow) SerialRequestRightAsyncContext;
+    if (!CheckAndThrowOnError(env, asyncContext != nullptr, SYSPARAM_INVALID_INPUT, "Failed to create promise.")) {
+        return nullptr;
+    }
     asyncContext->portIdValue = portIdValue;
     asyncContext->contextErrno = 0;
     asyncContext->hasRight = false;
