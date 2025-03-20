@@ -137,7 +137,9 @@ int32_t UsbRightManager::Init()
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_REMOVED);
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_STOPPED);
 
+#ifdef USB_MANAGER_FEATURE_DEVICE
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_DATA_SHARE_READY);
+#endif // USB_MANAGER_FEATURE_DEVICE
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
     CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     std::shared_ptr<RightSubscriber> subscriber = std::make_shared<RightSubscriber>(subscriberInfo);
