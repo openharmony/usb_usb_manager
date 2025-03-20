@@ -78,10 +78,30 @@ bool UsbPortManager::InitUsbPortInterface()
         USB_HILOGE(MODULE_USB_SERVICE, "Init failed");
         return false;
     }
+    sptr<UsbPortManager::UsbdPortDeathRecipient> recipient = new UsbdPortDeathRecipient();
+    sptr<IRemoteObject> remote = OHOS::HDI::hdi_objcast<HDI::Usb::V2_0::IUsbPortInterface>(usbPortInterface_);
+    if (!remote->AddDeathRecipient(recipient)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "add DeathRecipient failed");
+        return false;
+    }
 
     ErrCode ret = usbPortInterface_->BindUsbdPortSubscriber(usbManagerSubscriber_);
     USB_HILOGI(MODULE_USB_SERVICE, "entry InitUsbPortInterface ret: %{public}d", ret);
     return SUCCEEDED(ret);
+}
+
+void UsbPortManager::UsbdPortDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
+{
+    auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrProxy == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "get samgr failed");
+        return;
+    }
+
+    auto ret = samgrProxy->UnloadSystemAbility(USB_SYSTEM_ABILITY_ID);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "unload failed");
+    }
 }
 
 void UsbPortManager::Stop()
