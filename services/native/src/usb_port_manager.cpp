@@ -19,6 +19,8 @@
 #include "hisysevent.h"
 #include "usb_errors.h"
 #include "usb_srv_support.h"
+#include "if_system_ability_manager.h"
+#include "system_ability_definition.h"
 
 using namespace OHOS::HiviewDFX;
 using namespace OHOS::HDI::Usb::V1_0;
@@ -78,7 +80,7 @@ bool UsbPortManager::InitUsbPortInterface()
         USB_HILOGE(MODULE_USB_SERVICE, "Init failed");
         return false;
     }
-    sptr<UsbPortManager::UsbdPortDeathRecipient> recipient = new UsbdPortDeathRecipient();
+    recipient_ = new UsbdPortDeathRecipient();
     sptr<IRemoteObject> remote = OHOS::HDI::hdi_objcast<HDI::Usb::V2_0::IUsbPortInterface>(usbPortInterface_);
     if (!remote->AddDeathRecipient(recipient)) {
         USB_HILOGE(MODULE_USB_SERVICE, "add DeathRecipient failed");
@@ -110,6 +112,10 @@ void UsbPortManager::Stop()
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::usbPortInterface_ is nullptr");
         return;
     }
+    sptr<IRemoteObject> remote = OHOS::HDI::hdi_objcast<HDI::Usb::V2_0::IUsbdSubscriber>(usbPortInterface_);
+    remote->RemoveDeathRecipient(recipient_);
+    recipient_.clear();
+    usbPortInterface_->UnbindUsbdSubscriber(usbManagerSubscriber_);
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 0, USB_SYSTEM_ABILITY_ID);
 }
 
