@@ -103,7 +103,7 @@ void UsbDeviceManager::Stop()
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::usbDeviceInterface_ is nullptr");
         return;
     }
-    usbDeviceInterface_->UnbindUsbdSubscriber(usbManagerSubscriber_);
+    usbDeviceInterface_->UnbindUsbdDeviceSubscriber(usbManagerSubscriber_);
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 0, USB_SYSTEM_ABILITY_ID);
 }
 

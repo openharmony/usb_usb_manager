@@ -22,6 +22,7 @@
 #include "if_system_ability_manager.h"
 #include "system_ability_definition.h"
 #include "iproxy_broker.h"
+#include "iservice_registry.h"
 
 using namespace OHOS::HiviewDFX;
 using namespace OHOS::HDI::Usb::V1_0;
@@ -116,7 +117,7 @@ void UsbPortManager::Stop()
     sptr<IRemoteObject> remote = OHOS::HDI::hdi_objcast<HDI::Usb::V2_0::IUsbdSubscriber>(usbPortInterface_);
     remote->RemoveDeathRecipient(recipient_);
     recipient_.clear();
-    usbPortInterface_->UnbindUsbdSubscriber(usbManagerSubscriber_);
+    usbPortInterface_->UnbindUsbdPortSubscriber(usbManagerSubscriber_);
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 0, USB_SYSTEM_ABILITY_ID);
 }
 
