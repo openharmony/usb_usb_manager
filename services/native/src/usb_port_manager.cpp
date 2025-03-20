@@ -82,7 +82,7 @@ bool UsbPortManager::InitUsbPortInterface()
     }
     recipient_ = new UsbdPortDeathRecipient();
     sptr<IRemoteObject> remote = OHOS::HDI::hdi_objcast<HDI::Usb::V2_0::IUsbPortInterface>(usbPortInterface_);
-    if (!remote->AddDeathRecipient(recipient)) {
+    if (!remote->AddDeathRecipient(recipient_)) {
         USB_HILOGE(MODULE_USB_SERVICE, "add DeathRecipient failed");
         return false;
     }
