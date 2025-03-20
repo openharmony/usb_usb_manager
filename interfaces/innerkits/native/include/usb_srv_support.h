@@ -27,6 +27,7 @@ struct UsbSrvSupport {
     static constexpr std::string_view FUNCTION_NAME_ECM {"ecm"};
     static constexpr std::string_view FUNCTION_NAME_MTP {"mtp"};
     static constexpr std::string_view FUNCTION_NAME_PTP {"ptp"};
+    static constexpr std::string_view FUNCTION_NAME_DEVMODE_AUTH {"devmode_auth"};
     static constexpr std::string_view FUNCTION_NAME_RNDIS {"rndis"};
     static constexpr std::string_view FUNCTION_NAME_NCM {"ncm"};
     static constexpr std::string_view FUNCTION_NAME_STORAGE {"storage"};
@@ -58,6 +59,7 @@ struct UsbSrvSupport {
         FUNCTION_RNDIS = 1 << 5,
         FUNCTION_NCM = 1 << 8,
         FUNCTION_STORAGE = 1 << 9,
+        FUNCTION_DEVMODE_AUTH = 1 << 12,
     };
 };
 } // namespace USB

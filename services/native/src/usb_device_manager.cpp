@@ -50,6 +50,7 @@ const std::map<std::string_view, uint32_t> UsbDeviceManager::FUNCTION_MAPPING_N2
     {UsbSrvSupport::FUNCTION_NAME_RNDIS, UsbSrvSupport::FUNCTION_RNDIS},
     {UsbSrvSupport::FUNCTION_NAME_NCM, UsbSrvSupport::FUNCTION_NCM},
     {UsbSrvSupport::FUNCTION_NAME_STORAGE, UsbSrvSupport::FUNCTION_STORAGE},
+    {UsbSrvSupport::FUNCTION_NAME_DEVMODE_AUTH, UsbSrvSupport::FUNCTION_DEVMODE_AUTH},
 };
 
 UsbDeviceManager::UsbDeviceManager()
@@ -361,6 +362,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
         delayDisconnTimerId_ = delayDisconn_.Register(task, DELAY_CONNECT_INTERVAL, true);
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
+            USB_HILOGI(MODULE_USB_SERVICE, "execute disconnect task:%{public}d", currentFunctions_);
             connected_ = false;
             if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_MTP) != 0 ||
                 (static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_PTP) != 0) {
@@ -368,6 +370,9 @@ void UsbDeviceManager::HandleEvent(int32_t status)
                     (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
                 USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
                 currentFunctions_ = currentFunctions_ == 0 ? USB_FUNCTION_STORAGE : currentFunctions_;
+                usbDeviceInterface_->SetCurrentFunctions(currentFunctions_);
+            } else if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_DEVMODE_AUTH) != 0) {
+                currentFunctions_ = USB_FUNCTION_STORAGE;
                 usbDeviceInterface_->SetCurrentFunctions(currentFunctions_);
             }
             ProcessFuncChange(connected_, currentFunctions_);
@@ -396,6 +401,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
         delayDisconnTimerId_ = delayDisconn_.Register(task, DELAY_CONNECT_INTERVAL, true);
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
+            USB_HILOGI(MODULE_USB_SERVICE, "execute disconnect task:%{public}d", currentFunctions_);
             connected_ = false;
             if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_MTP) != 0 ||
                 (static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_PTP) != 0) {
@@ -403,6 +409,9 @@ void UsbDeviceManager::HandleEvent(int32_t status)
                     (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
                 USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
                 currentFunctions_ = currentFunctions_ == 0 ? USB_FUNCTION_STORAGE : currentFunctions_;
+                usbd_->SetCurrentFunctions(currentFunctions_);
+            } else if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_DEVMODE_AUTH) != 0) {
+                currentFunctions_ = USB_FUNCTION_STORAGE;
                 usbd_->SetCurrentFunctions(currentFunctions_);
             }
             ProcessFuncChange(connected_, currentFunctions_);

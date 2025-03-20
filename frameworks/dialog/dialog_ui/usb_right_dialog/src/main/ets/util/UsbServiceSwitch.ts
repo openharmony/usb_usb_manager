@@ -21,6 +21,7 @@ const USBFUNCTION_HDC: number = 4;
 const USBFUNCTION_MTP: number = 8;
 const USBFUNCTION_PTP: number = 16;
 const USBFUNCTION_STORAGE: number = 512;
+const USBFUNCTION_DEVMODE_AUTH: number = 4096;
 const supportedCompositeFuncs: Array<number> = [
   USBFUNCTION_HDC
 ]
@@ -67,6 +68,7 @@ class UsbServiceSwitch {
       return;
     }
 
+    this.tarFunc = this.tarFunc & (~USBFUNCTION_DEVMODE_AUTH); // remove dev auth
     console.log(TAG + 'setFunctions: current ' + JSON.stringify(this.curFunc) + 'target: ' + JSON.stringify(this.tarFunc));
     if (this.tarFunc !== this.curFunc) {
       usbManagerService.setCurrentFunctions(this.tarFunc).then((data) => {
