@@ -21,6 +21,7 @@
 #include "usb_srv_support.h"
 #include "if_system_ability_manager.h"
 #include "system_ability_definition.h"
+#include "iproxy_broker.h"
 
 using namespace OHOS::HiviewDFX;
 using namespace OHOS::HDI::Usb::V1_0;
