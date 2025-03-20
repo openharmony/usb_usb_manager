@@ -276,7 +276,7 @@ void UsbService::OnStart()
         return;
     }
     (void)usbDeviceManager_->Init();
-    if (!GetFunctionsNoCheckPermission()) {
+    if (!InitSettingDataHdcStatus()) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::OnStart update HDC_STATUS failed!");
     }
 #endif // USB_MANAGER_FEATURE_DEVICE
@@ -1857,7 +1857,7 @@ int32_t UsbService::CancelAccessoryRight(const USBAccessory &access)
     return UEC_OK;
 }
 
-bool UsbService::GetFunctionsNoCheckPermission()
+bool UsbService::InitSettingDataHdcStatus()
 {
     auto datashareHelper = std::make_shared<UsbSettingDataShare>();
     if (datashareHelper->CreateDataShareHelper(USB_SYSTEM_ABILITY_ID) == nullptr) {

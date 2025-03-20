@@ -105,11 +105,13 @@ public:
             int32_t ret = UsbRightManager::CleanUpRightUserStopped(uid);
             USB_HILOGD(MODULE_USB_SERVICE, "on user %{public}d stopped, ret=%{public}d", uid, ret);
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_DATA_SHARE_READY) {
+#ifdef USB_MANAGER_FEATURE_DEVICE
             USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: COMMON_EVENT_DATA_SHARE_READY action is start!", __func__);
             auto usbService = UsbService::GetGlobalInstance();
-            if (!usbService->GetFunctionsNoCheckPermission()) {
+            if (!usbService->InitSettingDataHdcStatus()) {
                 USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: function is get failed!", __func__);
             }
+#endif // USB_MANAGER_FEATURE_DEVICE
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
 #ifdef USB_MANAGER_FEATURE_DEVICE
             USB_HILOGI(MODULE_USB_SERVICE, "recv user switched.");
