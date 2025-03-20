@@ -104,8 +104,8 @@ public:
             int32_t uid = data.GetCode();
             int32_t ret = UsbRightManager::CleanUpRightUserStopped(uid);
             USB_HILOGD(MODULE_USB_SERVICE, "on user %{public}d stopped, ret=%{public}d", uid, ret);
-        } else if (wantAction == CommonEventSupport::COMMON_EVENT_DATA_SHARE_READY) {
 #ifdef USB_MANAGER_FEATURE_DEVICE
+        } else if (wantAction == CommonEventSupport::COMMON_EVENT_DATA_SHARE_READY) {
             USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: COMMON_EVENT_DATA_SHARE_READY action is start!", __func__);
             auto usbService = UsbService::GetGlobalInstance();
             if (!usbService->InitSettingDataHdcStatus()) {
