@@ -46,7 +46,6 @@ public:
     void SerialGetAttributeDump(int32_t fd, const std::vector<std::string>& args);
     bool IsPortIdExist(int32_t portId);
     void FreeTokenId(int32_t portId, uint32_t tokenId);
-    int32_t GetTokenId(uint32_t &tokenId);
     bool GetSerialPort(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialPort& serialPort);
 private:
     bool IsPortStatus(int32_t portId);

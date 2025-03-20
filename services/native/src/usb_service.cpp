@@ -2404,14 +2404,7 @@ int32_t UsbService::SerialOpen(int32_t portId, const sptr<IRemoteObject> &serial
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
-    uint32_t tokenId;
-    if (usbSerialManager_->GetTokenId(tokenId) != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: OnRemoteDied GetTokenId failed", __func__);
-        ReportUsbSerialOperationFaultSysEvent(portId, "SerialOpen", UEC_SERVICE_PERMISSION_DENIED,
-            "OnRemoteDied GetTokenId failed");
-        return UEC_SERVICE_PERMISSION_DENIED;
-    }
-
+    uint32_t tokenId = IPCSkeleton::GetCallingTokenID();
     sptr<UsbService::SerialDeathRecipient> serialRecipient_ = new SerialDeathRecipient(this, portId, tokenId);
     if (serialRecipient_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: serialRecipient_ is nullptr", __func__);
