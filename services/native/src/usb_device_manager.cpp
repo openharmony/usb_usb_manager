@@ -92,6 +92,13 @@ bool UsbDeviceManager::InitUsbDeviceInterface()
         return false;
     }
 
+    auto recipient = new UsbdDeathRecipient();
+    sptr<IRemoteObject> remote = OHOS::HDI::hdi_objcast<HDI::Usb::V2_0::IUsbDeviceInterface>(usbDeviceInterface_);
+    if (!remote->AddDeathRecipient(recipient)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "add DeathRecipient failed");
+        return false;
+    }
+
     ErrCode ret = usbDeviceInterface_->BindUsbdDeviceSubscriber(usbManagerSubscriber_);
     USB_HILOGI(MODULE_USB_SERVICE, "entry InitUsbDeviceInterface ret: %{public}d", ret);
     return SUCCEEDED(ret);
