@@ -21,6 +21,7 @@
         "description": "$string:MainAbility_desc",
         "icon": "$media:icon",
         "label": "$string:MainAbility_label",
+        "supportWindowMode": ["fullscreen"],
         "visible": false,
         "launchType": "standard"
       },
@@ -31,6 +32,7 @@
         "description": "$string:MainAbility_desc",
         "icon": "$media:icon",
         "label": "$string:MainAbility_label",
+        "supportWindowMode": ["fullscreen"],
         "visible": true,
         "launchType": "singleton",
         "excludeFromMissions": true,
@@ -53,6 +55,7 @@
         "description": "$string:UsbDialogAbility_desc",
         "icon": "$media:icon",
         "label": "$string:UsbDialogAbility_label",
+        "supportWindowMode": ["fullscreen"],
         "visible": true,
         "exported": false,
         "extensionProcessMode": "instance",
@@ -64,6 +67,7 @@
         "description": "$string:UsbFunctionSwitchWindowAbility_desc",
         "icon": "$media:icon",
         "label": "$string:UsbFunctionSwitchWindowAbility_label",
+        "supportWindowMode": ["fullscreen"],
         "exported": false,
         "extensionProcessMode": "instance",
         "type": "sysDialog/common"
