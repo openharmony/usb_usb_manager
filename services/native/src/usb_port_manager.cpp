@@ -114,7 +114,7 @@ void UsbPortManager::Stop()
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::usbPortInterface_ is nullptr");
         return;
     }
-    sptr<IRemoteObject> remote = OHOS::HDI::hdi_objcast<HDI::Usb::V2_0::IUsbdSubscriber>(usbPortInterface_);
+    sptr<IRemoteObject> remote = OHOS::HDI::hdi_objcast<HDI::Usb::V2_0::IUsbPortInterface>(usbPortInterface_);
     remote->RemoveDeathRecipient(recipient_);
     recipient_.clear();
     usbPortInterface_->UnbindUsbdPortSubscriber(usbManagerSubscriber_);
