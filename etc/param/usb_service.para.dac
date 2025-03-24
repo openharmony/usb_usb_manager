@@ -11,4 +11,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 persist.usb.setting.="usb:usb:660"
-usb.setting.="usb:usb:777"
+usb.setting.="usb:usb:660"
