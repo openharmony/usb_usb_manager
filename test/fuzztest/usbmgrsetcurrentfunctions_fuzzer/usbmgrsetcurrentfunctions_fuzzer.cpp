@@ -23,7 +23,7 @@ namespace {
 }
 
 namespace OHOS {
-namespace USB {x
+namespace USB {
     bool UsbMgrSetCurrentFunctionsFuzzTest(const uint8_t* data, size_t size)
     {
         auto &usbSrvClient = UsbSrvClient::GetInstance();
