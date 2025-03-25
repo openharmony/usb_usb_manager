@@ -23,8 +23,11 @@ const uint32_t OFFSET = 4;
 const uint32_t OFFSET_BYTE = 8;
 constexpr size_t THRESHOLD = 10;
 namespace USB {
-    bool UsbMgrSetPortRoleFuzzTest(const uint8_t* data, size_t /* size */)
+    bool UsbMgrSetPortRoleFuzzTest(const uint8_t* data, size_t size)
     {
+        if (data == nullptr || size < OFFSET_BYTE + sizeof(int32_t)) {
+            return false;
+        }
         auto &usbSrvClient = UsbSrvClient::GetInstance();
         if (usbSrvClient.SetPortRole(*reinterpret_cast<const int32_t *>(data),
             *reinterpret_cast<const int32_t *>(data + OFFSET),
