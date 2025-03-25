@@ -113,7 +113,6 @@ ohos_shared_library("usbservice") {
     "drivers_interface_usb:libusb_proxy_1.1",
     "drivers_interface_usb:libusb_proxy_1.2",
     "drivers_peripheral_usb:libserial_interface_service_1.0",
-    "drivers_peripheral_usb:libusb_interface_service_1.2",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
@@ -137,6 +136,8 @@ ohos_shared_library("usbservice") {
       "drivers_peripheral_usb:libusb_device_interface_service_2.0",
       "drivers_peripheral_usb:libusb_port_interface_service_2.0",
     ]
+  } else {
+    external_deps += [ "drivers_peripheral_usb:libusb_interface_service_1.2" ]
   }
 
   if (usb_manager_feature_pop_up_func_switch_model) {
