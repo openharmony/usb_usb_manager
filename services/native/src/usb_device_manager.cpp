@@ -336,7 +336,7 @@ void UsbDeviceManager::ProcessStatus(int32_t status, bool &curConnect)
     }
 }
 
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
 void UsbDeviceManager::HandleEvent(int32_t status)
 {
     if (usbDeviceInterface_ == nullptr) {
