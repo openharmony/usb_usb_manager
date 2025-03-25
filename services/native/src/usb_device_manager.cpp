@@ -328,12 +328,6 @@ void UsbDeviceManager::ProcessStatus(int32_t status, bool &curConnect)
         case ACT_ACCESSORYSEND: {
             isDisableDialog_ = true;
             USB_HILOGI(MODULE_SERVICE, "disable dialog success");
-            delayDisconn_.Unregister(delayAccTimerId_);
-            auto accTask = [&]() {
-                isDisableDialog_ = false;
-                USB_HILOGI(MODULE_SERVICE, "restore dialog to available success");
-            };
-            delayAccTimerId_ = delayDisconn_.Register(accTask, DELAY_RESTOREDIALOG_INTERVAL, true);
             ProcessFunctionSwitchWindow(false);
             return;
         }
