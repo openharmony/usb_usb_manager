@@ -87,7 +87,6 @@ private:
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
     Utils::Timer delayDisconn_ {"delayDisconnTimer"};
     uint32_t delayDisconnTimerId_ {UINT32_MAX};
-    uint32_t delayAccTimerId_ {UINT32_MAX};
     std::mutex functionMutex_;
 #ifdef USB_MANAGER_V2_0
     sptr<HDI::Usb::V2_0::IUsbDeviceInterface> usbDeviceInterface_ = nullptr;

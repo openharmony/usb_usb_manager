@@ -39,7 +39,6 @@ constexpr uint32_t CMD_INDEX = 1;
 constexpr uint32_t PARAM_INDEX = 2;
 constexpr uint32_t DELAY_CONNECT_INTERVAL = 1000;
 constexpr uint32_t DELAY_DISCONN_INTERVAL = 1400;
-constexpr uint32_t DELAY_RESTOREDIALOG_INTERVAL = 2000;
 const std::map<std::string_view, uint32_t> UsbDeviceManager::FUNCTION_MAPPING_N2C = {
     {UsbSrvSupport::FUNCTION_NAME_NONE, UsbSrvSupport::FUNCTION_NONE},
     {UsbSrvSupport::FUNCTION_NAME_ACM, UsbSrvSupport::FUNCTION_ACM},
@@ -356,6 +355,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             connected_ = false;
+            isDisableDialog_ = false;
             if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_MTP) != 0 ||
                 (static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_PTP) != 0) {
                 currentFunctions_ = static_cast<uint32_t>(currentFunctions_) &
@@ -391,6 +391,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             connected_ = false;
+            isDisableDialog_ = false;
             if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_MTP) != 0 ||
                 (static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_PTP) != 0) {
                 currentFunctions_ = static_cast<uint32_t>(currentFunctions_) &
