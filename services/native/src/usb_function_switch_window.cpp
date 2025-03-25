@@ -138,6 +138,9 @@ bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
     bool isTempDisablePrompt = OHOS::system::GetBoolParameter("usb.setting.gadget_conn_prompt", true);
     if (!isTempDisablePrompt) {
         USB_HILOGE(MODULE_USB_SERVICE, "temporarily close the pop up window");
+        if (!OHOS::system::SetParameter("usb.setting.gadget_conn_prompt", "true")) {
+            USB_HILOGE(MODULE_USB_SERVICE, "set parameter failed");
+        }
         return false;
     }
     int32_t supportedFuncs = GetSupportedFunctions();
