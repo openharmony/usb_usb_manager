@@ -23,10 +23,13 @@ namespace {
 }
 
 namespace OHOS {
-namespace USB {
-    bool UsbMgrSetCurrentFunctionsFuzzTest(const uint8_t* data, size_t /* size */)
+namespace USB {x
+    bool UsbMgrSetCurrentFunctionsFuzzTest(const uint8_t* data, size_t size)
     {
         auto &usbSrvClient = UsbSrvClient::GetInstance();
+        if (data == nullptr || size < sizeof(int32_t)) {
+            return false;
+        }
         int32_t func = *reinterpret_cast<const int32_t *>(data);
         if (func <= MAX_FUNC_NUM) {
             func += MAX_FUNC_NUM;
