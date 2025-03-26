@@ -28,6 +28,7 @@ namespace USB {
 #ifndef USB_MANAGER_V2_0
 constexpr int32_t SUPPORTED_MODES = 3;
 #endif
+constexpr int32_t NONE = 0;
 constexpr int32_t PARAM_COUNT_TWO = 2;
 constexpr int32_t PARAM_COUNT_THR = 3;
 constexpr int32_t DEFAULT_ROLE_HOST = 1;
@@ -121,6 +122,12 @@ int32_t UsbPortManager::SetPortRole(int32_t portId, int32_t powerRole, int32_t d
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::SetPortRole usbPortInterface_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
+    if (portMap_[portId].supportedModes == NONE) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s The mode does not support settings", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+
     return usbPortInterface_->SetPortRole(portId, powerRole, dataRole);
 #else
     if (usbd_ == nullptr) {
@@ -203,7 +210,7 @@ int32_t UsbPortManager::QueryPort()
     std::vector<HDI::Usb::V2_0::UsbPort> portList;
     int32_t ret = usbPortInterface_->QueryPorts(portList);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s QueryPort failed", __func__);
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s QueryPorts failed", __func__);
         return ret;
     }
 
@@ -288,7 +295,13 @@ void UsbPortManager::AddPortInfo(int32_t portId, int32_t supportedModes,
 void UsbPortManager::AddPort(UsbPort &port)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "addPort run");
-    portMap_[port.id] = port;
+
+    auto res = portMap_.insert(std::map<int32_t, UsbPort>::value_type(port.id, port));
+    if (!res.second) {
+        USB_HILOGW(MODULE_USB_SERVICE, "addPort port id duplicated");
+        return;
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "addPort successed");
 }
 
 void UsbPortManager::RemovePort(int32_t portId)
