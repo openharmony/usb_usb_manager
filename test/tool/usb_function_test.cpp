@@ -25,13 +25,11 @@ using namespace OHOS;
 using namespace OHOS::USB;
 using namespace OHOS::USB::Common;
 using namespace OHOS::EventFwk;
-static constexpr int32_t DEFAULT_PORT_ID = 1;
-static constexpr int32_t DEFAULT_ROLE_HOST = 1;
-static constexpr int32_t DEFAULT_ROLE_DEVICE = 2;
 static constexpr int32_t MIN_ARG_NUM = 3;
 static constexpr uint32_t CMD_INDEX = 1;
 static constexpr uint32_t PARAM_INDEX = 2;
-static constexpr int32_t HOST_MODE = 2;
+constexpr uint32_t CASE1 = 1;
+constexpr uint32_t CASE2 = 2;
 
 static UsbSrvClient &g_usbClient = UsbSrvClient::GetInstance();
 
@@ -208,10 +206,10 @@ static void PortSwitch(UsbSrvClient &g_usbClient, int32_t mode)
         case 0:
             GetPortsInfo();
             break;
-        case 1:
+        case CASE1:
             GetSupportMode(g_usbClient);
             break;
-        case 2:
+        case CASE2:
             SetPortRole(g_usbClient);
             GetPortsInfo();
             break;
