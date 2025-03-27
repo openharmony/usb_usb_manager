@@ -27,8 +27,10 @@ namespace OHOS {
 namespace USB {
 #ifndef USB_MANAGER_V2_0
 constexpr int32_t SUPPORTED_MODES = 3;
-#endif
+#endif // USB_MANAGER_V2_0
+#ifdef USB_MANAGER_V2_0
 constexpr int32_t NONE = 0;
+#endif // USB_MANAGER_V2_0
 constexpr int32_t PARAM_COUNT_TWO = 2;
 constexpr int32_t PARAM_COUNT_THR = 3;
 constexpr int32_t DEFAULT_ROLE_HOST = 1;
