@@ -126,11 +126,14 @@ int32_t UsbPortManager::SetPortRole(int32_t portId, int32_t powerRole, int32_t d
     }
 
     auto it = portMap_.find(portId);
-    if (it != portMap_.end()) {
-        if (it->second.supportedModes == NONE) {
-            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s The mode does not support settings", __func__);
-            return UEC_SERVICE_INVALID_VALUE;
-        }
+    if (it == portMap_.end()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s portId error", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+
+    if (it->second.supportedModes == NONE) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s The mode does not support settings", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
     }
     return usbPortInterface_->SetPortRole(portId, powerRole, dataRole);
 #else
