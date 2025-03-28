@@ -2354,7 +2354,7 @@ int32_t UsbService::DeviceEvent(const HDI::Usb::V1_0::USBDeviceInfo &info)
     g_serviceInstance->UnLoadSelf(UsbService::UnLoadSaType::UNLOAD_SA_DELAY);
 #endif // USB_MANAGER_FEATURE_HOST
     if (status == ACT_DEVUP) {
-        if(usbSerialManager_ == nullptr && checkForTtyUSB()) {
+        if (usbSerialManager_ == nullptr && checkForTtyUSB()) {
             USB_HILOGI(MODULE_USB_SERVICE, "try to start serial");
             usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
         }
