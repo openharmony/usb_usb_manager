@@ -68,8 +68,7 @@ constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 #endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
 constexpr int32_t API_VERSION_ID_18 = 18;
 constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
-constexpr const char *TTYUSB_STR = "ttyUSB";
-constexpr const char *DEV_STR = "/dev";
+static const std::filesystem::path TTYUSB_PATH = "/sys/bus/usb-serial/devices";
 constexpr const pid_t ROOT_UID = 0;
 constexpr const pid_t EDM_UID = 3057;
 } // namespace
@@ -2317,32 +2316,21 @@ sptr<UsbService> UsbService::GetGlobalInstance()
 }
 // LCOV_EXCL_STOP
 
-bool checkForTtyUSB() {
+bool checkForTtyUSB()
+{
     USB_HILOGI(MODULE_USB_SERVICE, "checkForTtyUSB");
-    DIR *dir;
-    struct dirent *entry;
-    dir = opendir(DEV_STR);
-    if (dir == NULL) {
-        return false;
-    }
-    while ((entry = readdir(dir)) != NULL) {
-        std::string name = entry->d_name;
-        if (name.find(TTYUSB_STR) == 0) {
-            USB_HILOGI(MODULE_USB_SERVICE, "get serial");
-            closedir(dir);
+    for (const auto& entry : std::filesystem::directory_iterator(TTYUSB_PATH)) {
+        if (entry.is_directory()) {
             return true;
         }
     }
-    closedir(dir);
+    USB_HILOGI(MODULE_USB_SERVICE, "can't find ttyUSB");
     return false;
 }
+
 // LCOV_EXCL_START
 int32_t UsbService::DeviceEvent(const HDI::Usb::V1_0::USBDeviceInfo &info)
 {
-    if (checkForTtyUSB()) {
-        InitSerial();
-        usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
-    }
     int32_t status = info.status;
 #ifdef USB_MANAGER_FEATURE_DEVICE
     if (status == ACT_UPDEVICE || status == ACT_DOWNDEVICE ||
@@ -2365,6 +2353,12 @@ int32_t UsbService::DeviceEvent(const HDI::Usb::V1_0::USBDeviceInfo &info)
     }
     g_serviceInstance->UnLoadSelf(UsbService::UnLoadSaType::UNLOAD_SA_DELAY);
 #endif // USB_MANAGER_FEATURE_HOST
+    if (status == ACT_DEVUP) {
+        if(usbSerialManager_ == nullptr && checkForTtyUSB()) {
+            USB_HILOGI(MODULE_USB_SERVICE, "try to start serial");
+            usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
+        }
+    }
     return UEC_OK;
 }
 // LCOV_EXCL_STOP
@@ -2600,7 +2594,12 @@ int32_t UsbService::SerialGetPortList(std::vector<UsbSerialPort>& serialInfoList
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
     if (usbSerialManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbSerialManager_ is nullptr", __func__);
-        return UEC_SERVICE_INVALID_VALUE;
+        if(checkForTtyUSB()) {
+            USB_HILOGI(MODULE_USB_SERVICE, "try to start serial");
+            usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
+        } else {
+            return UEC_OK;
+        }
     }
     std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort> serialPortList;
     int32_t ret = usbSerialManager_->SerialGetPortList(serialPortList);
