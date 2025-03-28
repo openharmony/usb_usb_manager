@@ -20,6 +20,7 @@
 #include <ipc_skeleton.h>
 #include <sstream>
 #include <string>
+#include <filesystem>
 #include <unistd.h>
 #include <unordered_map>
 #include "parameters.h"
@@ -67,6 +68,7 @@ constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 #endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
 constexpr int32_t API_VERSION_ID_18 = 18;
 constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
+static const std::filesystem::path TTYUSB_PATH = "/sys/bus/usb-serial/devices";
 constexpr const pid_t ROOT_UID = 0;
 constexpr const pid_t EDM_UID = 3057;
 } // namespace
@@ -87,7 +89,6 @@ UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
     usbDeviceManager_ = std::make_shared<UsbDeviceManager>();
     usbAccessoryManager_ = std::make_shared<UsbAccessoryManager>();
 #endif // USB_MANAGER_FEATURE_DEVICE
-    usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
 #ifndef USB_MANAGER_PASS_THROUGH
     if (usbd_ == nullptr) {
         usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
@@ -233,14 +234,14 @@ void UsbService::WaitUsbdService()
     // wait for the usbd service to start and bind usb service and usbd service
     int32_t retryTimes = 0;
     while (retryTimes < SERVICE_STARTUP_MAX_TIME) {
-        if (InitUsbd() && InitSerial()) {
+        if (InitUsbd()) {
             break;
         }
         sleep(1);
         retryTimes++;
 
         if (retryTimes == SERVICE_STARTUP_MAX_TIME) {
-            USB_HILOGE(MODULE_USB_SERVICE, "OnStart call initUsbd or InitSerial failed");
+            USB_HILOGE(MODULE_USB_SERVICE, "OnStart call initUsbd failed");
             return;
         }
     }
@@ -2315,6 +2316,18 @@ sptr<UsbService> UsbService::GetGlobalInstance()
 }
 // LCOV_EXCL_STOP
 
+bool CheckForTtyUSB()
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "CheckForTtyUSB");
+    for (const auto& entry : std::filesystem::directory_iterator(TTYUSB_PATH)) {
+        if (entry.is_directory()) {
+            return true;
+        }
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "can't find ttyUSB");
+    return false;
+}
+
 // LCOV_EXCL_START
 int32_t UsbService::DeviceEvent(const HDI::Usb::V1_0::USBDeviceInfo &info)
 {
@@ -2340,6 +2353,12 @@ int32_t UsbService::DeviceEvent(const HDI::Usb::V1_0::USBDeviceInfo &info)
     }
     g_serviceInstance->UnLoadSelf(UsbService::UnLoadSaType::UNLOAD_SA_DELAY);
 #endif // USB_MANAGER_FEATURE_HOST
+    if (status == ACT_DEVUP) {
+        if (usbSerialManager_ == nullptr && CheckForTtyUSB()) {
+            USB_HILOGI(MODULE_USB_SERVICE, "try to start serial");
+            usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
+        }
+    }
     return UEC_OK;
 }
 // LCOV_EXCL_STOP
@@ -2575,7 +2594,12 @@ int32_t UsbService::SerialGetPortList(std::vector<UsbSerialPort>& serialInfoList
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
     if (usbSerialManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbSerialManager_ is nullptr", __func__);
-        return UEC_SERVICE_INVALID_VALUE;
+        if (CheckForTtyUSB()) {
+            USB_HILOGI(MODULE_USB_SERVICE, "try to start serial");
+            usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
+        } else {
+            return UEC_OK;
+        }
     }
     std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort> serialPortList;
     int32_t ret = usbSerialManager_->SerialGetPortList(serialPortList);
