@@ -20,6 +20,7 @@
 #include <ipc_skeleton.h>
 #include <sstream>
 #include <string>
+#include <filesystem>
 #include <unistd.h>
 #include <unordered_map>
 #include "parameters.h"
@@ -67,6 +68,7 @@ constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 #endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
 constexpr int32_t API_VERSION_ID_18 = 18;
 constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
+constexpr const char *TTYUSB_PATH = "/sys/bus/usb-serial/devices";
 constexpr const pid_t ROOT_UID = 0;
 constexpr const pid_t EDM_UID = 3057;
 } // namespace
@@ -233,14 +235,14 @@ void UsbService::WaitUsbdService()
     // wait for the usbd service to start and bind usb service and usbd service
     int32_t retryTimes = 0;
     while (retryTimes < SERVICE_STARTUP_MAX_TIME) {
-        if (InitUsbd() && InitSerial()) {
+        if (InitUsbd()) {
             break;
         }
         sleep(1);
         retryTimes++;
 
         if (retryTimes == SERVICE_STARTUP_MAX_TIME) {
-            USB_HILOGE(MODULE_USB_SERVICE, "OnStart call initUsbd or InitSerial failed");
+            USB_HILOGE(MODULE_USB_SERVICE, "OnStart call initUsbd failed");
             return;
         }
     }
@@ -2318,6 +2320,13 @@ sptr<UsbService> UsbService::GetGlobalInstance()
 // LCOV_EXCL_START
 int32_t UsbService::DeviceEvent(const HDI::Usb::V1_0::USBDeviceInfo &info)
 {
+    for (const auto& entry : std::filesystem::directory_iterator(TTYUSB_PATH)) {
+        if (entry.is_directory()) {
+            InitSerial();
+            usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
+            break;
+        }
+    }
     int32_t status = info.status;
 #ifdef USB_MANAGER_FEATURE_DEVICE
     if (status == ACT_UPDEVICE || status == ACT_DOWNDEVICE ||
