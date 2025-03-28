@@ -20,7 +20,7 @@
 #include <ipc_skeleton.h>
 #include <sstream>
 #include <string>
-#include <filesystem>
+#include <dirent.h>
 #include <unistd.h>
 #include <unordered_map>
 #include "parameters.h"
@@ -68,7 +68,8 @@ constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 #endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
 constexpr int32_t API_VERSION_ID_18 = 18;
 constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
-constexpr const char *TTYUSB_PATH = "/sys/bus/usb-serial/devices";
+constexpr const char *TTYUSB_STR = "ttyUSB";
+constexpr const char *DEV_STR = "/dev";
 constexpr const pid_t ROOT_UID = 0;
 constexpr const pid_t EDM_UID = 3057;
 } // namespace
@@ -2316,15 +2317,31 @@ sptr<UsbService> UsbService::GetGlobalInstance()
 }
 // LCOV_EXCL_STOP
 
+bool checkForTtyUSB() {
+    USB_HILOGI(MODULE_USB_SERVICE, "checkForTtyUSB");
+    DIR *dir;
+    struct dirent *entry;
+    dir = opendir(DEV_STR);
+    if (dir == NULL) {
+        return false;
+    }
+    while ((entry = readdir(dir)) != NULL) {
+        std::string name = entry->d_name;
+        if (name.find(TTYUSB_STR) == 0) {
+            USB_HILOGI(MODULE_USB_SERVICE, "get serial");
+            closedir(dir);
+            return true;
+        }
+    }
+    closedir(dir);
+    return false;
+}
 // LCOV_EXCL_START
 int32_t UsbService::DeviceEvent(const HDI::Usb::V1_0::USBDeviceInfo &info)
 {
-    for (const auto& entry : std::filesystem::directory_iterator(TTYUSB_PATH)) {
-        if (entry.is_directory()) {
-            InitSerial();
-            usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
-            break;
-        }
+    if (checkForTtyUSB()) {
+        InitSerial();
+        usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
     }
     int32_t status = info.status;
 #ifdef USB_MANAGER_FEATURE_DEVICE
