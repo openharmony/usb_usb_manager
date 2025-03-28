@@ -101,6 +101,9 @@ public:
 
         for (uint32_t i = 0; i < infCount && i < USB_INTERFACE_MAX_NUM; i++) {
             UsbInterface *pInf = UsbInterface::Unmarshalling(data);
+            if (pInf == nullptr) {
+                continue;
+            }
             usbConfig->interfaces_.push_back(*pInf);
             delete pInf;
             pInf = nullptr;

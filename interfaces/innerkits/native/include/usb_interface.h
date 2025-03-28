@@ -107,6 +107,9 @@ public:
         epCount = data.ReadUint32();
         for (uint32_t i = 0; i < epCount && i < USB_ENDPOINT_MAX_NUM; i++) {
             USBEndpoint *pEp = USBEndpoint::Unmarshalling(data);
+            if (pEp == nullptr) {
+                continue;
+            }
             usbInterface->endpoints_.push_back(*pEp);
             delete pEp;
             pEp = nullptr;
