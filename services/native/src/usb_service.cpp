@@ -2316,9 +2316,9 @@ sptr<UsbService> UsbService::GetGlobalInstance()
 }
 // LCOV_EXCL_STOP
 
-bool checkForTtyUSB()
+bool CheckForTtyUSB()
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "checkForTtyUSB");
+    USB_HILOGI(MODULE_USB_SERVICE, "CheckForTtyUSB");
     for (const auto& entry : std::filesystem::directory_iterator(TTYUSB_PATH)) {
         if (entry.is_directory()) {
             return true;
@@ -2354,7 +2354,7 @@ int32_t UsbService::DeviceEvent(const HDI::Usb::V1_0::USBDeviceInfo &info)
     g_serviceInstance->UnLoadSelf(UsbService::UnLoadSaType::UNLOAD_SA_DELAY);
 #endif // USB_MANAGER_FEATURE_HOST
     if (status == ACT_DEVUP) {
-        if (usbSerialManager_ == nullptr && checkForTtyUSB()) {
+        if (usbSerialManager_ == nullptr && CheckForTtyUSB()) {
             USB_HILOGI(MODULE_USB_SERVICE, "try to start serial");
             usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
         }
@@ -2594,7 +2594,7 @@ int32_t UsbService::SerialGetPortList(std::vector<UsbSerialPort>& serialInfoList
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
     if (usbSerialManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbSerialManager_ is nullptr", __func__);
-        if(checkForTtyUSB()) {
+        if (CheckForTtyUSB()) {
             USB_HILOGI(MODULE_USB_SERVICE, "try to start serial");
             usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
         } else {
