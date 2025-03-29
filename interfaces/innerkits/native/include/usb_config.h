@@ -73,7 +73,7 @@ public:
         WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint32, parcel, this->attributes_);
         WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->maxPower_);
         WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint8, parcel, this->iConfiguration_);
-        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(String16, parcel, Str8ToStr16(this->name_));
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(String, parcel, this->name_);
 
         uint32_t infCount = this->interfaces_.size();
         WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint32, parcel, infCount);
@@ -91,16 +91,19 @@ public:
             return nullptr;
         }
         usbConfig->id_ = data.ReadInt32();
-        usbConfig->attributes_ = data.ReadInt32();
+        usbConfig->attributes_ = data.ReadUint32();
         usbConfig->maxPower_ = data.ReadInt32();
-        usbConfig->iConfiguration_ = data.ReadInt32();
-        usbConfig->name_ = Str16ToStr8(data.ReadString16());
+        usbConfig->iConfiguration_ = data.ReadUint8();
+        usbConfig->name_ = data.ReadString();
 
         uint32_t infCount = 0;
         infCount = data.ReadUint32();
 
         for (uint32_t i = 0; i < infCount && i < USB_INTERFACE_MAX_NUM; i++) {
             UsbInterface *pInf = UsbInterface::Unmarshalling(data);
+            if (pInf == nullptr) {
+                continue;
+            }
             usbConfig->interfaces_.push_back(*pInf);
             delete pInf;
             pInf = nullptr;

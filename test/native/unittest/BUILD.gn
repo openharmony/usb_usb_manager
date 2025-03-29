@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
+import("./../../../usbmgr.gni")
 
 group("usb_manager_unittest") {
   testonly = true

@@ -47,6 +47,7 @@
 #include "serial_manager.h"
 #include "v1_2/usb_types.h"
 #include "usbd_bulkcallback_impl.h"
+#include "usb_bulk_trans_data.h"
 #ifdef USB_MANAGER_PASS_THROUGH
 #include "v2_0/iusb_host_interface.h"
 #endif // USB_MANAGER_PASS_THROUGH
@@ -121,11 +122,11 @@ public:
     bool GetDeviceProductName(const std::string &deviceName, std::string &productName);
 
     int32_t BulkTransferRead(uint8_t busNum, uint8_t devAddr, const USBEndpoint &ep,
-        std::vector<uint8_t> &bufferData, int32_t timeOut) override;
+        UsbBulkTransData &bufferData, int32_t timeOut) override;
     int32_t BulkTransferReadwithLength(uint8_t busNum, uint8_t devAddr, const USBEndpoint &ep,
-        int32_t length, std::vector<uint8_t> &bufferData, int32_t timeOut) override;
+        int32_t length, UsbBulkTransData &bufferData, int32_t timeOut) override;
     int32_t BulkTransferWrite(uint8_t busNum, uint8_t devAddr, const USBEndpoint &ep,
-        const std::vector<uint8_t> &bufferData, int32_t timeOut) override;
+        const UsbBulkTransData &bufferData, int32_t timeOut) override;
     int32_t ControlTransfer(uint8_t busNum, uint8_t devAddr, const UsbCtlSetUp& ctrlParams,
         std::vector<uint8_t> &bufferData) override;
     int32_t UsbControlTransfer(uint8_t busNum, uint8_t devAddr,
@@ -170,6 +171,8 @@ public:
     int32_t HasAccessoryRight(const USBAccessory &access, bool &result) override;
     int32_t RequestAccessoryRight(const USBAccessory &access, bool &result) override;
     int32_t CancelAccessoryRight(const USBAccessory &access) override;
+    bool InitSettingDataHdcStatus();
+    bool SetSettingsDataHdcStatus(int32_t func_uint);
 #endif // USB_MANAGER_FEATURE_DEVICE
 #ifdef USB_MANAGER_FEATURE_PORT
     int32_t GetPorts(std::vector<UsbPort> &ports) override;
@@ -187,13 +190,18 @@ public:
     int32_t SerialGetAttribute(int32_t portId, UsbSerialAttr& attribute) override;
     int32_t SerialSetAttribute(int32_t portId, const UsbSerialAttr& attribute) override;
     int32_t SerialGetPortList(std::vector<UsbSerialPort>& serialPortList) override;
-    bool HasSerialRight(int32_t portId);
     int32_t HasSerialRight(int32_t portId, bool &hasRight) override;
     int32_t AddSerialRight(uint32_t tokenId, int32_t portId) override;
     int32_t CancelSerialRight(int32_t portId) override;
-    int32_t RequestSerialRight(int32_t portId) override;
+    int32_t RequestSerialRight(int32_t portId, bool &hasRight) override;
 
 private:
+    void SerialAttributeChange(const UsbSerialAttr &serialAttr,
+        OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute);
+    void SerialAttributeChange(UsbSerialAttr &serialAttr,
+        OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute);
+    void SerialPortChange(std::vector<UsbSerialPort> &serialInfoList,
+        std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortLis);
 #ifdef USB_MANAGER_PASS_THROUGH
     class SystemAbilityStatusChangeListener : public SystemAbilityStatusChangeStub {
     public:
@@ -253,6 +261,7 @@ private:
     bool DoDump(int fd, const std::vector<std::string> &argList);
     void FreeTokenId(int32_t portId, uint32_t tokenId);
     int32_t ValidateUsbSerialManagerAndPort(int32_t portId);
+    int32_t CheckDbAbility(int32_t portId);
     void ReportUsbSerialOperationSysEvent(int32_t portId, const std::string &operationType);
     void ReportUsbSerialOperationFaultSysEvent(int32_t portId, const std::string &operationType, int32_t failReason,
         const std::string &failDescription);
@@ -263,12 +272,6 @@ private:
     void UsbDeviceTypeChange(std::vector<UsbDeviceType> &disableType,
         const std::vector<UsbDeviceTypeInfo> &deviceTypes);
     void UsbTransInfoChange(HDI::Usb::V1_2::USBTransferInfo &info, const UsbTransInfo &param);
-    void SerialAttributeChange(const UsbSerialAttr &serialAttr,
-        OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute);
-    void SerialAttributeChange(UsbSerialAttr &serialAttr,
-        OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute);
-    void SerialPortChange(std::vector<UsbSerialPort> &serialInfoList,
-        std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortLis);
     std::string GetDeviceVidPidSerialNumber(const std::string &deviceName);
     int32_t GetDeviceVidPidSerialNumber(const std::string &deviceName, std::string& strDesc);
 #endif // USB_MANAGER_FEATURE_HOST
