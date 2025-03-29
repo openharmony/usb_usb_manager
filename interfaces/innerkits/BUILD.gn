@@ -110,6 +110,7 @@ ohos_source_set("usb_server_stub") {
     cfi_cross_dso = true
     debug = false
   }
+  branch_protector_ret = "pac_ret"
   configs = [
     "${utils_path}:utils_config",
     ":usbsrv_private_config",
