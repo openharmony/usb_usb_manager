@@ -26,6 +26,7 @@
 #include "timer.h"
 #include "v1_2/iusb_interface.h"
 #include "usbd_callback_server.h"
+#include "usb_bulk_trans_data.h"
 using namespace OHOS::HDI::Usb::V1_2;
 namespace OHOS {
 namespace USB {
@@ -230,10 +231,13 @@ int32_t UsbSrvClient::BulkTransfer(
     if (USB_ENDPOINT_DIR_IN == endpoint.GetDirection()) {
         int32_t length = bufferData.size() > 0 ? static_cast<int32_t>(bufferData.size()) : READ_BUF_SIZE;
         bufferData.clear();
+        UsbBulkTransData bulkData;
         ret = proxy_->BulkTransferReadwithLength(pipe.GetBusNum(), pipe.GetDevAddr(),
-            endpoint, length, bufferData, timeOut);
+            endpoint, length, bulkData, timeOut);
+        bufferData.swap(bulkData.data_);
     } else if (USB_ENDPOINT_DIR_OUT == endpoint.GetDirection()) {
-        ret = proxy_->BulkTransferWrite(pipe.GetBusNum(), pipe.GetDevAddr(), endpoint, bufferData, timeOut);
+        UsbBulkTransData bulkData (bufferData);
+        ret = proxy_->BulkTransferWrite(pipe.GetBusNum(), pipe.GetDevAddr(), endpoint, bulkData, timeOut);
     }
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "failed width ret = %{public}d !", ret);
@@ -1134,17 +1138,16 @@ int32_t UsbSrvClient::SerialGetPortList(
     return ret;
 }
 
-int32_t UsbSrvClient::HasSerialRight(int32_t portId)
+int32_t UsbSrvClient::HasSerialRight(int32_t portId, bool &hasRight)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "Calling HasSerialRight");
     RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
-    bool hasRight = false;
     int32_t ret = proxy_->HasSerialRight(portId, hasRight);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::HasSerialRight failed ret = %{public}d!", ret);
         return ret;
     }
-    return hasRight;
+    return UEC_OK;
 }
 
 int32_t UsbSrvClient::CancelSerialRight(int32_t portId)
@@ -1158,11 +1161,11 @@ int32_t UsbSrvClient::CancelSerialRight(int32_t portId)
     return ret;
 }
 
-int32_t UsbSrvClient::RequestSerialRight(int32_t portId)
+int32_t UsbSrvClient::RequestSerialRight(int32_t portId, bool &hasRight)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "Calling RequestSerialRight");
     RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
-    int32_t ret = proxy_->RequestSerialRight(portId);
+    int32_t ret = proxy_->RequestSerialRight(portId, hasRight);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbSrvClient::RequestSerialRight failed ret = %{public}d !", ret);
     }

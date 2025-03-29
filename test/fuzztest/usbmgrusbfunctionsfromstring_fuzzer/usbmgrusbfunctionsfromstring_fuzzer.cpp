@@ -20,8 +20,11 @@
 
 namespace OHOS {
 namespace USB {
-    bool UsbMgrUsbFunctionsFromStringFuzzTest(const uint8_t* data, size_t /* size */)
+    bool UsbMgrUsbFunctionsFromStringFuzzTest(const uint8_t* data, size_t size)
     {
+        if (data == nullptr || size == 0 || data[size-1] != 0) {
+            return false;
+        }
         auto &usbSrvClient = UsbSrvClient::GetInstance();
         if (usbSrvClient.UsbFunctionsFromString(std::string_view(reinterpret_cast<const char*>(data))) == UEC_OK) {
             return false;

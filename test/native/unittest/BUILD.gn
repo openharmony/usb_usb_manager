@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -11,16 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
+import("//build/test.gni")
+import("./../../../usbmgr.gni")
 
-usb_manager_path = "//base/usb/usb_manager"
-usb_manager_part_name = "usb_manager"
-utils_path = "${usb_manager_path}/utils"
-
-declare_args() {
-  usb_manager_feature_pop_up_func_switch_model = true
-  usb_manager_feature_host = true
-  usb_manager_feature_device = true
-  usb_manager_feature_port = true
-  usb_manager_pass_through = true
+group("usb_manager_unittest") {
+  testonly = true
+  deps = []
 }

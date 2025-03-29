@@ -74,6 +74,12 @@ private:
 #ifdef USB_MANAGER_V2_0
     sptr<HDI::Usb::V2_0::IUsbPortInterface> usbPortInterface_ = nullptr;
     sptr<UsbManagerSubscriber> usbManagerSubscriber_;
+    sptr<IRemoteObject::DeathRecipient> recipient_ = nullptr;
+
+    class UsbdPortDeathRecipient : public IRemoteObject::DeathRecipient {
+    public:
+        void OnRemoteDied(const wptr<IRemoteObject> &object) override;
+    };
 #endif // USB_MANAGER_V2_0
 };
 } // namespace USB

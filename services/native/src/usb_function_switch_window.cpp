@@ -138,6 +138,9 @@ bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
     bool isTempDisablePrompt = OHOS::system::GetBoolParameter("usb.setting.gadget_conn_prompt", true);
     if (!isTempDisablePrompt) {
         USB_HILOGE(MODULE_USB_SERVICE, "temporarily close the pop up window");
+        if (!OHOS::system::SetParameter("usb.setting.gadget_conn_prompt", "true")) {
+            USB_HILOGE(MODULE_USB_SERVICE, "set parameter failed");
+        }
         return false;
     }
     int32_t supportedFuncs = GetSupportedFunctions();
@@ -165,7 +168,6 @@ bool UsbFunctionSwitchWindow::PopUpFunctionSwitchWindow()
     }
     if (ShouldRejectShowWindow()) {
         USB_HILOGE(MODULE_USB_SERVICE, "OOBE is not ready!");
-        return false;
     }
     return ShowFunctionSwitchWindow();
 }
@@ -377,7 +379,6 @@ void UsbFunctionSwitchWindow::BootCompletedEventCallback(const char *key, const 
 
     if (eventSwitchWindow->ShouldRejectShowWindow()) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: OOBE is not ready!", __func__);
-        return;
     }
     bool ret = eventSwitchWindow->ShowFunctionSwitchWindow();
     if (!ret) {
