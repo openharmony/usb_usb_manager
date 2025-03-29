@@ -107,6 +107,9 @@ public:
         uint32_t configCount = data.ReadUint32();
         for (uint32_t i = 0; i < configCount && i < USB_CONFIG_MAX_NUM; i++) {
             USBConfig *pConfig = USBConfig::Unmarshalling(data);
+            if (pConfig == nullptr) {
+                continue;
+            }
             usbDevice->configs_.push_back(*pConfig);
             delete pConfig;
             pConfig = nullptr;

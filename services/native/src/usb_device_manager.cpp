@@ -39,7 +39,6 @@ constexpr uint32_t CMD_INDEX = 1;
 constexpr uint32_t PARAM_INDEX = 2;
 constexpr uint32_t DELAY_CONNECT_INTERVAL = 1000;
 constexpr uint32_t DELAY_DISCONN_INTERVAL = 1400;
-constexpr uint32_t DELAY_RESTOREDIALOG_INTERVAL = 2000;
 const std::map<std::string_view, uint32_t> UsbDeviceManager::FUNCTION_MAPPING_N2C = {
     {UsbSrvSupport::FUNCTION_NAME_NONE, UsbSrvSupport::FUNCTION_NONE},
     {UsbSrvSupport::FUNCTION_NAME_ACM, UsbSrvSupport::FUNCTION_ACM},
@@ -103,6 +102,7 @@ void UsbDeviceManager::Stop()
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::usbDeviceInterface_ is nullptr");
         return;
     }
+    usbDeviceInterface_->UnbindUsbdDeviceSubscriber(usbManagerSubscriber_);
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 0, USB_SYSTEM_ABILITY_ID);
 }
 
@@ -328,12 +328,6 @@ void UsbDeviceManager::ProcessStatus(int32_t status, bool &curConnect)
         case ACT_ACCESSORYSEND: {
             isDisableDialog_ = true;
             USB_HILOGI(MODULE_SERVICE, "disable dialog success");
-            delayDisconn_.Unregister(delayAccTimerId_);
-            auto accTask = [&]() {
-                isDisableDialog_ = false;
-                USB_HILOGI(MODULE_SERVICE, "restore dialog to available success");
-            };
-            delayAccTimerId_ = delayDisconn_.Register(accTask, DELAY_RESTOREDIALOG_INTERVAL, true);
             ProcessFunctionSwitchWindow(false);
             return;
         }
@@ -343,7 +337,7 @@ void UsbDeviceManager::ProcessStatus(int32_t status, bool &curConnect)
     }
 }
 
-#ifdef USB_MANAGER_PASS_THROUGH
+#ifdef USB_MANAGER_V2_0
 void UsbDeviceManager::HandleEvent(int32_t status)
 {
     if (usbDeviceInterface_ == nullptr) {
@@ -362,6 +356,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             connected_ = false;
+            isDisableDialog_ = false;
             if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_MTP) != 0 ||
                 (static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_PTP) != 0) {
                 currentFunctions_ = static_cast<uint32_t>(currentFunctions_) &
@@ -397,6 +392,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             connected_ = false;
+            isDisableDialog_ = false;
             if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_MTP) != 0 ||
                 (static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_PTP) != 0) {
                 currentFunctions_ = static_cast<uint32_t>(currentFunctions_) &

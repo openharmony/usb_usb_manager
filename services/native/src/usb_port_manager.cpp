@@ -19,6 +19,10 @@
 #include "hisysevent.h"
 #include "usb_errors.h"
 #include "usb_srv_support.h"
+#include "if_system_ability_manager.h"
+#include "system_ability_definition.h"
+#include "iproxy_broker.h"
+#include "iservice_registry.h"
 
 using namespace OHOS::HiviewDFX;
 using namespace OHOS::HDI::Usb::V1_0;
@@ -78,10 +82,30 @@ bool UsbPortManager::InitUsbPortInterface()
         USB_HILOGE(MODULE_USB_SERVICE, "Init failed");
         return false;
     }
+    recipient_ = new UsbdPortDeathRecipient();
+    sptr<IRemoteObject> remote = OHOS::HDI::hdi_objcast<HDI::Usb::V2_0::IUsbPortInterface>(usbPortInterface_);
+    if (!remote->AddDeathRecipient(recipient_)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "add DeathRecipient failed");
+        return false;
+    }
 
     ErrCode ret = usbPortInterface_->BindUsbdPortSubscriber(usbManagerSubscriber_);
     USB_HILOGI(MODULE_USB_SERVICE, "entry InitUsbPortInterface ret: %{public}d", ret);
     return SUCCEEDED(ret);
+}
+
+void UsbPortManager::UsbdPortDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
+{
+    auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrProxy == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "get samgr failed");
+        return;
+    }
+
+    auto ret = samgrProxy->UnloadSystemAbility(USB_SYSTEM_ABILITY_ID);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "unload failed");
+    }
 }
 
 void UsbPortManager::Stop()
@@ -90,6 +114,10 @@ void UsbPortManager::Stop()
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::usbPortInterface_ is nullptr");
         return;
     }
+    sptr<IRemoteObject> remote = OHOS::HDI::hdi_objcast<HDI::Usb::V2_0::IUsbPortInterface>(usbPortInterface_);
+    remote->RemoveDeathRecipient(recipient_);
+    recipient_.clear();
+    usbPortInterface_->UnbindUsbdPortSubscriber(usbManagerSubscriber_);
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 0, USB_SYSTEM_ABILITY_ID);
 }
 

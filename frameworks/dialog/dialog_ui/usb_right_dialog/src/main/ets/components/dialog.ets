@@ -853,7 +853,7 @@ function setButtonProperties(buttonOptions: ButtonOptions, buttonList?: ButtonOp
   .defaultFocus(buttonOptions.defaultFocus ? true : isHasDefaultFocus(buttonList) ? false : true)
   .buttonStyle(buttonOptions.buttonStyle ?? ALERT_BUTTON_STYLE)
   .layoutWeight(BUTTON_LAYOUT_WEIGHT)
-  .type(3)
+  .type(ButtonType.ROUNDED_RECTANGLE)
 }
 
 /**

@@ -110,10 +110,21 @@ ohos_source_set("usb_server_stub") {
     cfi_cross_dso = true
     debug = false
   }
+  branch_protector_ret = "pac_ret"
   configs = [
     "${utils_path}:utils_config",
     ":usbsrv_private_config",
   ]
+  defines = []
+  if (usb_manager_feature_host) {
+    defines += [ "USB_MANAGER_FEATURE_HOST" ]
+  }
+  if (usb_manager_feature_device) {
+    defines += [ "USB_MANAGER_FEATURE_DEVICE" ]
+  }
+  if (usb_manager_feature_port) {
+    defines += [ "USB_MANAGER_FEATURE_PORT" ]
+  }
   public_configs = [ ":usb_inner_public_config" ]
   output_values = get_target_outputs(":usb_server_interface")
   sources = filter_include(output_values,

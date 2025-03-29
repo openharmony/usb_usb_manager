@@ -91,7 +91,7 @@ typedef struct SerialReadAsyncContext {
 
 typedef struct SerialRequestRightAsyncContext {
     int contextErrno;
-    int32_t ret;
+    bool hasRight;
     napi_async_work work;
     napi_deferred deferred;
     int32_t portIdValue;

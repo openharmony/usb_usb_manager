@@ -161,15 +161,52 @@ void NapiUtil::JsObjectToUint(
     }
 }
 
-void NapiUtil::JsObjectToUint(
+bool NapiUtil::JsObjectToUint32(
+    const napi_env &env, const napi_value &object, const std::string &fieldStr, uint32_t &fieldRef)
+{
+    bool hasProperty = false;
+    napi_status status = napi_has_named_property(env, object, fieldStr.c_str(), &hasProperty);
+    if (status != napi_ok || !hasProperty) {
+        USB_HILOGE(MODULE_JS_NAPI, "js to uint32_t no property: %{public}s", fieldStr.c_str());
+        return false;
+    }
+
+    napi_value field = nullptr;
+    napi_valuetype valueType;
+
+    status = napi_get_named_property(env, object, fieldStr.c_str(), &field);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "get property failed: %{public}s", fieldStr.c_str());
+        return false;
+    }
+
+    status = napi_typeof(env, field, &valueType);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "type error failed: %{public}s", fieldStr.c_str());
+        return false;
+    }
+
+    USB_ASSERT_RETURN_FALSE(
+        env, valueType == napi_number, OHEC_COMMON_PARAM_ERROR, "The type of " + fieldStr + " must be number.");
+    status = napi_get_value_uint32(env, field, &fieldRef);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "get value failed: %{public}s", fieldStr.c_str());
+        return false;
+    }
+    return true;
+}
+
+bool NapiUtil::JsObjectToUint8(
     const napi_env &env, const napi_value &object, const std::string &fieldStr, uint8_t &fieldRef)
 {
     uint32_t tmpValue = UINT_MAX;
     JsObjectToUint(env, object, fieldStr, tmpValue);
     if (tmpValue > SCHAR_MAX) {
         USB_HILOGE(MODULE_JS_NAPI, "type error failed: uint32_t to uint8_t");
+        return false;
     } else {
         fieldRef = tmpValue;
+        return true;
     }
 }
 

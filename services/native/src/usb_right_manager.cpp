@@ -104,6 +104,14 @@ public:
             int32_t uid = data.GetCode();
             int32_t ret = UsbRightManager::CleanUpRightUserStopped(uid);
             USB_HILOGD(MODULE_USB_SERVICE, "on user %{public}d stopped, ret=%{public}d", uid, ret);
+#ifdef USB_MANAGER_FEATURE_DEVICE
+        } else if (wantAction == CommonEventSupport::COMMON_EVENT_DATA_SHARE_READY) {
+            USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: COMMON_EVENT_DATA_SHARE_READY action is start!", __func__);
+            auto usbService = UsbService::GetGlobalInstance();
+            if (!usbService->InitSettingDataHdcStatus()) {
+                USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: function is get failed!", __func__);
+            }
+#endif // USB_MANAGER_FEATURE_DEVICE
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
 #ifdef USB_MANAGER_FEATURE_DEVICE
             USB_HILOGI(MODULE_USB_SERVICE, "recv user switched.");
@@ -129,6 +137,9 @@ int32_t UsbRightManager::Init()
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_REMOVED);
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_STOPPED);
 
+#ifdef USB_MANAGER_FEATURE_DEVICE
+    matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_DATA_SHARE_READY);
+#endif // USB_MANAGER_FEATURE_DEVICE
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
     CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     std::shared_ptr<RightSubscriber> subscriber = std::make_shared<RightSubscriber>(subscriberInfo);
@@ -167,6 +178,34 @@ bool UsbRightManager::HasRight(const std::string &deviceName, const std::string 
     return !helper->IsRecordExpired(userId, deviceName, bundleName, tokenId, nowTime);
 }
 
+int32_t UsbRightManager::ConnectAbility()
+{
+    if (usbAbilityConn_ == nullptr) {
+        USB_HILOGI(MODULE_SERVICE, "new UsbAbilityConn");
+        usbAbilityConn_ = sptr<UsbAbilityConn>(new (std::nothrow) UsbAbilityConn());
+    }
+
+    auto abmc = AAFwk::AbilityManagerClient::GetInstance();
+    if (abmc == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "GetInstance failed");
+        return USB_RIGHT_FAILURE;
+    }
+
+    AAFwk::Want want;
+    want.SetElementName("com.ohos.sceneboard", "com.ohos.sceneboard.systemdialog");
+    int32_t ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
+    if (ret != ERR_OK) {
+        want.SetElementName("com.ohos.systemui", "com.ohos.systemui.dialog");
+        int32_t ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
+        if (ret != ERR_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "ConnectServiceExtensionAbility systemui failed, ret: %{public}d", ret);
+            usbAbilityConn_ = nullptr;
+            return ret;
+        }
+    }
+    return USB_RIGHT_OK;
+}
+
 #ifdef USB_MANAGER_FEATURE_HOST
 int32_t UsbRightManager::RequestRight(const std::string &busDev, const std::string &deviceName,
     const std::string &bundleName, const std::string &tokenId, const int32_t &userId)
@@ -198,34 +237,6 @@ bool UsbRightManager::GetUserAgreementByDiag(const std::string &busDev, const st
     }
 
     return HasRight(deviceName, bundleName, tokenId, userId);
-}
-
-int32_t UsbRightManager::ConnectAbility()
-{
-    if (usbAbilityConn_ == nullptr) {
-        USB_HILOGI(MODULE_SERVICE, "new UsbAbilityConn");
-        usbAbilityConn_ = sptr<UsbAbilityConn>(new (std::nothrow) UsbAbilityConn());
-    }
-
-    auto abmc = AAFwk::AbilityManagerClient::GetInstance();
-    if (abmc == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetInstance failed");
-        return USB_RIGHT_FAILURE;
-    }
-
-    AAFwk::Want want;
-    want.SetElementName("com.ohos.sceneboard", "com.ohos.sceneboard.systemdialog");
-    int32_t ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
-    if (ret != ERR_OK) {
-        want.SetElementName("com.ohos.systemui", "com.ohos.systemui.dialog");
-        int32_t ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
-        if (ret != ERR_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "ConnectServiceExtensionAbility systemui failed, ret: %{public}d", ret);
-            usbAbilityConn_ = nullptr;
-            return ret;
-        }
-    }
-    return USB_RIGHT_OK;
 }
 
 bool UsbRightManager::ShowUsbDialog(
@@ -322,7 +333,7 @@ int32_t UsbRightManager::RequestRight(const int32_t portId, const SerialDeviceId
     }
     if (!GetUserAgreementByDiag(portId, serialDeviceIdentity, bundleName, tokenId, userId)) {
         USB_HILOGW(MODULE_USB_SERVICE, "user don't agree");
-        return UEC_OK;
+        return UEC_SERVICE_PERMISSION_DENIED;
     }
     return UEC_OK;
 }

@@ -75,10 +75,10 @@ public:
             return nullptr;
         }
         usbAccessory->manufacturer_ = data.ReadString();
-        usbAccessory->product_ = data.ReadInt32();
-        usbAccessory->description_ = data.ReadInt32();
-        usbAccessory->version_ = data.ReadInt32();
-        usbAccessory->serialNumber_ = data.ReadInt32();
+        usbAccessory->product_ = data.ReadString();
+        usbAccessory->description_ = data.ReadString();
+        usbAccessory->version_ = data.ReadString();
+        usbAccessory->serialNumber_ = data.ReadString();
         return usbAccessory;
     }
     static std::string GetStringValue(const cJSON *jsonObject, const char *key)

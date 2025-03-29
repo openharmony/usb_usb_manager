@@ -36,7 +36,7 @@ struct UsbSerialPort : public Parcelable {
         WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Uint8, parcel, this->devAddr_);
         WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->vid_);
         WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(Int32, parcel, this->pid_);
-        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(String16, parcel, Str8ToStr16(this->serialNum_));
+        WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(String, parcel, this->serialNum_);
         return true;
     }
 
@@ -52,7 +52,7 @@ struct UsbSerialPort : public Parcelable {
         serialPort->devAddr_ = data.ReadUint8();
         serialPort->vid_ = data.ReadInt32();
         serialPort->pid_ = data.ReadInt32();
-        serialPort->serialNum_ = Str16ToStr8(data.ReadString16());
+        serialPort->serialNum_ = data.ReadString();
         return serialPort;
     }
 };
@@ -82,7 +82,7 @@ struct UsbSerialAttr : public Parcelable {
         usbSerialAttr->baudRate_ = data.ReadUint32();
         usbSerialAttr->stopBits_ = data.ReadUint8();
         usbSerialAttr->parity_ = data.ReadUint8();
-        usbSerialAttr->dataBits_ = data.ReadInt32();
+        usbSerialAttr->dataBits_ = data.ReadUint8();
         return usbSerialAttr;
     }
 };
