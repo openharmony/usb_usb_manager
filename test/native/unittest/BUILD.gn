@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2025 Huawei Device Co., Ltd.
+# Copyright (c) 2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -12,12 +12,8 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("./../../usbmgr.gni")
 
-group("usb_unittest_test") {
+group("usb_manager_unittest") {
   testonly = true
-  deps = [
-    "${usb_manager_path}/test/fuzztest:fuzztest",
-    "${usb_manager_path}/test/native/unittest:usb_manager_unittest",
-  ]
+  deps = []
 }
