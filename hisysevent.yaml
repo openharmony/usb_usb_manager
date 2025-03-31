@@ -46,7 +46,7 @@ PORT_ROLE_CHANGED:
 
 USB_MANAGE_TRANSFOR_FAULT:
   __BASE: {type: FAULT, level: CRITICAL, tag: UsbManager, desc: Usb Transfor interface happen fault}
-  INTFACE_NAME: {type: STRING, desc: interface name, bulkread, bulkwrite, interruptread,interruptwrite,isowrite,isoread}
+  INTFACE_NAME: {type: STRING, desc: interface name}
   VENDOR_ID: {type: INT32, desc: vendor id}
   PRODUCT_ID: {type: INT32, desc: product id}
   INTERFACE_CLASS: {type: INT32, desc: interface class}
