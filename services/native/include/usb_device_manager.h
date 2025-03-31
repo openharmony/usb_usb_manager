@@ -70,6 +70,8 @@ private:
     void ProcessFunctionNotifier(bool connected, int32_t func);
     void DumpGetSupportFunc(int32_t fd);
     void DumpSetFunc(int32_t fd, const std::string &args);
+    void ReportUsbOperationFaultSysEvent(const std::string &operationType, int32_t failReason,
+        const std::string &failDescription);
     void ReportFuncChangeSysEvent(int32_t currentFunctions, int32_t updateFunctions);
     void ReportDevicePlugSysEvent(int32_t currentFunctions, bool connected);
     void ProcessFuncChange(bool connected, int32_t currentFunc, bool isDisableDialog = false);

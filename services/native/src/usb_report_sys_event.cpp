@@ -16,6 +16,11 @@
 #include "usb_report_sys_event.h"
 
 #include "hilog_wrapper.h"
+#include "usb_config.h"
+#include "usb_interface.h"
+#include "usb_device.h"
+#include "usb_host_manager.h"
+#include "usb_endpoint.h"
 #include "usb_errors.h"
 #include "hisysevent.h"
 
@@ -23,16 +28,92 @@ using namespace OHOS::HiviewDFX;
 
 namespace OHOS {
 namespace USB {
+constexpr int32_t ERR_CODE_TIMEOUT = -7;
+
 void UsbReportSysEvent::ReportTransforFaultSysEvent(const std::string interfaceName,
-    const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe, int32_t ret)
+    const HDI::Usb::V1_0::UsbDev &tmpDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe,
+    int32_t ret, const std::string description, MAP_STR_DEVICE &devices)
 {
+    UsbInterface itIF;
+    UsbDevice dev;
     USB_HILOGI(MODULE_USBD, "report transfor fault sys event");
-    int32_t hiRet = HiSysEventWrite(HiSysEvent::Domain::USB, "USB_MANAGE_TRANSFOR_FAULT",
-        HiSysEvent::EventType::FAULT, "INTFACE_NAME", interfaceName, "BUS_NUM", dev.busNum, "DEV_ADDR", dev.devAddr,
-        "INFT_ID", pipe.intfId, "ENDPOINT_ID", pipe.endpointId, "FAIL_REASON", ret);
-    if (hiRet != UEC_OK) {
-        USB_HILOGI(MODULE_USBD, "HiSysEventWrite ret: %{public}d", hiRet);
+    if (!GetUsbInterfaceId(tmpDev, tmpPipe, tmpPipe.intfId, devices, itIF, dev)) {
+        USB_HILOGE(MODULE_SERVICE, "GetUsbConfigs failed");
+        return;
     }
+    int32_t hiRet = HiSysEventWrite(HiSysEvent::Domain::USB, "USB_MANAGE_TRANSFOR_FAULT",
+        HiSysEvent::EventType::FAULT, "INTFACE_NAME", interfaceName,
+        "VENDOR_ID", dev.GetVendorId(), "PRODUCT_ID", dev.GetProductId(),
+        "INTERFACE_CLASS", itIF.GetClass(), "INTERFACE_SUBCLASS", itIF.GetSubClass(),
+        "INTERFACE_PROTOCOL", itIF.GetProtocol(),
+        "INFT_ID", tmpPipe.intfId, "ENDPOINT_ID", tmpPipe.endpointId,
+        "FAIL_REASON", ret, "FAIL_DESCRIPTION", description);
+    if (hiRet != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "HiSysEventWrite ret: %{public}d", hiRet);
+    }
+}
+
+void UsbReportSysEvent::CheckAttributeReportTransforFaultSysEvent(const std::string interfaceName,
+    const HDI::Usb::V1_0::UsbDev &tmpDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe, const USBEndpoint &ep,
+    int32_t ret, const std::string description, MAP_STR_DEVICE &devices)
+{
+    UsbInterface itIF;
+    UsbDevice dev;
+    USB_HILOGI(MODULE_USBD, "report transfor fault sys event");
+    if (ep.GetAttributes() != 0x03 || ret != ERR_CODE_TIMEOUT) {
+        USB_HILOGE(MODULE_SERVICE, "GetUsbConfigs failed");
+        return;
+    }
+    if (!GetUsbInterfaceId(tmpDev, tmpPipe, tmpPipe.intfId, devices, itIF, dev)) {
+        USB_HILOGE(MODULE_SERVICE, "GetUsbConfigs failed");
+        return;
+    }
+    int32_t hiRet = HiSysEventWrite(HiSysEvent::Domain::USB, "USB_MANAGE_TRANSFOR_FAULT",
+        HiSysEvent::EventType::FAULT, "INTFACE_NAME", interfaceName,
+        "VENDOR_ID", dev.GetVendorId(), "PRODUCT_ID", dev.GetProductId(),
+        "INTERFACE_CLASS", itIF.GetClass(), "INTERFACE_SUBCLASS", itIF.GetSubClass(),
+        "INTERFACE_PROTOCOL", itIF.GetProtocol(),
+        "INFT_ID", tmpPipe.intfId, "ENDPOINT_ID", tmpPipe.endpointId,
+        "FAIL_REASON", ret, "FAIL_DESCRIPTION", description);
+    if (hiRet != UEC_OK) {
+        USB_HILOGE(MODULE_USBD, "HiSysEventWrite ret: %{public}d", hiRet);
+    }
+}
+
+bool UsbReportSysEvent::GetUsbInterfaceId(const HDI::Usb::V1_0::UsbDev &tmpDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe,
+    int32_t interfaceId, MAP_STR_DEVICE &devices, UsbInterface &itIF, UsbDevice &dev)
+{
+    std::string name = std::to_string(tmpDev.busNum) + "-" + std::to_string(tmpDev.devAddr);
+    MAP_STR_DEVICE::iterator iter = devices.find(name);
+    if (iter == devices.end()) {
+        USB_HILOGE(MODULE_SERVICE, "name:%{public}s bus:%{public}hhu dev:%{public}hhu not exist", name.c_str(),
+            tmpDev.busNum, tmpDev.devAddr);
+        return false;
+    }
+    if (iter->second == nullptr) {
+        USB_HILOGE(MODULE_SERVICE, "%{public}s: %{public}s device is nullptr.", __func__, name.c_str());
+        return false;
+    }
+    dev = *(iter->second);
+
+    if (tmpPipe.intfId == 0 && tmpPipe.endpointId == 0) {
+        itIF.SetClass(dev.GetClass());
+        itIF.SetSubClass(dev.GetSubclass());
+        itIF.SetProtocol(dev.GetProtocol());
+        return true;
+    }
+
+    auto configs = dev.GetConfigs();
+    for (auto &config : configs) {
+        std::vector<UsbInterface> interfaces = config.GetInterfaces();
+        for (auto &interface : interfaces) {
+            if (interface.GetId() == interfaceId) {
+                itIF = interface;
+                return true;
+            }
+        }
+    }
+    return false;
 }
 } // OHOS
 } // USB
