@@ -155,6 +155,7 @@ int32_t UsbDeviceManager::SetCurrentFunctions(int32_t funcs)
     std::lock_guard<std::mutex> guard(functionMutex_);
     if (usbDeviceInterface_->GetCurrentFunctions(lastFunc) != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::get current functions fail");
+        ReportUsbOperationFaultSysEvent("FUNCTION_CHANGED", UEC_SERVICE_INVALID_VALUE, "DevIntfGetFunc is failed");
         return UEC_SERVICE_INVALID_VALUE;
     }
     if (lastFunc == funcs) {
@@ -164,6 +165,7 @@ int32_t UsbDeviceManager::SetCurrentFunctions(int32_t funcs)
     int32_t ret = usbDeviceInterface_->SetCurrentFunctions(funcs);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::usbDeviceInterface_ set function error");
+        ReportUsbOperationFaultSysEvent("FUNCTION_CHANGED", ret, "DevIntfSetFunc is failed");
         if (ret == HDF_ERR_NOT_SUPPORT) {
             return UEC_SERVICE_FUNCTION_NOT_SUPPORT;
         }
@@ -673,6 +675,15 @@ void UsbDeviceManager::Dump(int32_t fd, const std::vector<std::string> &args)
         dprintf(fd, "func param error, please enter again\n");
         GetDumpHelp(fd);
     }
+}
+
+void UsbDeviceManager::ReportUsbOperationFaultSysEvent(const std::string &operationType, int32_t failReason,
+    const std::string &failDescription)
+{
+    HiSysEventWrite(HiSysEvent::Domain::USB, "OPERATION_FAULT",
+        HiSysEvent::EventType::FAULT, "OPERATION_TYPE_NAME", operationType,
+        "FAIL_REASON", failReason,
+        "FAIL_DESCRIPTION", failDescription);
 }
 
 void UsbDeviceManager::ReportFuncChangeSysEvent(int32_t currentFunctions, int32_t updateFunctions)

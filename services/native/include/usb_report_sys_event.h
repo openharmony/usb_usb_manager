@@ -18,14 +18,24 @@
 
 #include <string>
 #include "v1_0/usb_types.h"
+#include "usb_interface.h"
+#include "usb_device.h"
+#include "usb_host_manager.h"
+#include "usb_endpoint.h"
 
 namespace OHOS {
 namespace USB {
-
+typedef std::map<std::string, UsbDevice *> MAP_STR_DEVICE;
 class UsbReportSysEvent {
 public:
     static void ReportTransforFaultSysEvent(const std::string interfaceName,
-        const HDI::Usb::V1_0::UsbDev &dev, const HDI::Usb::V1_0::UsbPipe &pipe, int32_t ret);
+        const HDI::Usb::V1_0::UsbDev &tmpDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe,
+        int32_t ret, const std::string description, MAP_STR_DEVICE &devices);
+    static void CheckAttributeReportTransforFaultSysEvent(const std::string interfaceName,
+        const HDI::Usb::V1_0::UsbDev &tmpDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe, const USBEndpoint &ep,
+        int32_t ret, const std::string description, MAP_STR_DEVICE &devices);
+    static bool GetUsbInterfaceId(const HDI::Usb::V1_0::UsbDev &tmpDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe,
+        int32_t interfaceId, MAP_STR_DEVICE &devices, UsbInterface &itIF, UsbDevice &dev);
 };
 
 } // namespace USB

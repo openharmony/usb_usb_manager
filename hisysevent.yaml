@@ -47,11 +47,15 @@ PORT_ROLE_CHANGED:
 USB_MANAGE_TRANSFOR_FAULT:
   __BASE: {type: FAULT, level: CRITICAL, tag: UsbManager, desc: Usb Transfor interface happen fault}
   INTFACE_NAME: {type: STRING, desc: interface name}
-  BUS_NUM: {type: INT32, desc: bus num}
-  DEV_ADDR: {type: INT32, desc: dev addr}
+  VENDOR_ID: {type: INT32, desc: vendor id}
+  PRODUCT_ID: {type: INT32, desc: product id}
+  INTERFACE_CLASS: {type: INT32, desc: interface class}
+  INTERFACE_SUBCLASS: {type: INT32, desc: interface subclass}
+  INTERFACE_PROTOCOL: {type: INT32, desc: interface protocol}
   INFT_ID: {type: INT32, desc: interface id}
   ENDPOINTT_ID: {type: INT32, desc: endpoint id}
   FAIL_REASON: {type: INT32, desc: fail reason}
+  FAIL_DESCRIPTION: {type: STRING, desc: the failed reason description}
 
 SERIAL_OPERATION:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: UsbManager, desc: the behavior of the usb serial}
