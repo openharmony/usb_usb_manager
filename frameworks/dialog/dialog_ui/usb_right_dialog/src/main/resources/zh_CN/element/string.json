@@ -132,17 +132,15 @@
         },
         {
             "name":"USB_func_reverse_charge",
-            "value":"反向充电",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"反向充电"
         },
         {
             "name":"USB_charge_connected_device",
-            "value":"为已连接设备供电",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"为已连接设备供电"
+        },
+        {
+            "name":"USB_func_charge_connected_notifier",
+            "value":"正在向已连接设备供电"
         }
     ]
 }
