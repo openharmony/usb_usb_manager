@@ -171,7 +171,7 @@
         },
         {
             "name":"USB_func_charge_connected_notifier",
-            "value":"Supplying power to a connected device."
+            "value":"Supplying power to the connected device over USB"
         }
     ]
 }
