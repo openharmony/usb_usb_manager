@@ -301,6 +301,33 @@ void SerialManager::SerialPortListDump(int32_t fd, const std::vector<std::string
     }
 }
 
+bool SerialManager::CheckDataAndProcessPortId(int32_t fd, const std::vector<std::string>& args,
+    OHOS::HDI::Usb::Serial::V1_0::SerialAttribute attribute)
+{
+    if (!args.empty() && !std::regex_match(args[1], std::regex("^[0-9]+$"))) {
+        dprintf(fd, "Invalid input, please enter a valid integer\n");
+        return false;
+    }
+    int32_t portId = std::stoi(args[1]);
+    int32_t ret = SerialGetAttribute(portId, attribute);
+    if (ret != UEC_OK) {
+        ret = SerialOpen(portId);
+        if (ret != UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "SerialOpen failed");
+            dprintf(fd, "Port %zu: port does not exist\n", portId);
+            return false;
+        }
+        ret = SerialGetAttribute(portId, attribute);
+        if (ret != UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "SerialGetAttribute failed");
+        }
+        SerialClose(portId);
+    }
+    dprintf(fd, "Port %zu: baudrate: %zu stopBits:%zu parity:%zu dataBits:%zu\n",
+        portId, attribute.baudrate, attribute.stopBits, attribute.parity, attribute.dataBits);
+    return true;
+}
+
 void SerialManager::SerialGetAttributeDump(int32_t fd, const std::vector<std::string>& args)
 {
     size_t size = args.size();
@@ -329,23 +356,10 @@ void SerialManager::SerialGetAttributeDump(int32_t fd, const std::vector<std::st
                 i, attribute.baudrate, attribute.stopBits, attribute.parity, attribute.dataBits);
         }
     } else if (size == DUMP_PARAMS_NUM_2) {
-        int32_t portId = std::stoi(args[1]);
-        int32_t ret = SerialGetAttribute(portId, attribute);
-        if (ret != UEC_OK) {
-            ret = SerialOpen(portId);
-            if (ret != UEC_OK) {
-                USB_HILOGE(MODULE_USB_SERVICE, "SerialOpen failed");
-                dprintf(fd, "Port %zu: port does not exist\n", portId);
-                return;
-            }
-            ret = SerialGetAttribute(portId, attribute);
-            if (ret != UEC_OK) {
-                USB_HILOGE(MODULE_USB_SERVICE, "SerialGetAttribute failed");
-            }
-            SerialClose(portId);
+        if (!CheckDataAndProcessPortId(fd, args, attribute)) {
+            USB_HILOGE(MODULE_USB_SERVICE, "CheckDataAndProcessPortId failed");
+            return;
         }
-        dprintf(fd, "Port %zu: baudrate: %zu stopBits:%zu parity:%zu dataBits:%zu\n",
-            portId, attribute.baudrate, attribute.stopBits, attribute.parity, attribute.dataBits);
     } else {
         ListGetDumpHelp(fd);
     }

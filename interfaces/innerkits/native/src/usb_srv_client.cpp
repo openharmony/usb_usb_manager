@@ -261,7 +261,7 @@ int32_t UsbSrvClient::ControlTransfer(
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
     UsbCtlSetUp ctlSetup;
     UsbCtrlTransferChange(ctrl, ctlSetup);
-    if ((ctlSetup.reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_IN) {
+    if ((static_cast<uint32_t>(ctlSetup.reqType) & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_IN) {
         bufferData.clear();
     }
     int32_t ret = proxy_->ControlTransfer(pipe.GetBusNum(), pipe.GetDevAddr(), ctlSetup, bufferData);
@@ -289,7 +289,7 @@ int32_t UsbSrvClient::UsbControlTransfer(USBDevicePipe &pipe, const HDI::Usb::V1
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
     UsbCtlSetUp ctlSetup;
     UsbCtrlTransferChange(ctrlParams, ctlSetup);
-    if ((ctlSetup.reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_IN) {
+    if ((static_cast<uint32_t>(ctlSetup.reqType) & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_IN) {
         bufferData.clear();
     }
     int32_t ret = proxy_->UsbControlTransfer(pipe.GetBusNum(), pipe.GetDevAddr(), ctlSetup, bufferData);

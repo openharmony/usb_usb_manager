@@ -1649,7 +1649,7 @@ int32_t UsbService::UsbFunctionsFromString(const std::string &funcs, int32_t &fu
         return UEC_OK;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "calling UsbFunctionsFromString");
-    funcResult = UsbDeviceManager::ConvertFromString(funcs);
+    funcResult = static_cast<int32_t>(UsbDeviceManager::ConvertFromString(funcs));
     return UEC_OK;
 }
 // LCOV_EXCL_STOP
