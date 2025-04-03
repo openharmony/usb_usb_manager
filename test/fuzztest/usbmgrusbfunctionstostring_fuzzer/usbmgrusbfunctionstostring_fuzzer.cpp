@@ -26,6 +26,9 @@ namespace OHOS {
 namespace USB {
     bool UsbMgrUsbFunctionsToStringFuzzTest(const uint8_t* data, size_t /* size */)
     {
+        if (data == nullptr || size < sizeof(int32_t)) {
+            return false;
+        }
         auto &usbSrvClient = UsbSrvClient::GetInstance();
         int32_t func = *reinterpret_cast<const int32_t *>(data);
         if (func <= MAX_FUNC_NUM) {

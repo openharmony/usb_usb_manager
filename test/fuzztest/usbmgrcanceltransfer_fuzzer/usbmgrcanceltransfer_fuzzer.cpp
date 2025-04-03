@@ -39,9 +39,9 @@ namespace USB {
             (ptr[NUM_TWO] << BITS_PER_BYTE) | (ptr[NUM_THREE]);
     }
 
-    bool UsbMgrCancelTransferFuzzTest(const uint8_t* data, size_t /* size */)
+    bool UsbMgrCancelTransferFuzzTest(const uint8_t* data, size_t size)
     {
-        if (data == nullptr) {
+        if (data == nullptr || size < sizeof(int32_t)) {
             return false;
         }
         int32_t endPoint = Convert2Uint32(data);

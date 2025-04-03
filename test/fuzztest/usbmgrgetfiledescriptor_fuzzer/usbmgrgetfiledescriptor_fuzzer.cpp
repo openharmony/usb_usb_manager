@@ -20,8 +20,12 @@
 
 namespace OHOS {
 namespace USB {
-    bool UsbMgrGetFileDescriptorFuzzTest(const uint8_t* data, size_t /* size */)
+    bool UsbMgrGetFileDescriptorFuzzTest(const uint8_t* data, size_t size)
     {
+        if (data == nullptr || size < sizeof(USBDevicePipe)) {
+            USB_HILOGE(MODULE_USB_SERVICE, "data size is insufficient!");
+            return false;
+        }
         std::vector<UsbDevice> devList;
         auto &usbSrvClient = UsbSrvClient::GetInstance();
         auto ret = usbSrvClient.GetDevices(devList);
