@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace USB {
-    bool UsbMgrRequestRightFuzzTest(const uint8_t* data, size_t /* size */)
+    bool UsbMgrRequestRightFuzzTest(const uint8_t* data, size_t size)
     {
         if (data == nullptr || size == 0 || data[size-1] != 0) {
             USB_HILOGE(MODULE_USB_SERVICE, "data size is insufficient!");

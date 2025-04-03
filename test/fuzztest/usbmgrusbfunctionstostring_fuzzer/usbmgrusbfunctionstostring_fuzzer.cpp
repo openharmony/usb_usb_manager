@@ -24,7 +24,7 @@ namespace {
 
 namespace OHOS {
 namespace USB {
-    bool UsbMgrUsbFunctionsToStringFuzzTest(const uint8_t* data, size_t /* size */)
+    bool UsbMgrUsbFunctionsToStringFuzzTest(const uint8_t* data, size_t size)
     {
         if (data == nullptr || size < sizeof(int32_t)) {
             return false;
