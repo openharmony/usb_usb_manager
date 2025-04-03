@@ -470,7 +470,7 @@ static napi_value SerialReadNapi(napi_env env, napi_callback_info info)
     if (napi_create_promise(env, &asyncContext->deferred, &promise)) {
         USB_HILOGE(MODULE_JS_NAPI, "create promise failed!");
         CheckAndThrowOnError(env, false, SERIAL_SERVICE_ABNORMAL, "promise is null");
-	delete asyncContext;
+        delete asyncContext;
         return nullptr;
     }
     asyncContext->portId = portIdValue;
