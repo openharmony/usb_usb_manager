@@ -67,22 +67,6 @@ UsbAccessoryManager::UsbAccessoryManager()
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::Get inteface failed");
     }
 #endif // USB_MANAGER_V2_0
-    uint32_t ret = antiShakeDelayTimer_.Setup();
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "set up antiShakeDelayTimer_ failed %{public}u", ret);
-        return;
-    }
-    ret = accDelayTimer_.Setup();
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "set up accDelayTimer_ failed %{public}u", ret);
-        return;
-    }
-}
-
-UsbAccessoryManager::~UsbAccessoryManager()
-{
-    accDelayTimer_.Shutdown();
-    antiShakeDelayTimer_.Shutdown();
 }
 
 #ifdef USB_MANAGER_V2_0
@@ -253,7 +237,7 @@ int32_t UsbAccessoryManager::ProcessAccessoryStart(int32_t curFunc, int32_t curA
             }
             return;
         };
-        accDelayTimerId_ = accDelayTimer_.Register(task, DELAY_ACC_INTERVAL, true);
+        accDelayTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, DELAY_ACC_INTERVAL, true);
         this->accStatus_ = ACC_CONFIGURING;
     } else {
         USB_HILOGD(MODULE_SERVICE, "curFunc %{public}u curAccStatus:%{public}d not necessary",
@@ -348,14 +332,14 @@ void UsbAccessoryManager::HandleEvent(int32_t status, bool delayProcess)
     std::lock_guard<std::mutex> guard(mutexHandleEvent_);
     eventStatus_ = status;
     if (delayProcess) {
-        antiShakeDelayTimer_.Unregister(antiShakeDelayTimerId_);
+        UsbTimerWrapper::GetInstance()->Unregister(antiShakeDelayTimerId_);
     }
     if ((status == ACT_UPDEVICE || status == ACT_DOWNDEVICE) && delayProcess) {
         auto task = [&]() {
             this->HandleEvent(this->eventStatus_, false);
             return;
         };
-        antiShakeDelayTimerId_ = antiShakeDelayTimer_.Register(task, ANTI_SHAKE_INTERVAL, true);
+        antiShakeDelayTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, ANTI_SHAKE_INTERVAL, true);
         return;
     }
     int32_t curAccStatus = ACC_NONE;
@@ -389,8 +373,7 @@ void UsbAccessoryManager::ProcessHandle(int32_t curAccStatus)
 {
     int32_t ret = UEC_INTERFACE_INVALID_VALUE;
     if ((curAccStatus == ACC_CONFIGURING || curAccStatus == ACC_START)) {
-        accDelayTimer_.Unregister(accDelayTimerId_);
-
+        UsbTimerWrapper::GetInstance()->Unregister(accDelayTimerId_);
         int32_t curFunc = 0;
         ret = GetCurrentFunctions(curFunc);
         if (ret != UEC_OK) {

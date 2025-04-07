@@ -26,6 +26,7 @@
 #include "usb_srv_support.h"
 #include "v1_0/iusb_interface.h"
 #include "v1_0/iusbd_subscriber.h"
+#include "usb_timer_wraper.h"
 #ifdef USB_MANAGER_V2_0
 #include "usb_manager_subscriber.h"
 #include "v2_0/iusb_device_interface.h"
@@ -50,7 +51,6 @@ public:
     int32_t UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSubscriber> &subscriber);
 #endif // USB_MANAGER_V2_0
     UsbDeviceManager();
-    ~UsbDeviceManager();
     int32_t Init();
     static bool IsSettableFunctions(int32_t funcs);
 
@@ -88,7 +88,6 @@ private:
     bool gadgetConnected_ {false};
     bool isDisableDialog_ {false};
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
-    Utils::Timer delayDisconn_ {"delayDisconnTimer"};
     uint32_t delayDisconnTimerId_ {UINT32_MAX};
     std::mutex functionMutex_;
 #ifdef USB_MANAGER_V2_0
