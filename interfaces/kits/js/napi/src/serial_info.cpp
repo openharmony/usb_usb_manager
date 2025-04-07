@@ -47,7 +47,7 @@ const int32_t ARGC_3 = 3;
 
 static UsbSrvClient &g_usbClient = UsbSrvClient::GetInstance();
 
-int32_t ErrorCodeConversion(int32_t value)
+static int32_t ErrorCodeConversion(int32_t value)
 {
     static const std::map<int32_t, int32_t> errorMap = {
         {UEC_SERVICE_PERMISSION_DENIED_SYSAPI, SERIAL_SYSAPI_PERMISSION_DENIED},
@@ -133,7 +133,7 @@ static napi_value SerialGetAttributeNapi(napi_env env, napi_callback_info info)
     return result;
 }
 
-bool ParseSetAttributeInterfaceParams(napi_env env, napi_callback_info info,
+static bool ParseSetAttributeInterfaceParams(napi_env env, napi_callback_info info,
     int32_t& portIdValue, UsbSerialAttr& serialAttribute)
 {
     USB_HILOGI(MODULE_JS_NAPI, "ParseSetAttributeInterfaceParams start");
@@ -190,7 +190,7 @@ static napi_value SerialSetAttributeNapi(napi_env env, napi_callback_info info)
     return nullptr;
 }
 
-bool ParseWriteInterfaceParams(napi_env env, napi_callback_info info,
+static bool ParseWriteInterfaceParams(napi_env env, napi_callback_info info,
     int32_t& portIdValue, napi_value* buffer, uint32_t& timeoutValue)
 {
     USB_HILOGI(MODULE_JS_NAPI, "ParseWriteInterfaceParams start");
@@ -326,6 +326,7 @@ static napi_value SerialWriteNapi(napi_env env, napi_callback_info info)
     if (napi_create_promise(env, &asyncContext->deferred, &promise)) {
         USB_HILOGE(MODULE_JS_NAPI, "create promise failed!");
         CheckAndThrowOnError(env, false, SERIAL_SERVICE_ABNORMAL, "promise is null");
+        delete asyncContext;
         return nullptr;
     }
     asyncContext->portId = portIdValue;
@@ -341,7 +342,7 @@ static napi_value SerialWriteNapi(napi_env env, napi_callback_info info)
     return promise;
 }
 
-bool ParseReadInterfaceParams(napi_env env, napi_callback_info info, int32_t& portIdValue,
+static bool ParseReadInterfaceParams(napi_env env, napi_callback_info info, int32_t& portIdValue,
     napi_value* buffer, uint32_t& timeoutValue)
 {
     size_t argc = ARGC_3;
@@ -723,6 +724,7 @@ static napi_value SerialRequestRightNapi(napi_env env, napi_callback_info info)
     if (napi_create_promise(env, &asyncContext->deferred, &result)) {
         USB_HILOGE(MODULE_JS_NAPI, "create promise failed!");
         CheckAndThrowOnError(env, false, SERIAL_SERVICE_ABNORMAL, "promise is null");
+        delete asyncContext;
         return nullptr;
     }
     napi_value resourceName;

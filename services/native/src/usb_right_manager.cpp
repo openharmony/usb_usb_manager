@@ -19,6 +19,7 @@
 #include <semaphore.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <regex>
 
 #include "ability_manager_client.h"
 #include "accesstoken_kit.h"
@@ -577,7 +578,10 @@ bool UsbRightManager::GetUserAgreementByDiag(const int32_t portId, const SerialD
     USB_HILOGI(MODULE_USB_SERVICE, "GetUserAgreementByDiag start");
     /* There can only be one dialog at a time */
     std::lock_guard<std::mutex> guard(dialogRunning_);
-
+    if (!std::regex_match(tokenId, std::regex("^[0-9]+$"))) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Invalid tokenId");
+        return false;
+    }
     uint32_t mTokenId = static_cast<uint32_t>(std::stoul(tokenId));
     if (!ShowSerialDialog(portId, mTokenId, bundleName, serialDeviceIdentity.busDev)) {
         USB_HILOGE(MODULE_USB_SERVICE, "ShowSerialDialog failed");

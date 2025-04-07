@@ -140,8 +140,6 @@ bool UsbPassIsoVecParcel::Marshalling(Parcel &out) const
         
         usbPassIsoParcel->isoInfo = isoInfoVec.at(index);
         if (!out.WriteParcelable(usbPassIsoParcel)) {
-            delete (usbPassIsoParcel);
-            usbPassIsoParcel = nullptr;
             return false;
         }
     }
