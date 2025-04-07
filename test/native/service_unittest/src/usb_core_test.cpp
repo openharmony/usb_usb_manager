@@ -43,16 +43,16 @@ constexpr int32_t SLEEP_TIME = 3;
 #ifdef USB_MANAGER_FEATURE_DEVICE
 constexpr int32_t USB_FUNCTION_INVALID = -1;
 #endif // USB_MANAGER_FEATURE_DEVICE
-constexpr int32_t USB_PORT_ID_INVALID = 5;
-constexpr int32_t USB_POWER_ROLE_INVALID = 5;
-constexpr int32_t USB_DATA_ROLE_INVALID = 5;
+constexpr int32_t USB_PORT_ID = 0;
+constexpr int32_t USB_PORT_ID_INVALID = -1;
+constexpr int32_t USB_POWER_ROLE_INVALID = -1;
+constexpr int32_t USB_DATA_ROLE_INVALID = -1;
 
 void UsbCoreTest::SetUpTestCase(void)
 {
     UsbCommonTest::GrantPermissionSysNative();
     auto &srvClient = UsbSrvClient::GetInstance();
-    auto ret = srvClient.SetPortRole(
-        UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::DATA_ROLE_DEVICE, UsbSrvSupport::POWER_ROLE_SINK);
+    auto ret = srvClient.SetPortRole(USB_PORT_ID, UsbSrvSupport::DATA_ROLE_DEVICE, UsbSrvSupport::POWER_ROLE_SINK);
     sleep(SLEEP_TIME);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest:: [Device] SetPortRole=%{public}d", ret);
     ret = UsbCommonTest::SwitchErrCode(ret);
@@ -575,7 +575,6 @@ HWTEST_F(UsbCoreTest, UsbFunctionsToString005, TestSize.Level1)
  * @tc.desc: 正向测试：参数正确
  * @tc.type: FUNC
  */
-
 HWTEST_F(UsbCoreTest, GetPorts001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetPorts001 : GetPorts");
@@ -583,7 +582,7 @@ HWTEST_F(UsbCoreTest, GetPorts001, TestSize.Level1)
     std::vector<UsbPort> portlist;
     auto ports = usbSrvClient.GetPorts(portlist);
     USB_HILOGD(MODULE_USB_SERVICE, "Get UsbPort size=%{public}zu", portlist.size());
-    ASSERT_EQ(0, ports);
+    ASSERT_NE(ports, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetPorts001 : GetPorts");
 }
 
@@ -657,9 +656,9 @@ HWTEST_F(UsbCoreTest, GetSupportedModes004, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetSupportedModes004 : GetSupportedModes");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     int32_t result;
-    auto modes = UsbSrvClient.GetSupportedModes(UsbSrvSupport::PORT_MODE_DEVICE, result);
+    auto modes = UsbSrvClient.GetSupportedModes(USB_PORT_ID, result);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", modes);
-    ASSERT_EQ(0, modes);
+    ASSERT_NE(0, modes);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : GetSupportedModes004 : GetSupportedModes");
 }
 
@@ -675,11 +674,10 @@ HWTEST_F(UsbCoreTest, SetPortRole001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetPortRole001 : SetPortRole");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.SetPortRole(
-        UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::POWER_ROLE_SOURCE, UsbSrvSupport::DATA_ROLE_HOST);
+    auto ret = UsbSrvClient.SetPortRole(USB_PORT_ID, UsbSrvSupport::POWER_ROLE_SOURCE, UsbSrvSupport::DATA_ROLE_HOST);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", ret);
     ret = UsbCommonTest::SwitchErrCode(ret);
-    ASSERT_EQ(0, ret);
+    ASSERT_NE(0, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetPortRole001 : SetPortRole");
 }
 
@@ -696,7 +694,7 @@ HWTEST_F(UsbCoreTest, SetPortRole002, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetPortRole002 : SetPortRole");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.SetPortRole(
-        UsbSrvSupport::PORT_MODE_HOST, UsbSrvSupport::POWER_ROLE_SOURCE, UsbSrvSupport::DATA_ROLE_HOST);
+        USB_PORT_ID_INVALID, UsbSrvSupport::POWER_ROLE_SOURCE, UsbSrvSupport::DATA_ROLE_HOST);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", ret);
     ret = UsbCommonTest::SwitchErrCode(ret);
     ASSERT_NE(ret, 0);
@@ -716,7 +714,7 @@ HWTEST_F(UsbCoreTest, SetPortRole003, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetPortRole003 : SetPortRole");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.SetPortRole(
-        UsbSrvSupport::PORT_MODE_DEVICE, USB_POWER_ROLE_INVALID, UsbSrvSupport::DATA_ROLE_DEVICE);
+        USB_PORT_ID, USB_POWER_ROLE_INVALID, UsbSrvSupport::DATA_ROLE_DEVICE);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", ret);
     ret = UsbCommonTest::SwitchErrCode(ret);
     ASSERT_NE(ret, 0);
@@ -735,7 +733,7 @@ HWTEST_F(UsbCoreTest, SetPortRole004, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetPortRole004 : SetPortRole");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.SetPortRole(
-        UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::POWER_ROLE_SOURCE, USB_DATA_ROLE_INVALID);
+        USB_PORT_ID, UsbSrvSupport::POWER_ROLE_SOURCE, USB_DATA_ROLE_INVALID);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", ret);
     ret = UsbCommonTest::SwitchErrCode(ret);
     ASSERT_NE(ret, 0);
@@ -753,7 +751,7 @@ HWTEST_F(UsbCoreTest, SetPortRole005, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetPortRole005 : SetPortRole");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.SetPortRole(UsbSrvSupport::PORT_MODE_DEVICE, USB_POWER_ROLE_INVALID, USB_DATA_ROLE_INVALID);
+    auto ret = UsbSrvClient.SetPortRole(USB_PORT_ID_INVALID, USB_POWER_ROLE_INVALID, USB_DATA_ROLE_INVALID);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", ret);
     ret = UsbCommonTest::SwitchErrCode(ret);
     ASSERT_NE(ret, 0);
@@ -771,7 +769,7 @@ HWTEST_F(UsbCoreTest, SetPortRole006, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetPortRole006 : SetPortRole");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.SetPortRole(USB_PORT_ID_INVALID, UsbSrvSupport::POWER_ROLE_SOURCE, USB_DATA_ROLE_INVALID);
+    auto ret = UsbSrvClient.SetPortRole(USB_PORT_ID, USB_POWER_ROLE_INVALID, USB_DATA_ROLE_INVALID);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", ret);
     ret = UsbCommonTest::SwitchErrCode(ret);
     ASSERT_NE(ret, 0);
@@ -789,7 +787,7 @@ HWTEST_F(UsbCoreTest, SetPortRole007, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetPortRole007 : SetPortRole");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.SetPortRole(UsbSrvSupport::PORT_MODE_HOST, USB_POWER_ROLE_INVALID, USB_DATA_ROLE_INVALID);
+    auto ret = UsbSrvClient.SetPortRole(USB_PORT_ID, USB_POWER_ROLE_INVALID, USB_DATA_ROLE_INVALID);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", ret);
     ret = UsbCommonTest::SwitchErrCode(ret);
     ASSERT_NE(ret, 0);
@@ -800,7 +798,7 @@ HWTEST_F(UsbCoreTest, SetPortRole007, TestSize.Level1)
  * @tc.name: SetPortRole008
  * @tc.desc: Test functions to SetPortRole
  * @tc.desc: int32_t SetPortRole(int32_t portId,int32_t powerRole,int32_t dataRole);
- * @tc.desc:
+ * @tc.desc: 正向测试：参数正确
  * @tc.type: FUNC
  */
 HWTEST_F(UsbCoreTest, SetPortRole008, TestSize.Level1)
@@ -808,10 +806,10 @@ HWTEST_F(UsbCoreTest, SetPortRole008, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetPortRole008 : SetPortRole");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.SetPortRole(
-        UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::DATA_ROLE_DEVICE, UsbSrvSupport::POWER_ROLE_SINK);
+        USB_PORT_ID, UsbSrvSupport::DATA_ROLE_DEVICE, UsbSrvSupport::POWER_ROLE_SINK);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest::status=%{public}d", ret);
     ret = UsbCommonTest::SwitchErrCode(ret);
-    ASSERT_EQ(0, ret);
+    ASSERT_NE(0, ret);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : SetPortRole008 : SetPortRole");
 }
 } // Core

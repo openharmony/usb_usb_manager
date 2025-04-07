@@ -25,13 +25,13 @@ using namespace OHOS;
 using namespace OHOS::USB;
 using namespace OHOS::USB::Common;
 using namespace OHOS::EventFwk;
-static constexpr int32_t DEFAULT_PORT_ID = 1;
-static constexpr int32_t DEFAULT_ROLE_HOST = 1;
-static constexpr int32_t DEFAULT_ROLE_DEVICE = 2;
 static constexpr int32_t MIN_ARG_NUM = 3;
 static constexpr uint32_t CMD_INDEX = 1;
 static constexpr uint32_t PARAM_INDEX = 2;
-static constexpr int32_t HOST_MODE = 2;
+constexpr uint32_t CASE1 = 1;
+constexpr uint32_t CASE2 = 2;
+constexpr int32_t PORT_OK = 0;
+constexpr int32_t PORT_FAILED = -1;
 
 static UsbSrvClient &g_usbClient = UsbSrvClient::GetInstance();
 
@@ -39,8 +39,8 @@ static void PrintHelp()
 {
     printf("2 args\n");
     printf("-p 0: Query Port\n");
-    printf("-p 1: Switch to host\n");
-    printf("-p 2: Switch to device:\n");
+    printf("-p 1: get port supportmode\n");
+    printf("-p 2: set port role\n");
     printf("-f 0: Query function\n");
     printf("-f 1: Switch to function:acm\n");
     printf("-f 2: Switch to function:ecm\n");
@@ -151,11 +151,55 @@ static void GetPortsInfo()
         return;
     }
 
-    if (usbports[0].usbPortStatus.currentMode == HOST_MODE) {
-        printf("get current port %d: host\n", usbports[0].usbPortStatus.currentMode);
-    } else {
-        printf("get current port %d: device\n", usbports[0].usbPortStatus.currentMode);
+    for (auto it : usbports) {
+        printf("portId: %d, supportedModes: %d, currentMode: %d, currentPowerRole: %d, currentDataRole:%d\n",
+            it.id, it.supportedModes, it.usbPortStatus.currentMode,
+            it.usbPortStatus.currentPowerRole, it.usbPortStatus.currentDataRole);
     }
+}
+
+int32_t GetSupportMode(UsbSrvClient &g_usbClient)
+{
+    printf("Please enter the portid:");
+    int portId;
+    std::cin >> portId;
+    int32_t result = 0;
+    int32_t ret = g_usbClient.GetSupportedModes(portId, result);
+    if (ret != PORT_OK) {
+        printf("get SupportMode failed\n");
+        return PORT_FAILED;
+    }
+ 
+    printf("supportMode: %d\n", result);
+    return PORT_OK;
+}
+ 
+int32_t SetPortRole(UsbSrvClient &g_usbClient)
+{
+    int portId;
+    int powerRole;
+    int dataRole;
+ 
+    printf("Please enter the portid:");
+    std::cin >> portId;
+    printf("\n");
+ 
+    printf("Please enter the powerRole:");
+    std::cin >> powerRole;
+    printf("\n");
+ 
+    printf("Please enter the dataRole:");
+    std::cin >> dataRole;
+    printf("\n");
+ 
+    int32_t ret = g_usbClient.SetPortRole(portId, powerRole, dataRole);
+    if (ret != PORT_OK) {
+        printf("set PortRole failed\n");
+        return PORT_FAILED;
+    }
+ 
+    printf("set PortRole success\n");
+    return PORT_OK;
 }
 
 static void PortSwitch(UsbSrvClient &g_usbClient, int32_t mode)
@@ -164,12 +208,11 @@ static void PortSwitch(UsbSrvClient &g_usbClient, int32_t mode)
         case 0:
             GetPortsInfo();
             break;
-        case DEFAULT_ROLE_HOST:
-            g_usbClient.SetPortRole(DEFAULT_PORT_ID, DEFAULT_ROLE_HOST, DEFAULT_ROLE_HOST);
-            GetPortsInfo();
+        case CASE1:
+            GetSupportMode(g_usbClient);
             break;
-        case DEFAULT_ROLE_DEVICE:
-            g_usbClient.SetPortRole(DEFAULT_PORT_ID, DEFAULT_ROLE_DEVICE, DEFAULT_ROLE_DEVICE);
+        case CASE2:
+            SetPortRole(g_usbClient);
             GetPortsInfo();
             break;
         default:

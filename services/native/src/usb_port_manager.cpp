@@ -29,7 +29,9 @@ using namespace OHOS::HDI::Usb::V1_0;
 
 namespace OHOS {
 namespace USB {
+#ifndef USB_MANAGER_V2_0
 constexpr int32_t SUPPORTED_MODES = 3;
+#endif // USB_MANAGER_V2_0
 constexpr int32_t PARAM_COUNT_TWO = 2;
 constexpr int32_t PARAM_COUNT_THR = 3;
 constexpr int32_t DEFAULT_ROLE_HOST = 1;
@@ -147,6 +149,7 @@ int32_t UsbPortManager::SetPortRole(int32_t portId, int32_t powerRole, int32_t d
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::SetPortRole usbPortInterface_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
     return usbPortInterface_->SetPortRole(portId, powerRole, dataRole);
 #else
     if (usbd_ == nullptr) {
@@ -220,39 +223,42 @@ int32_t UsbPortManager::GetSupportedModes(int32_t portId, int32_t &supportedMode
 
 int32_t UsbPortManager::QueryPort()
 {
-    int32_t portId = 0;
-    int32_t powerRole = 0;
-    int32_t dataRole = 0;
-    int32_t mode = 0;
 #ifdef USB_MANAGER_V2_0
     if (usbPortInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::QueryPort usbPortInterface_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    int32_t ret = usbPortInterface_->QueryPort(portId, powerRole, dataRole, mode);
+
+    std::vector<HDI::Usb::V2_0::UsbPort> portList;
+    int32_t ret = usbPortInterface_->QueryPorts(portList);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s QueryPorts failed", __func__);
+        return ret;
+    }
+
+    for (const auto& it : portList) {
+        AddPortInfo(it.id, it.supportedModes,
+            it.usbPortStatus.currentMode, it.usbPortStatus.currentDataRole, it.usbPortStatus.currentPowerRole);
+    }
 #else
     GetIUsbInterface();
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
+    int32_t portId = 0;
+    int32_t powerRole = 0;
+    int32_t dataRole = 0;
+    int32_t mode = 0;
     int32_t ret = usbd_->QueryPort(portId, powerRole, dataRole, mode);
-#endif // USB_MANAGER_V2_0
-    USB_HILOGI(MODULE_USB_SERVICE, "portId:%{public}d powerRole:%{public}d dataRole:%{public}d mode:%{public}d ",
-        portId, powerRole, dataRole, mode);
-    if (ret) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Get().queryPorts failed");
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s QueryPort failed", __func__);
         return ret;
     }
-    UsbPortStatus usbPortStatus;
-    UsbPort usbPort;
-    usbPortStatus.currentMode = mode;
-    usbPortStatus.currentDataRole = dataRole;
-    usbPortStatus.currentPowerRole = powerRole;
-    usbPort.id = portId;
-    usbPort.supportedModes = SUPPORTED_MODES;
-    usbPort.usbPortStatus = usbPortStatus;
-    AddPort(usbPort);
+
+    AddPortInfo(portId, SUPPORTED_MODES, mode, dataRole, powerRole);
+#endif // USB_MANAGER_V2_0
     return ret;
 }
 
@@ -273,6 +279,39 @@ void UsbPortManager::UpdatePort(int32_t portId, int32_t powerRole, int32_t dataR
         }
     }
     USB_HILOGE(MODULE_USB_SERVICE, "updatePort false");
+}
+
+void UsbPortManager::UpdatePort(int32_t portId, int32_t powerRole, int32_t dataRole,
+    int32_t mode, int32_t supportedModes)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::updatePort run");
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = portMap_.find(portId);
+    if (it != portMap_.end()) {
+        if (it->second.id == portId) {
+            ReportPortRoleChangeSysEvent(it->second.usbPortStatus.currentPowerRole, powerRole,
+                it->second.usbPortStatus.currentDataRole, dataRole);
+            it->second.usbPortStatus.currentPowerRole = powerRole;
+            it->second.usbPortStatus.currentDataRole = dataRole;
+            it->second.usbPortStatus.currentMode = mode;
+            it->second.supportedModes = supportedModes;
+            USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::updatePort seccess");
+            return;
+        }
+    }
+    USB_HILOGE(MODULE_USB_SERVICE, "updatePort false");
+}
+
+void UsbPortManager::AddPortInfo(int32_t portId, int32_t supportedModes,
+    int32_t currentMode, int32_t currentDataRole, int32_t currentPowerRole)
+{
+    UsbPort usbPort;
+    usbPort.id = portId;
+    usbPort.supportedModes = supportedModes;
+    usbPort.usbPortStatus.currentMode = currentMode;
+    usbPort.usbPortStatus.currentDataRole = currentDataRole;
+    usbPort.usbPortStatus.currentPowerRole = currentPowerRole;
+    AddPort(usbPort);
 }
 
 void UsbPortManager::AddPort(UsbPort &port)

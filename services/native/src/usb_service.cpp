@@ -2038,6 +2038,17 @@ void UsbService::UpdateUsbPort(int32_t portId, int32_t powerRole, int32_t dataRo
 
     usbPortManager_->UpdatePort(portId, powerRole, dataRole, mode);
 }
+
+void UsbService::UpdateUsbPort(int32_t portId, int32_t powerRole,
+    int32_t dataRole, int32_t mode, int32_t supportedModes)
+{
+    if (usbPortManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid usbPortManager_");
+        return;
+    }
+
+    usbPortManager_->UpdatePort(portId, powerRole, dataRole, mode, supportedModes);
+}
 // LCOV_EXCL_STOP
 #endif // USB_MANAGER_FEATURE_PORT
 

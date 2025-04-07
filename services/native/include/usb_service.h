@@ -179,6 +179,7 @@ public:
     int32_t GetSupportedModes(int32_t portId, int32_t &result) override;
     int32_t SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole) override;
     void UpdateUsbPort(int32_t portId, int32_t powerRole, int32_t dataRole, int32_t mode);
+    void UpdateUsbPort(int32_t portId, int32_t powerRole, int32_t dataRole, int32_t mode, int32_t supportedModes);
 #endif // USB_MANAGER_FEATURE_PORT
 
     int32_t SerialOpen(int32_t portId, const sptr<IRemoteObject> &serialRemote) override;

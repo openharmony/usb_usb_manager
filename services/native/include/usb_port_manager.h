@@ -50,9 +50,9 @@ public:
     int32_t SetUsbd(const sptr<HDI::Usb::V1_0::IUsbInterface> &usbd);
     int32_t GetPorts(std::vector<UsbPort> &ports);
     int32_t GetSupportedModes(int32_t portId, int32_t &supportedModes);
-    void SetPortRoles(int32_t portId, int32_t powerRole, int32_t dataRole);
     int32_t QueryPort();
     void UpdatePort(int32_t portId, int32_t powerRole, int32_t dataRole, int32_t mode);
+    void UpdatePort(int32_t portId, int32_t powerRole, int32_t dataRole, int32_t mode, int32_t supportedModes);
     void AddPort(UsbPort &port);
     void RemovePort(int32_t portId);
     void GetDumpHelp(int32_t fd);
@@ -66,6 +66,8 @@ private:
     void DumpSetPortRoles(int32_t fd, const std::string &args);
     void ReportPortRoleChangeSysEvent(
         int32_t currentPowerRole, int32_t updatePowerRole, int32_t currentDataRole, int32_t updateDataRole);
+    void AddPortInfo(int32_t portId, int32_t supportedModes,
+        int32_t currentMode, int32_t currentDataRole, int32_t currentPowerRole);
     std::mutex mutex_;
     std::map<int32_t, UsbPort> portMap_;
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
