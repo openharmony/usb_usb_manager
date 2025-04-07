@@ -78,9 +78,9 @@ namespace USB {
         return true;
     }
 
-    bool UsbMgrSubmitTransferFuzzTest(const uint8_t *data, size_t /* size */)
+    bool UsbMgrSubmitTransferFuzzTest(const uint8_t *data, size_t size)
     {
-        if (data == nullptr) {
+        if (data == nullptr || size < sizeof(uint32_t)) {
             USB_HILOGE(MODULE_USB_SERVICE, "data is null");
             return false;
         }

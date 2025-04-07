@@ -53,8 +53,12 @@ namespace USB {
         return asmptr;
     }
 
-    bool UsbMgrBulkCancelFuzzTest(const uint8_t* data, size_t /* size */)
+    bool UsbMgrBulkCancelFuzzTest(const uint8_t* data, size_t size)
     {
+        if (data == nullptr || size < sizeof(USBDevicePipe) || size < OFFSET + sizeof(USBEndpoint)) {
+            USB_HILOGE(MODULE_USB_SERVICE, "data size is insufficient!");
+            return false;
+        }
         auto[res, pipe, interface] = UsbMgrPrepareFuzzEnv();
         if (!res) {
             USB_HILOGE(MODULE_USB_SERVICE, "prepare error");

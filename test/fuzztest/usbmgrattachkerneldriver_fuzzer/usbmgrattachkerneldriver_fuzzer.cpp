@@ -79,6 +79,9 @@ bool DoSomethingInterestingWithMyAPI(const uint8_t *rawData, size_t size)
 {
     uint32_t code = static_cast<uint32_t>(UsbInterfaceCode::USB_FUN_ATTACH_KERNEL_DRIVER);
 
+    if (rawData == nullptr || size < OFFSET) {
+        return false;
+    }
     rawData = rawData + OFFSET;
     size = size - OFFSET;
 

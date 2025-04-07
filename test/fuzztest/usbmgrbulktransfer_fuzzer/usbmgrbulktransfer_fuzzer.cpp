@@ -23,8 +23,12 @@ const uint32_t OFFSET = 4;
 const uint32_t OFFSET_BYTE = 8;
 constexpr size_t THRESHOLD = 10;
 namespace USB {
-    bool UsbMgrBulkTransferFuzzTest(const uint8_t* data, size_t /* size */)
+    bool UsbMgrBulkTransferFuzzTest(const uint8_t* data, size_t size)
     {
+        if (data == nullptr || size < sizeof(USBDevicePipe) || size < OFFSET + sizeof(USBEndpoint)) {
+            USB_HILOGE(MODULE_USB_SERVICE, "data size is insufficient!");
+            return false;
+        }
         std::vector<UsbDevice> devList;
         auto &usbSrvClient = UsbSrvClient::GetInstance();
         auto ret = usbSrvClient.GetDevices(devList);

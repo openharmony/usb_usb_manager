@@ -126,7 +126,7 @@ void GrantPermissionNormalNative()
 
 bool DoSomethingInterestingWithMyAPI(const uint8_t *rawData, size_t size)
 {
-    if (rawData == nullptr) {
+    if (rawData == nullptr || size < OFFSET) {
         return false;
     }
     if (g_usbInterfaceCode > USB_INTERFACE_CODE_COUNT) {

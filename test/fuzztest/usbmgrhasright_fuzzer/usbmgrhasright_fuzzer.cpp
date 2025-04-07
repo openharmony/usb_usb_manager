@@ -20,8 +20,11 @@
 
 namespace OHOS {
 namespace USB {
-    bool UsbMgrHasRightFuzzTest(const uint8_t* data, size_t /* size */)
+    bool UsbMgrHasRightFuzzTest(const uint8_t* data, size_t size)
     {
+        if (data == nullptr || size == 0 || data[size-1] != 0) {
+            return false;
+        }
         auto &usbSrvClient = UsbSrvClient::GetInstance();
         std::vector<UsbDevice> devList;
         auto ret = usbSrvClient.GetDevices(devList);
