@@ -28,6 +28,7 @@
 #include "v1_0/iusbd_subscriber.h"
 #include "delayed_sp_singleton.h"
 #include "usb_right_manager.h"
+#include "usb_timer_wraper.h"
 #ifdef USB_MANAGER_V2_0
 #include "v2_0/iusb_device_interface.h"
 #endif // USB_MANAGER_V2_0
@@ -45,7 +46,6 @@ enum ACCESSORYMODE : int32_t {
 class UsbAccessoryManager {
 public:
     UsbAccessoryManager();
-    ~UsbAccessoryManager();
     void HandleEvent(int32_t status, bool delayProcess = true);
     int32_t SetUsbd(const sptr<OHOS::HDI::Usb::V1_2::IUsbInterface> usbd);
     void GetAccessoryList(const std::string &bundleName, std::vector<USBAccessory> &accessoryList);
@@ -74,9 +74,7 @@ private:
     int32_t curDeviceFunc_ = {UsbSrvSupport::FUNCTION_NONE};
     int32_t lastDeviceFunc_ = {UsbSrvSupport::FUNCTION_NONE};
     int32_t accFd_ = {0};
-    Utils::Timer accDelayTimer_ {"accDelayTimer"};
     uint32_t accDelayTimerId_ {UINT32_MAX};
-    Utils::Timer antiShakeDelayTimer_ {"antiShakeDelayTimer"};
     uint32_t antiShakeDelayTimerId_ {UINT32_MAX};
     sptr<HDI::Usb::V1_2::IUsbInterface> usbdImpl_ = nullptr;
     std::map<char, int> base64Map_;

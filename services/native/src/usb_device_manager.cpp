@@ -65,15 +65,6 @@ UsbDeviceManager::UsbDeviceManager()
         USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::Get inteface failed");
     }
 #endif // USB_MANAGER_V2_0
-    auto ret = delayDisconn_.Setup();
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "set up timer failed %{public}u", ret);
-    }
-}
-
-UsbDeviceManager::~UsbDeviceManager()
-{
-    delayDisconn_.Shutdown();
 }
 
 #ifdef USB_MANAGER_V2_0
@@ -348,14 +339,14 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     }
     bool curConnect = false;
     ProcessStatus(status, curConnect);
-    delayDisconn_.Unregister(delayDisconnTimerId_);
+    UsbTimerWrapper::GetInstance()->Unregister(delayDisconnTimerId_);
     if (curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             connected_ = true;
             GetCurrentFunctions(currentFunctions_);
             ProcessFuncChange(connected_, currentFunctions_, isDisableDialog_);
         };
-        delayDisconnTimerId_ = delayDisconn_.Register(task, DELAY_CONNECT_INTERVAL, true);
+        delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, DELAY_CONNECT_INTERVAL, true);
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             USB_HILOGI(MODULE_USB_SERVICE, "execute disconnect task:%{public}d", currentFunctions_);
@@ -375,7 +366,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             ProcessFuncChange(connected_, currentFunctions_);
             return;
         };
-        delayDisconnTimerId_ = delayDisconn_.Register(task, DELAY_DISCONN_INTERVAL, true);
+        delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, DELAY_DISCONN_INTERVAL, true);
     } else {
         USB_HILOGI(MODULE_USB_SERVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
     }
@@ -388,14 +379,14 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     }
     bool curConnect = false;
     ProcessStatus(status, curConnect);
-    delayDisconn_.Unregister(delayDisconnTimerId_);
+    UsbTimerWrapper::GetInstance()->Unregister(delayDisconnTimerId_);
     if (curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             connected_ = true;
             GetCurrentFunctions(currentFunctions_);
             ProcessFuncChange(connected_, currentFunctions_, isDisableDialog_);
         };
-        delayDisconnTimerId_ = delayDisconn_.Register(task, DELAY_CONNECT_INTERVAL, true);
+        delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, DELAY_CONNECT_INTERVAL, true);
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             USB_HILOGI(MODULE_USB_SERVICE, "execute disconnect task:%{public}d", currentFunctions_);
@@ -415,7 +406,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             ProcessFuncChange(connected_, currentFunctions_);
             return;
         };
-        delayDisconnTimerId_ = delayDisconn_.Register(task, DELAY_DISCONN_INTERVAL, true);
+        delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, DELAY_DISCONN_INTERVAL, true);
     } else {
         USB_HILOGI(MODULE_USB_SERVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
     }
