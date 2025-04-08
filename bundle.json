@@ -21,8 +21,8 @@
             "usb_manager_feature_port"
         ],
         "syscap": [
-            "SystemCapability.USB.USBManager",
-            "SystemCapability.USB.USBManager.Serial"
+            "SystemCapability.USB.USBManager.Serial",            
+            "SystemCapability.USB.USBManager"
         ],
         "hisysevent_config": [
             "//base/usb/usb_manager/hisysevent.yaml"
