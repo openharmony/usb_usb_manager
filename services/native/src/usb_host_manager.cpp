@@ -111,6 +111,7 @@ UsbHostManager::UsbHostManager(SystemAbility *systemAbility)
     usbRightManager_ = std::make_shared<UsbRightManager>();
 #ifndef USB_MANAGER_PASS_THROUGH
     usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:Get usbd_", __func__);
 #endif // USB_MANAGER_PASS_THROUGH
 }
 

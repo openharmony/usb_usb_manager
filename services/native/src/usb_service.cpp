@@ -93,6 +93,7 @@ UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
 #ifndef USB_MANAGER_PASS_THROUGH
     if (usbd_ == nullptr) {
         usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:Get usbd_", __func__);
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
     }
@@ -111,6 +112,7 @@ int32_t UsbService::SetUsbd(const sptr<OHOS::HDI::Usb::V1_2::IUsbInterface> &usb
     }
     if (usbd_ == nullptr) {
         usbd_ = usbd;
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:usbd_ = usbd", __func__);
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
     }
@@ -210,6 +212,7 @@ void UsbService::SystemAbilityStatusChangeListener::OnRemoveSystemAbility(
     USB_HILOGI(MODULE_USB_SERVICE, "OnRemoveSystemAbility ID = %{public}d", systemAbilityId);
     if (systemAbilityId == USB_SYSTEM_ABILITY_ID) {
         sptr<OHOS::HDI::Usb::V1_2::IUsbInterface> usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:Get usbd_", __func__);
         if (usbd_ != nullptr) {
             usbd_->UnbindUsbdSubscriber(usbdSubscriber_);
         }
@@ -354,6 +357,7 @@ bool UsbService::InitUsbd()
 #else
     if (usbd_ == nullptr) {
         usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:Get usbd_", __func__);
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
     }
@@ -1554,6 +1558,7 @@ int32_t UsbService::PreCallFunction()
 #else
     if (usbd_ == nullptr) {
         usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:Get usbd_", __func__);
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
     }
