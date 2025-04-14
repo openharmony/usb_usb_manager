@@ -58,6 +58,7 @@ UsbDeviceManager::UsbDeviceManager()
 #ifndef USB_MANAGER_V2_0
     if (usbd_ == nullptr) {
         usbd_ = IUsbInterface::Get();
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:usbd_ == nullptr", __func__);
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
     }
