@@ -151,6 +151,29 @@ ohos_fuzztest("UsbMgrSetPortRoleFuzzTest") {
   sources = [ "usbmgrsetportrole_fuzzer/usbmgrsetportrole_fuzzer.cpp" ]
 }
 
+ohos_fuzztest("UsbMgrGetPortsFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrgetports_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources = [ "usbmgrgetports_fuzzer/usbmgrgetports_fuzzer.cpp" ]
+}
+
 ohos_fuzztest("UsbMgrSetCurrentFunctionsFuzzTest") {
   module_out_path = module_output_path
 
@@ -1411,6 +1434,7 @@ group("fuzztest") {
     deps += [
       ":UsbMgrGetSupportedModesFuzzTest",
       ":UsbMgrSetPortRoleFuzzTest",
+      ":UsbMgrGetPortsFuzzTest",
     ]
   }
 }
