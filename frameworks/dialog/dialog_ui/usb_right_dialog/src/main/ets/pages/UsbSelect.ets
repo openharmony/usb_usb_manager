@@ -50,9 +50,11 @@ struct SimpleContacts {
   @State index: number = USBSERVICESWITCH_ID_CHARGE_ONLY;
   private contacts: Array<Contact> = []
   private timeout: number | undefined = 0;
+  @State isSetFuncHere: boolean = false;
 
   onPageHide() {
     console.info('IndexComponent onPageHide');
+    this.isSetFuncHere = false;
     if (!this.setFuncFinished) {
         usbServiceSwitch.serviceChoose(this.index);
     }
@@ -109,6 +111,10 @@ struct SimpleContacts {
             let context = getContext(this) as common.ServiceExtensionContext;
             context?.terminateSelf();
           } else {
+            if (this.isSetFuncHere) {
+                console.info('return because isSetFuncHere is ' + this.isSetFuncHere);
+                return;
+            }
             if (data.parameters?.mtp !== undefined && data.parameters?.mtp === true) {
               this.index = USBSERVICESWITCH_ID_XFER_FILE;
             } else if (data.parameters?.ptp !== undefined && data.parameters?.ptp === true) {
@@ -247,6 +253,7 @@ struct SimpleContacts {
     }
     this.timeout = setTimeout(() => {
       console.log('serviceChoose start')
+      this.isSetFuncHere = true;
       usbServiceSwitch.serviceChoose(choose);
       console.log('serviceChoose end')
       this.setFuncFinished = true;
