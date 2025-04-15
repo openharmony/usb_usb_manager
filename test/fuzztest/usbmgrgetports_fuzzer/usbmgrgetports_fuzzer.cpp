@@ -21,7 +21,7 @@ namespace OHOS {
         bool UsbMgrGetPortsFuzzTest(const uint8_t* data, size_t size)
         {
             unsigned seed = 0;
-            if (size >= sizeof(unsigned {
+            if (size >= sizeof(unsigned)) {
                 errno_t ret = memcpy_s(&seed, sizeof(unsigned), data, sizeof(unsigned));
                 if (ret != UEC_OK) {
                     return false;
