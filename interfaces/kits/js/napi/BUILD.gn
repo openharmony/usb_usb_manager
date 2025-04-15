@@ -73,9 +73,9 @@ ohos_shared_library("usbmanager") {
     defines += [ "USB_MANAGER_FEATURE_PORT" ]
   }
 
-  public_external_deps = [ "cJSON:cjson" ]
   external_deps = [
     "bounds_checking_function:libsec_shared",
+    "cJSON:cjson",
     "c_utils:utils",
     "drivers_interface_usb:usb_idl_headers_1.2",
     "hilog:libhilog",
