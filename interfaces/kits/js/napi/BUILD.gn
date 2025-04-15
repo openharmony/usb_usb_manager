@@ -126,6 +126,7 @@ ohos_shared_library("serial") {
   ]
 
   relative_install_dir = "module/usbmanager"
+  version_script = "usbmanager.versionscript"
 
   subsystem_name = "usb"
   part_name = "usb_manager"
