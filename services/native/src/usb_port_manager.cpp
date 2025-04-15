@@ -225,9 +225,9 @@ int32_t UsbPortManager::GetSupportedModes(int32_t portId, int32_t &supportedMode
 {
     std::lock_guard<std::mutex> lock(mutex_);
     auto it = supportedModeMap_.find(portId);
-    if (it supportedModeMap_.end()) {
+    if (it != supportedModeMap_.end()) {
         supportedModes = it->second;
-        USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::GetSupportedModes port=%{publicd modes=%{public}d",
+        USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::GetSupportedModes port=%{public}d modes=%{public}d",
                    portId, supportedModes);
         return UEC_OK;
     }
