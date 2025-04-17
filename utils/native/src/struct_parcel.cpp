@@ -163,6 +163,8 @@ UsbPassIsoVecParcel *UsbPassIsoVecParcel::Unmarshalling(Parcel &in)
     for (uint32_t index = 0; index < vecSize; index++) {
         sptr<UsbPassIsoParcel> usbPassIsoParcel = in.ReadParcelable<UsbPassIsoParcel>();
         if (usbPassIsoParcel == nullptr) {
+            delete (usbPassIsoVecParcel);
+            usbPassIsoVecParcel = nullptr;
             return nullptr;
         }
         usbPassIsoVecParcel->isoInfoVec.emplace_back(usbPassIsoParcel->isoInfo);
