@@ -401,7 +401,7 @@ static napi_value SerialReadSyncNapi(napi_env env, napi_callback_info info)
     ret = memcpy_s(bufferValue, bufferLength, bufferData.data(), bufferData.size());
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_JS_NAPI,
-            "serial read sync, memcpy_s failed size: %{public}u, bufferSize: %{public}u, ret: %{public}d",
+            "serial read sync, memcpy_s failed size: %{public}zu, bufferSize: %{public}zu, ret: %{public}d",
             bufferLength, bufferData.size(), ret);
     }
     napi_value result = nullptr;
@@ -420,7 +420,7 @@ static auto g_serialReadExecute = [](napi_env env, void* data) {
     }
     ret = memcpy_s(context->pData, context->size, bufferData.data(), bufferData.size());
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed size: %{public}u, bufferSize: %{public}u, ret: %{public}d",
+        USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed size: %{public}u, bufferSize: %{public}zu, ret: %{public}d",
             context->size, bufferData.size(), ret);
     }
     context->ret = actualSize;
