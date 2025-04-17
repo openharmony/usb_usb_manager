@@ -30,7 +30,7 @@ namespace OHOS {
 namespace USB {
 constexpr int32_t ERR_CODE_TIMEOUT = -7;
 
-void UsbReportSysEvent::ReportTransforFaultSysEvent(const std::string interfaceName,
+void UsbReportSysEvent::ReportTransferFaultSysEvent(const std::string transferType,
     const HDI::Usb::V1_0::UsbDev &tmpDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe,
     int32_t ret, const std::string description, MAP_STR_DEVICE &devices)
 {
@@ -41,8 +41,8 @@ void UsbReportSysEvent::ReportTransforFaultSysEvent(const std::string interfaceN
         USB_HILOGE(MODULE_SERVICE, "GetUsbConfigs failed");
         return;
     }
-    int32_t hiRet = HiSysEventWrite(HiSysEvent::Domain::USB, "USB_MANAGE_TRANSFOR_FAULT",
-        HiSysEvent::EventType::FAULT, "INTFACE_NAME", interfaceName,
+    int32_t hiRet = HiSysEventWrite(HiSysEvent::Domain::USB, "TRANSFOR_FAULT",
+        HiSysEvent::EventType::FAULT, "TRANSFER_TYPE", transferType,
         "VENDOR_ID", dev.GetVendorId(), "PRODUCT_ID", dev.GetProductId(),
         "INTERFACE_CLASS", itIF.GetClass(), "INTERFACE_SUBCLASS", itIF.GetSubClass(),
         "INTERFACE_PROTOCOL", itIF.GetProtocol(),
@@ -53,23 +53,23 @@ void UsbReportSysEvent::ReportTransforFaultSysEvent(const std::string interfaceN
     }
 }
 
-void UsbReportSysEvent::CheckAttributeReportTransforFaultSysEvent(const std::string interfaceName,
+void UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent(const std::string transferType,
     const HDI::Usb::V1_0::UsbDev &tmpDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe, const USBEndpoint &ep,
     int32_t ret, const std::string description, MAP_STR_DEVICE &devices)
 {
     UsbInterface itIF;
     UsbDevice dev;
     USB_HILOGI(MODULE_USBD, "report transfor fault sys event");
-    if (ep.GetAttributes() != 0x03 || ret != ERR_CODE_TIMEOUT) {
-        USB_HILOGE(MODULE_SERVICE, "GetUsbConfigs failed");
+    if (ep.GetAttributes() == 0x03 && ret == ERR_CODE_TIMEOUT) {
+        USB_HILOGE(MODULE_SERVICE, "submitTransfer is timeout");
         return;
     }
     if (!GetUsbInterfaceId(tmpDev, tmpPipe, tmpPipe.intfId, devices, itIF, dev)) {
         USB_HILOGE(MODULE_SERVICE, "GetUsbConfigs failed");
         return;
     }
-    int32_t hiRet = HiSysEventWrite(HiSysEvent::Domain::USB, "USB_MANAGE_TRANSFOR_FAULT",
-        HiSysEvent::EventType::FAULT, "INTFACE_NAME", interfaceName,
+    int32_t hiRet = HiSysEventWrite(HiSysEvent::Domain::USB, "TRANSFOR_FAULT",
+        HiSysEvent::EventType::FAULT, "TRANSFER_TYPE", transferType,
         "VENDOR_ID", dev.GetVendorId(), "PRODUCT_ID", dev.GetProductId(),
         "INTERFACE_CLASS", itIF.GetClass(), "INTERFACE_SUBCLASS", itIF.GetSubClass(),
         "INTERFACE_PROTOCOL", itIF.GetProtocol(),

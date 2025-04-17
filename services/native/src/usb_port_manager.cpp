@@ -60,6 +60,17 @@ void UsbPortManager::Init()
     if (ret) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::QueryPort false");
     }
+    AddSupportedMode();
+}
+
+void UsbPortManager::AddSupportedMode()
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:: Enter", __func__);
+    supportedModeMap_.clear();
+    for (const auto& [portId, port] : portMap_) {
+        supportedModeMap_[portId] = port.supportedModes;
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:: successed", __func__);
 }
 
 #ifdef USB_MANAGER_V2_0
@@ -165,6 +176,7 @@ void UsbPortManager::GetIUsbInterface()
     if (usbd_ == nullptr) {
         for (int32_t i = 0; i < PARAM_COUNT_THR; i++) {
             usbd_ = IUsbInterface::Get();
+            USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:Get usbd_", __func__);
             if (usbd_ == nullptr) {
                 USB_HILOGE(MODULE_USB_SERVICE, "Get iUsbInteface failed");
                 usleep(WAIT_DELAY_US);
@@ -182,6 +194,7 @@ int32_t UsbPortManager::SetUsbd(const sptr<IUsbInterface> &usbd)
         return UEC_SERVICE_INVALID_VALUE;
     }
     usbd_ = usbd;
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:usbd_ = usbd", __func__);
     return UEC_OK;
 }
 
@@ -211,13 +224,14 @@ int32_t UsbPortManager::GetPorts(std::vector<UsbPort> &ports)
 int32_t UsbPortManager::GetSupportedModes(int32_t portId, int32_t &supportedModes)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    auto it = portMap_.find(portId);
-    if (it != portMap_.end()) {
-        supportedModes = it->second.supportedModes;
-        USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::GetSupportedModes success");
+    auto it = supportedModeMap_.find(portId);
+    if (it != supportedModeMap_.end()) {
+        supportedModes = it->second;
+        USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::GetSupportedModes port=%{public}d modes=%{public}d",
+                   portId, supportedModes);
         return UEC_OK;
     }
-    USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::GetSupportedModes false");
+    USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManagerSupportedModes port %{public}d not found", portId);
     return UEC_SERVICE_INVALID_VALUE;
 }
 
