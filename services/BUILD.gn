@@ -46,7 +46,7 @@ ohos_shared_library("usbservice") {
     "native/src/usb_right_manager.cpp",
     "native/src/usb_service.cpp",
     "native/src/usb_service_subscriber.cpp",
-    "native/src/usb_timer_wraper.cpp"
+    "native/src/usb_timer_wraper.cpp",
   ]
 
   configs = [
