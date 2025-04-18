@@ -47,6 +47,7 @@ enum UsbJsErrCode : int32_t {
     USB_SUBMIT_TRANSFER_OTHER_ERROR = 14400010,
     USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR = 14400011,
     USB_SUBMIT_TRANSFER_IO_ERROR = 14400012,
+    USB_DEVICE_PIPE_CHECK_ERROR = 14400013,
 };
 
 const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
@@ -76,6 +77,10 @@ const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
     {USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR,
         "BusinessError 14400011:The transfer is not in progress, or is already complete or cancelled."},
     {USB_SUBMIT_TRANSFER_IO_ERROR, "BusinessError 14400012:Transmission I/O error."},
+    {USB_DEVICE_PIPE_CHECK_ERROR, "BusinessError 14400013:The USBDevicePipe validity check failed. Possible causes: "
+                                  "1.The validity check of the input parameters is checked failed."
+                                  "2.The input parameters are obtained through a rational call chain,"
+                                  "first using connectDevice to acquire the USBDevicePipe."},
 };
 
 void ThrowBusinessError(const napi_env &env, int32_t errCode, const std::string &errMsg);
