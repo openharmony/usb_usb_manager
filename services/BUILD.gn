@@ -46,7 +46,7 @@ ohos_shared_library("usbservice") {
     "native/src/usb_right_manager.cpp",
     "native/src/usb_service.cpp",
     "native/src/usb_service_subscriber.cpp",
-    "native/src/usb_timer_wraper.cpp"
+    "native/src/usb_timer_wraper.cpp",
   ]
 
   configs = [
@@ -111,8 +111,6 @@ ohos_shared_library("usbservice") {
     "data_share:datashare_consumer",
     "drivers_interface_usb:libserial_proxy_1.0",
     "drivers_interface_usb:libserial_stub_1.0",
-    "drivers_interface_usb:libusb_proxy_1.1",
-    "drivers_interface_usb:libusb_proxy_1.2",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
@@ -131,8 +129,11 @@ ohos_shared_library("usbservice") {
     external_deps += [ "distributed_notification_service:ans_innerkits" ]
   }
   if (usb_manager_pass_through) {
+    external_deps += [ "drivers_interface_usb:libusb_proxy_2.0" ]
+  } else {
     external_deps += [
-      "drivers_interface_usb:libusb_proxy_2.0",
+      "drivers_interface_usb:libusb_proxy_1.1",
+      "drivers_interface_usb:libusb_proxy_1.2",
     ]
   }
 
