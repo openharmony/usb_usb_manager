@@ -448,7 +448,7 @@ bool UsbService::IsCommonEventServiceAbilityExist()
 int32_t UsbService::OpenDevice(uint8_t busNum, uint8_t devAddr)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
-        ReportUsbOperationFaultSysEvent("OpenDevice", ret, "CheckDevicePermission failed");
+        ReportUsbOperationFaultSysEvent("OpenDevice", UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
@@ -481,7 +481,7 @@ int32_t UsbService::Close(uint8_t busNum, uint8_t devAddr)
 int32_t UsbService::ResetDevice(uint8_t busNum, uint8_t devAddr)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
-        ReportUsbOperationFaultSysEvent("ResetDevice", ret, "CheckDevicePermission failed");
+        ReportUsbOperationFaultSysEvent("ResetDevice", UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
@@ -799,7 +799,8 @@ int32_t UsbService::GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &co
 int32_t UsbService::GetRawDescriptor(uint8_t busNum, uint8_t devAddr, std::vector<uint8_t> &bufferData)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
-        ReportUsbOperationFaultSysEvent("GetRawDescriptor", ret, "CheckDevicePermission failed");
+        ReportUsbOperationFaultSysEvent("GetRawDescriptor", UEC_SERVICE_PERMISSION_DENIED,
+            "CheckDevicePermission failed");
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
@@ -1677,7 +1678,7 @@ int32_t UsbService::GetAccessoryList(std::vector<USBAccessory> &accessList)
     int32_t userId = USB_RIGHT_USERID_INVALID;
     if (!GetCallingInfo(bundleName, tokenId, userId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetCallingInfo false");
-        ReportUsbOperationFaultSysEvent("GetAccessoryList ", ret, "GetCallingInfo false");
+        ReportUsbOperationFaultSysEvent("GetAccessoryList ", UEC_SERVICE_INNER_ERR, "GetCallingInfo false");
         return UEC_SERVICE_INNER_ERR;
     }
 
@@ -1699,7 +1700,7 @@ int32_t UsbService::OpenAccessory(const USBAccessory &access, int32_t &fd)
     int32_t userId = USB_RIGHT_USERID_INVALID;
     if (!GetCallingInfo(bundleName, tokenId, userId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetCallingInfo false");
-        ReportUsbOperationFaultSysEvent("OpenAccessory", ret, "GetCallingInfo false");
+        ReportUsbOperationFaultSysEvent("OpenAccessory", UEC_SERVICE_GET_TOKEN_INFO_FAILED, "GetCallingInfo false");
         return UEC_SERVICE_GET_TOKEN_INFO_FAILED;
     }
 
