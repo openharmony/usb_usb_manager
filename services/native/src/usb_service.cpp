@@ -1716,7 +1716,7 @@ int32_t UsbService::OpenAccessory(const USBAccessory &access, int32_t &fd)
     ret = UsbService::HasAccessoryRight(access, result);
     if (ret != UEC_OK || !result) {
         USB_HILOGE(MODULE_USB_SERVICE, "No permission");
-        ReportUsbOperationFaultSysEvent("OpenAccessory", ret, "No permission");
+        ReportUsbOperationFaultSysEvent("OpenAccessory", UEC_SERVICE_PERMISSION_DENIED, "No permission");
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
