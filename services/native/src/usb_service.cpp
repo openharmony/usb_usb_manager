@@ -337,20 +337,20 @@ bool UsbService::InitUsbd()
 #ifdef USB_MANAGER_PASS_THROUGH
 #ifdef USB_MANAGER_FEATURE_PORT
     if (usbPortManager_ == nullptr || !usbPortManager_->InitUsbPortInterface()) {
-        return false;
+        USB_HILOGW(MODULE_USB_SERVICE, "usbPortManager_ is nullptr or InitUsbPortInterface failed");
     }
 #endif // USB_MANAGER_FEATURE_PORT
 #ifdef USB_MANAGER_FEATURE_HOST
     if (usbHostManager_ == nullptr || !usbHostManager_->InitUsbHostInterface()) {
-        return false;
+        USB_HILOGW(MODULE_USB_SERVICE, "usbHostManager_ is nullptr or InitUsbHostInterface failed");
     }
 #endif // USB_MANAGER_FEATURE_HOST
 #ifdef USB_MANAGER_FEATURE_DEVICE
     if (usbAccessoryManager_ == nullptr || !usbAccessoryManager_->InitUsbAccessoryInterface()) {
-        return false;
+        USB_HILOGW(MODULE_USB_SERVICE, "usbAccessoryManager_ is nullptr or InitUsbAccessoryInterface failed");
     }
     if (usbDeviceManager_ == nullptr || !usbDeviceManager_->InitUsbDeviceInterface()) {
-        return false;
+        USB_HILOGW(MODULE_USB_SERVICE, "usbDeviceManager_ is nullptr or InitUsbDeviceInterface failed");
     }
 #endif // USB_MANAGER_FEATURE_DEVICE
     return true;
