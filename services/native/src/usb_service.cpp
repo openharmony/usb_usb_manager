@@ -2171,8 +2171,8 @@ int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
     });
 
     if (usbSerialManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "usbSerialManager_ is nullptr");
-        return UEC_SERVICE_INVALID_VALUE;
+        USB_HILOGI(MODULE_USB_SERVICE, "usbSerialManager_ is nullptr");
+        usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
     }
     if (argList.empty()) {
         USB_HILOGE(MODULE_USB_SERVICE, "argList is empty");
