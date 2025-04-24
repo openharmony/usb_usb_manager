@@ -2902,7 +2902,7 @@ void UsbService::UpdateDeviceVidPidMap(std::vector<OHOS::HDI::Usb::Serial::V1_0:
         std::string deviceVidPidSerialNum = vid + "-" + pid + "-" + ele.deviceInfo.serialNum;
         serialVidPidMap_.insert({ele.portId, {deviceName, deviceVidPidSerialNum}});
     }
-    USB_HILOGI(MODULE_USB_SERVICE, "deviceVidPidMap size=%{public}d", serialVidPidMap_.size());
+    USB_HILOGI(MODULE_USB_SERVICE, "deviceVidPidMap size=%{public}zu", serialVidPidMap_.size());
 }
 // LCOV_EXCL_STOP
 
