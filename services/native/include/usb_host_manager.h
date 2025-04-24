@@ -145,7 +145,6 @@ private:
     int32_t ManageDeviceTypeImpl(InterfaceType interfaceType, bool disable);
     MAP_STR_DEVICE devices_;
     SystemAbility *systemAbility_;
-    sptr<HDI::Usb::V1_2::IUsbInterface> usbd_ = nullptr;
     std::mutex mutex_;
     std::shared_ptr<UsbRightManager> usbRightManager_;
     sptr<HDI::Usb::V1_0::IUsbdBulkCallback> hdiCb_ = nullptr;
@@ -169,6 +168,8 @@ private:
     sptr<HDI::Usb::V2_0::IUsbHostInterface> usbHostInterface_ = nullptr;
     sptr<HDI::Usb::V2_0::IUsbdBulkCallback> usbHostHdiCb_ = nullptr;
     sptr<UsbManagerSubscriber> usbManagerSubscriber_;
+#else
+    sptr<HDI::Usb::V1_2::IUsbInterface> usbd_ = nullptr;
 #endif // USB_MANAGER_PASS_THROUGH
 };
 } // namespace USB

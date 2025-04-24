@@ -79,10 +79,12 @@ const bool G_REGISTER_RESULT =
 
 UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
 {
+    usbRightManager_ = std::make_shared<UsbRightManager>();
+#ifdef USB_MANAGER_PASS_THROUGH
+
 #ifdef USB_MANAGER_FEATURE_HOST
     usbHostManager_ = std::make_shared<UsbHostManager>(nullptr);
 #endif // USB_MANAGER_FEATURE_HOST
-    usbRightManager_ = std::make_shared<UsbRightManager>();
 #ifdef USB_MANAGER_FEATURE_PORT
     usbPortManager_ = std::make_shared<UsbPortManager>();
 #endif // USB_MANAGER_FEATURE_PORT
@@ -90,7 +92,8 @@ UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
     usbDeviceManager_ = std::make_shared<UsbDeviceManager>();
     usbAccessoryManager_ = std::make_shared<UsbAccessoryManager>();
 #endif // USB_MANAGER_FEATURE_DEVICE
-#ifndef USB_MANAGER_PASS_THROUGH
+
+#else
     if (usbd_ == nullptr) {
         usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
         USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:Get usbd_", __func__);
@@ -332,17 +335,19 @@ bool UsbService::Init()
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
+#ifdef USB_MANAGER_PASS_THROUGH
 bool UsbService::InitUsbd()
 {
-#ifdef USB_MANAGER_PASS_THROUGH
 #ifdef USB_MANAGER_FEATURE_PORT
     if (usbPortManager_ == nullptr || !usbPortManager_->InitUsbPortInterface()) {
-        USB_HILOGW(MODULE_USB_SERVICE, "usbPortManager_ is nullptr or InitUsbPortInterface failed");
+        USB_HILOGE(MODULE_USB_SERVICE, "usbPortManager_ is nullptr or InitUsbPortInterface failed");
+        return false;
     }
 #endif // USB_MANAGER_FEATURE_PORT
 #ifdef USB_MANAGER_FEATURE_HOST
     if (usbHostManager_ == nullptr || !usbHostManager_->InitUsbHostInterface()) {
-        USB_HILOGW(MODULE_USB_SERVICE, "usbHostManager_ is nullptr or InitUsbHostInterface failed");
+        USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr or InitUsbHostInterface failed");
+        return false;
     }
 #endif // USB_MANAGER_FEATURE_HOST
 #ifdef USB_MANAGER_FEATURE_DEVICE
@@ -354,7 +359,10 @@ bool UsbService::InitUsbd()
     }
 #endif // USB_MANAGER_FEATURE_DEVICE
     return true;
+}
 #else
+bool UsbService::InitUsbd()
+{
     if (usbd_ == nullptr) {
         usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
         USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:Get usbd_", __func__);
@@ -379,9 +387,23 @@ bool UsbService::InitUsbd()
 
     ErrCode ret = usbd_->BindUsbdSubscriber(usbdSubscriber_);
     USB_HILOGI(MODULE_USB_SERVICE, "entry InitUsbd ret: %{public}d", ret);
-    return SUCCEEDED(ret);
-#endif // USB_MANAGER_PASS_THROUGH
+    if (!SUCCEEDED(ret)) {
+        return false;
+    }
+
+#ifdef USB_MANAGER_FEATURE_HOST
+    usbHostManager_ = std::make_shared<UsbHostManager>(nullptr);
+#endif // USB_MANAGER_FEATURE_HOST
+#ifdef USB_MANAGER_FEATURE_PORT
+    usbPortManager_ = std::make_shared<UsbPortManager>();
+#endif // USB_MANAGER_FEATURE_PORT
+#ifdef USB_MANAGER_FEATURE_DEVICE
+    usbDeviceManager_ = std::make_shared<UsbDeviceManager>();
+    usbAccessoryManager_ = std::make_shared<UsbAccessoryManager>();
+#endif // USB_MANAGER_FEATURE_DEVICE
+    return true;
 }
+#endif // USB_MANAGER_PASS_THROUGH
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
