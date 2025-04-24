@@ -345,7 +345,7 @@ void SerialManager::SerialGetAttributeDump(int32_t fd, const std::vector<std::st
                 USB_HILOGE(MODULE_USB_SERVICE, "SerialGetPortList port index out of range");
                 break;
             }
-            int32_t portId = static_cast<int32_t>(i);
+            int32_t portId = static_cast<int32_t>(serialPortList[i].portId);
             ret = SerialGetAttribute(portId, attribute);
             if (ret != UEC_OK) {
                 SerialOpen(portId);
