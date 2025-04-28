@@ -24,7 +24,7 @@ const USBFUNCTION_STORAGE: number = 512;
 const USBFUNCTION_DEVMODE_AUTH: number = 4096;
 const supportedCompositeFuncs: Array<number> = [
   USBFUNCTION_HDC
-]
+];
 
 class UsbServiceSwitch {
   private curFunc: number = USBFUNCTION_NONE;
@@ -58,10 +58,10 @@ class UsbServiceSwitch {
       }
       console.log(TAG + 'choose: xfer file(NONE)');
     } else if (chooseId === USBFUNCTION_MTP) {
-      this.tarFunc = supportedCompositeFuncs.includes(this.tarFunc) ?(this.tarFunc | USBFUNCTION_MTP) : USBFUNCTION_MTP;
+      this.tarFunc = supportedCompositeFuncs.includes(this.tarFunc) ? (this.tarFunc | USBFUNCTION_MTP) : USBFUNCTION_MTP;
       console.log(TAG + 'choose: xfer file(MTP)');
     } else if (chooseId === USBFUNCTION_PTP) {
-      this.tarFunc = supportedCompositeFuncs.includes(this.tarFunc) ?(this.tarFunc | USBFUNCTION_PTP) : USBFUNCTION_PTP;
+      this.tarFunc = supportedCompositeFuncs.includes(this.tarFunc) ? (this.tarFunc | USBFUNCTION_PTP) : USBFUNCTION_PTP;
       console.log(TAG + 'choose: xfer pic(PTP)');
     } else {
       console.log(TAG + 'choose error');
@@ -79,6 +79,19 @@ class UsbServiceSwitch {
     }
     return;
   }
-}
 
+  setPortRole(portId: number, powerRole: number, dataRole: number): Promise<void> {
+    console.log(TAG + 'setPortRoles portId ' + portId + ' powerRole ' + powerRole + ' dataRole ' + dataRole);
+    usbManagerService.setPortRoles(portId, powerRole, dataRole).then(() => {
+      console.log(TAG + 'setPortRoles success: ');
+      return;
+    }).catch((err) => {
+      console.error(TAG + 'setPortRoles failed: ' + JSON.stringify(err));
+      return;
+    });
+  }
+  getPorts(): Array<usbManagerService.USBPort> {
+    return usbManagerService.getPorts();
+  }
+}
 export let usbServiceSwitch = new UsbServiceSwitch();

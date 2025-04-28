@@ -20,6 +20,7 @@
 #include "usb_errors.h"
 #include "usb_srv_support.h"
 #include "if_system_ability_manager.h"
+#include "usb_connection_notifier.h"
 #include "system_ability_definition.h"
 #include "iproxy_broker.h"
 #include "iservice_registry.h"
@@ -31,7 +32,7 @@ namespace OHOS {
 namespace USB {
 #ifndef USB_MANAGER_V2_0
 constexpr int32_t SUPPORTED_MODES = 3;
-#endif // USB_MANAGER_V2_0
+#endif
 constexpr int32_t PARAM_COUNT_TWO = 2;
 constexpr int32_t PARAM_COUNT_THR = 3;
 constexpr int32_t DEFAULT_ROLE_HOST = 1;
@@ -155,19 +156,43 @@ int32_t UsbPortManager::UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSub
 
 int32_t UsbPortManager::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole)
 {
+    int32_t powerRole_ = 0;
+    auto it = portMap_.find(portId);
+    if (it == portMap_.end()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Port %{public}d not found", portId);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    powerRole_ = it->second.usbPortStatus.currentPowerRole;
 #ifdef USB_MANAGER_V2_0
     if (usbPortInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::SetPortRole usbPortInterface_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-
-    return usbPortInterface_->SetPortRole(portId, powerRole, dataRole);
+    int32_t ret = usbPortInterface_->SetPortRole(portId, powerRole, dataRole);
+    if (ret != UEC_OK) {
+        USB_HILOGI(MODULE_USB_SERVICE, "setportrole failed");
+        return ret;
+    }
+    if (powerRole_ == PARAM_COUNT_TWO && powerRole == DEFAULT_ROLE_HOST) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Start reverse charging");
+        UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_REVERSE_CHARGE);
+    }
+    return UEC_OK;
 #else
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    return usbd_->SetPortRole(portId, powerRole, dataRole);
+    int32_t ret = usbd_->SetPortRole(portId, powerRole, dataRole);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "setportrole failed");
+        return ret;
+    }
+    if (powerRole_ == PARAM_COUNT_TWO && powerRole == DEFAULT_ROLE_HOST) {
+        USB_HILOGI(MODULE_USB_SERVICE, "Start reverse charging");
+        UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_REVERSE_CHARGE);
+    }
+    return UEC_OK;
 #endif // USB_MANAGER_V2_0
 }
 
@@ -249,7 +274,7 @@ int32_t UsbPortManager::QueryPort()
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s QueryPorts failed", __func__);
         return ret;
     }
-
+ 
     for (const auto& it : portList) {
         AddPortInfo(it.id, it.supportedModes,
             it.usbPortStatus.currentMode, it.usbPortStatus.currentDataRole, it.usbPortStatus.currentPowerRole);
@@ -260,19 +285,20 @@ int32_t UsbPortManager::QueryPort()
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-
+    
     int32_t portId = 0;
     int32_t powerRole = 0;
     int32_t dataRole = 0;
     int32_t mode = 0;
+
     int32_t ret = usbd_->QueryPort(portId, powerRole, dataRole, mode);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s QueryPort failed", __func__);
+        USB_HILOGE(MODULE_USB_SERVICE, "Get().queryPort failed");
         return ret;
     }
-
     AddPortInfo(portId, SUPPORTED_MODES, mode, dataRole, powerRole);
 #endif // USB_MANAGER_V2_0
+
     return ret;
 }
 
@@ -315,7 +341,7 @@ void UsbPortManager::UpdatePort(int32_t portId, int32_t powerRole, int32_t dataR
     }
     USB_HILOGE(MODULE_USB_SERVICE, "updatePort false");
 }
-
+ 
 void UsbPortManager::AddPortInfo(int32_t portId, int32_t supportedModes,
     int32_t currentMode, int32_t currentDataRole, int32_t currentPowerRole)
 {

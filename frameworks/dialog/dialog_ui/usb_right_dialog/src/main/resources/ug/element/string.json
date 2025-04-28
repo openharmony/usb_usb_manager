@@ -118,6 +118,41 @@
             "attr":{
                 "priority":"LT"
             }
+        },
+        {
+            "name":"USB_hdc_notifier_title",
+            "value":"\u200FUSB تەڭشەمگە ئۇلاندى",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hdc_notifier_content",
+            "value":"چەكسىڭىز USB ئىشلىتىش توختايدۇ.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_charge_connected_device",
+            "value":"ئۇلانغان ئۈسكۈنىنى توك بىلەن تەمىنلەش ئۈچۈن",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_reverse_charge",
+            "value":"تەتۈر يۆنىلىشلىك توكلاش",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge_connected_notifier",
+            "value":"ئۇلانغان ئۈسكۈنىنى توك بىلەن تەمىنلەۋاتىدۇ",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

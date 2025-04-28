@@ -34,6 +34,7 @@ const std::string USB_FUNC_PTP = "USB_func_ptp_notifier";
 const std::string USB_FUNC_MORE = "USB_func_more_notifier";
 const std::string USB_HDC_NOTIFIER_TITLE = "USB_hdc_notifier_title";
 const std::string USB_HDC_NOTIFIER_CONTENT = "USB_hdc_notifier_content";
+const std::string USB_FUNC_REVERSE_CHARGE = "USB_func_charge_connected_notifier";
 
 class UsbConnectionNotifier {
 public:
@@ -50,7 +51,8 @@ public:
         {USB_FUNC_PTP, ""},
         {USB_FUNC_MORE, ""},
         {USB_HDC_NOTIFIER_TITLE, ""},
-        {USB_HDC_NOTIFIER_CONTENT, ""}
+        {USB_HDC_NOTIFIER_CONTENT, ""},
+        {USB_FUNC_REVERSE_CHARGE, ""}
     };
 
 private:

@@ -86,7 +86,10 @@
         },
         {
             "name":"USB_my_tablet",
-            "value":"我的平板"
+            "value":"我的平板",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"USB_func_charge_notifier",
@@ -132,15 +135,24 @@
         },
         {
             "name":"USB_func_reverse_charge",
-            "value":"反向充电"
+            "value":"反向充电",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"USB_charge_connected_device",
-            "value":"为已连接设备供电"
+            "value":"为已连接设备供电",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"USB_func_charge_connected_notifier",
-            "value":"正在向已连接设备供电"
+            "value":"正在向已连接设备供电",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

@@ -163,15 +163,24 @@
         },
         {
             "name":"USB_func_reverse_charge",
-            "value":"Reverse charge"
+            "value":"Reverse charge",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"USB_charge_connected_device",
-            "value":"Supply power to a connected device."
+            "value":"Supply power to a connected device.",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"USB_func_charge_connected_notifier",
-            "value":"Supplying power to the connected device over USB"
+            "value":"Supplying power to the connected device over USB",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
