@@ -290,15 +290,14 @@ int32_t UsbPortManager::QueryPort()
     int32_t powerRole = 0;
     int32_t dataRole = 0;
     int32_t mode = 0;
-
     int32_t ret = usbd_->QueryPort(portId, powerRole, dataRole, mode);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s QueryPort failed", __func__);
         return ret;
     }
+
     AddPortInfo(portId, SUPPORTED_MODES, mode, dataRole, powerRole);
 #endif // USB_MANAGER_V2_0
-
     return ret;
 }
 
