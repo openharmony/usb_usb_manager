@@ -69,9 +69,11 @@ const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
     {UEC_ACCESSORY_OPEN_FAILED, "BusinessError 14401002:Failed to open the native accessory node."},
     {UEC_ACCESSORY_CAN_NOT_REOPEN,    "BusinessError 14401003:Cannot reopen the accessory."},
 
-    {USB_SUBMIT_TRANSFER_RESOURCE_BUSY_ERROR, "BusinessError 14400007:Resource busy."},
+    {USB_SUBMIT_TRANSFER_RESOURCE_BUSY_ERROR, "BusinessError 14400007:Resource busy. Possible causes: \
+        1. The transfer has already been submitted. 2. The interface is claimed by another program or driver."},
     {USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR, "BusinessError 14400008:No such device (it may have been disconnected)."},
-    {USB_SUBMIT_TRANSFER_NO_MEM_ERROR, "BusinessError 14400009:Insufficient memory."},
+    {USB_SUBMIT_TRANSFER_NO_MEM_ERROR,
+        "BusinessError 14400009:Insufficient memory. Possible causes: 1. Malloc memory failed."},
     {USB_SUBMIT_TRANSFER_OTHER_ERROR, "BusinessError 14400010:Other USB error."},
     {USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR,
         "BusinessError 14400011:The transfer is not in progress, or is already complete or cancelled."},
