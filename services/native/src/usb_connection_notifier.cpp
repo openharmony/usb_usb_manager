@@ -68,6 +68,7 @@ enum SUPPORTED_FUNC : int32_t {
 namespace OHOS {
 namespace USB {
 class NfcNotificationSubscriber : public Notification::NotificationSubscriber {
+    // LCOV_EXCL_START
     void OnConnected()
     {
         USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
@@ -116,6 +117,7 @@ class NfcNotificationSubscriber : public Notification::NotificationSubscriber {
     {
         USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
     }
+    // LCOV_EXCL_STOP
 };
 
 static std::shared_ptr<NfcNotificationSubscriber> g_notificationSubscriber
@@ -134,6 +136,7 @@ std::shared_ptr<UsbConnectionNotifier> UsbConnectionNotifier::GetInstance()
     return instance_;
 }
 
+// LCOV_EXCL_START
 sptr<IBundleMgr> UsbConnectionNotifier::GetBundleMgr(void)
 {
     USB_TRACE;
@@ -397,6 +400,7 @@ void UsbConnectionNotifier::CancelHdcNotification()
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: notificationId %{public}d, result %{public}d", __func__,
                notificationId, result);
 }
+// LCOV_EXCL_STOP
 
 } // namespace USB
 } // namespace OHOS
