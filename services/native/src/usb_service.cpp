@@ -1945,7 +1945,7 @@ int32_t UsbService::GetPorts(std::vector<UsbPort> &ports)
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
-        ReportUsbOperationFaultSysEvent("SetPortRole", ret, "CheckSysApiPermission failed");
+        ReportUsbOperationFaultSysEvent("GetPorts", ret, "CheckSysApiPermission failed");
         return ret;
     }
     if (usbPortManager_ == nullptr) {
