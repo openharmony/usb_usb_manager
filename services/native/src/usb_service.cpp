@@ -472,6 +472,7 @@ bool UsbService::IsCommonEventServiceAbilityExist()
 int32_t UsbService::OpenDevice(uint8_t busNum, uint8_t devAddr)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        ReportUsbOperationFaultSysEvent("OpenDevice", UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
@@ -506,6 +507,7 @@ int32_t UsbService::Close(uint8_t busNum, uint8_t devAddr)
 int32_t UsbService::ResetDevice(uint8_t busNum, uint8_t devAddr)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        ReportUsbOperationFaultSysEvent("ResetDevice", UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
@@ -827,6 +829,8 @@ int32_t UsbService::GetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t &co
 int32_t UsbService::GetRawDescriptor(uint8_t busNum, uint8_t devAddr, std::vector<uint8_t> &bufferData)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        ReportUsbOperationFaultSysEvent("GetRawDescriptor", UEC_SERVICE_PERMISSION_DENIED,
+            "CheckDevicePermission failed");
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
@@ -1733,6 +1737,7 @@ int32_t UsbService::GetAccessoryList(std::vector<USBAccessory> &accessList)
     int32_t userId = USB_RIGHT_USERID_INVALID;
     if (!GetCallingInfo(bundleName, tokenId, userId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetCallingInfo false");
+        ReportUsbOperationFaultSysEvent("GetAccessoryList ", UEC_SERVICE_INNER_ERR, "GetCallingInfo false");
         return UEC_SERVICE_INNER_ERR;
     }
 
@@ -1754,6 +1759,7 @@ int32_t UsbService::OpenAccessory(const USBAccessory &access, int32_t &fd)
     int32_t userId = USB_RIGHT_USERID_INVALID;
     if (!GetCallingInfo(bundleName, tokenId, userId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetCallingInfo false");
+        ReportUsbOperationFaultSysEvent("OpenAccessory", UEC_SERVICE_GET_TOKEN_INFO_FAILED, "GetCallingInfo false");
         return UEC_SERVICE_GET_TOKEN_INFO_FAILED;
     }
 
@@ -1761,6 +1767,7 @@ int32_t UsbService::OpenAccessory(const USBAccessory &access, int32_t &fd)
     int32_t ret = usbAccessoryManager_->GetAccessorySerialNumber(access, bundleName, serialNum);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "can not find accessory.");
+        ReportUsbOperationFaultSysEvent("OpenAccessory", ret, "can not find accessory");
         return ret;
     }
 
@@ -1768,6 +1775,7 @@ int32_t UsbService::OpenAccessory(const USBAccessory &access, int32_t &fd)
     ret = UsbService::HasAccessoryRight(access, result);
     if (ret != UEC_OK || !result) {
         USB_HILOGE(MODULE_USB_SERVICE, "No permission");
+        ReportUsbOperationFaultSysEvent("OpenAccessory", UEC_SERVICE_PERMISSION_DENIED, "No permission");
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
@@ -2000,6 +2008,7 @@ int32_t UsbService::GetPorts(std::vector<UsbPort> &ports)
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
+        ReportUsbOperationFaultSysEvent("GetPorts", ret, "CheckSysApiPermission failed");
         return ret;
     }
     if (usbPortManager_ == nullptr) {
@@ -2040,6 +2049,7 @@ int32_t UsbService::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataR
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckSysApiPermission failed ret = %{public}d", __func__, ret);
+        ReportUsbOperationFaultSysEvent("SetPortRole", ret, "CheckSysApiPermission failed");
         return ret;
     }
     if (usbPortManager_ == nullptr) {
