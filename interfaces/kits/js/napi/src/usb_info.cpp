@@ -2319,9 +2319,9 @@ static int32_t UsbSubmitTransferErrorCode(int32_t &error)
 
 static bool CreateAndWriteAshmem(USBTransferAsyncContext *asyncContext, HDI::Usb::V1_2::USBTransferInfo &obj)
 {
-    StartTrace(HITRACE_TAG_USB, "NAPI:Ashmem::CreateAshmem");
+    StartTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB, "NAPI:Ashmem::CreateAshmem");
     asyncContext->ashmem = Ashmem::CreateAshmem(asyncContext->name.c_str(), asyncContext->length);
-    FinishTrace(HITRACE_TAG_USB);
+    FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB);
     if (asyncContext->ashmem == nullptr) {
         USB_HILOGE(MODULE_JS_NAPI, "Ashmem::CreateAshmem failed");
         return false;
@@ -2331,14 +2331,14 @@ static bool CreateAndWriteAshmem(USBTransferAsyncContext *asyncContext, HDI::Usb
         std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
         obj.length = static_cast<int32_t>(bufferData.size());
         asyncContext->ashmem->MapReadAndWriteAshmem();
-        StartTrace(HITRACE_TAG_USB, "NAPI:WriteToAshmem");
+        StartTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB, "NAPI:WriteToAshmem");
         if (!asyncContext->ashmem->WriteToAshmem(asyncContext->buffer, bufferData.size(), 0)) {
-            FinishTrace(HITRACE_TAG_USB);
+            FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB);
             asyncContext->ashmem->CloseAshmem();
             USB_HILOGE(MODULE_JS_NAPI, "napi UsbSubmitTransfer Failed to UsbSubmitTransfer to ashmem.");
             return false;
         }
-        FinishTrace(HITRACE_TAG_USB);
+        FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB);
     }
     return true;
 }
@@ -2371,9 +2371,9 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
         USBTransferAsyncContext *asyncContext = reinterpret_cast<USBTransferAsyncContext *>(userData);
         return JsCallBack(asyncContext, info, isoInfo);
     };
-    StartTrace(HITRACE_TAG_USB, "NAPI:UsbSubmitTransfer");
+    StartTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB, "NAPI:UsbSubmitTransfer");
     int32_t ret = asyncContext->pipe.UsbSubmitTransfer(obj, func, asyncContext->ashmem);
-    FinishTrace(HITRACE_TAG_USB);
+    FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB);
     if (ret != napi_ok) {
         asyncContext->ashmem->CloseAshmem();
         delete asyncContext;
@@ -2449,9 +2449,9 @@ static napi_value UsbCancelTransfer(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    StartTrace(HITRACE_TAG_USB, "NAPI:pipe.UsbCancelTransfer");
+    StartTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB, "NAPI:pipe.UsbCancelTransfer");
     int32_t ret = asyncContext->pipe.UsbCancelTransfer(asyncContext->endpoint);
-    FinishTrace(HITRACE_TAG_USB);
+    FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB);
     if (ret != napi_ok) {
         ret = UsbSubmitTransferErrorCode(ret);
         ThrowBusinessError(env, ret, "");
