@@ -322,9 +322,9 @@ void UsbConnectionNotifier::SendNotification(std::string func)
         request_.SetLittleIcon(icon_.value());
     }
     SetWantAgent(request_);
-    StartTrace(HITRACE_TAG_HDF, "Helper::PublishNotification");
+    StartTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_HDF, "Helper::PublishNotification");
     int32_t result = OHOS::Notification::NotificationHelper::PublishNotification(request_);
-    FinishTrace(HITRACE_TAG_HDF);
+    FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_HDF);
     USB_HILOGI(MODULE_USB_SERVICE, "PublishNotification result : %{public}d", result);
 }
 
@@ -385,9 +385,9 @@ void UsbConnectionNotifier::SendHdcNotification()
         requestHdc_.SetLittleIcon(icon_.value());
     }
     SetWantAgentHdc(requestHdc_);
-    StartTrace(HITRACE_TAG_HDF, "Helper::PublishNotification");
+    StartTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_HDF, "Helper::PublishNotification");
     int32_t result = OHOS::Notification::NotificationHelper::PublishNotification(requestHdc_);
-    FinishTrace(HITRACE_TAG_HDF);
+    FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_HDF);
     USB_HILOGI(MODULE_USB_SERVICE, "PublishNotification result : %{public}d", result);
 }
 
