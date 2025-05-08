@@ -2364,6 +2364,7 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
     HDI::Usb::V1_2::USBTransferInfo obj;
     GetUSBTransferInfo(obj, asyncContext);
     if (!CreateAndWriteAshmem(asyncContext, obj)) {
+	delete asyncContext;
         return nullptr;
     }
     static auto func = [] (const TransferCallbackInfo &info,
