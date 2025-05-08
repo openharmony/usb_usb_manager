@@ -2480,40 +2480,25 @@ static napi_value PipeResetDevice(napi_env env, napi_callback_info info)
     USBDevicePipe pipe;
     ParseUsbDevicePipe(env, deciveObj, pipe);
 
-    std::vector<UsbDevice> deviceList;
-    int32_t ret = g_usbClient.GetDevices(deviceList);
-    napi_value result;
-    if (ret != UEC_OK) {
-        napi_get_undefined(env, &result);
-        USB_HILOGE(MODULE_JS_NAPI, "end call get device failed ret : %{public}d", ret);
-        return result;
-    }
-
-    napi_create_array(env, &result);
-    napi_value napiValue = nullptr;
-    for (const auto &dev : deviceList) {
-        if (dev.GetBusNum() == pipe.GetBusNum() && dev.GetDevAddr() == pipe.GetDevAddr()) {
-            int32_t ret = g_usbClient.ResetDevice(dev, pipe);
-            if (ret == UEC_OK) {
-                napi_get_boolean(env, true, &napiValue);
-            } else if (ret == HDF_DEV_ERR_NO_DEVICE) {
-                ThrowBusinessError(env, USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR,
-                    "Submit transfer no device.");
-                napi_get_boolean(env, false, &napiValue);
-            } else if (ret == HDF_FAILURE) {
-                ThrowBusinessError(env, USB_DEVICE_PIPE_CHECK_ERROR,
-                    "Check devicePipe failed.");
-                napi_get_boolean(env, false, &napiValue);
-            } else if (ret == UEC_SERVICE_INVALID_VALUE) {
-                ThrowBusinessError(env, UEC_COMMON_SERVICE_EXCEPTION,
-                    "Service exception");
-                napi_get_boolean(env, false, &napiValue);
-            } else {
-                ThrowBusinessError(env, USB_SUBMIT_TRANSFER_OTHER_ERROR,
-                    "Other USB error");
-                napi_get_boolean(env, false, &napiValue);
-            }
-        }
+    int32_t ret = g_usbClient.ResetDevice(pipe);
+    if (ret == UEC_OK) {
+        napi_get_boolean(env, true, &napiValue);
+    } else if (ret == HDF_DEV_ERR_NO_DEVICE) {
+        ThrowBusinessError(env, USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR,
+            "Submit transfer no device.");
+        napi_get_boolean(env, false, &napiValue);
+    } else if (ret == HDF_FAILURE) {
+        ThrowBusinessError(env, USB_DEVICE_PIPE_CHECK_ERROR,
+            "Check devicePipe failed.");
+        napi_get_boolean(env, false, &napiValue);
+    } else if (ret == UEC_SERVICE_INVALID_VALUE) {
+        ThrowBusinessError(env, UEC_COMMON_SERVICE_EXCEPTION,
+            "Service exception");
+        napi_get_boolean(env, false, &napiValue);
+    } else {
+        ThrowBusinessError(env, USB_SUBMIT_TRANSFER_OTHER_ERROR,
+            "Other USB error");
+        napi_get_boolean(env, false, &napiValue);
     }
     return napiValue;
 }
