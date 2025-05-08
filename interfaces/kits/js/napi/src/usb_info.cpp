@@ -2480,6 +2480,7 @@ static napi_value PipeResetDevice(napi_env env, napi_callback_info info)
     USBDevicePipe pipe;
     ParseUsbDevicePipe(env, deciveObj, pipe);
 
+    napi_value napiValue;
     int32_t ret = g_usbClient.ResetDevice(pipe);
     if (ret == UEC_OK) {
         napi_get_boolean(env, true, &napiValue);
