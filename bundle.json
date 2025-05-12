@@ -57,7 +57,8 @@
                 "hisysevent",
                 "cJSON",
                 "bounds_checking_function",
-                "hitrace"
+                "hitrace",
+                "selinux_adapter"
             ]
         },
         "build": {
