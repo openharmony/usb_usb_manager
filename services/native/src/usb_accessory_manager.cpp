@@ -56,6 +56,7 @@ const std::string BASE_64_CHARS =
              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
              "abcdefghijklmnopqrstuvwxyz"
              "0123456789+/";
+const char *ACCESSORY_DRIVER_PATH = "/dev/usb_accessory";
 
 // LCOV_EXCL_START
 UsbAccessoryManager::UsbAccessoryManager()
@@ -187,7 +188,13 @@ int32_t UsbAccessoryManager::CloseAccessory(int32_t fd)
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    ret = usbDeviceInterface_->CloseAccessory(accFd_);
+    int32_t newFd = open(ACCESSORY_DRIVER_PATH, O_RDWR);
+    if (newFd < 0) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager open accessory driver failed.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    ret = usbDeviceInterface_->CloseAccessory(newFd);
+    close(newFd);
 #else
     if (usbdImpl_ == nullptr) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbdImpl_ is nullptr.");
