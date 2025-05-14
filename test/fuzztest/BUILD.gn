@@ -926,6 +926,7 @@ ohos_fuzztest("UsbMgrExFuzzTest") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "selinux_adapter:librestorecon",
   ]
 
   sources = [ "usbmgrex_fuzzer/usbmgrex_fuzzer.cpp" ]
