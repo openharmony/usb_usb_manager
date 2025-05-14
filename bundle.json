@@ -57,7 +57,8 @@
                 "hisysevent",
                 "cJSON",
                 "bounds_checking_function",
-                "hitrace"
+                "hitrace",
+                "runtime_core"
             ]
         },
         "build": {
@@ -68,6 +69,7 @@
                     "//base/usb/usb_manager/interfaces/kits/js/napi:usbmanager",
                     "//base/usb/usb_manager/interfaces/kits/js/napi:usb",
                     "//base/usb/usb_manager/frameworks/dialog/dialog_ui/usb_right_dialog:dialog_hap",
+                    "//base/usb/usb_manager/frameworks/ets/taihe:usb_taihe",
                     "//base/usb/usb_manager/interfaces/kits/js/napi:serial"
                 ],
                 "service_group": [
@@ -87,6 +89,8 @@
                     ],
                     "header_base": "//base/usb/usb_manager/interfaces/innerkits/native/include"
                 }
+            }, {
+                "name": "//base/usb/usb_manager/frameworks/ets/taihe/usb_manager:copy_usbManager"
             }],
             "test": [
                 "//base/usb/usb_manager/test/native:usb_unittest_test"
