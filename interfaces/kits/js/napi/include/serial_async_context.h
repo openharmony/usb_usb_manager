@@ -55,7 +55,6 @@ const int32_t DATABIT_8 = 8;
 const int32_t DATABIT_7 = 7;
 const int32_t DATABIT_6 = 6;
 const int32_t DATABIT_5 = 5;
-const int32_t DATABIT_4 = 4;
 
 const int32_t PARITY_NONE = 0;
 const int32_t PARITY_ODD = 1;
@@ -64,8 +63,7 @@ const int32_t PARITY_MARK = 3;
 const int32_t PARITY_SPACE = 4;
 
 const int32_t STOPBIT_1 = 0;
-const int32_t STOPBIT_1P5 = 1;
-const int32_t STOPBIT_2 = 2;
+const int32_t STOPBIT_2 = 1;
 
 typedef struct SerialWriteAsyncContext {
     int contextErrno;
