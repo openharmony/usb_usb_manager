@@ -1689,7 +1689,7 @@ int32_t UsbHostManager::ManageGlobalInterfaceImpl(bool disable)
             std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
         }
         if (disable) {
-            ReportManageDeviceInfo("DeviceType", it->second, nullptr, false);
+            ReportManageDeviceInfo("GlobalType", it->second, nullptr, false);
         }
         if (Close(dev.busNum, dev.devAddr) != UEC_OK) {
             USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl CloseDevice fail");
@@ -1802,7 +1802,7 @@ int32_t UsbHostManager::ManageDeviceTypeImpl(InterfaceType interfaceType, bool d
     return UEC_OK;
 }
 
-void UsbHostManager::ReportManageDeviceInfo(const std::string &operationType, UsbDevice* device, 
+void UsbHostManager::ReportManageDeviceInfo(const std::string &operationType, UsbDevice* device,
                                         const UsbInterface* interface, bool isInterfaceType)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "ReportManageDeviceInfo");
