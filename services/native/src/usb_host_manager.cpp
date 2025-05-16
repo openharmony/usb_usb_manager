@@ -102,6 +102,7 @@ constexpr int32_t PROTOCAL_INDEX = 2;
 constexpr int32_t STORAGE_BASE_CLASS = 8;
 constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
+constexpr int32_t BASE_CLASS_HUB = 0x09;
 #ifdef USB_MANAGER_PASS_THROUGH
 const std::string SERVICE_NAME = "usb_host_interface_service";
 #endif // USB_MANAGER_PASS_THROUGH
@@ -186,6 +187,9 @@ void UsbHostManager::UsbSubmitTransferDeathRecipient::OnRemoteDied(const wptr<IR
 void UsbHostManager::ExecuteStrategy(UsbDevice *devInfo)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbHostManager::ExecuteStrategy start");
+    if (devInfo == nullptr || devInfo->GetClass() == BASE_CLASS_HUB) {
+        return;
+    }
     if (!IsEdmEnabled()) {
         USB_HILOGE(MODULE_USB_SERVICE, "edm is not activate, skip");
         return;
@@ -436,13 +440,16 @@ int32_t UsbHostManager::ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t inter
 #endif // USB_MANAGER_PASS_THROUGH
 }
 
-
 int32_t UsbHostManager::GetDevices(std::vector<UsbDevice> &deviceList)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
+    bool isSystemAppOrSa = usbRightManager_->IsSystemAppOrSa();
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
-        if (!(usbRightManager_->IsSystemAppOrSa())) {
+        if (!(isSystemAppOrSa)) {
             it->second->SetmSerial("");
+        }
+        if (it->second->GetClass() == BASE_CLASS_HUB && !isSystemAppOrSa) {
+            continue;
         }
         deviceList.push_back(*it->second);
     }
@@ -1125,6 +1132,9 @@ bool UsbHostManager::PublishCommonEvent(const std::string &event, const UsbDevic
     CommonEventData data(want);
     data.SetData(dev.getJsonString().c_str());
     CommonEventPublishInfo publishInfo;
+    if (dev.GetClass() == BASE_CLASS_HUB) {
+        publishInfo.SetSubscriberType(SubscriberType::SYSTEM_SUBSCRIBER_TYPE);
+    }
     USB_HILOGI(MODULE_SERVICE, "send %{public}s broadcast device:%{public}s", event.c_str(),
         dev.getJsonString().c_str());
     ReportHostPlugSysEvent(event, dev);

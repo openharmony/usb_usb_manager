@@ -134,6 +134,42 @@ ohos_unittest("test_interrupt_transfer") {
   ]
 }
 
+ohos_unittest("test_usbhubdevice") {
+  module_out_path = module_output_path
+  sources = [
+    "src/usb_common_test.cpp",
+    "src/usb_hub_device_test.cpp",
+  ]
+
+  configs = [
+    "${utils_path}:utils_config",
+    ":module_private_config",
+  ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_base",
+    "cJSON:cjson",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "eventhandler:libeventhandler",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+}
+
 ohos_unittest("test_usbdevicepipe") {
   module_out_path = module_output_path
   sources = [
@@ -431,6 +467,7 @@ group("unittest") {
     ":test_usbdevicestatus",
     ":test_usbdfx",
     ":test_usbevent",
+    ":test_usbhubdevice",
     ":test_usbmanageinterface",
     ":test_usbrequest",
   ]
