@@ -143,7 +143,7 @@ private:
     int32_t ManageDeviceImpl(int32_t vendorId, int32_t productId, bool disable);
     int32_t ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable);
     int32_t ManageDeviceTypeImpl(InterfaceType interfaceType, bool disable);
-    void ReportManageDeviceInfo(const std::string &operationType, UsbDevice* device, 
+    void ReportManageDeviceInfo(const std::string &operationType, UsbDevice* device,
         const UsbInterface* interface, bool isInterfaceType);
     MAP_STR_DEVICE devices_;
     SystemAbility *systemAbility_;
