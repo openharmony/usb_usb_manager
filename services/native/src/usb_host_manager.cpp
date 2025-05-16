@@ -1759,7 +1759,7 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
         std::vector<UsbInterface> interfaces = configs.GetInterfaces();
 
         for (uint32_t i = 0; i < interfaces.size(); i++) {
-            int32_t ret == RANDOM_VALUE_INDICATE;
+            int32_t ret = RANDOM_VALUE_INDICATE;
             // 0 indicate base class, 1 indicate subclass, 2 indicate protocal. -1 indicate any value.
             if ((interfaces[i].GetClass() == iterInterface->second[BASECLASS_INDEX]) && (interfaces[i].GetSubClass() ==
                 iterInterface->second[SUBCLASS_INDEX] || iterInterface->second[SUBCLASS_INDEX] ==
