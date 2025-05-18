@@ -74,3 +74,12 @@ OPERATION_FAULT:
   OPERATION_TYPE_NAME: {type: STRING, desc: the name of operation type}
   FAIL_REASON: {type: INT32, desc: the failed reason}
   FAIL_DESCRIPTION: {type: STRING, desc: the failed reason description}
+
+DEVICE_SECURITY_POLICY:
+  __BASE: {type: SECURITY, level: CRITICAL, tag: UsbManager, desc: information about the managed USB device}
+  SECURITY_POLICY_TYPE: {type: STRING, desc: manage device type}
+  VID: {type: INT32, desc: device vid}
+  PID: {type: INT32, desc: device pid}
+  CLASS: {type: INT32, desc: device baseclass}
+  SUBCLASS: {type: INT32, desc: device subclass}
+  PROTOCOL: {type: INT32, desc: device protocol}
