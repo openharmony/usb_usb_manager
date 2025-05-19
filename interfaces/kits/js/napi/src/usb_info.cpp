@@ -2485,9 +2485,13 @@ static napi_value PipeResetDevice(napi_env env, napi_callback_info info)
     int32_t ret = g_usbClient.ResetDevice(pipe);
     if (ret == UEC_OK) {
         napi_get_boolean(env, true, &napiValue);
-    } else if (ret == HDF_DEV_ERR_NO_DEVICE) {
+    } else if (ret == HDF_DEV_ERR_NO_DEVICE || UEC_INTERFACE_NO_INIT) {
         ThrowBusinessError(env, USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR,
             "Submit transfer no device.");
+        napi_get_boolean(env, false, &napiValue);
+    } else if (ret == UEC_SERVICE_PERMISSION_DENIED) {
+        ThrowBusinessError(env, UEC_COMMON_HAS_NO_RIGHT,
+            "No permission.");
         napi_get_boolean(env, false, &napiValue);
     } else if (ret == HDF_FAILURE) {
         ThrowBusinessError(env, USB_DEVICE_PIPE_CHECK_ERROR,
