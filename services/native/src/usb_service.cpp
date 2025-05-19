@@ -387,12 +387,6 @@ bool UsbService::InitUsbd()
         return false;
     }
 
-    ErrCode ret = usbd_->BindUsbdSubscriber(usbdSubscriber_);
-    USB_HILOGI(MODULE_USB_SERVICE, "entry InitUsbd ret: %{public}d", ret);
-    if (!SUCCEEDED(ret)) {
-        return false;
-    }
-
 #ifdef USB_MANAGER_FEATURE_HOST
     usbHostManager_ = std::make_shared<UsbHostManager>(nullptr);
 #endif // USB_MANAGER_FEATURE_HOST
@@ -403,7 +397,10 @@ bool UsbService::InitUsbd()
     usbDeviceManager_ = std::make_shared<UsbDeviceManager>();
     usbAccessoryManager_ = std::make_shared<UsbAccessoryManager>();
 #endif // USB_MANAGER_FEATURE_DEVICE
-    return true;
+
+    ErrCode ret = usbd_->BindUsbdSubscriber(usbdSubscriber_);
+    USB_HILOGI(MODULE_USB_SERVICE, "entry InitUsbd ret: %{public}d", ret);
+    return ret == UEC_OK;
 }
 #endif // USB_MANAGER_PASS_THROUGH
 // LCOV_EXCL_STOP
