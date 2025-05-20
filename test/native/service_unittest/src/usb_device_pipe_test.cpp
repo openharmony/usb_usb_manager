@@ -76,22 +76,30 @@ void UsbDevicePipeTest::TearDown(void) {}
 
 /**
  * @tc.name: getDevices001
- * @tc.desc: Test functions to getDevices(std::vector<UsbDevice> &deviceList);
+ * @tc.desc: Test functions to getDevices(std::vector<UsbDevice> &delist);
  * @tc.type: FUNC
  */
 HWTEST_F(UsbDevicePipeTest, getDevices001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : getDevices001 : getDevices");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::getDevices001 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::getDevices001 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::getDevices001 %{public}d OpenDevice=%{public}d", __LINE__, ret);
@@ -113,14 +121,22 @@ HWTEST_F(UsbDevicePipeTest, UsbOpenDevice001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbOpenDevice001: OpenDevice");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    std::vector<UsbDevice> deviceList;
-    auto ret = UsbSrvClient.GetDevices(deviceList);
+    std::vector<UsbDevice> delist;
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbOpenDevice001 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(deviceList.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbOpenDevice001 %{public}d size=%{public}zu", __LINE__,
-               deviceList.size());
-    UsbDevice device = deviceList.front();
+               delist.size());
+     UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     USBDevicePipe pipe;
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
@@ -144,20 +160,28 @@ HWTEST_F(UsbDevicePipeTest, UsbResetDevice001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbResetDevice001: ResetDevice");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    std::vector<UsbDevice> deviceList;
-    auto ret = UsbSrvClient.GetDevices(deviceList);
+    std::vector<UsbDevice> delist;
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice001 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(deviceList.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice001 %{public}d size=%{public}zu", __LINE__,
-        deviceList.size());
-    UsbDevice device = deviceList.front();
+        delist.size());
+     UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     USBDevicePipe pipe;
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice001 %{public}d OpenDevice=%{public}d", __LINE__,
         ret);
-    ret = UsbSrvClient.ResetDevice(device, pipe);
+    ret = UsbSrvClient.ResetDevice(pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice001 %{public}d ResetDevice=%{public}d", __LINE__,
         ret);
     ASSERT_EQ(ret, 0);
@@ -177,21 +201,31 @@ HWTEST_F(UsbDevicePipeTest, UsbResetDevice002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbResetDevice002: ResetDevice");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    std::vector<UsbDevice> deviceList;
-    auto ret = UsbSrvClient.GetDevices(deviceList);
+    std::vector<UsbDevice> delist;
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice002 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(deviceList.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice002 %{public}d size=%{public}zu", __LINE__,
-        deviceList.size());
-    UsbDevice device = deviceList.front();
+        delist.size());
+     UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     USBDevicePipe pipe;
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice002 %{public}d OpenDevice=%{public}d", __LINE__,
         ret);
-    device.SetBusNum(USB_BUS_NUM_INVALID);
-    ret = UsbSrvClient.ResetDevice(device, pipe);
+    USBDevicePipe testPipe;
+    testPipe.SetBusNum(pipe.GetBusNum());
+    testPipe.SetDevAddr(USB_DEV_ADDR_INVALID);
+    ret = UsbSrvClient.ResetDevice(testPipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice002 %{public}d ResetDevice=%{public}d", __LINE__,
         ret);
     ASSERT_NE(ret, 0);
@@ -211,21 +245,31 @@ HWTEST_F(UsbDevicePipeTest, UsbResetDevice003, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbResetDevice003: ResetDevice");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    std::vector<UsbDevice> deviceList;
-    auto ret = UsbSrvClient.GetDevices(deviceList);
+    std::vector<UsbDevice> delist;
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice003 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(deviceList.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice003 %{public}d size=%{public}zu", __LINE__,
-        deviceList.size());
-    UsbDevice device = deviceList.front();
+        delist.size());
+     UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     USBDevicePipe pipe;
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice003 %{public}d OpenDevice=%{public}d", __LINE__,
         ret);
-    device.SetDevAddr(USB_DEV_ADDR_INVALID);
-    ret = UsbSrvClient.ResetDevice(device, pipe);
+    USBDevicePipe testPipe;
+    testPipe.SetBusNum(USB_BUS_NUM_INVALID);
+    testPipe.SetDevAddr(pipe.GetDevAddr());
+    ret = UsbSrvClient.ResetDevice(testPipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice003 %{public}d ResetDevice=%{public}d", __LINE__,
         ret);
     ASSERT_NE(ret, 0);
@@ -245,22 +289,31 @@ HWTEST_F(UsbDevicePipeTest, UsbResetDevice004, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbResetDevice004: ResetDevice");
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    std::vector<UsbDevice> deviceList;
-    auto ret = UsbSrvClient.GetDevices(deviceList);
+    std::vector<UsbDevice> delist;
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice004 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(deviceList.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice004 %{public}d size=%{public}zu", __LINE__,
-        deviceList.size());
-    UsbDevice device = deviceList.front();
+        delist.size());
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     USBDevicePipe pipe;
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice004 %{public}d OpenDevice=%{public}d", __LINE__,
         ret);
-    device.SetBusNum(USB_BUS_NUM_INVALID);
-    device.SetDevAddr(USB_DEV_ADDR_INVALID);
-    ret = UsbSrvClient.ResetDevice(device, pipe);
+    USBDevicePipe testPipe;
+    testPipe.SetBusNum(USB_BUS_NUM_INVALID);
+    testPipe.SetDevAddr(USB_DEV_ADDR_INVALID);
+    ret = UsbSrvClient.ResetDevice(testPipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice004 %{public}d ResetDevice=%{public}d", __LINE__,
         ret);
     ASSERT_NE(ret, 0);
@@ -278,16 +331,24 @@ HWTEST_F(UsbDevicePipeTest, UsbResetDevice004, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer001 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer001 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer001 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer001 %{public}d OpenDevice=%{public}d",
@@ -315,16 +376,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer001, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer002 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer002 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer002 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer002 %{public}d OpenDevice=%{public}d",
@@ -354,16 +423,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer002, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer003, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer003 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer003 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer003 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer003 %{public}d OpenDevice=%{public}d",
@@ -393,16 +470,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer003, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer004, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer004 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer004 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer004 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -430,16 +515,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer004, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer005, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer005 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer005 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer005 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -469,16 +562,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer005, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer006, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer006 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer006 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer006 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -508,16 +609,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer006, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer007, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer007 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer007 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer007 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().front();
     ret = UsbSrvClient.OpenDevice(device, pipe);
@@ -547,16 +656,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer007, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer008, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer008 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer008 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer008 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().front();
     ret = UsbSrvClient.OpenDevice(device, pipe);
@@ -588,16 +705,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer008, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer009, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer009 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer009 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer009 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().front();
     ret = UsbSrvClient.OpenDevice(device, pipe);
@@ -629,16 +754,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer009, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer010, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer010 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer010 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer010 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -667,16 +800,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer010, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer011, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer011 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer011 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer011 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -707,16 +848,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer011, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer012, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer012 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer012 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer012 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -747,17 +896,25 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer012, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer0013, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer0013 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer0013 %{public}d ret=%{public}d", __LINE__,
                ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer0013 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -786,17 +943,25 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer0013, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer0014, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer0014 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer0014 %{public}d ret=%{public}d", __LINE__,
                ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer0014 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -827,17 +992,25 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer0014, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer0015, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer0015 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer0015 %{public}d ret=%{public}d", __LINE__,
                ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer0015 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -868,16 +1041,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer0015, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer016, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer016 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer016 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer016 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -906,16 +1087,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer016, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer017, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer017 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer017 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer017 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -946,16 +1135,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer017, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer018, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer018 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer018 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer018 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -986,16 +1183,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer018, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer019, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer019 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer019 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer019 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer019 %{public}d OpenDevice=%{public}d",
@@ -1023,16 +1228,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer019, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer020, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer020 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer020 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer020 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer020 %{public}d OpenDevice=%{public}d",
@@ -1062,16 +1275,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer020, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer021, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer021 : ControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer021 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer021 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer021 %{public}d OpenDevice=%{public}d",
@@ -1101,16 +1322,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer021, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer022, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer022 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer022 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer022 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer022 %{public}d OpenDevice=%{public}d",
@@ -1138,16 +1367,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer022, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer023, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer023 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer023 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer023 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer023 %{public}d OpenDevice=%{public}d",
@@ -1177,16 +1414,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer023, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer024, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer024 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer024 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer024 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer024 %{public}d OpenDevice=%{public}d",
@@ -1216,16 +1461,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer024, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer025, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer025 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer025 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer025 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -1253,16 +1506,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer025, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer026, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer026 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer026 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer026 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -1292,16 +1553,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer026, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer027, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer027 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer027 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer027 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -1331,16 +1600,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer027, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer028, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer028 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer028 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer028 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().front();
     ret = UsbSrvClient.OpenDevice(device, pipe);
@@ -1370,16 +1647,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer028, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer029, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer029 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer029 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer029 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().front();
     ret = UsbSrvClient.OpenDevice(device, pipe);
@@ -1411,16 +1696,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer029, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer030, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer030 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer030 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer030 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().front();
     ret = UsbSrvClient.OpenDevice(device, pipe);
@@ -1452,16 +1745,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer030, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer031, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer031 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer031 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer031 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -1490,16 +1791,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer031, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer032, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer032 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer032 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer032 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -1530,16 +1839,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer032, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer033, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer033 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer033 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer033 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -1570,17 +1887,25 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer033, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer034, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer034 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer034 %{public}d ret=%{public}d", __LINE__,
                ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer034 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -1609,17 +1934,25 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer034, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer035, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer035 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer035 %{public}d ret=%{public}d", __LINE__,
                ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer035 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -1650,17 +1983,25 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer035, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer036, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer036 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer036 %{public}d ret=%{public}d", __LINE__,
                ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer036 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -1691,16 +2032,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer036, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer037, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer037 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer037 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer037 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -1729,16 +2078,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer037, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer038, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer038 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer038 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer038 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -1769,16 +2126,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer038, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer039, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer039 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer039 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer039 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
@@ -1809,16 +2174,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer039, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer040, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer040 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer040 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer040 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer040 %{public}d OpenDevice=%{public}d",
@@ -1846,16 +2219,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer040, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer041, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer041 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer041 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer041 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer041 %{public}d OpenDevice=%{public}d",
@@ -1885,16 +2266,24 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer041, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer042, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Usbcontrolstansfer042 : UsbControlTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer042 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer042 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Usbcontrolstansfer042 %{public}d OpenDevice=%{public}d",
@@ -1924,22 +2313,30 @@ HWTEST_F(UsbDevicePipeTest, Usbcontrolstansfer042, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbClaimInterface001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbClaimInterface001 : ClaimInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface001 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface001 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface001 %{public}d OpenDevice=%{public}d", __LINE__,
                ret);
     ASSERT_EQ(ret, 0);
-    UsbInterface interface = devi.front().GetConfigs().front().GetInterfaces().front();
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().front();
     ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface001 %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
@@ -1959,22 +2356,30 @@ HWTEST_F(UsbDevicePipeTest, UsbClaimInterface001, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbClaimInterface002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbClaimInterface002 : ClaimInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface002 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface002 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface002 %{public}d OpenDevice=%{public}d", __LINE__,
                ret);
-    UsbInterface interface = devi.front().GetConfigs().front().GetInterfaces().front();
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().front();
     ret = UsbSrvClient.ClaimInterface(pipe, interface, false);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface002 %{public}d ClaimInterface=%{public}d",
@@ -1994,22 +2399,30 @@ HWTEST_F(UsbDevicePipeTest, UsbClaimInterface002, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbClaimInterface003, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbClaimInterface003 : ClaimInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface003 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface003 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface003 %{public}d OpenDevice=%{public}d", __LINE__,
                ret);
-    UsbInterface interface = devi.front().GetConfigs().front().GetInterfaces().at(1);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface003 %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
@@ -2029,22 +2442,30 @@ HWTEST_F(UsbDevicePipeTest, UsbClaimInterface003, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbClaimInterface004, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbClaimInterface004 : ClaimInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface004 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface004 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface004 %{public}d OpenDevice=%{public}d", __LINE__,
                ret);
-    UsbInterface interface = devi.front().GetConfigs().front().GetInterfaces().at(1);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     ret = UsbSrvClient.ClaimInterface(pipe, interface, false);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface004 %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
@@ -2064,22 +2485,30 @@ HWTEST_F(UsbDevicePipeTest, UsbClaimInterface004, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbClaimInterface005, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbClaimInterface005 : ClaimInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface005 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface005 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface005 %{public}d OpenDevice=%{public}d", __LINE__,
                ret);
     ASSERT_EQ(ret, 0);
-    UsbInterface interface = devi.front().GetConfigs().front().GetInterfaces().front();
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().front();
     pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface005 %{public}d ClaimInterface=%{public}d",
@@ -2101,22 +2530,30 @@ HWTEST_F(UsbDevicePipeTest, UsbClaimInterface005, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbClaimInterface006, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbClaimInterface006 : ClaimInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface006 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface006 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface006 %{public}d OpenDevice=%{public}d", __LINE__,
                ret);
     ASSERT_EQ(ret, 0);
-    UsbInterface interface = devi.front().GetConfigs().front().GetInterfaces().front();
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().front();
     pipe.SetDevAddr(BUFFER_SIZE);
     ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface006 %{public}d ClaimInterface=%{public}d",
@@ -2138,22 +2575,30 @@ HWTEST_F(UsbDevicePipeTest, UsbClaimInterface006, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbClaimInterface007, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbClaimInterface007 : ClaimInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface007 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface007 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface007 %{public}d OpenDevice=%{public}d", __LINE__,
                ret);
-    UsbInterface interface = devi.front().GetConfigs().front().GetInterfaces().at(1);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface007 %{public}d ClaimInterface=%{public}d",
@@ -2175,22 +2620,30 @@ HWTEST_F(UsbDevicePipeTest, UsbClaimInterface007, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbClaimInterface008, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbClaimInterface008 : ClaimInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface008 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface008 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface008 %{public}d OpenDevice=%{public}d", __LINE__,
                ret);
-    UsbInterface interface = devi.front().GetConfigs().front().GetInterfaces().at(1);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     pipe.SetDevAddr(BUFFER_SIZE);
     ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbClaimInterface008 %{public}d ClaimInterface=%{public}d",
@@ -2212,17 +2665,25 @@ HWTEST_F(UsbDevicePipeTest, UsbClaimInterface008, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbReleaseInterface001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbReleaseInterface001 : ReleaseInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface001 %{public}d ret=%{public}d", __LINE__,
                ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface001 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
     ret = UsbSrvClient.OpenDevice(device, pipe);
@@ -2248,17 +2709,25 @@ HWTEST_F(UsbDevicePipeTest, UsbReleaseInterface001, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbReleaseInterface002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbReleaseInterface002 : ReleaseInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface002 %{public}d ret=%{public}d", __LINE__,
                ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface002 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
     ret = UsbSrvClient.OpenDevice(device, pipe);
@@ -2286,17 +2755,25 @@ HWTEST_F(UsbDevicePipeTest, UsbReleaseInterface002, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbReleaseInterface003, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbReleaseInterface003 : ReleaseInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface003 %{public}d ret=%{public}d", __LINE__,
                ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface003 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
     ret = UsbSrvClient.OpenDevice(device, pipe);
@@ -2324,23 +2801,31 @@ HWTEST_F(UsbDevicePipeTest, UsbReleaseInterface003, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbReleaseInterface004, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbReleaseInterface004 : ReleaseInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface004 %{public}d ret=%{public}d", __LINE__,
                ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface004 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface004 %{public}d OpenDevice=%{public}d",
                __LINE__, ret);
-    UsbInterface interface = devi.front().GetConfigs().front().GetInterfaces().at(1);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     ret = UsbSrvClient.ClaimInterface(pipe, interface, true);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface004 %{public}d ClaimInterface=%{public}d",
                __LINE__, ret);
@@ -2364,23 +2849,31 @@ HWTEST_F(UsbDevicePipeTest, UsbReleaseInterface004, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbReleaseInterface005, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbReleaseInterface005 : ReleaseInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface005 %{public}d ret=%{public}d", __LINE__,
                ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface005 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface005 %{public}d OpenDevice=%{public}d",
                __LINE__, ret);
-    UsbInterface interface = devi.front().GetConfigs().front().GetInterfaces().at(1);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     pipe.SetBusNum(BUFFER_SIZE);
     ret = UsbSrvClient.ReleaseInterface(pipe, interface);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface005 %{public}d ReleaseInterface=%{public}d",
@@ -2402,23 +2895,31 @@ HWTEST_F(UsbDevicePipeTest, UsbReleaseInterface005, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbReleaseInterface006, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbReleaseInterface006 : ReleaseInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface006 %{public}d ret=%{public}d", __LINE__,
                ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface006 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface006 %{public}d OpenDevice=%{public}d",
                __LINE__, ret);
-    UsbInterface interface = devi.front().GetConfigs().front().GetInterfaces().at(1);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     pipe.SetDevAddr(BUFFER_SIZE);
     ret = UsbSrvClient.ReleaseInterface(pipe, interface);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbReleaseInterface006 %{public}d ReleaseInterface=%{public}d",
@@ -2441,16 +2942,24 @@ HWTEST_F(UsbDevicePipeTest, UsbReleaseInterface006, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbBulkTransfer001 : BulkTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer001 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer001 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer001 %{public}d OpenDevice=%{public}d", __LINE__,
@@ -2467,7 +2976,7 @@ HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer001, TestSize.Level1)
     uint8_t buffer[BUFFER_SIZE] = "bulk read";
     uint32_t len = BUFFER_SIZE;
     std::vector<uint8_t> bulkbuffer = {buffer, buffer + len};
-    ret = UsbSrvClient.BulkTransfer(pipe, point, bulkbuffer, 500);
+    ret = UsbSrvClient.BulkTransfer(pipe, point, bulkbuffer, 3000);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer001 %{public}d BulkTransfer=%{public}d", __LINE__,
                ret);
     ASSERT_EQ(ret, 0);
@@ -2487,16 +2996,24 @@ HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer001, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbBulkTransfer002 : BulkTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer002 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer002 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     USBEndpoint point = interface.GetEndpoints().front();
@@ -2531,16 +3048,24 @@ HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer002, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer003, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbBulkTransfer003 : BulkTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer003 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer003 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer003 %{public}d OpenDevice=%{public}d", __LINE__,
@@ -2579,16 +3104,24 @@ HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer003, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer004, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbBulkTransfer004 : BulkTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer004 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer004 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer004 %{public}d OpenDevice=%{public}d", __LINE__,
@@ -2628,16 +3161,24 @@ HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer004, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer005, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbBulkTransfer005 : BulkTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer005 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer005 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     USBEndpoint point = interface.GetEndpoints().front();
@@ -2675,16 +3216,24 @@ HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer005, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer006, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbBulkTransfer006 : BulkTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer006 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer006 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     USBEndpoint point = interface.GetEndpoints().front();
@@ -2722,16 +3271,24 @@ HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer006, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer007, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbBulkTransfer007 : BulkTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer007 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer007 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     USBEndpoint point = interface.GetEndpoints().at(1);
@@ -2768,16 +3325,24 @@ HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer007, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer008, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbBulkTransfer008 : BulkTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer008 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer008 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     USBEndpoint point = interface.GetEndpoints().at(1);
@@ -2816,16 +3381,24 @@ HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer008, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer009, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbBulkTransfer009 : BulkTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer009 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer009 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     USBEndpoint point = interface.GetEndpoints().at(1);
@@ -2864,16 +3437,24 @@ HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer009, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer010, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbBulkTransfer010 : BulkTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer010 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer010 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(1);
     USBEndpoint point = interface.GetEndpoints().at(1);
@@ -2910,16 +3491,24 @@ HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer010, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer011, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : UsbBulkTransfer011 : BulkTransfer");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer011 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer011 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbBulkTransfer011 %{public}d OpenDevice=%{public}d", __LINE__,
@@ -2963,16 +3552,24 @@ HWTEST_F(UsbDevicePipeTest, UsbBulkTransfer011, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, SetConfiguration001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetConfiguration001 : SetConfiguration");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetConfiguration001 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetConfiguration001 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBConfig config = device.GetConfigs().front();
     ret = UsbSrvClient.OpenDevice(device, pipe);
@@ -2998,16 +3595,24 @@ HWTEST_F(UsbDevicePipeTest, SetConfiguration001, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, SetConfiguration002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetConfiguration002 : SetConfiguration");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetConfiguration002 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetConfiguration002 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBConfig config = device.GetConfigs().front();
     ret = UsbSrvClient.OpenDevice(device, pipe);
@@ -3035,16 +3640,24 @@ HWTEST_F(UsbDevicePipeTest, SetConfiguration002, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, SetConfiguration003, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetConfiguration003 : SetConfiguration");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetConfiguration003 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetConfiguration003 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBConfig config = device.GetConfigs().front();
     ret = UsbSrvClient.OpenDevice(device, pipe);
@@ -3073,15 +3686,23 @@ HWTEST_F(UsbDevicePipeTest, SetConfiguration003, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Close001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Close001 : Close");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close001 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close001 %{public}d size=%{public}zu", __LINE__, devi.size());
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close001 %{public}d size=%{public}zu", __LINE__, delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close001 %{public}d OpenDevice=%{public}d", __LINE__, ret);
@@ -3100,15 +3721,23 @@ HWTEST_F(UsbDevicePipeTest, Close001, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Close002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Close002 : Close");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close002 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close002 %{public}d size=%{public}zu", __LINE__, devi.size());
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close002 %{public}d size=%{public}zu", __LINE__, delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close002 %{public}d OpenDevice=%{public}d", __LINE__, ret);
@@ -3132,15 +3761,23 @@ HWTEST_F(UsbDevicePipeTest, Close002, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, Close003, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : Close003 : Close");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close003 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close003 %{public}d size=%{public}zu", __LINE__, devi.size());
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close003 %{public}d size=%{public}zu", __LINE__, delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::Close003 %{public}d OpenDevice=%{public}d", __LINE__, ret);
@@ -3164,16 +3801,24 @@ HWTEST_F(UsbDevicePipeTest, Close003, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, SetInterface001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetInterface001 : SetInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface001 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface001 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface001 %{public}d OpenDevice=%{public}d", __LINE__,
@@ -3202,16 +3847,24 @@ HWTEST_F(UsbDevicePipeTest, SetInterface001, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, SetInterface002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetInterface002 : SetInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface002 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface002 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface002 %{public}d OpenDevice=%{public}d", __LINE__,
@@ -3242,16 +3895,24 @@ HWTEST_F(UsbDevicePipeTest, SetInterface002, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, SetInterface003, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetInterface003 : SetInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface003 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface003 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface003 %{public}d OpenDevice=%{public}d", __LINE__,
@@ -3282,16 +3943,24 @@ HWTEST_F(UsbDevicePipeTest, SetInterface003, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, SetInterface004, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetInterface004 : SetInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface004 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface004 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface004 %{public}d OpenDevice=%{public}d", __LINE__,
@@ -3320,16 +3989,24 @@ HWTEST_F(UsbDevicePipeTest, SetInterface004, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, SetInterface005, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetInterface005 : SetInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface005 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface005 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface005 %{public}d OpenDevice=%{public}d", __LINE__,
@@ -3360,16 +4037,24 @@ HWTEST_F(UsbDevicePipeTest, SetInterface005, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, SetInterface006, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : SetInterface006 : SetInterface");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface006 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface006 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::SetInterface006 %{public}d OpenDevice=%{public}d", __LINE__,
@@ -3400,16 +4085,24 @@ HWTEST_F(UsbDevicePipeTest, SetInterface006, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, GetRawDescriptors001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetRawDescriptors001 : GetRawDescriptors");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetRawDescriptors001 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetRawDescriptors001 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetRawDescriptors001 %{public}d OpenDevice=%{public}d",
@@ -3434,16 +4127,24 @@ HWTEST_F(UsbDevicePipeTest, GetRawDescriptors001, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, GetRawDescriptors002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetRawDescriptors002 : GetRawDescriptors");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetRawDescriptors002 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetRawDescriptors002 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetRawDescriptors002 %{public}d OpenDevice=%{public}d",
@@ -3470,16 +4171,24 @@ HWTEST_F(UsbDevicePipeTest, GetRawDescriptors002, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, GetRawDescriptors003, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetRawDescriptors003 : GetRawDescriptors");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetRawDescriptors003 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetRawDescriptors003 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetRawDescriptors003 %{public}d OpenDevice=%{public}d",
@@ -3506,16 +4215,24 @@ HWTEST_F(UsbDevicePipeTest, GetRawDescriptors003, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, GetFileDescriptors001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetFileDescriptors001 : GetRawDescriptors");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetFileDescriptors001 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetFileDescriptors001 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetFileDescriptors001 %{public}d OpenDevice=%{public}d",
@@ -3551,16 +4268,24 @@ HWTEST_F(UsbDevicePipeTest, GetFileDescriptors001, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, GetFileDescriptors002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetFileDescriptors002 : GetRawDescriptors");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetFileDescriptors002 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetFileDescriptors002 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetFileDescriptors002 %{public}d OpenDevice=%{public}d",
@@ -3594,16 +4319,24 @@ HWTEST_F(UsbDevicePipeTest, GetFileDescriptors002, TestSize.Level1)
 HWTEST_F(UsbDevicePipeTest, GetFileDescriptors003, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : GetFileDescriptors003 : GetRawDescriptors");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetFileDescriptors003 %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetFileDescriptors003 %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+        UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::GetFileDescriptors003 %{public}d OpenDevice=%{public}d",

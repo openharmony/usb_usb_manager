@@ -136,6 +136,16 @@ ohos_unittest("test_interrupt_transfer") {
 
 ohos_unittest("test_usbhubdevice") {
   module_out_path = module_output_path
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
   sources = [
     "src/usb_common_test.cpp",
     "src/usb_hub_device_test.cpp",

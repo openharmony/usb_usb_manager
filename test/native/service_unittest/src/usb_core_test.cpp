@@ -39,7 +39,6 @@ using namespace OHOS::USB::Common;
 namespace OHOS {
 namespace USB {
 namespace Core {
-constexpr int32_t SLEEP_TIME = 3;
 #ifdef USB_MANAGER_FEATURE_DEVICE
 constexpr int32_t USB_FUNCTION_INVALID = -1;
 #endif // USB_MANAGER_FEATURE_DEVICE
@@ -51,15 +50,6 @@ constexpr int32_t USB_DATA_ROLE_INVALID = -1;
 void UsbCoreTest::SetUpTestCase(void)
 {
     UsbCommonTest::GrantPermissionSysNative();
-    auto &srvClient = UsbSrvClient::GetInstance();
-    auto ret = srvClient.SetPortRole(USB_PORT_ID, UsbSrvSupport::DATA_ROLE_DEVICE, UsbSrvSupport::POWER_ROLE_SINK);
-    sleep(SLEEP_TIME);
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbCoreTest:: [Device] SetPortRole=%{public}d", ret);
-    ret = UsbCommonTest::SwitchErrCode(ret);
-    ASSERT_EQ(0, ret);
-    if (ret != 0) {
-        exit(0);
-    }
     USB_HILOGI(MODULE_USB_SERVICE, "Start UsbCoreTest");
 }
 
