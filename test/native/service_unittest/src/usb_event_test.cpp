@@ -16,7 +16,8 @@
 #include <gtest/gtest.h>
 #include "cJSON.h"
 #include <semaphore.h>
-
+#include <thread>
+#include <chrono>
 #include <iostream>
 
 #include "common_event_manager.h"
@@ -109,6 +110,7 @@ HWTEST_F(UsbEventTest, SUB_USB_Broadcast_0200, TestSize.Level1)
 
     // block until UsbSubscriberTest post
     sem_wait(&UsbEventTest::testSem_);
+    std::this_thread::sleep_for(std::chrono::seconds(5));
     CommonEventManager::UnSubscribeCommonEvent(subscriber);
 
     auto &want = UsbSubscriberTest::eventData_.GetWant();

@@ -87,7 +87,15 @@ HWTEST_F(UsbRequestTest, UsbRequestInitialize001, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -130,7 +138,15 @@ HWTEST_F(UsbRequestTest, UsbRequestInitialize002, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -176,7 +192,15 @@ HWTEST_F(UsbRequestTest, UsbRequestInitialize003, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -219,7 +243,15 @@ HWTEST_F(UsbRequestTest, UsbRequestInitialize004, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -262,7 +294,15 @@ HWTEST_F(UsbRequestTest, UsbRequestInitialize005, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -308,7 +348,15 @@ HWTEST_F(UsbRequestTest, UsbRequestInitialize006, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -354,7 +402,15 @@ HWTEST_F(UsbRequestTest, UsbrequestQueue001, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -402,7 +458,15 @@ HWTEST_F(UsbRequestTest, UsbrequestQueue002, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -450,7 +514,15 @@ HWTEST_F(UsbRequestTest, UsbrequestQueue003, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -501,7 +573,15 @@ HWTEST_F(UsbRequestTest, UsbrequestQueue004, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -552,7 +632,15 @@ HWTEST_F(UsbRequestTest, UsbrequestQueue005, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -603,7 +691,15 @@ HWTEST_F(UsbRequestTest, UsbrequestQueue006, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -654,7 +750,15 @@ HWTEST_F(UsbRequestTest, Usbrequestfree001, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -697,7 +801,15 @@ HWTEST_F(UsbRequestTest, Usbrequestfree002, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -743,7 +855,15 @@ HWTEST_F(UsbRequestTest, Usbrequestfree003, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -789,7 +909,15 @@ HWTEST_F(UsbRequestTest, Usbrequestfree004, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -835,7 +963,15 @@ HWTEST_F(UsbRequestTest, Usbrequestfree005, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -884,7 +1020,15 @@ HWTEST_F(UsbRequestTest, Usbrequestfree006, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -933,7 +1077,15 @@ HWTEST_F(UsbRequestTest, Usbrequestabort001, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -984,7 +1136,15 @@ HWTEST_F(UsbRequestTest, Usbrequestabort002, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -1038,7 +1198,15 @@ HWTEST_F(UsbRequestTest, Usbrequestabort003, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -1092,7 +1260,15 @@ HWTEST_F(UsbRequestTest, Usbrequestabort004, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -1143,7 +1319,15 @@ HWTEST_F(UsbRequestTest, Usbrequestabort005, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -1193,7 +1377,15 @@ HWTEST_F(UsbRequestTest, Usbrequestabort006, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -1243,7 +1435,15 @@ HWTEST_F(UsbRequestTest, PipeRequestWait001, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -1296,7 +1496,15 @@ HWTEST_F(UsbRequestTest, PipeRequestWait002, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -1351,7 +1559,15 @@ HWTEST_F(UsbRequestTest, PipeRequestWait003, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -1406,7 +1622,15 @@ HWTEST_F(UsbRequestTest, PipeRequestWait004, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -1457,7 +1681,15 @@ HWTEST_F(UsbRequestTest, PipeRequestWait005, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -1508,7 +1740,15 @@ HWTEST_F(UsbRequestTest, PipeRequestWait006, TestSize.Level1)
         __LINE__, ret, delist.size());
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -1561,7 +1801,15 @@ HWTEST_F(UsbRequestTest, UsbHasRight001, TestSize.Level1)
     auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     std::string deviceName = std::to_string(device.GetBusNum()) + "-" + std::to_string(device.GetDevAddr());
     bool result = UsbSrvClient.HasRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight001 HasRight=%{public}d", result);
@@ -1584,7 +1832,15 @@ HWTEST_F(UsbRequestTest, UsbHasRight002, TestSize.Level1)
     auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     std::string deviceName = std::to_string(device.GetBusNum()) + "-" + std::to_string(device.GetDevAddr());
     bool result = UsbSrvClient.HasRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight002 HasRight=%{public}d", result);
@@ -1613,7 +1869,15 @@ HWTEST_F(UsbRequestTest, UsbHasRight003, TestSize.Level1)
     auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     std::string deviceName = std::to_string(device.GetBusNum()) + "-" + std::to_string(device.GetDevAddr());
     bool result = UsbSrvClient.HasRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight003 HasRight=%{public}d", result);
@@ -1643,7 +1907,15 @@ HWTEST_F(UsbRequestTest, UsbHasRight004, TestSize.Level1)
     auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     std::string deviceName = std::to_string(device.GetBusNum()) + "-" + std::to_string(device.GetDevAddr());
     bool result = UsbSrvClient.HasRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight004 HasRight=%{public}d", result);
@@ -1702,7 +1974,15 @@ HWTEST_F(UsbRequestTest, UsbHasRight006, TestSize.Level1)
     auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     auto tokenId0 = UsbCommonTest::AllocHapTest();
     std::string strTokenId0 = std::to_string(tokenId0);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::UsbHasRight006 tokenId=%{public}s", strTokenId0.c_str());
@@ -1755,7 +2035,15 @@ HWTEST_F(UsbRequestTest, Usbrequestright001, TestSize.Level1)
     auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     std::string deviceName = std::to_string(device.GetBusNum()) + "-" + std::to_string(device.GetDevAddr());
     ret = UsbSrvClient.RequestRight(deviceName);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbRequestTest::Usbrequestright001 RequestRight=%{public}d", ret);
@@ -1783,7 +2071,15 @@ HWTEST_F(UsbRequestTest, Usbrequestright003, TestSize.Level1)
     auto ret = UsbSrvClient.GetDevices(delist);
     ASSERT_EQ(ret, 0);
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     std::string deviceName = std::to_string(device.GetBusNum()) + "-" + std::to_string(device.GetDevAddr());
     ret = UsbSrvClient.RequestRight(deviceName);
     bool result = UsbSrvClient.HasRight(deviceName);

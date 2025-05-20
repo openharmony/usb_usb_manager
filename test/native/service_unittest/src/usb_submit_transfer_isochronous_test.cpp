@@ -81,15 +81,23 @@ void UsbSubmitTransferIsochronousTest::TearDown(void) {}
 HWTEST_F(UsbSubmitTransferIsochronousTest, UsbSubmitTransferIsochronousWrite, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferIsochronousWrite enter.");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferIsochronousWrite %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferIsochronousWrite %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferIsochronousWrite %{public}d OpenDevice=%{public}d", __LINE__,
@@ -143,7 +151,15 @@ HWTEST_F(UsbSubmitTransferIsochronousTest, UsbSubmitTransferIsochronousRead, Tes
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.GetDevices(delist);
     EXPECT_TRUE(!(delist.empty())) << "Device list is empty";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     ret = UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -194,7 +210,15 @@ HWTEST_F(UsbSubmitTransferIsochronousTest, UsbSubmitTransferIsochronousWriteInva
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.GetDevices(delist);
     EXPECT_TRUE(!(delist.empty())) << "Device list is empty";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     ret = UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -246,7 +270,15 @@ HWTEST_F(UsbSubmitTransferIsochronousTest, UsbSubmitTransferIsochronousWriteIoEr
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.GetDevices(delist);
     EXPECT_TRUE(!(delist.empty())) << "Device list is empty";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     ret = UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -293,7 +325,15 @@ HWTEST_F(UsbSubmitTransferIsochronousTest, UsbCancelTransferIsochronousWrite, Te
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.GetDevices(delist);
     EXPECT_TRUE(!(delist.empty())) << "Device list is empty";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     ret = UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);

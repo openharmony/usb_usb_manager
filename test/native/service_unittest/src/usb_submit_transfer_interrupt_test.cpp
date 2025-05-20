@@ -81,15 +81,23 @@ void UsbSubmitTransferInterruptTest::TearDown(void) {}
 HWTEST_F(UsbSubmitTransferInterruptTest, UsbSubmitTransferInterruptWrite, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferInterruptWrite enter.");
-    vector<UsbDevice> devi;
+    vector<UsbDevice> delist;
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    auto ret = UsbSrvClient.GetDevices(devi);
+    auto ret = UsbSrvClient.GetDevices(delist);
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferInterruptWrite %{public}d ret=%{public}d", __LINE__, ret);
-    EXPECT_TRUE(!(devi.empty())) << "delist NULL";
+    EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbSubmitTransferInterruptWrite %{public}d size=%{public}zu", __LINE__,
-               devi.size());
+               delist.size());
     USBDevicePipe pipe;
-    UsbDevice device = devi.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     UsbSrvClient.RequestRight(device.GetName());
     ret = UsbSrvClient.OpenDevice(device, pipe);
     UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
@@ -138,7 +146,15 @@ HWTEST_F(UsbSubmitTransferInterruptTest, UsbSubmitTransferInterruptReadInvalidEn
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.GetDevices(delist);
     EXPECT_TRUE(!(delist.empty())) << "Device list is empty";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     ret = UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
@@ -190,7 +206,15 @@ HWTEST_F(UsbSubmitTransferInterruptTest, UsbSubmitTransferInterruptWriteIoError,
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
     auto ret = UsbSrvClient.GetDevices(delist);
     EXPECT_TRUE(!(delist.empty())) << "Device list is empty";
-    UsbDevice device = delist.front();
+    UsbDevice device;
+    bool hasDevice = false;
+    for (int32_t i = 0; i < delist.size(); i++) {
+        if (delist[i].GetClass() != 9) {
+            device = delist[i];
+            hasDevice = true;
+        }
+    }
+    EXPECT_TRUE(hasDevice);
     ret = UsbSrvClient.RequestRight(device.GetName());
     USBDevicePipe pip;
     ret = UsbSrvClient.OpenDevice(device, pip);
