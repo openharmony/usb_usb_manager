@@ -73,6 +73,14 @@ HapInfoParams g_infoManagerTestInfoParms2 = {
     .isSystemApp = false
 };
 
+HapInfoParams g_infoManagerTestInfoParms3 = {
+    .bundleName = "usb_service_test_hap",
+    .userID = 1,
+    .instIndex = 0,
+    .appIDDesc = "usb service test hap",
+    .isSystemApp = true
+};
+
 void UsbCommonTest::SetTestCaseNative(TokenInfoParams *infoInstance)
 {
     uint64_t tokenId = GetAccessTokenId(infoInstance);
@@ -167,6 +175,21 @@ AccessTokenID UsbCommonTest::AllocHapTest()
     }
     return tokenId;
 }
+
+AccessTokenID UsbCommonTest::AllocSystemHapTest()
+{
+    AccessTokenID tokenId = 0;
+    AccessTokenIDEx tokenIdEx = {0};
+    tokenIdEx = AccessTokenKit::AllocHapToken(g_infoManagerTestInfoParms3, g_infoManagerTestPolicyPrams);
+    tokenId = tokenIdEx.tokenIdExStruct.tokenID;
+    if (tokenId != 0) {
+        USB_HILOGI(MODULE_USB_SERVICE, "AllocHapToken success, tokenId: %{public}d", tokenId);
+    } else {
+        USB_HILOGE(MODULE_USB_SERVICE, "AllocHapToken fail,tokenId: %{public}d", tokenId);
+    }
+    return tokenId;
+}
+
 AccessTokenID UsbCommonTest::AllocHapTestWithUserIdDiff()
 {
     AccessTokenID tokenId = 0;

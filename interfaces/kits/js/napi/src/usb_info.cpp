@@ -40,6 +40,7 @@
 #include "usb_srv_client.h"
 #include "usb_accessory.h"
 #include "hitrace_meter.h"
+#include "hdf_base.h"
 using namespace OHOS;
 using namespace OHOS::USB;
 using namespace OHOS::HDI::Usb::V1_0;
@@ -2319,9 +2320,9 @@ static int32_t UsbSubmitTransferErrorCode(int32_t &error)
 
 static bool CreateAndWriteAshmem(USBTransferAsyncContext *asyncContext, HDI::Usb::V1_2::USBTransferInfo &obj)
 {
-    StartTrace(HITRACE_TAG_USB, "NAPI:Ashmem::CreateAshmem");
+    StartTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB, "NAPI:Ashmem::CreateAshmem");
     asyncContext->ashmem = Ashmem::CreateAshmem(asyncContext->name.c_str(), asyncContext->length);
-    FinishTrace(HITRACE_TAG_USB);
+    FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB);
     if (asyncContext->ashmem == nullptr) {
         USB_HILOGE(MODULE_JS_NAPI, "Ashmem::CreateAshmem failed");
         return false;
@@ -2331,14 +2332,14 @@ static bool CreateAndWriteAshmem(USBTransferAsyncContext *asyncContext, HDI::Usb
         std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
         obj.length = static_cast<int32_t>(bufferData.size());
         asyncContext->ashmem->MapReadAndWriteAshmem();
-        StartTrace(HITRACE_TAG_USB, "NAPI:WriteToAshmem");
+        StartTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB, "NAPI:WriteToAshmem");
         if (!asyncContext->ashmem->WriteToAshmem(asyncContext->buffer, bufferData.size(), 0)) {
-            FinishTrace(HITRACE_TAG_USB);
+            FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB);
             asyncContext->ashmem->CloseAshmem();
             USB_HILOGE(MODULE_JS_NAPI, "napi UsbSubmitTransfer Failed to UsbSubmitTransfer to ashmem.");
             return false;
         }
-        FinishTrace(HITRACE_TAG_USB);
+        FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB);
     }
     return true;
 }
@@ -2364,7 +2365,7 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
     HDI::Usb::V1_2::USBTransferInfo obj;
     GetUSBTransferInfo(obj, asyncContext);
     if (!CreateAndWriteAshmem(asyncContext, obj)) {
-	delete asyncContext;
+        delete asyncContext;
         return nullptr;
     }
     static auto func = [] (const TransferCallbackInfo &info,
@@ -2372,9 +2373,9 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
         USBTransferAsyncContext *asyncContext = reinterpret_cast<USBTransferAsyncContext *>(userData);
         return JsCallBack(asyncContext, info, isoInfo);
     };
-    StartTrace(HITRACE_TAG_USB, "NAPI:UsbSubmitTransfer");
+    StartTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB, "NAPI:UsbSubmitTransfer");
     int32_t ret = asyncContext->pipe.UsbSubmitTransfer(obj, func, asyncContext->ashmem);
-    FinishTrace(HITRACE_TAG_USB);
+    FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB);
     if (ret != napi_ok) {
         asyncContext->ashmem->CloseAshmem();
         delete asyncContext;
@@ -2450,15 +2451,62 @@ static napi_value UsbCancelTransfer(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    StartTrace(HITRACE_TAG_USB, "NAPI:pipe.UsbCancelTransfer");
+    StartTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB, "NAPI:pipe.UsbCancelTransfer");
     int32_t ret = asyncContext->pipe.UsbCancelTransfer(asyncContext->endpoint);
-    FinishTrace(HITRACE_TAG_USB);
+    FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB);
     if (ret != napi_ok) {
         ret = UsbSubmitTransferErrorCode(ret);
         ThrowBusinessError(env, ret, "");
         return nullptr;
     }
     return nullptr;
+}
+
+static napi_value PipeResetDevice(napi_env env, napi_callback_info info)
+{
+    if (!HasFeature(FEATURE_HOST)) {
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
+    }
+    size_t argc = PARAM_COUNT_1;
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
+
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), OHEC_COMMON_PARAM_ERROR, "The function at least takes one argument.");
+    napi_value deciveObj = argv[INDEX_0];
+    napi_valuetype type;
+    napi_typeof(env, deciveObj, &type);
+    USB_ASSERT(env, type == napi_object, OHEC_COMMON_PARAM_ERROR, "The type of pipe must be USBDevicePipe.");
+
+    USBDevicePipe pipe;
+    ParseUsbDevicePipe(env, deciveObj, pipe);
+
+    napi_value napiValue;
+    int32_t ret = g_usbClient.ResetDevice(pipe);
+    if (ret == UEC_OK) {
+        napi_get_boolean(env, true, &napiValue);
+    } else if (ret == HDF_DEV_ERR_NO_DEVICE || UEC_INTERFACE_NO_INIT) {
+        ThrowBusinessError(env, USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR,
+            "Submit transfer no device.");
+        napi_get_boolean(env, false, &napiValue);
+    } else if (ret == UEC_SERVICE_PERMISSION_DENIED) {
+        ThrowBusinessError(env, UEC_COMMON_HAS_NO_RIGHT,
+            "No permission.");
+        napi_get_boolean(env, false, &napiValue);
+    } else if (ret == HDF_FAILURE) {
+        ThrowBusinessError(env, USB_DEVICE_PIPE_CHECK_ERROR,
+            "Check devicePipe failed.");
+        napi_get_boolean(env, false, &napiValue);
+    } else if (ret == UEC_SERVICE_INVALID_VALUE) {
+        ThrowBusinessError(env, UEC_COMMON_SERVICE_EXCEPTION,
+            "Service exception");
+        napi_get_boolean(env, false, &napiValue);
+    } else {
+        ThrowBusinessError(env, USB_SUBMIT_TRANSFER_OTHER_ERROR,
+            "Other USB error");
+        napi_get_boolean(env, false, &napiValue);
+    }
+    return napiValue;
 }
 
 static void SetEnumProperty(napi_env env, napi_value object, const std::string &name, int32_t value)
@@ -2777,6 +2825,7 @@ napi_value UsbInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getRawDescriptor", PipeGetRawDescriptors),
         DECLARE_NAPI_FUNCTION("getFileDescriptor", PipeGetFileDescriptor),
         DECLARE_NAPI_FUNCTION("closePipe", PipeClose),
+        DECLARE_NAPI_FUNCTION("resetUsbDevice", PipeResetDevice),
 
         DECLARE_NAPI_FUNCTION("usbCancelTransfer", UsbCancelTransfer),
         DECLARE_NAPI_FUNCTION("usbSubmitTransfer", UsbSubmitTransfer),

@@ -68,6 +68,7 @@ enum SUPPORTED_FUNC : int32_t {
 namespace OHOS {
 namespace USB {
 class NfcNotificationSubscriber : public Notification::NotificationSubscriber {
+    // LCOV_EXCL_START
     void OnConnected()
     {
         USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
@@ -116,6 +117,7 @@ class NfcNotificationSubscriber : public Notification::NotificationSubscriber {
     {
         USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
     }
+    // LCOV_EXCL_STOP
 };
 
 static std::shared_ptr<NfcNotificationSubscriber> g_notificationSubscriber
@@ -134,6 +136,7 @@ std::shared_ptr<UsbConnectionNotifier> UsbConnectionNotifier::GetInstance()
     return instance_;
 }
 
+// LCOV_EXCL_START
 sptr<IBundleMgr> UsbConnectionNotifier::GetBundleMgr(void)
 {
     USB_TRACE;
@@ -319,9 +322,9 @@ void UsbConnectionNotifier::SendNotification(std::string func)
         request_.SetLittleIcon(icon_.value());
     }
     SetWantAgent(request_);
-    StartTrace(HITRACE_TAG_HDF, "Helper::PublishNotification");
+    StartTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_HDF, "Helper::PublishNotification");
     int32_t result = OHOS::Notification::NotificationHelper::PublishNotification(request_);
-    FinishTrace(HITRACE_TAG_HDF);
+    FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_HDF);
     USB_HILOGI(MODULE_USB_SERVICE, "PublishNotification result : %{public}d", result);
 }
 
@@ -382,9 +385,9 @@ void UsbConnectionNotifier::SendHdcNotification()
         requestHdc_.SetLittleIcon(icon_.value());
     }
     SetWantAgentHdc(requestHdc_);
-    StartTrace(HITRACE_TAG_HDF, "Helper::PublishNotification");
+    StartTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_HDF, "Helper::PublishNotification");
     int32_t result = OHOS::Notification::NotificationHelper::PublishNotification(requestHdc_);
-    FinishTrace(HITRACE_TAG_HDF);
+    FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_HDF);
     USB_HILOGI(MODULE_USB_SERVICE, "PublishNotification result : %{public}d", result);
 }
 
@@ -397,6 +400,7 @@ void UsbConnectionNotifier::CancelHdcNotification()
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: notificationId %{public}d, result %{public}d", __func__,
                notificationId, result);
 }
+// LCOV_EXCL_STOP
 
 } // namespace USB
 } // namespace OHOS

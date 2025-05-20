@@ -762,7 +762,6 @@ static napi_value NapiCreateStopBitsTypeEnum(napi_env env)
         return nullptr;
     }
     SetEnumProperty(env, object, "STOPBIT_1", STOPBIT_1);
-    SetEnumProperty(env, object, "STOPBIT_1P5", STOPBIT_1P5);
     SetEnumProperty(env, object, "STOPBIT_2", STOPBIT_2);
     return object;
 }
@@ -795,7 +794,6 @@ static napi_value NapiCreateDataBitsTypeEnum(napi_env env)
     SetEnumProperty(env, object, "DATABIT_7", DATABIT_7);
     SetEnumProperty(env, object, "DATABIT_6", DATABIT_6);
     SetEnumProperty(env, object, "DATABIT_5", DATABIT_5);
-    SetEnumProperty(env, object, "DATABIT_4", DATABIT_4);
     return object;
 }
 

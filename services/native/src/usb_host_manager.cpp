@@ -102,6 +102,7 @@ constexpr int32_t PROTOCAL_INDEX = 2;
 constexpr int32_t STORAGE_BASE_CLASS = 8;
 constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
+constexpr int32_t BASE_CLASS_HUB = 0x09;
 #ifdef USB_MANAGER_PASS_THROUGH
 const std::string SERVICE_NAME = "usb_host_interface_service";
 #endif // USB_MANAGER_PASS_THROUGH
@@ -186,6 +187,9 @@ void UsbHostManager::UsbSubmitTransferDeathRecipient::OnRemoteDied(const wptr<IR
 void UsbHostManager::ExecuteStrategy(UsbDevice *devInfo)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbHostManager::ExecuteStrategy start");
+    if (devInfo == nullptr || devInfo->GetClass() == BASE_CLASS_HUB) {
+        return;
+    }
     if (!IsEdmEnabled()) {
         USB_HILOGE(MODULE_USB_SERVICE, "edm is not activate, skip");
         return;
@@ -436,13 +440,16 @@ int32_t UsbHostManager::ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t inter
 #endif // USB_MANAGER_PASS_THROUGH
 }
 
-
 int32_t UsbHostManager::GetDevices(std::vector<UsbDevice> &deviceList)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
+    bool isSystemAppOrSa = usbRightManager_->IsSystemAppOrSa();
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
-        if (!(usbRightManager_->IsSystemAppOrSa())) {
+        if (!(isSystemAppOrSa)) {
             it->second->SetmSerial("");
+        }
+        if (it->second->GetClass() == BASE_CLASS_HUB && !isSystemAppOrSa) {
+            continue;
         }
         deviceList.push_back(*it->second);
     }
@@ -1125,6 +1132,9 @@ bool UsbHostManager::PublishCommonEvent(const std::string &event, const UsbDevic
     CommonEventData data(want);
     data.SetData(dev.getJsonString().c_str());
     CommonEventPublishInfo publishInfo;
+    if (dev.GetClass() == BASE_CLASS_HUB) {
+        publishInfo.SetSubscriberType(SubscriberType::SYSTEM_SUBSCRIBER_TYPE);
+    }
     USB_HILOGI(MODULE_SERVICE, "send %{public}s broadcast device:%{public}s", event.c_str(),
         dev.getJsonString().c_str());
     ReportHostPlugSysEvent(event, dev);
@@ -1678,6 +1688,9 @@ int32_t UsbHostManager::ManageGlobalInterfaceImpl(bool disable)
             ManageInterface(dev, interfaces[i].GetId(), disable);
             std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
         }
+        if (disable) {
+            ReportManageDeviceInfo("GlobalType", it->second, nullptr, false);
+        }
         if (Close(dev.busNum, dev.devAddr) != UEC_OK) {
             USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl CloseDevice fail");
         }
@@ -1713,6 +1726,9 @@ int32_t UsbHostManager::ManageDeviceImpl(int32_t vendorId, int32_t productId, bo
                 ManageInterface(dev, interfaces[i].GetId(), disable);
                 std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
             }
+            if (disable) {
+                ReportManageDeviceInfo("DeviceType", it->second, nullptr, false);
+            }
             if (Close(dev.busNum, dev.devAddr) != UEC_OK) {
                 USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceImpl Close fail");
             }
@@ -1743,6 +1759,7 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
         std::vector<UsbInterface> interfaces = configs.GetInterfaces();
 
         for (uint32_t i = 0; i < interfaces.size(); i++) {
+            int32_t ret = RANDOM_VALUE_INDICATE;
             // 0 indicate base class, 1 indicate subclass, 2 indicate protocal. -1 indicate any value.
             if ((interfaces[i].GetClass() == iterInterface->second[BASECLASS_INDEX]) && (interfaces[i].GetSubClass() ==
                 iterInterface->second[SUBCLASS_INDEX] || iterInterface->second[SUBCLASS_INDEX] ==
@@ -1752,6 +1769,9 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
                     USB_HILOGI(MODULE_USB_SERVICE, "size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
                         devices_.size(), static_cast<int32_t>(interfaceType), disable);
                     std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
+            }
+            if (disable && ret == UEC_OK) {
+                ReportManageDeviceInfo("InterfaceType", it->second, &interfaces[i], true);
             }
         }
     }
@@ -1775,8 +1795,38 @@ int32_t UsbHostManager::ManageDeviceTypeImpl(InterfaceType interfaceType, bool d
                     devices_.size(), static_cast<int32_t>(interfaceType), disable);
                 std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
         }
+        if (disable) {
+            ReportManageDeviceInfo("InterfaceType", it->second, nullptr, false);
+        }
     }
     return UEC_OK;
+}
+
+void UsbHostManager::ReportManageDeviceInfo(const std::string &operationType, UsbDevice* device,
+                                        const UsbInterface* interface, bool isInterfaceType)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "ReportManageDeviceInfo");
+    int32_t vid = device->GetVendorId();
+    int32_t pid = device->GetProductId();
+    int32_t baseClass = RANDOM_VALUE_INDICATE;
+    int32_t subClass = RANDOM_VALUE_INDICATE;
+    int32_t protocol = RANDOM_VALUE_INDICATE;
+    if (isInterfaceType) {
+        baseClass = interface->GetClass();
+        subClass = interface->GetSubClass();
+        protocol = interface->GetProtocol();
+    } else {
+        baseClass = device->GetClass();
+        subClass = device->GetSubclass();
+        protocol = device->GetProtocol();
+    }
+    HiSysEventWrite(HiSysEvent::Domain::USB, "DEVICE_SECURITY_POLICY",
+        HiSysEvent::EventType::SECURITY, "SECURITY_POLICY_TYPE", operationType,
+        "VID", vid,
+        "PID", pid,
+        "CLASS", baseClass,
+        "SUBCLASS", subClass,
+        "PROTOCOL", protocol);
 }
 } // namespace USB
 } // namespace OHOS

@@ -888,6 +888,7 @@ ohos_fuzztest("UsbMgrFuzzTest") {
     "drivers_interface_usb:usb_idl_headers_1.2",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
   ]
 
   sources = [ "usbmgr_fuzzer/usbmgr_fuzzer.cpp" ]
@@ -925,6 +926,7 @@ ohos_fuzztest("UsbMgrExFuzzTest") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "selinux_adapter:librestorecon",
   ]
 
   sources = [ "usbmgrex_fuzzer/usbmgrex_fuzzer.cpp" ]
