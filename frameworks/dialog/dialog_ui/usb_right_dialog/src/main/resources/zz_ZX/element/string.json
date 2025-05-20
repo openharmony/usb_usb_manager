@@ -77,6 +77,10 @@
             "value":"[TS_1000797]_For items under \"My phone\" in Files."
         },
         {
+            "name":"USB_my_tablet",
+            "value":"[TS_1008561]_My tablet"
+        },
+        {
             "name":"USB_func_charge_notifier",
             "value":"[TS_1017356]_Charging via USB"
         },
@@ -86,7 +90,7 @@
         },
         {
             "name":"USB_func_ptp_notifier",
-            "value":"[TS_1017355]_Photo_browsing via USB"
+            "value":"[TS_1017355]_Photo browsing via USB"
         },
         {
             "name":"USB_func_mtp_notifier",
@@ -99,6 +103,18 @@
         {
             "name":"USB_hdc_notifier_content",
             "value":"[TS_1043345]_Touch to disable USB debugging."
+        },
+        {
+            "name":"USB_charge_connected_device",
+            "value":"[TS_1058466]_Supply power to a connected device."
+        },
+        {
+            "name":"USB_func_reverse_charge",
+            "value":"[TS_1058465]_Reverse charge"
+        },
+        {
+            "name":"USB_func_charge_connected_notifier",
+            "value":"[TS_1058467]_Supplying power to the connected device over USB"
         }
     ]
 }

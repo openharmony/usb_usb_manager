@@ -20,6 +20,7 @@
 #include "usb_errors.h"
 #include "usb_srv_support.h"
 #include "if_system_ability_manager.h"
+#include "usb_connection_notifier.h"
 #include "system_ability_definition.h"
 #include "iproxy_broker.h"
 #include "iservice_registry.h"
@@ -155,19 +156,43 @@ int32_t UsbPortManager::UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSub
 
 int32_t UsbPortManager::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole)
 {
+    int32_t powerRole_ = 0;
+    auto it = portMap_.find(portId);
+    if (it == portMap_.end()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Port %{public}d not found", portId);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    powerRole_ = it->second.usbPortStatus.currentPowerRole;
 #ifdef USB_MANAGER_V2_0
     if (usbPortInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::SetPortRole usbPortInterface_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-
-    return usbPortInterface_->SetPortRole(portId, powerRole, dataRole);
+    int32_t ret = usbPortInterface_->SetPortRole(portId, powerRole, dataRole);
+    if (ret != UEC_OK) {
+        USB_HILOGI(MODULE_USB_SERVICE, "setportrole failed");
+        return ret;
+    }
+    if (powerRole_ == PARAM_COUNT_TWO && powerRole == DEFAULT_ROLE_HOST) {
+        USB_HILOGE(MODULE_USB_SERVICE, "Start reverse charging");
+        UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_REVERSE_CHARGE);
+    }
+    return UEC_OK;
 #else
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    return usbd_->SetPortRole(portId, powerRole, dataRole);
+    int32_t ret = usbd_->SetPortRole(portId, powerRole, dataRole);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "setportrole failed");
+        return ret;
+    }
+    if (powerRole_ == PARAM_COUNT_TWO && powerRole == DEFAULT_ROLE_HOST) {
+        USB_HILOGI(MODULE_USB_SERVICE, "Start reverse charging");
+        UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_REVERSE_CHARGE);
+    }
+    return UEC_OK;
 #endif // USB_MANAGER_V2_0
 }
 

@@ -1,0 +1,25 @@
+{
+    "string":[
+        {
+            "name":"USB_charge_connected_device",
+            "value":"تزويد الأجهزة المتصلة بالطاقة",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_reverse_charge",
+            "value":"الشحن العكسي",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge_connected_notifier",
+            "value":"الجهاز المتصل جارٍ شحنه بالطاقة عبر كابل USB",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}
