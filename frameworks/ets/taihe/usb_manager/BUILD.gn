@@ -52,6 +52,11 @@ taihe_shared_library("usb_manager_taihe_native") {
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
   ]
 
+  external_deps = [
+    "bounds_checking_function:libsec_shared",
+    "hilog:libhilog"
+  ]
+
   defines = []
   if (usb_manager_feature_host) {
     defines += [ "USB_MANAGER_FEATURE_HOST" ]
