@@ -156,7 +156,7 @@
         },
         {
             "name":"USB_hdc_notifier_content",
-            "value":"Touch to disable USB debugging.",
+            "value":"Tap to disable USB debugging.",
             "attr":{
                 "priority":"translate"
             }
