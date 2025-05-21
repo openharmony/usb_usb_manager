@@ -102,7 +102,7 @@
         },
         {
             "name":"USB_hdc_notifier_content",
-            "value":"[TS_1043345]_Touch to disable USB debugging."
+            "value":"[TS_1043345]_Tap to disable USB debugging."
         },
         {
             "name":"USB_charge_connected_device",
