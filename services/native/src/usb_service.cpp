@@ -477,6 +477,14 @@ int32_t UsbService::Close(uint8_t busNum, uint8_t devAddr)
 // LCOV_EXCL_START
 int32_t UsbService::ResetDevice(uint8_t busNum, uint8_t devAddr)
 {
+    std::string name = std::to_string(busNum) + "-" + std::to_string(devAddr);
+    {
+        std::lock_guard<std::mutex> guard(mutex_);
+        if (deviceVidPidMap_.find(name) == deviceVidPidMap_.end()) {
+            USB_HILOGE(MODULE_USB_SERVICE, "Device not found: %{public}s", name.c_str());
+            return UEC_INTERFACE_NAME_NOT_FOUND;
+        }
+    }
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }

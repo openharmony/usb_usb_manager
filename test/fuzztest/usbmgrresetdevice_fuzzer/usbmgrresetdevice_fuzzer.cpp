@@ -48,7 +48,7 @@ namespace USB {
             return false;
         }
 
-        ret = usbSrvClient.ResetDevice(device, pipe);
+        ret = usbSrvClient.ResetDevice(pipe);
         if (ret == UEC_OK) {
             return false;
         }

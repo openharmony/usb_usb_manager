@@ -40,6 +40,7 @@
 #include "usb_srv_client.h"
 #include "usb_accessory.h"
 #include "hitrace_meter.h"
+#include "hdf_base.h"
 using namespace OHOS;
 using namespace OHOS::USB;
 using namespace OHOS::HDI::Usb::V1_0;
@@ -2460,6 +2461,53 @@ static napi_value UsbCancelTransfer(napi_env env, napi_callback_info info)
     return nullptr;
 }
 
+static napi_value PipeResetDevice(napi_env env, napi_callback_info info)
+{
+    if (!HasFeature(FEATURE_HOST)) {
+        ThrowBusinessError(env, CAPABILITY_NOT_SUPPORT, "");
+        return nullptr;
+    }
+    size_t argc = PARAM_COUNT_1;
+    napi_value argv[PARAM_COUNT_1] = {nullptr};
+
+    NAPI_CHECK(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr), "Get call back info failed");
+    USB_ASSERT(env, (argc >= PARAM_COUNT_1), OHEC_COMMON_PARAM_ERROR, "The function at least takes one argument.");
+    napi_value deciveObj = argv[INDEX_0];
+    napi_valuetype type;
+    napi_typeof(env, deciveObj, &type);
+    USB_ASSERT(env, type == napi_object, OHEC_COMMON_PARAM_ERROR, "The type of pipe must be USBDevicePipe.");
+
+    USBDevicePipe pipe;
+    ParseUsbDevicePipe(env, deciveObj, pipe);
+
+    napi_value napiValue;
+    int32_t ret = g_usbClient.ResetDevice(pipe);
+    if (ret == UEC_OK) {
+        napi_get_boolean(env, true, &napiValue);
+    } else if (ret == HDF_DEV_ERR_NO_DEVICE || ret == UEC_INTERFACE_NAME_NOT_FOUND) {
+        ThrowBusinessError(env, USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR,
+            "Submit transfer no device.");
+        napi_get_boolean(env, false, &napiValue);
+    } else if (ret == UEC_SERVICE_PERMISSION_DENIED) {
+        ThrowBusinessError(env, UEC_COMMON_HAS_NO_RIGHT,
+            "No permission.");
+        napi_get_boolean(env, false, &napiValue);
+    } else if (ret == HDF_FAILURE) {
+        ThrowBusinessError(env, USB_DEVICE_PIPE_CHECK_ERROR,
+            "Check devicePipe failed.");
+        napi_get_boolean(env, false, &napiValue);
+    } else if (ret == UEC_SERVICE_INVALID_VALUE) {
+        ThrowBusinessError(env, UEC_COMMON_SERVICE_EXCEPTION,
+            "Service exception");
+        napi_get_boolean(env, false, &napiValue);
+    } else {
+        ThrowBusinessError(env, USB_SUBMIT_TRANSFER_OTHER_ERROR,
+            "Other USB error");
+        napi_get_boolean(env, false, &napiValue);
+    }
+    return napiValue;
+}
+
 static void SetEnumProperty(napi_env env, napi_value object, const std::string &name, int32_t value)
 {
     if (name.empty()) {
@@ -2776,6 +2824,7 @@ napi_value UsbInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getRawDescriptor", PipeGetRawDescriptors),
         DECLARE_NAPI_FUNCTION("getFileDescriptor", PipeGetFileDescriptor),
         DECLARE_NAPI_FUNCTION("closePipe", PipeClose),
+        DECLARE_NAPI_FUNCTION("resetUsbDevice", PipeResetDevice),
 
         DECLARE_NAPI_FUNCTION("usbCancelTransfer", UsbCancelTransfer),
         DECLARE_NAPI_FUNCTION("usbSubmitTransfer", UsbSubmitTransfer),
