@@ -14,6 +14,7 @@
  */
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 #include <map>
 #include <string>
 #include <set>
@@ -80,9 +81,6 @@ constexpr uint32_t CURSOR_INIT = 18;
 constexpr int32_t DESCRIPTOR_TYPE_STRING = 3;
 constexpr int32_t DESCRIPTOR_VALUE_START_OFFSET = 2;
 constexpr int32_t HALF = 2;
-constexpr int32_t BIT_SHIFT_4 = 4;
-constexpr int32_t BIT_HIGH_4 = 0xF0;
-constexpr int32_t BIT_LOW_4 = 0x0F;
 constexpr uint32_t MANAGE_INTERFACE_INTERVAL = 100;
 constexpr uint32_t EDM_SA_MAX_TIME_OUT = 5000;
 constexpr uint32_t EDM_SYSTEM_ABILITY_ID = 1601;
@@ -1239,27 +1237,22 @@ void UsbHostManager::ReportHostPlugSysEvent(const std::string &event, const UsbD
         "VERSION", dev.GetVersion(), "EVENT_NAME", event, "SN_NUM", snNum);
 }
 
-static std::string BcdToString(const std::vector<uint8_t> &bcd)
+static std::string BcdToString(uint16_t bcdUsb)
 {
-    std::string tstr;
-    for (uint32_t i = 0; i < bcd.size(); ++i) {
-        tstr += std::to_string((bcd[i] & BIT_HIGH_4) >> BIT_SHIFT_4);
-        tstr += std::to_string((bcd[i] & BIT_LOW_4));
-    }
-    return tstr;
+    std::ostringstream oss;
+    oss << std::hex << std::uppercase <<std::setw(4) << std::setfill('0') << bcdUsb;
+    return oss.str();
 }
 
 int32_t UsbHostManager::FillDevStrings(UsbDevice &dev)
 {
     uint8_t busNum;
     uint8_t devAddr;
-    uint8_t offsetValue = 8;
 
     busNum = dev.GetBusNum();
     devAddr = dev.GetDevAddr();
     uint16_t bcdUsb = dev.GetbcdUSB();
-    const std::vector<uint8_t> bcdData {(bcdUsb & 0xff), ((bcdUsb >> offsetValue) & 0xff)};
-    dev.SetVersion(BcdToString(bcdData));
+    dev.SetVersion(BcdToString(bcdUsb));
     dev.SetManufacturerName(GetDevStringValFromIdx(busNum, devAddr, dev.GetiManufacturer()));
     dev.SetProductName(GetDevStringValFromIdx(busNum, devAddr, dev.GetiProduct()));
     dev.SetmSerial(GetDevStringValFromIdx(busNum, devAddr, dev.GetiSerialNumber()));
