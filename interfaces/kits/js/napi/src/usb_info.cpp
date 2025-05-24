@@ -2485,7 +2485,7 @@ static napi_value PipeResetDevice(napi_env env, napi_callback_info info)
     int32_t ret = g_usbClient.ResetDevice(pipe);
     if (ret == UEC_OK) {
         napi_get_boolean(env, true, &napiValue);
-    } else if (ret == HDF_DEV_ERR_NO_DEVICE || UEC_INTERFACE_NO_INIT) {
+    } else if (ret == HDF_DEV_ERR_NO_DEVICE || ret == UEC_INTERFACE_NAME_NOT_FOUND) {
         ThrowBusinessError(env, USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR,
             "Submit transfer no device.");
         napi_get_boolean(env, false, &napiValue);
