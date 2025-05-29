@@ -1658,9 +1658,9 @@ int32_t UsbHostManager::ManageGlobalInterfaceImpl(bool disable)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
-	if (it->second->GetClass() == BASE_CLASS_HUB) {
-		continue;
-	}
+        if (it->second->GetClass() == BASE_CLASS_HUB) {
+            continue;
+        }
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         uint8_t configIndex = 0;
         if (OpenDevice(dev.busNum, dev.devAddr) != UEC_OK) {
@@ -1700,9 +1700,8 @@ int32_t UsbHostManager::ManageDeviceImpl(int32_t vendorId, int32_t productId, bo
         devices_.size(), vendorId, productId, disable);
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
 	    if (it->second->GetClass() == BASE_CLASS_HUB) {
-                continue;
+            continue;
         }
-
         if ((it->second->GetVendorId() == vendorId) && (it->second->GetProductId() == productId)) {
             UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
             uint8_t configIndex = 0;
@@ -1746,7 +1745,7 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
     }
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
 	    if (it->second->GetClass() == BASE_CLASS_HUB) {
-                continue;
+            continue;
         }
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         uint8_t configIndex = 0;
