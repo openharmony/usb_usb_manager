@@ -124,6 +124,7 @@ ohos_shared_library("usbservice") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "hdf_core:libhdf_utils",
   ]
   if (true) {
     external_deps += [ "distributed_notification_service:ans_innerkits" ]

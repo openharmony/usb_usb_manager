@@ -58,7 +58,8 @@
                 "cJSON",
                 "bounds_checking_function",
                 "hitrace",
-                "selinux_adapter"
+                "selinux_adapter",
+                "hdf_core"
             ]
         },
         "build": {
