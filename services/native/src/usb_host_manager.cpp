@@ -1073,8 +1073,6 @@ bool UsbHostManager::DelDevice(uint8_t busNum, uint8_t devNum)
             devNum);
         return false;
     }
-    USB_HILOGI(
-        MODULE_SERVICE, "device:%{public}s bus:%{public}hhu dev:%{public}hhu erase ", name.c_str(), busNum, devNum);
     UsbDevice *devOld = iter->second;
     if (devOld == nullptr) {
         USB_HILOGE(MODULE_SERVICE, "invalid device");
@@ -1088,6 +1086,9 @@ bool UsbHostManager::DelDevice(uint8_t busNum, uint8_t devNum)
 
     delete devOld;
     devices_.erase(iter);
+    USB_HILOGI(MODULE_SERVICE,
+        "device:%{public}s bus:%{public}hhu dev:%{public}hhu erase, cur device size: %{public}zu",
+        name.c_str(), busNum, devNum, devices_.size());
     return true;
 }
 
@@ -1096,11 +1097,6 @@ bool UsbHostManager::AddDevice(UsbDevice *dev)
     if (dev == nullptr) {
         USB_HILOGF(MODULE_SERVICE, "device is NULL");
         return false;
-    }
-
-    auto isSuccess = PublishCommonEvent(CommonEventSupport::COMMON_EVENT_USB_DEVICE_ATTACHED, *dev);
-    if (!isSuccess) {
-        USB_HILOGW(MODULE_SERVICE, "send device attached broadcast failed");
     }
 
     uint8_t busNum = dev->GetBusNum();
@@ -1116,10 +1112,15 @@ bool UsbHostManager::AddDevice(UsbDevice *dev)
         }
         devices_.erase(iter);
     }
-    USB_HILOGI(
-        MODULE_SERVICE, "device:%{public}s bus:%{public}hhu dev:%{public}hhu insert", name.c_str(), busNum, devNum);
     devices_.insert(std::pair<std::string, UsbDevice *>(name, dev));
 
+    USB_HILOGI(MODULE_SERVICE,
+        "device:%{public}s bus:%{public}hhu dev:%{public}hhu insert, cur device size: %{public}zu",
+        name.c_str(), busNum, devNum, devices_.size());
+    auto isSuccess = PublishCommonEvent(CommonEventSupport::COMMON_EVENT_USB_DEVICE_ATTACHED, *dev);
+    if (!isSuccess) {
+        USB_HILOGW(MODULE_SERVICE, "send device attached broadcast failed");
+    }
     return true;
 }
 
