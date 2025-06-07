@@ -101,6 +101,9 @@ constexpr int32_t STORAGE_BASE_CLASS = 8;
 constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
 constexpr int32_t BASE_CLASS_HUB = 0x09;
+constexpr int32_t RETRY_NUM = 6;
+constexpr uint32_t RETRY_INTERVAL = 50;
+
 #ifdef USB_MANAGER_PASS_THROUGH
 const std::string SERVICE_NAME = "usb_host_interface_service";
 #endif // USB_MANAGER_PASS_THROUGH
@@ -460,12 +463,18 @@ int32_t UsbHostManager::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice
     std::vector<uint8_t> descriptor;
 
     int32_t res = UEC_OK;
-    int32_t ret = OpenDevice(busNum, devAddr);
+    int32_t ret = UEC_OK;
+    for (int32_t i = 0; i < RETRY_NUM; i++) {
+        ret = OpenDevice(busNum, devAddr);
+        if (ret == UEC_OK) {
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(RETRY_INTERVAL));
+    }
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceInfo OpenDevice failed ret=%{public}d", ret);
         return ret;
     }
-
     ret = GetDeviceInfoDescriptor(uDev, descriptor, dev);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceInfoDescriptor ret=%{public}d", ret);
