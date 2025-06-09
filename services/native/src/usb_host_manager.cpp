@@ -52,6 +52,7 @@ namespace USB {
 constexpr int32_t CLASS_PRINT_LENGTH = 2;
 constexpr int32_t USAGE_IN_INTERFACE_CLASS = 0;
 constexpr uint8_t DES_USAGE_IN_INTERFACE = 0x02;
+constexpr int32_t BCD_HEX_DIGITS = 4;
 constexpr int LAST_FIVE = 5;
 std::map<int32_t, DeviceClassUsage> deviceUsageMap = {
     {0x00, {DeviceClassUsage(2, "Use class information in the Interface Descriptors")}},
@@ -1241,7 +1242,7 @@ void UsbHostManager::ReportHostPlugSysEvent(const std::string &event, const UsbD
 static std::string BcdToString(uint16_t bcdUsb)
 {
     std::ostringstream oss;
-    oss << std::hex << std::uppercase <<std::setw(4) << std::setfill('0') << bcdUsb;
+    oss << std::hex << std::uppercase <<std::setw(BCD_HEX_DIGITS) << std::setfill('0') << bcdUsb;
     return oss.str();
 }
 
@@ -1806,7 +1807,7 @@ int32_t UsbHostManager::ManageDeviceTypeImpl(InterfaceType interfaceType, bool d
 }
 
 void UsbHostManager::ReportManageDeviceInfo(const std::string &operationType, UsbDevice* device,
-                                        const UsbInterface* interface, bool isInterfaceType)
+                                            const UsbInterface* interface, bool isInterfaceType)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "ReportManageDeviceInfo");
     int32_t vid = device->GetVendorId();
