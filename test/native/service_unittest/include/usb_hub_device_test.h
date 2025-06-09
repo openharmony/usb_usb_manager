@@ -17,7 +17,7 @@
 #define USB_HUB_DEVICE_TEST_H
 
 #include <gtest/gtest.h>
- #include <semaphore.h>
+#include <semaphore.h>
 namespace OHOS {
 namespace USB {
 namespace HubDevice {

@@ -94,7 +94,8 @@ std::this_thread::sleep_for(std::chrono::seconds(2));
             hasHub = true;
             break;
         } else {
-            USB_HILOGI(MODULE_USB_SERVICE, "UsbHubDeviceTest::getDevices001 class %{public}d ret=%{public}d", __LINE__, devi[i].GetClass());
+            USB_HILOGI(MODULE_USB_SERVICE,
+                "UsbHubDeviceTest::getDevices001 class %{public}d ret=%{public}d", __LINE__, devi[i].GetClass());
         }
     }
     ASSERT_TRUE(hasHub);
