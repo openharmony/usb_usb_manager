@@ -19,6 +19,7 @@
 #include <climits>
 #include <locale>
 #include <string>
+#include <cstdint>
 
 #include "hilog_wrapper.h"
 #include "securec.h"
@@ -208,6 +209,53 @@ bool NapiUtil::JsObjectToUint8(
         fieldRef = tmpValue;
         return true;
     }
+}
+
+bool NapiUtil::JsObjectToUint8WithDefaultValue(
+    const napi_env &env, const napi_value &object, const std::string &fieldStr, uint8_t &fieldRef, uint8_t defaultValue)
+{
+    bool hasProperty = false;
+    napi_status status = napi_has_named_property(env, object, fieldStr.c_str(), &hasProperty);
+    if (status != napi_ok || !hasProperty) {
+        fieldRef = defaultValue;
+        USB_HILOGI(MODULE_JS_NAPI, "Property '%{public}s' not found, using default: %{public}u",
+            fieldStr.c_str(), defaultValue);
+        return true;
+    }
+
+    napi_value field = nullptr;
+    status = napi_get_named_property(env, object, fieldStr.c_str(), &field);
+    if (status != napi_ok) {
+        USB_HILOGE(MODULE_JS_NAPI, "Failed to get property '%{public}s'", fieldStr.c_str());
+        return false;
+    }
+
+    napi_valuetype valueType;
+    status = napi_typeof(env, field, &valueType);
+    if (status != napi_ok || valueType != napi_number) {
+        fieldRef = defaultValue;
+        USB_HILOGI(MODULE_JS_NAPI, "Property '%{public}s' is not a number, using default: %{public}u",
+            fieldStr.c_str(), defaultValue);
+        return true;
+    }
+
+    uint32_t tempValue = 0;
+    status = napi_get_value_uint32(env, field, &tempValue);
+    if (status != napi_ok) {
+        fieldRef = defaultValue;
+        USB_HILOGI(MODULE_JS_NAPI, "Failed to convert '%{public}s' to uint32, using default: %{public}u",
+            fieldStr.c_str(), defaultValue);
+        return true;
+    }
+
+    if (tempValue > UINT8_MAX) {
+        USB_HILOGE(MODULE_JS_NAPI, "Value of '%{public}s' out of range (0-255): %{public}u",
+            fieldStr.c_str(), tempValue);
+        return false;
+    }
+
+    fieldRef = static_cast<uint8_t>(tempValue);
+    return true;
 }
 
 bool NapiUtil::JsUint8ArrayParse(

@@ -36,6 +36,8 @@ public:
         const napi_env &env, const napi_value &object, const std::string &fieldStr, uint32_t &fieldRef);
     static bool JsObjectToUint8(
         const napi_env &env, const napi_value &object, const std::string &fieldStr, uint8_t &fieldRef);
+    static bool JsObjectToUint8WithDefaultValue(const napi_env &env,
+        const napi_value &object, const std::string &fieldStr, uint8_t &fieldRef, uint8_t defaultValue);
     static bool JsUint8ArrayParse(
         const napi_env &env, const napi_value &object, uint8_t **uint8Buffer, size_t &bufferSize, size_t &offset);
     static void Uint8ArrayToJsValue(
