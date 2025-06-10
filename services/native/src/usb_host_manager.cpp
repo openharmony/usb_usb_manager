@@ -1803,7 +1803,7 @@ int32_t UsbHostManager::ManageDeviceTypeImpl(InterfaceType interfaceType, bool d
 }
 
 void UsbHostManager::ReportManageDeviceInfo(const std::string &operationType, UsbDevice* device,
-                                        const UsbInterface* interface, bool isInterfaceType)
+                                            const UsbInterface* interface, bool isInterfaceType)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "ReportManageDeviceInfo");
     int32_t vid = device->GetVendorId();
