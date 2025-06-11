@@ -308,8 +308,6 @@ private:
     Utils::Timer unloadSelfTimer_ {"unLoadTimer"};
     uint32_t unloadSelfTimerId_ {UINT32_MAX};
     sptr<IRemoteObject::DeathRecipient> recipient_;
-    std::mutex openedFdsMutex_;
-    std::map<std::pair<uint8_t, uint8_t>, int32_t> openedFds_;
 };
 } // namespace USB
 } // namespace OHOS
