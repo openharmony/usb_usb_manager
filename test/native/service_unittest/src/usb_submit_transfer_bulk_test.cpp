@@ -49,11 +49,12 @@ namespace USB {
 namespace SubmitTransfer {
 constexpr int32_t SLEEP_TIME = 3;
 constexpr int32_t TIMEOUT = 2000;
-std::mutex g_mtx;                                     // 全局互斥锁，用于保护共享资源
-std::condition_variable g_cv;                         // 条件变量，用于线程间的同步
-std::vector<bool> g_threadSuccessFlags;               // 用于标记每个线程是否成功完成操作
-std::atomic<int32_t> g_completedThreads(0);           // 用于标记线程完成数量
-std::atomic<int32_t> g_successCount(0);               // 用于统计 ASSERT_EQ(ret, UEC_OK) 成功的次数
+constexpr int32_t USB_DEVICE_CLASS_HUB = 9;
+std::mutex g_mtx;                                     // Global mutexes to protect shared resources
+std::condition_variable g_cv;                         // Condition variables for synchronization between threads
+std::vector<bool> g_threadSuccessFlags;               // Mark whether the thread operation was successful
+std::atomic<int32_t> g_completedThreads(0);           // Used to mark the number of thread completions
+std::atomic<int32_t> g_successCount(0);               // Counts the number of successful ASSERT_EQ (ret, UEC_OK).
 
 void UsbSubmitTransferBulkTest::SetUpTestCase(void)
 {
@@ -96,7 +97,7 @@ void UsbSubmitTransferBulkWriteThreadFunc(int32_t threadId)
     UsbDevice device;
     bool hasDevice = false;
     for (int32_t i = 0; i < delist.size(); i++) {
-        if (delist[i].GetClass() != 9) {
+        if (delist[i].GetClass() != USB_DEVICE_CLASS_HUB) {
             device = delist[i];
             hasDevice = true;
         }
@@ -185,7 +186,7 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbSubmitTransferBulkWrite, TestSize.Level1)
     UsbDevice device;
     bool hasDevice = false;
     for (int32_t i = 0; i < delist.size(); i++) {
-        if (delist[i].GetClass() != 9) {
+        if (delist[i].GetClass() != USB_DEVICE_CLASS_HUB) {
             device = delist[i];
             hasDevice = true;
         }
@@ -247,7 +248,7 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbSubmitTransferBulkWriteParamError, TestSi
     UsbDevice device;
     bool hasDevice = false;
     for (int32_t i = 0; i < delist.size(); i++) {
-        if (delist[i].GetClass() != 9) {
+        if (delist[i].GetClass() != USB_DEVICE_CLASS_HUB) {
             device = delist[i];
             hasDevice = true;
         }
@@ -305,7 +306,7 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbSubmitTransferBulkReadTimeOut, TestSize.L
     UsbDevice device;
     bool hasDevice = false;
     for (int32_t i = 0; i < delist.size(); i++) {
-        if (delist[i].GetClass() != 9) {
+        if (delist[i].GetClass() != USB_DEVICE_CLASS_HUB) {
             device = delist[i];
             hasDevice = true;
         }
@@ -364,7 +365,7 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbSubmitTransferBulkWriteIOError, TestSize.
     UsbDevice device;
     bool hasDevice = false;
     for (int32_t i = 0; i < delist.size(); i++) {
-        if (delist[i].GetClass() != 9) {
+        if (delist[i].GetClass() != USB_DEVICE_CLASS_HUB) {
             device = delist[i];
             hasDevice = true;
         }
@@ -424,7 +425,7 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbCancelTransferBulkWrite, TestSize.Level1)
     UsbDevice device;
     bool hasDevice = false;
     for (int32_t i = 0; i < delist.size(); i++) {
-        if (delist[i].GetClass() != 9) {
+        if (delist[i].GetClass() != USB_DEVICE_CLASS_HUB) {
             device = delist[i];
             hasDevice = true;
         }
@@ -492,7 +493,7 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbCancelTransferBulkWriteNotFound, TestSize
     UsbDevice device;
     bool hasDevice = false;
     for (int32_t i = 0; i < delist.size(); i++) {
-        if (delist[i].GetClass() != 9) {
+        if (delist[i].GetClass() != USB_DEVICE_CLASS_HUB) {
             device = delist[i];
             hasDevice = true;
         }
@@ -558,7 +559,7 @@ HWTEST_F(UsbSubmitTransferBulkTest, UsbCancelTransferBulkRead, TestSize.Level1)
     UsbDevice device;
     bool hasDevice = false;
     for (int32_t i = 0; i < delist.size(); i++) {
-        if (delist[i].GetClass() != 9) {
+        if (delist[i].GetClass() != USB_DEVICE_CLASS_HUB) {
             device = delist[i];
             hasDevice = true;
         }

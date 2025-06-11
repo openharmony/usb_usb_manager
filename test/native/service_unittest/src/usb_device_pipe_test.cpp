@@ -128,7 +128,7 @@ HWTEST_F(UsbDevicePipeTest, UsbOpenDevice001, TestSize.Level1)
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbOpenDevice001 %{public}d size=%{public}zu", __LINE__,
                delist.size());
-     UsbDevice device;
+    UsbDevice device;
     bool hasDevice = false;
     for (int32_t i = 0; i < delist.size(); i++) {
         if (delist[i].GetClass() != 9) {
@@ -167,7 +167,7 @@ HWTEST_F(UsbDevicePipeTest, UsbResetDevice001, TestSize.Level1)
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice001 %{public}d size=%{public}zu", __LINE__,
         delist.size());
-     UsbDevice device;
+    UsbDevice device;
     bool hasDevice = false;
     for (int32_t i = 0; i < delist.size(); i++) {
         if (delist[i].GetClass() != 9) {
@@ -208,7 +208,7 @@ HWTEST_F(UsbDevicePipeTest, UsbResetDevice002, TestSize.Level1)
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice002 %{public}d size=%{public}zu", __LINE__,
         delist.size());
-     UsbDevice device;
+    UsbDevice device;
     bool hasDevice = false;
     for (int32_t i = 0; i < delist.size(); i++) {
         if (delist[i].GetClass() != 9) {
@@ -252,7 +252,7 @@ HWTEST_F(UsbDevicePipeTest, UsbResetDevice003, TestSize.Level1)
     EXPECT_TRUE(!(delist.empty())) << "delist NULL";
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDevicePipeTest::UsbResetDevice003 %{public}d size=%{public}zu", __LINE__,
         delist.size());
-     UsbDevice device;
+    UsbDevice device;
     bool hasDevice = false;
     for (int32_t i = 0; i < delist.size(); i++) {
         if (delist[i].GetClass() != 9) {
