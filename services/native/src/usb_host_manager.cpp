@@ -447,13 +447,14 @@ int32_t UsbHostManager::GetDevices(std::vector<UsbDevice> &deviceList)
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
     bool isSystemAppOrSa = usbRightManager_->IsSystemAppOrSa();
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
-        if (!(isSystemAppOrSa)) {
-            it->second->SetmSerial("");
-        }
         if (it->second->GetClass() == BASE_CLASS_HUB && !isSystemAppOrSa) {
             continue;
         }
-        deviceList.push_back(*it->second);
+        auto dev = UsbDevice(*it->second);
+        if (!(isSystemAppOrSa)) {
+            dev.SetmSerial("");
+        }
+        deviceList.push_back(dev);
     }
     return UEC_OK;
 }
