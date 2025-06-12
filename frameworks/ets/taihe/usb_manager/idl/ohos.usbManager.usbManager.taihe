@@ -30,7 +30,7 @@ struct USBEndpoint {
     interval: i32;
     maxPacketSize: i32;
     direction: USBRequestDirection;
-    endpointNumber: i32;
+    endpointAddr: i32;
     type: i32;
     interfaceId: i32;
 }
