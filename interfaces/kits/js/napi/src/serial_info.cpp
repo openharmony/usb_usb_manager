@@ -327,6 +327,7 @@ static napi_value SerialWriteNapi(napi_env env, napi_callback_info info)
         USB_HILOGE(MODULE_JS_NAPI, "create promise failed!");
         CheckAndThrowOnError(env, false, SERIAL_SERVICE_ABNORMAL, "promise is null");
         delete asyncContext;
+        asyncContext = nullptr;
         return nullptr;
     }
     asyncContext->portId = portIdValue;
@@ -397,10 +398,11 @@ static napi_value SerialReadSyncNapi(napi_env env, napi_callback_info info)
         "The type of buffer must be an array of uint8_t.")) {
         return nullptr;
     }
+
     std::vector<uint8_t> bufferData;
     uint32_t actualSize = 0;
-    int32_t ret = g_usbClient.SerialRead(portIdValue, bufferData, bufferLength, actualSize,
-        timeoutValue);
+    int32_t ret = g_usbClient.SerialRead(portIdValue, bufferData, bufferLength,
+        actualSize, timeoutValue);
     if (!CheckAndThrowOnError(env, (ret == 0), ErrorCodeConversion(ret), "SerialReadSync Failed.")) {
         return nullptr;
     }
@@ -470,6 +472,7 @@ static napi_value SerialReadNapi(napi_env env, napi_callback_info info)
         USB_HILOGE(MODULE_JS_NAPI, "create promise failed!");
         CheckAndThrowOnError(env, false, SERIAL_SERVICE_ABNORMAL, "promise is null");
         delete asyncContext;
+        asyncContext = nullptr;
         return nullptr;
     }
     asyncContext->portId = portIdValue;
@@ -723,6 +726,7 @@ static napi_value SerialRequestRightNapi(napi_env env, napi_callback_info info)
         USB_HILOGE(MODULE_JS_NAPI, "create promise failed!");
         CheckAndThrowOnError(env, false, SERIAL_SERVICE_ABNORMAL, "promise is null");
         delete asyncContext;
+        asyncContext = nullptr;
         return nullptr;
     }
     napi_value resourceName;
