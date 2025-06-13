@@ -33,7 +33,6 @@ export default function UsbManagerNormalHapTest() {
       hilog.info(domain, tag, '%{public}s', '----------------------getDevicesTest001---------------------------');
       try {
         const devices: usbManager.USBDevice[] = usbManager.getDevices();
-        hilog.info(domain, tag, JSON.stringify(devices));
         for (let i = 0; i < devices.length; i++) {
           const device: usbManager.USBDevice = devices[i];
           hilog.info(domain, tag, "Device Information:");

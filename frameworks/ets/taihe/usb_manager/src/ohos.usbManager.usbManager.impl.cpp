@@ -70,7 +70,7 @@ static ohos::usbManager::usbManager::USBEndpoint ParseToUSBEndpoint(const OHOS::
         .interval = usbEndpoint.GetInterval(),
         .maxPacketSize = usbEndpoint.GetMaxPacketSize(),
         .direction = ohos::usbManager::usbManager::USBRequestDirection(directionKey),
-        .endpointNumber = usbEndpoint.GetEndpointNumber(),
+        .endpointAddr = usbEndpoint.GetEndpointNumber(),
         .type = usbEndpoint.GetType(),
         .interfaceId = usbEndpoint.GetInterfaceId()
     };
