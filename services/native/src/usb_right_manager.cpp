@@ -109,7 +109,7 @@ public:
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_DATA_SHARE_READY) {
             USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: COMMON_EVENT_DATA_SHARE_READY action is start!", __func__);
             auto usbService = UsbService::GetGlobalInstance();
-            if (!usbService->InitSettingDataHdcStatus()) {
+            if (!usbService->InitSettingsDataHdcStatus()) {
                 USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: function is get failed!", __func__);
             }
 #endif // USB_MANAGER_FEATURE_DEVICE
@@ -310,14 +310,14 @@ int32_t UsbRightManager::RequestRight(const USBAccessory &access, const std::str
 bool IsWithinUint64Range(const std::string &numberStr)
 {
     if (numberStr.empty()) {
-        USB_HILOGE(MODULE_SERVICE, "numberStr is empty");
+        USB_HILOGE(MODULE_USB_SERVICE, "numberStr is empty");
         return false;
     }
     errno = 0;
     uint64_t number = 0;
     number = std::strtoull(numberStr.c_str(), nullptr, DECIMAL_BASE);
     if (errno == ERANGE) {
-        USB_HILOGE(MODULE_SERVICE, "number is out of uint64_t range");
+        USB_HILOGE(MODULE_USB_SERVICE, "number is out of uint64_t range");
         return false;
     }
     return true;
@@ -347,7 +347,7 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
     }
     /* already checked system app/hap when call */
     if (!IsWithinUint64Range(tokenIdStr)) {
-        USB_HILOGE(MODULE_SERVICE, "tokenIdStr is out of uint64_t range");
+        USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr is out of uint64_t range");
         return false;
     }
     HapTokenInfo hapTokenInfoRes;

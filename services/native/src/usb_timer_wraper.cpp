@@ -34,7 +34,7 @@ std::shared_ptr<UsbTimerWrapper> UsbTimerWrapper::GetInstance()
 
 UsbTimerWrapper::UsbTimerWrapper()
 {
-    int32_t ret = usbDelayTimer_.Setup();
+    int32_t ret = static_cast<int32_t>(usbDelayTimer_.Setup());
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "set up usbDelayTimer_ failed %{public}u", ret);
         return;
