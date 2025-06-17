@@ -20,13 +20,27 @@ import { BusinessError } from '@ohos.base';
 
 const domain: number = 0x0000;
 const tag: string = 'testTag';
-const CAPACITY_NOT_SUPPORT_CODE: number = 801;
+const CAPACITY_NOT_SUPPORT_CODE: string = '801';
+const USB_REQUEST_DIR_TO_DEVICE_STR: string = '0';
+const USB_REQUEST_DIR_FROM_DEVICE_STR: string = '128';
 
 export default function UsbManagerNormalHapTest() {
   describe("UsbManagerNormalHapTest", (): void => {
     hilog.info(domain, tag, '%{public}s', 'describe start');
     beforeAll(() => {
       hilog.info(domain, tag, '%{public}s', 'beforeAll called');
+    })
+
+    it("usbEnumTest001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+      hilog.info(domain, tag, '%{public}s', '----------------------usbEnumTest001---------------------------');
+      hilog.info(domain, tag, `USB_REQUEST_DIR_TO_DEVICE: ${usbManager.USBRequestDirection.USB_REQUEST_DIR_TO_DEVICE}`);
+      expect(typeof(usbManager.USBRequestDirection.USB_REQUEST_DIR_TO_DEVICE)).assertEqual('number');
+      expect(usbManager.USBRequestDirection.USB_REQUEST_DIR_TO_DEVICE.toString()).assertEqual(USB_REQUEST_DIR_TO_DEVICE_STR);
+      hilog.info(domain, tag, `USB_REQUEST_DIR_FROM_DEVICE: ${usbManager.USBRequestDirection.USB_REQUEST_DIR_FROM_DEVICE}`);
+      expect(typeof(usbManager.USBRequestDirection.USB_REQUEST_DIR_FROM_DEVICE)).assertEqual('number');
+      expect(usbManager.USBRequestDirection.USB_REQUEST_DIR_FROM_DEVICE.toString()).assertEqual(USB_REQUEST_DIR_FROM_DEVICE_STR);
+      done()
+      hilog.info(domain, tag, '%{public}s', 'usbEnumTest001 end');
     })
 
     it("getDevicesTest001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
@@ -60,7 +74,7 @@ export default function UsbManagerNormalHapTest() {
           expect(typeof(device.subClass)).assertEqual('number');
           hilog.info(domain, tag, `  Protocol: ${device.protocol}`);
           expect(typeof(device.protocol)).assertEqual('number');
-        
+
           device.configs.forEach((config, configIndex) => {
             hilog.info(domain, tag, `\n  Configuration ${configIndex + 1}:`);
             hilog.info(domain, tag, `    ID: ${config.id}`);
@@ -75,7 +89,7 @@ export default function UsbManagerNormalHapTest() {
             expect(typeof(config.isRemoteWakeup)).assertEqual('boolean');
             hilog.info(domain, tag, `    Self Powered: ${config.isSelfPowered}`);
             expect(typeof(config.isSelfPowered)).assertEqual('boolean');
-        
+
             config.interfaces.forEach((iface, ifaceIndex) => {
               hilog.info(domain, tag, `\n    Interface ${ifaceIndex + 1}:`);
               hilog.info(domain, tag, `      ID: ${iface.id}`);
@@ -90,7 +104,7 @@ export default function UsbManagerNormalHapTest() {
               expect(typeof(iface.alternateSetting)).assertEqual('number');
               hilog.info(domain, tag, `      Name: ${iface.name}`);
               expect(typeof(iface.name)).assertEqual('string');
-        
+
               iface.endpoints.forEach((endpoint, endpointIndex) => {
                 hilog.info(domain, tag, `\n      Endpoint ${endpointIndex + 1}:`);
                 hilog.info(domain, tag, `        Address: ${endpoint.address}`);
@@ -114,9 +128,9 @@ export default function UsbManagerNormalHapTest() {
           });
         }
       } catch (error) {
+        hilog.info(domain, tag, '%{public}s', JSON.stringify(error));
         let err = error as BusinessError;
-        hilog.info(domain, tag, '%{public}s', JSON.stringify(err));
-        expect(err?.code).assertEqual(CAPACITY_NOT_SUPPORT_CODE);
+        expect(err.code.toString()).assertEqual(CAPACITY_NOT_SUPPORT_CODE);
       }
       done()
       hilog.info(domain, tag, '%{public}s', 'getDevicesTest001 end');
