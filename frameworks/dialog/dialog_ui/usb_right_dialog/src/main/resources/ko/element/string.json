@@ -1,155 +1,148 @@
 {
     "string":[
         {
-            "name":"USB_charge_connected_device",
-            "value":"تزويد الأجهزة المتصلة بالطاقة",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"USB_func_reverse_charge",
-            "value":"الشحن العكسي",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"USB_func_charge_connected_notifier",
-            "value":"الجهاز المتصل جارٍ شحنه بالطاقة عبر كابل USB",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"USB_func_mtp",
-            "value":"نقل الملفات",
+            "value":"파일 전송",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_hint_cancel",
-            "value":"موافق",
+            "value":"확인",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"usb_right_title",
-            "value":"تخويل الوصول عبر USB",
+            "value":"USB 액세스 승인",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_my_tablet",
-            "value":"جهازي اللوحي",
+            "value":"내 태블릿",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_more_notifier",
-            "value":"انقر هنا لعرض المزيد من الخيارات.",
+            "value":"더 많은 옵션을 보려면 탭합니다.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_charge_connected_device",
+            "value":"연결 장치에 전력 공급",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_ptp",
-            "value":"نقل الصور",
+            "value":"이미지 전송",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_ptp_notifier",
-            "value":"استعراض الصور عبر كابل USB",
+            "value":"USB를 통해 사진 검색",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_charge",
-            "value":"الشحن فقط",
+            "value":"충전 전용",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"usb_right_content",
-            "value":"هل تسمح لتطبيق %1$s باستخدام \"\u202a%2$s\u202c\"؟",
+            "value":"%1$s의 %2$s 장치 사용을 허용하시겠습니까?",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_charge_notifier",
-            "value":"الشحن عبر كابل USB",
+            "value":"USB로 충전",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_ptp_tip",
-            "value":"للصور والفيديوهات ضمن المعرض",
+            "value":"갤러리의 이미지 및 비디오의 경우.",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_hint",
-            "value":"استخدام كابل USB لـ",
+            "value":"USB 사용 시 수행 작업",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_mtp_tip2",
-            "value":"للعناصر ضمن \"%s\" في مدير الملفات.",
+            "value":"파일의 \"%s\"에 있는 항목의 경우.",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_hdc_notifier_title",
-            "value":"تم تشغيل وضع تصحيح أخطاء USB",
+            "value":"USB 디버깅 초기화됨",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_reverse_charge",
+            "value":"수신인 부담",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge_connected_notifier",
+            "value":"USB 상에서 연결된 장치로 전력 공급하기",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"notAllowButton",
-            "value":"رفض",
+            "value":"거부",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_mtp_tip",
-            "value":"للعناصر ضمن \"هاتفي\" في مدير الملفات.",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"USB_hdc_notifier_content",
-            "value":"انقر هنا لتعطيل تصحيح أخطاء USB.",
+            "value":"파일의 \"내 휴대폰\"에 있는 항목의 경우.",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"allowButton",
-            "value":"سماح",
+            "value":"허용",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_mtp_notifier",
-            "value":"نقل الملفات عبر كابل USB",
+            "value":"USB를 통해 파일 전송",
             "attr":{
                 "priority":"translate"
             }
