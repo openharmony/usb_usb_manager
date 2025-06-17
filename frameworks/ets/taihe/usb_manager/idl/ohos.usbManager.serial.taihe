@@ -1,0 +1,153 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License"),
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@!namespace("@ohos.usbManager.serial", "serialManager")
+@!sts_inject("""loadLibrary("usb_manager_taihe_native.z")""")
+
+function getPortList(): Array<SerialPort>;
+
+function hasSerialRight(portId: f64): bool;
+
+@gen_promise("requestSerialRight")
+function requestSerialRightSync(portId: f64): bool;
+
+function addSerialRight(tokenId: f64, portId: f64): void;
+
+function cancelSerialRight(portId: f64): void;
+
+function open(portId: f64): void;
+
+function close(portId: f64): void;
+
+function getAttribute(portId: f64): SerialAttribute;
+
+function setAttribute(portId: f64, attribute: SerialAttribute): void;
+
+@gen_promise("read")
+function readSync(portId: f64, buffer: @typedarray Array<u8>, timeout: Optional<f64>): f64;
+
+@gen_promise("write")
+function writeSync(portId: f64, buffer: @typedarray Array<u8>, timeout: Optional<f64>): f64;
+
+struct SerialPort {
+
+  portId: f64;
+
+  deviceName: String;
+}
+struct SerialAttribute {
+
+  baudRate: BaudRates;
+
+  dataBits: Optional<DataBits>;
+
+  parity: Optional<Parity>;
+
+  stopBits: Optional<StopBits>;
+}
+enum BaudRates : u32 {
+
+  BAUDRATE_50 = 50,
+
+  BAUDRATE_75 = 75,
+
+  BAUDRATE_110 = 110,
+
+  BAUDRATE_134 = 134,
+
+  BAUDRATE_150 = 150,
+
+  BAUDRATE_200 = 200,
+
+  BAUDRATE_300 = 300,
+
+  BAUDRATE_600 = 600,
+
+  BAUDRATE_1200 = 1200,
+
+  BAUDRATE_1800 = 1800,
+
+  BAUDRATE_2400 = 2400,
+
+  BAUDRATE_4800 = 4800,
+
+  BAUDRATE_9600 = 9600,
+
+  BAUDRATE_19200 = 19200,
+
+  BAUDRATE_38400 = 38400,
+
+  BAUDRATE_57600 = 57600,
+
+  BAUDRATE_115200 = 115200,
+
+  BAUDRATE_230400 = 230400,
+
+  BAUDRATE_460800 = 460800,
+
+  BAUDRATE_500000 = 500000,
+
+  BAUDRATE_576000 = 576000,
+
+  BAUDRATE_921600 = 921600,
+
+  BAUDRATE_1000000 = 1000000,
+
+  BAUDRATE_1152000 = 1152000,
+
+  BAUDRATE_1500000 = 1500000,
+
+  BAUDRATE_2000000 = 2000000,
+
+  BAUDRATE_2500000 = 2500000,
+
+  BAUDRATE_3000000 = 3000000,
+
+  BAUDRATE_3500000 = 3500000,
+
+  BAUDRATE_4000000 = 4000000
+}
+enum DataBits : u8 {
+
+  DATABIT_8 = 8,
+
+  DATABIT_7 = 7,
+
+  DATABIT_6 = 6,
+
+  DATABIT_5 = 5,
+
+  DATABIT_4 = 4
+}
+enum Parity : u8 {
+
+  PARITY_NONE = 0,
+
+  PARITY_ODD = 1,
+
+  PARITY_EVEN = 2,
+
+  PARITY_MARK = 3,
+
+  PARITY_SPACE = 4
+}
+enum StopBits : u8 {
+
+  STOPBIT_1 = 0,
+
+  STOPBIT_1P5 = 1,
+
+  STOPBIT_2 = 2
+}

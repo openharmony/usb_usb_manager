@@ -58,7 +58,8 @@
                 "cJSON",
                 "bounds_checking_function",
                 "hitrace",
-                "runtime_core"
+                "runtime_core",
+                "eventhandler"
             ]
         },
         "build": {
