@@ -47,6 +47,7 @@ struct SimpleContacts {
   @State mtpChecked: boolean = false;
   @State ptpChecked: boolean = false;
   @State chargeChecked: boolean = false;
+  @State reverseChargeChecked: boolean = false;
   @State setFuncFinished: boolean = true;
   @State setPortRoleFinished: boolean = true;
   private curFunc: number = USBSERVICESWITCH_ID_CHARGE_ONLY;
@@ -63,8 +64,8 @@ struct SimpleContacts {
     }
     if (!this.setPortRoleFinished) {
         if (this.usbPortList.length > 0) {
-          if (this.usbPortList[0].status.currentMode == usbManagerService.PortModeType.UFP) {
-                usbServiceSwitch.setPortRole(this.usbPortList[0].id, usbManagerService.PortModeType.DFP,
+          if (this.usbPortList[0].status.currentMode !== usbManagerService.PortModeType.UFP) {
+                usbServiceSwitch.setPortRole(this.usbPortList[0].id, usbManagerService.PortModeType.UFP,
                     this.usbPortList[0].status.currentDataRole);
             }
         }
@@ -77,8 +78,12 @@ struct SimpleContacts {
     if (deviceInfo.deviceType === 'tablet') {
       this.mtpTip = $r('app.string.USB_func_mtp_tip2', $r('app.string.USB_my_tablet'));
     }
+    this.usbPortList = usbServiceSwitch.getPorts()
     this.curFunc = usbServiceSwitch.getCurrentFunctions();
-    if (this.curFunc & USBSERVICESWITCH_ID_XFER_FILE) {
+    if (this.usbPortList[0].status.currentPowerRole == usbManagerService.PortModeType.UFP) {
+      this.reverseChargeChecked = true;
+      this.index = USBSERVICESWITCH_ID_REVERSE_CHARGE;
+    } else if (this.curFunc & USBSERVICESWITCH_ID_XFER_FILE) {
       this.mtpChecked = true;
       this.index = USBSERVICESWITCH_ID_XFER_FILE;
     } else if (this.curFunc & USBSERVICESWITCH_ID_XFER_PIC) {
@@ -105,7 +110,7 @@ struct SimpleContacts {
     this.contacts.push(new Contact($r('app.string.USB_func_charge'), '',
       USBSERVICESWITCH_ID_CHARGE_ONLY, this.chargeChecked));
       this.contacts.push(new Contact($r('app.string.USB_func_reverse_charge'), $r('app.string.USB_charge_connected_device'),
-        USBSERVICESWITCH_ID_REVERSE_CHARGE, this.ptpChecked));
+        USBSERVICESWITCH_ID_REVERSE_CHARGE, this.reverseChargeChecked));
 
     commonEventManager.createSubscriber({ events: [commonEventManager.Support.COMMON_EVENT_USB_STATE] },
       (err, subscriber) => {
@@ -131,6 +136,8 @@ struct SimpleContacts {
               this.index = USBSERVICESWITCH_ID_XFER_FILE;
             } else if (data.parameters?.ptp !== undefined && data.parameters?.ptp === true) {
               this.index = USBSERVICESWITCH_ID_XFER_PIC;
+            } else if (this.usbPortList[0].status.currentPowerRole == usbManagerService.PortModeType.UFP) {
+              this.index = USBSERVICESWITCH_ID_REVERSE_CHARGE;
             } else {
               this.index = USBSERVICESWITCH_ID_CHARGE_ONLY;
             }
