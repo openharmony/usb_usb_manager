@@ -1,0 +1,18 @@
+{
+    "kits": [
+        {
+            "push": [
+                "HatsHdfUsbFnMtpTest->/data/local/tmp/HatsHdfUsbFnMtpTest"
+            ],
+            "type": "PushKit"
+        }
+    ],
+    "driver": {
+        "native-test-timeout": "120000",
+        "type": "CppTest",
+        "module-name": "HatsHdfUsbFnMtpTest",
+        "runtime-hint": "1s",
+        "native-test-device-path": "/data/local/tmp"
+    },
+    "description": "Configuration for HatsHdfUsbFnMtpTest Tests"
+}
