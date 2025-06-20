@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,15 +13,21 @@
  * limitations under the License.
  */
 
-#include "ohos.usbManager.usbManager.ani.hpp"
+#include "ohos.usbManager.ani.hpp"
+#include "ohos.usbManager.serial.ani.hpp"
+#include "taihe/runtime.hpp"
 ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
 {
     ani_env *env;
     if (ANI_OK != vm->GetEnv(ANI_VERSION_1, &env)) {
         return ANI_ERROR;
     }
-    if (ANI_OK != ohos::usbManager::usbManager::ANIRegister(env)) {
-        std::cerr << "Error from ohos::usbManager::usbManager::ANIRegister" << std::endl;
+    if (ANI_OK != ohos::usbManager::ANIRegister(env)) {
+        std::cerr << "Error from ohos::usbManager::ANIRegister" << std::endl;
+        return ANI_ERROR;
+    }
+    if (ANI_OK != ohos::usbManager::serial::ANIRegister(env)) {
+        std::cerr << "Error from ohos::usbManager::serial::ANIRegister" << std::endl;
         return ANI_ERROR;
     }
     *result = ANI_VERSION_1;
