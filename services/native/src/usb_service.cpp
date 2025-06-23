@@ -115,8 +115,8 @@ int32_t UsbService::SetUsbd(const sptr<OHOS::HDI::Usb::V1_2::IUsbInterface> &usb
         return UEC_SERVICE_INVALID_VALUE;
     }
     if (usbd_ == nullptr) {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:usbd_ = usbd", __func__);
         usbd_ = usbd;
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:usbd_ = usbd", __func__);
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
     }
