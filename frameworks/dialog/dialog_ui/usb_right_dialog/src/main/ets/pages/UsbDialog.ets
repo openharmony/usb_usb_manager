@@ -15,8 +15,8 @@
 
 import { AlertDialog } from '@ohos.arkui.advanced.Dialog'
 import usbMgr from '@ohos.usbManager'
-import serialManager from '@ohos.usbManager.serial'
 import { terminateDialog } from '../util/DialogUtil';
+import serialManager from '@ohos.usbManager.serial'
 
 @Entry
 @Component

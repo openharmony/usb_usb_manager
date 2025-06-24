@@ -52,7 +52,7 @@ TRANSFOR_FAULT:
   INTERFACE_CLASS: {type: INT32, desc: interface class}
   INTERFACE_SUBCLASS: {type: INT32, desc: interface subclass}
   INTERFACE_PROTOCOL: {type: INT32, desc: interface protocol}
-  INFT_ID: {type: UINT8, desc: interface id}
+  INTF_ID: {type: UINT8, desc: interface id}
   ENDPOINTT_ID: {type: UINT8, desc: endpoint id}
   FAIL_REASON: {type: INT32, desc: fail reason}
   FAIL_DESCRIPTION: {type: STRING, desc: the failed reason description}

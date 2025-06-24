@@ -18,6 +18,7 @@
 #include <sys/time.h>
 
 #include <cstdio>
+#include <cstdlib>
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
@@ -41,6 +42,7 @@
 #include "usb_accessory.h"
 #include "hitrace_meter.h"
 #include "hdf_base.h"
+
 using namespace OHOS;
 using namespace OHOS::USB;
 using namespace OHOS::HDI::Usb::V1_0;
@@ -59,6 +61,7 @@ static constexpr int32_t STR_DEFAULT_SIZE = 256;
 static constexpr int32_t DEFAULT_DESCRIPTION_SIZE = 32;
 static constexpr int32_t DEFAULT_ACCESSORY_DESCRIPTION_SIZE = 256;
 static int32_t g_accFd = 0;
+
 const int32_t USB_TRANSFER_SHORT_NOT_OK = 0;
 const int32_t USB_TRANSFER_FREE_BUFFER = 1;
 const int32_t USB_TRANSFER_FREE_TRANSFER = 2;
@@ -2012,6 +2015,7 @@ static bool GetDescriptorOnBulkTransferParam(napi_env env, napi_value data,
         errno_t ret = memcpy_s(nativeArrayBuffer, bufferSize, buffer, bufferSize);
         if (ret != EOK) {
             USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed");
+            nativeArrayBuffer = nullptr;
             delete[] nativeArrayBuffer;
             return false;
         }
@@ -2088,6 +2092,7 @@ static napi_value PipeBulkTransfer(napi_env env, napi_callback_info info)
             napi_resolve_deferred(env, asyncContext->deferred, queryResult);
         }
         delete asyncContext;
+        asyncContext = nullptr;
         return result;
     }
 
@@ -2251,6 +2256,7 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
     AsyncCallBackContext *asyncCBWork = new (std::nothrow) AsyncCallBackContext;
     if (asyncCBWork == nullptr) {
         delete asyncContext;
+        asyncCBWork = nullptr;
         return;
     }
     asyncCBWork->env = asyncContext->env;
@@ -2282,6 +2288,7 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
     if (napi_status::napi_ok != napi_send_event(asyncCBWork->env, task, napi_eprio_immediate)) {
         USB_HILOGE(MODULE_JS_NAPI, "OnJsCallbackVolumeEvent: Failed to SendEvent");
         delete asyncCBWork;
+        asyncCBWork = nullptr;
     }
 }
 
@@ -2294,28 +2301,6 @@ static void GetUSBTransferInfo(USBTransferInfo &obj, USBTransferAsyncContext *as
     obj.numIsoPackets = asyncContext->numIsoPackets;
     std::uintptr_t ptrValue = reinterpret_cast<std::uintptr_t>(asyncContext);
     obj.userData = static_cast<uint64_t>(ptrValue);
-}
-
-static int32_t UsbSubmitTransferErrorCode(int32_t &error)
-{
-    switch (error) {
-        case IO_ERROR:
-            return USB_SUBMIT_TRANSFER_IO_ERROR;
-        case INVALID_PARAM:
-            return OHEC_COMMON_PARAM_ERROR;
-        case NO_DEVICE:
-            return USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR;
-        case NOT_FOUND:
-            return USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR;
-        case ERROR_BUSY:
-            return USB_SUBMIT_TRANSFER_RESOURCE_BUSY_ERROR;
-        case NO_MEM:
-            return USB_SUBMIT_TRANSFER_NO_MEM_ERROR;
-        case UEC_SERVICE_PERMISSION_DENIED:
-            return UEC_COMMON_HAS_NO_RIGHT;
-        default:
-            return USB_SUBMIT_TRANSFER_OTHER_ERROR;
-    }
 }
 
 static bool CreateAndWriteAshmem(USBTransferAsyncContext *asyncContext, HDI::Usb::V1_2::USBTransferInfo &obj)
@@ -2344,6 +2329,28 @@ static bool CreateAndWriteAshmem(USBTransferAsyncContext *asyncContext, HDI::Usb
     return true;
 }
 
+static int32_t UsbSubmitTransferErrorCode(int32_t &error)
+{
+    switch (error) {
+        case IO_ERROR:
+            return USB_SUBMIT_TRANSFER_IO_ERROR;
+        case INVALID_PARAM:
+            return OHEC_COMMON_PARAM_ERROR;
+        case NO_DEVICE:
+            return USB_SUBMIT_TRANSFER_NO_DEVICE_ERROR;
+        case NOT_FOUND:
+            return USB_SUBMIT_TRANSFER_NOT_FOUND_ERROR;
+        case ERROR_BUSY:
+            return USB_SUBMIT_TRANSFER_RESOURCE_BUSY_ERROR;
+        case NO_MEM:
+            return USB_SUBMIT_TRANSFER_NO_MEM_ERROR;
+        case UEC_SERVICE_PERMISSION_DENIED:
+            return UEC_COMMON_HAS_NO_RIGHT;
+        default:
+            return USB_SUBMIT_TRANSFER_OTHER_ERROR;
+    }
+}
+
 static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
 {
     HITRACE_METER_NAME(HITRACE_TAG_USB, "NAPI:UsbSubmitTransfer");
@@ -2359,6 +2366,8 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
     }
     if (!GetTransferParamsFromJsObj(env, info, asyncContext)) {
         ThrowBusinessError(env, OHEC_COMMON_PARAM_ERROR, "BusinessError 401:Parameter error.");
+        delete asyncContext;
+        asyncContext = nullptr;
         return nullptr;
     }
     asyncContext->env = env;
@@ -2379,6 +2388,7 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
     if (ret != napi_ok) {
         asyncContext->ashmem->CloseAshmem();
         delete asyncContext;
+        asyncContext = nullptr;
         ret = UsbSubmitTransferErrorCode(ret);
         ThrowBusinessError(env, ret, "");
         return nullptr;
@@ -2720,7 +2730,6 @@ static napi_value FunctionTypeEnum(napi_env env)
     SetEnumProperty(env, object, "AUDIO_SOURCE", AUDIO_SOURCE);
     SetEnumProperty(env, object, "NCM", NCM);
     SetEnumProperty(env, object, "STORAGE", STORAGE);
-    SetEnumProperty(env, object, "MIDI", MIDI);
     return object;
 }
 
@@ -2826,7 +2835,6 @@ napi_value UsbInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getFileDescriptor", PipeGetFileDescriptor),
         DECLARE_NAPI_FUNCTION("closePipe", PipeClose),
         DECLARE_NAPI_FUNCTION("resetUsbDevice", PipeResetDevice),
-
         DECLARE_NAPI_FUNCTION("usbCancelTransfer", UsbCancelTransfer),
         DECLARE_NAPI_FUNCTION("usbSubmitTransfer", UsbSubmitTransfer),
 
