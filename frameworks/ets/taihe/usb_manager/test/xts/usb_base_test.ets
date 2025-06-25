@@ -97,7 +97,7 @@ export default function abilityTest() {
         moduleName: "entry",
         onAbilityCreate: (abilitys: UIAbility): void => {
         },
-      }, (err: BusinessError): void => {
+      }, (err: BusinessError | null): void => {
         if (err != null) {
           hilog.info(domain, tag, '%{public}s', '-----' + err.code);
         }
@@ -332,6 +332,26 @@ export default function abilityTest() {
         done();
       })
 
+    it("abilityTest_addAccessoryRight_001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+      async (done: () => void): Promise<void> => {
+        hilog.info(domain, tag, 'USB abilityTest_addAccessoryRight_0012 begin');
+        if (!isDeviceConnected) {
+          hilog.info(domain, tag, 'usb not connected');
+        }
+        try {
+          let accList: usbManager.USBAccessory[] = usbManager.getAccessoryList()
+          let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
+          let data = bundleManager.getBundleInfoForSelfSync(bundleFlags);
+          hilog.info(domain, tag, 'getBundleInfoForSelfSync: ' + JSON.stringify(data));
+          let tokenId = data.appInfo.accessTokenId;
+          usbManager.addAccessoryRight(tokenId, accList[0])
+          hilog.info(0, 'testTag ui', `addAccessoryRight success`)
+        } catch (error) {
+          hilog.info(0, 'testTag ui', `addAccessoryRight error `)
+        }
+        done();
+      })
+
     it("test_hasRight_001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'USB test_hasRight_13 begin');
@@ -521,6 +541,29 @@ export default function abilityTest() {
         done();
       })
 
+
+    /**
+     * @tc.number   : SUB_USB_HostManager_JS_Func_0700
+     * @tc.name     : testGetRawDescriptor001
+     * @tc.desc     : Positive test: Get the original USB descriptor
+     * @tc.size     : MediumTest
+     * @tc.type     : Function
+     * @tc.level    : Level 3
+     */
+    it('testGetRawDescriptor001', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, () => {
+      hilog.info(domain, tag, 'usb testGetRawDescriptor001 begin');
+      if (!isDeviceConnected) {
+        expect(isDeviceConnected).assertFalse();
+        return
+      }
+
+      getPipe('testGetRawDescriptor001');
+      let descriptor = usbManager.getRawDescriptor(gPipe);
+      hilog.info(domain, tag, 'usb case testGetRawDescriptor001 ret: ' + JSON.stringify(descriptor));
+      expect(descriptor.length).assertLarger(0);
+      toClosePipe('testGetRawDescriptor001');
+    })
+
     it("test_setDeviceFunctions", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'usb testsetDeviceFunctionsSync001 begin');
@@ -543,5 +586,15 @@ export default function abilityTest() {
         hilog.info(domain, tag, 'usb test_setDeviceFunctions end');
         done();
       })
+
+    it("USBRequestTargetType001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+      hilog.info(domain, tag, '%{public}s', '----------------------USBRequestTargetType001---------------------------');
+      hilog.info(domain, tag, `USB_REQUEST_DIR_TO_DEVICE: ${usbManager.USBRequestTargetType.USB_REQUEST_TARGET_DEVICE}`);
+      hilog.info(domain, tag, `USB_REQUEST_DIR_TO_DEVICE: ${usbManager.USBRequestTargetType.USB_REQUEST_TARGET_INTERFACE}`);
+      hilog.info(domain, tag, `USB_REQUEST_DIR_TO_DEVICE: ${usbManager.USBRequestTargetType.USB_REQUEST_TARGET_ENDPOINT}`);
+      hilog.info(domain, tag, `USB_REQUEST_DIR_TO_DEVICE: ${usbManager.USBRequestTargetType.USB_REQUEST_TARGET_OTHER}`);
+      done()
+      hilog.info(domain, tag, '%{public}s', 'USBRequestTargetType001 end');
+    })
   })
 }
