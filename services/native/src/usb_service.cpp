@@ -41,8 +41,8 @@
 #include "usb_port_manager.h"
 #include "usb_right_manager.h"
 #include "usb_right_db_helper.h"
-#include "usb_settings_datashare.h"
 #include "usb_report_sys_event.h"
+#include "usb_settings_datashare.h"
 #include "tokenid_kit.h"
 #include "accesstoken_kit.h"
 #include "mem_mgr_proxy.h"
@@ -68,10 +68,10 @@ constexpr uint32_t UNLOAD_SA_TIMER_INTERVAL = 30 * 1000;
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 #endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
 constexpr int32_t API_VERSION_ID_18 = 18;
-constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
 static const std::filesystem::path TTYUSB_PATH = "/sys/bus/usb-serial/devices";
 constexpr const pid_t ROOT_UID = 0;
 constexpr const pid_t EDM_UID = 3057;
+constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
 } // namespace
 auto g_serviceInstance = DelayedSpSingleton<UsbService>::GetInstance();
 const bool G_REGISTER_RESULT =
@@ -96,7 +96,8 @@ UsbService::UsbService() : SystemAbility(USB_SYSTEM_ABILITY_ID, true)
 #else
     if (usbd_ == nullptr) {
         usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:Get usbd_", __func__);
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:%{public}d usbd_ == nullptr: %{public}d",
+            __func__, __LINE__, usbd_ == nullptr);
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
     }
@@ -215,7 +216,8 @@ void UsbService::SystemAbilityStatusChangeListener::OnRemoveSystemAbility(
     USB_HILOGI(MODULE_USB_SERVICE, "OnRemoveSystemAbility ID = %{public}d", systemAbilityId);
     if (systemAbilityId == USB_SYSTEM_ABILITY_ID) {
         sptr<OHOS::HDI::Usb::V1_2::IUsbInterface> usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:Get usbd_", __func__);
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:%{public}d usbd_ == nullptr: %{public}d",
+            __func__, __LINE__, usbd_ == nullptr);
         if (usbd_ != nullptr) {
             usbd_->UnbindUsbdSubscriber(usbdSubscriber_);
         }
@@ -284,7 +286,7 @@ void UsbService::OnStart()
         return;
     }
     (void)usbDeviceManager_->Init();
-    if (!InitSettingDataHdcStatus()) {
+    if (!InitSettingsDataHdcStatus()) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::OnStart update HDC_STATUS failed!");
     }
 #endif // USB_MANAGER_FEATURE_DEVICE
@@ -367,7 +369,8 @@ bool UsbService::InitUsbd()
 {
     if (usbd_ == nullptr) {
         usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:Get usbd_", __func__);
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:%{public}d usbd_ == nullptr: %{public}d",
+            __func__, __LINE__, usbd_ == nullptr);
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
     }
@@ -397,7 +400,6 @@ bool UsbService::InitUsbd()
     usbDeviceManager_ = std::make_shared<UsbDeviceManager>();
     usbAccessoryManager_ = std::make_shared<UsbAccessoryManager>();
 #endif // USB_MANAGER_FEATURE_DEVICE
-
     ErrCode ret = usbd_->BindUsbdSubscriber(usbdSubscriber_);
     USB_HILOGI(MODULE_USB_SERVICE, "entry InitUsbd ret: %{public}d", ret);
     return ret == UEC_OK;
@@ -943,6 +945,7 @@ int32_t UsbService::BulkTransferReadwithLength(uint8_t busNum, uint8_t devAddr, 
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
     HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
     int32_t ret = usbHostManager_->BulkTransferReadwithLength(devInfo, pipe, length, bufferData.data_, timeOut);
@@ -1548,7 +1551,8 @@ int32_t UsbService::PreCallFunction()
 #else
     if (usbd_ == nullptr) {
         usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:Get usbd_", __func__);
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:%{public}d usbd_ == nullptr: %{public}d",
+            __func__, __LINE__, usbd_ == nullptr);
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
     }
@@ -1911,7 +1915,7 @@ int32_t UsbService::CancelAccessoryRight(const USBAccessory &access)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
-bool UsbService::InitSettingDataHdcStatus()
+bool UsbService::InitSettingsDataHdcStatus()
 {
     auto datashareHelper = std::make_shared<UsbSettingDataShare>();
     if (datashareHelper->CreateDataShareHelper(USB_SYSTEM_ABILITY_ID) == nullptr) {

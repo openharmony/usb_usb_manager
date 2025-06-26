@@ -58,7 +58,8 @@ UsbDeviceManager::UsbDeviceManager()
 #ifndef USB_MANAGER_V2_0
     if (usbd_ == nullptr) {
         usbd_ = IUsbInterface::Get();
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:usbd_ == nullptr", __func__);
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:%{public}d usbd_ == nullptr: %{public}d",
+            __func__, __LINE__, usbd_ == nullptr);
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
     }
@@ -116,7 +117,7 @@ int32_t UsbDeviceManager::UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdS
     }
     return usbDeviceInterface_->UnbindUsbdDeviceSubscriber(subscriber);
 }
-#endif // USB_MANAGER_V2_0
+#endif
 
 int32_t UsbDeviceManager::GetCurrentFunctions(int32_t& funcs)
 {
@@ -324,7 +325,7 @@ void UsbDeviceManager::ProcessStatus(int32_t status, bool &curConnect)
         case ACT_ACCESSORYDOWN:
         case ACT_ACCESSORYSEND: {
             isDisableDialog_ = true;
-            USB_HILOGI(MODULE_SERVICE, "disable dialog success");
+            USB_HILOGI(MODULE_USB_SERVICE, "disable dialog success");
             ProcessFunctionSwitchWindow(false);
             return;
         }
@@ -418,13 +419,13 @@ void UsbDeviceManager::HandleEvent(int32_t status)
 
 int32_t UsbDeviceManager::UserChangeProcess()
 {
-    USB_HILOGI(MODULE_SERVICE, "%{public}s: in", __func__);
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: in", __func__);
     int32_t ret = HDF_FAILURE;
     if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_MTP) != 0 ||
         (static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_PTP) != 0) {
         uint32_t func = static_cast<uint32_t>(currentFunctions_) & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
         func = func == 0 ? USB_FUNCTION_STORAGE : func;
-        USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
+        USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", func);
         int32_t funcs = static_cast<int32_t>(func);
 #ifdef USB_MANAGER_V2_0
         ret = usbDeviceInterface_->SetCurrentFunctions(funcs);

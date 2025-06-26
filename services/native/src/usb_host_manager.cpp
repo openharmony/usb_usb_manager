@@ -114,7 +114,8 @@ UsbHostManager::UsbHostManager(SystemAbility *systemAbility)
     usbRightManager_ = std::make_shared<UsbRightManager>();
 #ifndef USB_MANAGER_PASS_THROUGH
     usbd_ = OHOS::HDI::Usb::V1_2::IUsbInterface::Get();
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:Get usbd_", __func__);
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:%{public}d usbd_ == nullptr: %{public}d",
+        __func__, __LINE__, usbd_ == nullptr);
 #endif // USB_MANAGER_PASS_THROUGH
 }
 
@@ -1301,6 +1302,7 @@ std::string UsbHostManager::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAd
     if (idx == 0) {
         return strDesc;
     }
+
 #ifdef USB_MANAGER_PASS_THROUGH
     if (usbHostInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager::usbHostInterface_ is nullptr");
