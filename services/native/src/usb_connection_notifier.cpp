@@ -256,7 +256,6 @@ void UsbConnectionNotifier::SetWantAgent(OHOS::Notification::NotificationRequest
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
     auto want = std::make_shared<AAFwk::Want>();
     want->SetElementName(BUNDLE_NAME, BUNDLE_NAME_KEY);
-    want->SetFlags(AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION);
     want->SetUri(URI);
     want->SetParam("usbSupportedFunctions", usbSupportedFunctions_);
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
@@ -277,7 +276,6 @@ void UsbConnectionNotifier::SetWantAgentHdc(OHOS::Notification::NotificationRequ
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
     auto want = std::make_shared<AAFwk::Want>();
     want->SetElementName(SETTING_BUNDLE_NAME, SETTING_BUNDLE_NAME_ABILITY);
-    want->SetFlags(AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION);
     want->SetUri(SETTING_BUNDLE_NAME_URL);
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
     wants.push_back(want);
