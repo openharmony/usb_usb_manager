@@ -44,7 +44,7 @@ export default function abilityTest() {
         moduleName: "entry",
         onAbilityCreate: (abilitys: UIAbility): void => {
         },
-      }, (err: BusinessError): void => {
+      }, (err: BusinessError | null): void => {
         if (err != null) {
           hilog.info(domain, tag, '%{public}s', '-----' + err.code);
         }
@@ -109,7 +109,6 @@ export default function abilityTest() {
         accList = usbManager.getAccessoryList();
         accessInfo = accList[0];
         let ret = await usbManager.requestAccessoryRight(accessInfo);
-        hilog.info(domain, tag, 'requestAccessoryRight ret ', +ret);
       } catch (error) {
         const err = error as BusinessError;
         hilog.info(domain, tag, 'testRequestAccessoryRight002 err : ', err);
@@ -192,5 +191,7 @@ export default function abilityTest() {
         expect(err.code).assertEqual(14400005);
       }
     })
+
+
   })
 }

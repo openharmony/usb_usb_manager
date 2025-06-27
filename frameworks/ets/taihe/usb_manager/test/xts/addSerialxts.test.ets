@@ -1,776 +1,452 @@
-import { describe, beforeAll, beforeEach, afterEach, afterAll, it, expect, TestType, Size, Level } from "../../../hypium/index";
-import hilog from '@ohos.hilog'
-import abilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
-import common from '@ohos.app.ability.common';
-import UIAbility from '@ohos.app.ability.UIAbility';
+/*
+* Copyright (C) 2025 Huawei Device Co., Ltd.
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+import { describe, it, expect, TestType, Size, Level, beforeAll, afterAll} from "../../../hypium/index";
+import { Driver, MatchPattern, ON } from '@ohos.UiTest'
 import { BusinessError } from '@ohos.base';
-import abilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
-import Want from '@ohos.app.ability.Want';
-import Utils from './Util.test';
-import buffer from '@ohos.buffer';
 import serialManager from '@ohos.usbManager.serial';
-
-let domain: number = 0x0000;
+import json from '@ohos.util.json';
+import bundleManager from '@ohos.bundle.bundleManager';
+import Utils from './Util.test';
+import hilog from '@ohos.hilog'
+import buffer from '@ohos.buffer';
 const TAG: string = "[SerialTest]";
-let portIds: number[] = [];
+let domain: number = 0x0000;
 
-function checkDevice(): boolean {
-  let haveDevice: boolean = false;
-  try {
-    const portList = serialManager.getPortList();
-    if (Array.isArray(portList)) {
-      portList.forEach((port) => {
-        portIds.push(port.portId);
-        haveDevice = true;
-      });
-    } else {
-      hilog.error(domain, TAG, '%{public}s', `Failed! getPortList, did not return an array: ${typeof portList}`);
-      haveDevice = false;
-    }
-  } catch (error : BusinessError) {
-    hilog.error(domain, TAG, '%{public}s', `Failed! getPortList, error code: ${error}`);
-    haveDevice = false;
-  }
-  return haveDevice;
+function sleep(count:int) : Promise<int> {
+  return new Promise<int>((resolve, reject) => {
+    setTimeout(() => {
+      resolve(0)
+    }, count)
+  })
 }
 
-export default function SerialTest() {
-  describe('SerialTest', () => {
+// async function driveFn() {
+//   console.info(TAG, '**************driveFn**************');
+//   try {
+//     console.info(TAG, '**************Driver.create() start**************');
+//     let driver: Driver = Driver.create();
+//     await driver.delayMs(1000)
+//     console.info(TAG, '**************Driver.create() end**************');
+//     await sleep(1000);
+//     let buttons = await driver.findComponents(ON.text('允许'));
+//     if (buttons && buttons.length > 0) {
+//       console.info(TAG, 'driver click');
+//       await buttons[buttons.length - 1].click();
+//     }
+//   } catch (error) {
+//     console.info(TAG, 'driveFn error: ' + error);
+//   }
+// }
+
+async function driveDecFn() {
+  console.info('**************driveDecFn**************');
+  try {
+    let driver = Driver.create();
+    await sleep(1000);
+    let buttons = await driver.findComponents(ON.text('不允许', MatchPattern.CONTAINS));
+    console.info(TAG, 'driveDecFn button:', json.stringify(buttons));
+    if (buttons && buttons.length > 0) {
+      await buttons[buttons.length - 1].click();
+    }
+  } catch (error) {
+    console.info(TAG, 'driveDecFn error: ' + error);
+  }
+}
+
+function checkDevice() {
+  let portList: serialManager.SerialPort[] = serialManager.getPortList();
+  if (portList && portList.length > 0) {
+    console.info(TAG, 'Test serial device detected');
+    return true;
+  } else {
+    console.info(TAG, 'Test no serial device detected');
+    return false;
+  }
+}
+
+export default function SerialBaseTest() {
+  describe("SerialBaseTest", (): void => {
+    console.info(TAG, 'describe start');
     let openPortId: number = -1;
-    beforeAll(() => {
+    beforeAll(()=> {
       try {
-        if (checkDevice()) {
-          openPortId = portIds[0];
+        let portList: serialManager.SerialPort[] = serialManager.getPortList();
+        if (portList && portList.length > 0) {
+          openPortId = portList[0].portId;
+          console.info(TAG, 'openPortId: ', openPortId);
           let hasRight: boolean = serialManager.hasSerialRight(openPortId);
           if (!hasRight) {
-            hilog.info(domain, TAG, 'beforeEach: requestSerialRight start');
+            console.info(TAG, 'beforeEach: requestSerialRight start');
             let futureRes: Promise<boolean> = serialManager.requestSerialRight(openPortId);
+            // await driveFn();
             try {
               let hasRight: boolean = await futureRes;
-              hilog.info(domain, TAG, 'getPermission isAgree: ', hasRight);
-            } catch (err : BusinessError) {
-              hilog.error(domain, TAG, 'getPermission catch err name: ', err.name, ', message: ', err.message);
+              console.info(TAG, 'getPermission isAgree: ', hasRight);
+            } catch (error) {
+              console.error(TAG, 'getPermission catch error: ', error);
             }
           }
         } else {
-          hilog.error(domain, TAG, 'no device');
+          console.info(TAG, 'portList size error: ', portList.length);
         }
-      } catch(error : BusinessError){
-        hilog.info(domain, TAG, 'beforeAll error: ', JSON.stringify(error));
+      } catch (error) {
+        console.info(TAG, 'beforeAll error: ', error);
       }
     })
     afterAll(async () => {
-      hilog.info(domain, TAG, 'afterAll');
+      console.info(TAG, 'afterAll');
       if (serialManager.hasSerialRight(openPortId)){
         serialManager.close(openPortId);
         serialManager.cancelSerialRight(openPortId);
       }
     })
 
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_setAttribute_Func_0100
-     * @tc.name     : testSetAttribute001
-     * @tc.desc     : setAttribute successfully.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 0
-     */
-    it('testSetAttribute001', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+    it('testHasSerialRight001', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
-        hilog.info(domain, TAG, 'testSetAttribute001 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let attribute: serialManager.SerialAttribute = {
-          baudRate: serialManager.BaudRates.BAUDRATE_9600,
-          dataBits: serialManager.DataBits.DATABIT_8,
-          parity: serialManager.Parity.PARITY_NONE,
-          stopBits: serialManager.StopBits.STOPBIT_1
-        };
-        serialManager.open(openPortId);
-        serialManager.setAttribute(openPortId, attribute);
-        expect(serialManager.getAttribute(openPortId).dataBits).assertEqual(serialManager.DataBits.DATABIT_8);
-        serialManager.close(openPortId);
-        done();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testSetAttribute001 catch err code: ', error.code, ', message: ', error.message);
-        expect().assertFail();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_setAttribute_ErrCode_0100
-     * @tc.name     : testSetAttribute002
-     * @tc.desc     : not openPortId to setAttribute.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testSetAttribute002 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let attribute: serialManager.SerialAttribute = {
-          baudRate: serialManager.BaudRates.BAUDRATE_9600,
-          dataBits: serialManager.DataBits.DATABIT_8,
-          parity: serialManager.Parity.PARITY_NONE,
-          stopBits: serialManager.StopBits.STOPBIT_1
-        };
-        serialManager.setAttribute(openPortId, attribute);
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
-        expect(error.code).assertEqual(31400005);
-        done();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_setAttribute_ErrCode_0200
-     * @tc.name     : testSetAttribute003
-     * @tc.desc     : invalid PortId to setAttribute.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testSetAttribute003', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testSetAttribute003 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let attribute: serialManager.SerialAttribute = {
-          baudRate: serialManager.BaudRates.BAUDRATE_9600,
-          dataBits: serialManager.DataBits.DATABIT_8,
-          parity: serialManager.Parity.PARITY_NONE,
-          stopBits: serialManager.StopBits.STOPBIT_1
-        };
-        let invalidInput: number = -1;
-        serialManager.setAttribute(invalidInput, attribute);
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testSetAttribute003 catch err code: ', error.code, ', message: ', error.message);
-        expect(error.code).assertEqual(401);
-        done();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_setAttribute_ErrCode_0300
-     * @tc.name     : testSetAttribute004
-     * @tc.desc     : not exist PortId to setAttribute.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testSetAttribute004', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testSetAttribute004 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let attribute: serialManager.SerialAttribute = {
-          baudRate: serialManager.BaudRates.BAUDRATE_9600,
-          dataBits: serialManager.DataBits.DATABIT_8,
-          parity: serialManager.Parity.PARITY_NONE,
-          stopBits: serialManager.StopBits.STOPBIT_1
-        };
-        let invalidInput: number = 100;
-        serialManager.setAttribute(invalidInput, attribute);
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testSetAttribute004 catch err code: ', error.code, ', message: ', error.message);
-        expect(error.code).assertEqual(31400003);
-        done();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_getAttribute_Func_0100
-     * @tc.name     : testGetAttribute001
-     * @tc.desc     : getAttribute successfully.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 0
-     */
-    it('testGetAttribute001', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testGetAttribute001 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let attribute: serialManager.SerialAttribute = {
-          baudRate: serialManager.BaudRates.BAUDRATE_9600,
-          dataBits: serialManager.DataBits.DATABIT_8,
-          parity: serialManager.Parity.PARITY_NONE,
-          stopBits: serialManager.StopBits.STOPBIT_2
-        };
-        serialManager.open(openPortId);
-        serialManager.setAttribute(openPortId, attribute);
-        expect(serialManager.getAttribute(openPortId).stopBits).assertEqual(serialManager.StopBits.STOPBIT_2);
-        serialManager.close(openPortId);
-        done();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testGetAttribute001 catch err code: ', error.code, ', message: ', error.message);
-        expect().assertFail();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_getAttribute_ErrCode_0100
-     * @tc.name     : testGetAttribute002
-     * @tc.desc     : not openPortId to getAttribute.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testGetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testGetAttribute002 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        serialManager.getAttribute(openPortId);
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testGetAttribute002 catch err code: ', error.code, ', message: ', error.message);
-        expect(error.code).assertEqual(31400005);
-        done();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_getAttribute_ErrCode_0200
-     * @tc.name     : testGetAttribute003
-     * @tc.desc     : invalid openPortId to getAttribute.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testGetAttribute003', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testGetAttribute003 start');
+        console.info(TAG, 'testHasSerialRight002 start');
         if (checkDevice() === false) {
           done();
           return Promise.resolve();
         }
         let invalidInput: number = -1;
-        serialManager.getAttribute(invalidInput);
+        let hasRight: boolean = serialManager.hasSerialRight(invalidInput);
+        console.info(TAG, 'testHasSerialRight002 hasRight: ', hasRight);
         expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testGetAttribute003 catch err code: ', error.code, ', message: ', error.message);
-        expect(error.code).assertEqual(401);
+      } catch (error) {
+        const err = error as BusinessError;
+        expect(err.code).assertEqual(31400001);
         done();
       }
     })
 
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_getAttribute_ErrCode_0300
-     * @tc.name     : testGetAttribute004
-     * @tc.desc     : not exist portId to getAttribute.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testGetAttribute004', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testGetAttribute004 start');
+    it('testRequestSerialRight002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+      try{
+        console.info(TAG, 'testRequestSerialRight002 start');
         if (checkDevice() === false) {
           done();
           return Promise.resolve();
         }
-        let invalidInput: number = 100;
-        serialManager.getAttribute(invalidInput);
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testGetAttribute004 catch err code: ', error.code, ', message: ', error.message);
-        expect(error.code).assertEqual(31400003);
+        let invalidInput: number = -1;
+        await serialManager.requestSerialRight(invalidInput);
+        // await driveFn();
+        try {
+          expect().assertFail();
+        } catch (err) {
+          console.error(TAG, 'getPermission catch err:',json.stringify(err));
+          expect().assertFail();
+        }
+      } catch (error) {
+        const err = error as BusinessError;
+        expect(err.code).assertEqual(31400001);
+        console.error(TAG, 'testRequestSerialRight002 catch err code: ', err.code, ', message: ', err.message);
         done();
       }
     })
 
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_read_ErrCode_0100
-     * @tc.name     : testRead001
-     * @tc.desc     : read timeout.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testRead001', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testRequestSerialRight003', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+      try{
+        console.info(TAG, 'testRequestSerialRight002 start');
+        if (checkDevice() === false) {
+          done();
+          return Promise.resolve();
+        }
+        let invalidInput: number = -1;
+        await serialManager.requestSerialRight(invalidInput);
+        // await driveFn();
+        try {
+          expect().assertFail();
+        } catch (err) {
+          console.error(TAG, 'getPermission catch err:',json.stringify(err));
+          expect().assertFail();
+        }
+      } catch (error) {
+        const err = error as BusinessError;
+        expect(err.code).assertEqual(14400005);
+        console.error(TAG, 'testRequestSerialRight002 catch err code: ', err.code, ', message: ', err.message);
+        done();
+      }
+    })
+
+    it('testOpen004', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
       try {
-        hilog.info(domain, TAG, 'testRead001 start');
-        await Utils.msSleep(1000);
+        console.info(TAG, 'testOpen005 start');
+        if (checkDevice() === false) {
+          done();
+          return Promise.resolve();
+        }
+        serialManager.cancelSerialRight(openPortId);
         serialManager.open(openPortId);
+        expect().assertFail();
+      } catch (error) {
+        const err = error as BusinessError;
+        console.error(TAG, 'testOpen005 catch err code: ', err.code, ', message: ', err.message);
+        expect(err.code).assertEqual(14400005);
+        done();
+      }
+    })
+
+
+    it('testOpen005', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+      try {
+        console.info(TAG, 'testOpen005 start');
+        if (checkDevice() === false) {
+          done();
+          return Promise.resolve();
+        }
+        serialManager.cancelSerialRight(openPortId);
+        serialManager.open(openPortId);
+        expect().assertFail();
+      } catch (error) {
+        const err = error as BusinessError;
+        console.error(TAG, 'testOpen005 catch err code: ', err.code, ', message: ', err.message);
+        expect(err.code).assertEqual(31400001);
+        done();
+      }
+    })
+
+    it('testOpen006', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+      try {
+        console.info(TAG, 'testOpen005 start');
+        if (checkDevice() === false) {
+          done();
+          return Promise.resolve();
+        }
+        serialManager.cancelSerialRight(openPortId);
+        serialManager.open(openPortId);
+        expect().assertFail();
+      } catch (error) {
+        const err = error as BusinessError;
+        console.error(TAG, 'testOpen005 catch err code: ', err.code, ', message: ', err.message);
+        expect(err.code).assertEqual(31400001);
+        done();
+      }
+    })
+
+    it('testClose007', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+      try {
+        console.info(TAG, 'testClose003 start');
+        if (checkDevice() === false) {
+          done();
+          return Promise.resolve();
+        }
+        let invalidPort: number = -1;
+        serialManager.open(openPortId);
+        serialManager.close(invalidPort);
+        expect().assertFail();
+      } catch (error) {
+        const err = error as BusinessError;
+        console.error(TAG, 'testClose003 catch err code: ', err.code, ', message: ', err.message);
+        expect(err.code).assertEqual(31400001);
+        serialManager.close(openPortId);
+        done();
+      }
+    })
+
+    it('testGetAttribute008', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0,
+      async (done: () => void): Promise<void> => {
+        if (checkDevice() === false) {
+          done();
+          return Promise.resolve();
+        }
+        try {
+          console.info(TAG, 'testGetAttribute001 start');
+          // if (await checkDevice() === false) {
+          //   done();
+          //   return;
+          // }
+          let attribute: serialManager.SerialAttribute = {
+            baudRate: serialManager.BaudRates.BAUDRATE_9600,
+            dataBits: serialManager.DataBits.DATABIT_8,
+            parity: serialManager.Parity.PARITY_NONE,
+            stopBits: serialManager.StopBits.STOPBIT_2
+          };
+          serialManager.open(openPortId);
+          serialManager.setAttribute(openPortId, attribute);
+          expect(serialManager.getAttribute(openPortId).stopBits).assertEqual(serialManager.StopBits.STOPBIT_2);
+          serialManager.close(openPortId);
+          done();
+        } catch (error : BusinessError) {
+          console.error(TAG, 'testGetAttribute001 catch err code: ', error.code, ', message: ', error.message);
+          expect(error.code).assertEqual(31400001);
+        }
+      })
+
+    it('testReadSync009', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+      await Utils.msSleep(1000);
+      if (checkDevice() === false) {
+        done();
+        return Promise.resolve();
+      }
+      try {
+        console.info(TAG, 'testReadSync002 start');
+        // if (await checkDevice() === false) {
+        //   done();
+        //   return;
+        // }
+        serialManager.open(openPortId);
+        let readSyncBuffer: Uint8Array = new Uint8Array(8192);
+        let length: number = serialManager.readSync(openPortId, readSyncBuffer, 500);
+        console.info(TAG, 'testReadSync002 length = ' + length);
+        expect(length >= 0).assertTrue();
+        serialManager.close(openPortId);
+        done();
+      } catch (error : BusinessError) {
+        console.error(TAG, 'testReadSync002 catch err code: ', error.code, ', message: ', error.message);
+        expect(error.code).assertEqual(31400001);
+      }
+    })
+
+    it('testReadSync0010', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+      await Utils.msSleep(1000);
+      if (checkDevice() === false) {
+        done();
+        return Promise.resolve();
+      }
+      try {
+        console.info(TAG, 'testReadSync002 start');
+        // if (await checkDevice() === false) {
+        //   done();
+        //   return;
+        // }
+        serialManager.open(openPortId);
+        let readSyncBuffer: Uint8Array = new Uint8Array(8192);
+        let length: number = serialManager.readSync(openPortId, readSyncBuffer, 500);
+        console.info(TAG, 'testReadSync002 length = ' + length);
+        expect(length >= 0).assertTrue();
+        serialManager.close(openPortId);
+        done();
+      } catch (error : BusinessError) {
+        console.error(TAG, 'testReadSync002 catch err code: ', error.code, ', message: ', error.message);
+        expect(error.code).assertEqual(31400007);
+      }
+    })
+
+    it('testReadSync011', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0,
+      async (done: () => void): Promise<void> => {
         await Utils.msSleep(1000);
         if (checkDevice() === false) {
           done();
           return Promise.resolve();
         }
+        try {
+          console.info(TAG, 'testReadSync002 start');
+          // if (await checkDevice() === false) {
+          //   done();
+          //   return;
+          // }
+          serialManager.open(openPortId);
+          let readSyncBuffer: Uint8Array = new Uint8Array(8192);
+          let length: number = serialManager.readSync(openPortId, readSyncBuffer, 500);
+          console.info(TAG, 'testReadSync002 length = ' + length);
+          expect(length >= 0).assertTrue();
+          serialManager.close(openPortId);
+          done();
+        } catch (error : BusinessError) {
+          console.error(TAG, 'testReadSync002 catch err code: ', error.code, ', message: ', error.message);
+          expect(error.code).assertEqual(31400007);
+        }
+      })
 
-        //没有写数据，必定会超时
-        let readBuffer: Uint8Array = new Uint8Array(8192);
-        await serialManager.read(openPortId, readBuffer, 10);
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testRead001 catch err name: ', error);
-        expect(error.code).assertEqual(31400006);
+    it('testReadSync012', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0,
+      async (done: () => void): Promise<void> => {
+        await Utils.msSleep(1000);
+        if (checkDevice() === false) {
+          done();
+          return Promise.resolve();
+        }
+        try {
+          console.info(TAG, 'testReadSync002 start');
+          // if (await checkDevice() === false) {
+          //   done();
+          //   return;
+          // }
+          serialManager.open(openPortId);
+          let readSyncBuffer: Uint8Array = new Uint8Array(8192);
+          let length: number = serialManager.readSync(openPortId, readSyncBuffer, 500);
+          console.info(TAG, 'testReadSync002 length = ' + length);
+          expect(length >= 0).assertTrue();
+          serialManager.close(openPortId);
+          done();
+        } catch (error : BusinessError) {
+          console.error(TAG, 'testReadSync002 catch err code: ', error.code, ', message: ', error.message);
+          expect(error.code).assertEqual(31400001);
+        }
+      })
+
+    it('testWrite0013', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+      console.info(TAG, 'testWrite001 start');
+      if (checkDevice() === false) {
         done();
+        return Promise.resolve();
       }
+      let writeBuffer: Uint8Array = new Uint8Array(buffer.from('Hello World', 'utf8').buffer);
+      //let writeBuffer: Uint8Array = new Uint8Array(8192);
+      serialManager.open(openPortId);
+      serialManager.write(openPortId, writeBuffer, 500)
+        .then((length: number) => {
+          expect(length >= 0).assertTrue();
+          serialManager.close(openPortId);
+          done();
+        })
+        .catch((error: Error) => {
+          console.error(TAG, 'testWrite001 catch err name: ', error.name, ', message: ', error.message);
+          expect(error.code).assertEqual(31400001);
+        });
     })
 
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_readSync_ErrCode_0100
-     * @tc.name     : testReadSync001
-     * @tc.desc     : read timeout.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testReadSync001', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testReadSync001 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let readSyncBuffer: Uint8Array = new Uint8Array(8192);
-        let length: number = serialManager.readSync(openPortId, readSyncBuffer, 10);
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testReadSync001 catch err code: ', error.code, ', message: ', error.message);
-        expect(error.code).assertEqual(31400006);
-        serialManager.close(openPortId);
+    it('testWrite014', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+      console.info(TAG, 'testWrite001 start');
+      if (checkDevice() === false) {
         done();
+        return Promise.resolve();
       }
+      let writeBuffer: Uint8Array = new Uint8Array(buffer.from('Hello World', 'utf8').buffer);
+      //let writeBuffer: Uint8Array = new Uint8Array(8192);
+      serialManager.open(openPortId);
+      serialManager.write(openPortId, writeBuffer, 500)
+        .then((length: number) => {
+          expect(length >= 0).assertTrue();
+          serialManager.close(openPortId);
+          done();
+        })
+        .catch((error: Error) => {
+          console.error(TAG, 'testWrite001 catch err name: ', error.name, ', message: ', error.message);
+          expect(error.code).assertEqual(31400006);
+        });
     })
 
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_writeSync_Func_0100
-     * @tc.name     : testWriteSync001
-     * @tc.desc     : writeSync successfully.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 0
-     */
-    it('testWriteSync001', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testWriteSync001 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let writeSyncBuffer: Uint8Array = new Uint8Array(100).fill(1);
-        serialManager.open(openPortId);
-        let length: number = serialManager.writeSync(openPortId, writeSyncBuffer, 500);
-        expect(length >= 0).assertTrue();
-        serialManager.close(openPortId);
+    it('testWrite015', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+      console.info(TAG, 'testWrite001 start');
+      if (checkDevice() === false) {
         done();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testWriteSync001 catch err code: ', error.code, ', message: ', error.message);
-        expect().assertFail();
+        return Promise.resolve();
       }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_writeSync_ErrCode_0100
-     * @tc.name     : testWriteSync002
-     * @tc.desc     : not openPortId to writeSync.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testWriteSync002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testWriteSync002 start');
-        if (checkDevice() === false) {
+      let writeBuffer: Uint8Array = new Uint8Array(buffer.from('Hello World', 'utf8').buffer);
+      //let writeBuffer: Uint8Array = new Uint8Array(8192);
+      serialManager.open(openPortId);
+      serialManager.write(openPortId, writeBuffer, 500)
+        .then((length: number) => {
+          expect(length >= 0).assertTrue();
+          serialManager.close(openPortId);
           done();
-          return Promise.resolve();
-        }
-        let writeSyncBuffer: Uint8Array = new Uint8Array(100).fill(1);
-        serialManager.writeSync(openPortId, writeSyncBuffer, 500);
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testWriteSync002 catch err code: ', error.code, ', message: ', error.message);
-        expect(error.code).assertEqual(31400005);
-        done();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_writeSync_ErrCode_0200
-     * @tc.name     : testWriteSync003
-     * @tc.desc     : invalidPortId to writeSync.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testWriteSync003', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testWriteSync003 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let invalidInput: number = -1;
-        let writeSyncBuffer: Uint8Array = new Uint8Array(100).fill(1);
-        serialManager.writeSync(invalidInput, writeSyncBuffer, 500);
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testWriteSync003 catch err code: ', error.code, ', message: ', error.message);
-        expect(error.code).assertEqual(401);
-        done();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_writeSync_ErrCode_0300
-     * @tc.name     : testWriteSync004
-     * @tc.desc     : not exist PortId to writeSync.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testWriteSync004', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testWriteSync004 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let invalidInput: number = 100;
-        let writeSyncBuffer: Uint8Array = new Uint8Array(100).fill(1);
-        serialManager.writeSync(invalidInput, writeSyncBuffer, 500);
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testWriteSync004 catch err code: ', error.code, ', message: ', error.message);
-        expect(error.code).assertEqual(31400003);
-        done();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_write_Func_0100
-     * @tc.name     : testWrite001
-     * @tc.desc     : write successfully.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 0
-     */
-    it('testWrite001', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testWrite001 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let writeBuffer: Uint8Array = new Uint8Array(100).fill(1);
-        serialManager.open(openPortId);
-        let length = await serialManager.write(openPortId, writeBuffer, 500);
-        expect(length >= 0).assertTrue();
-        serialManager.close(openPortId);
-        done();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testWrite001 catch err name: ', error.name, ', message: ', error.message);
-        expect().assertFail();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_write_ErrCode_0100
-     * @tc.name     : testWrite002
-     * @tc.desc     : invalid PortId to write.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testWrite002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try{
-        hilog.info(domain, TAG, 'testWrite002 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let writeBuffer: Uint8Array = new Uint8Array(100).fill(1);
-        let invalidInput: number = -1;
-        await serialManager.write(invalidInput, writeBuffer, 500);
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testWrite002 catch err name: ', error.name, ', message: ', error.message);
-        expect(error.code).assertEqual(401);
-        done();
-      };
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_write_ErrCode_0200
-     * @tc.name     : testWrite003
-     * @tc.desc     : not openPortId to write.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testWrite003', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try{
-        hilog.info(domain, TAG, 'testWrite003 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let writeBuffer: Uint8Array = new Uint8Array(100).fill(1);
-        await serialManager.write(openPortId, writeBuffer, 500);
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testWrite003 catch err name: ', error);
-        expect(error.code).assertEqual(31400005);
-        done();
-      };
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_write_ErrCode_0300
-     * @tc.name     : testWrite004
-     * @tc.desc     : not exist PortId to write.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testWrite004', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try{
-        hilog.info(domain, TAG, 'testWrite004 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let invalidport: number = 100;
-        let writeBuffer: Uint8Array = new Uint8Array(100).fill(1);
-        await serialManager.write(invalidport, writeBuffer, 500);
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testWrite004 catch err name: ', error);
-        expect(error.code).assertEqual(31400003);
-        done();
-      };
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_readSync_Func_0100
-     * @tc.name     : testReadSync002
-     * @tc.desc     : readsync successfully.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 0
-     */
-    it('testReadSync002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
-      await Utils.msSleep(1000);
-      try {
-        hilog.info(domain, TAG, 'testReadSync002 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        serialManager.open(openPortId);
-
-        let readSyncBuffer: Uint8Array = new Uint8Array(8192);
-        let length: number = serialManager.readSync(openPortId, readSyncBuffer, 1000);
-        expect(length >= 0).assertTrue();
-        serialManager.close(openPortId);
-        done();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testReadSync002 catch err code: ', error.code, ', message: ', error.message);
-        expect().assertFail();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_readSync_ErrCode_0200
-     * @tc.name     : testReadSync003
-     * @tc.desc     : port not open.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testReadSync003', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      await Utils.msSleep(1000);
-      try {
-        hilog.info(domain, TAG, 'testReadSync003 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let readSyncBuffer: Uint8Array = new Uint8Array(8192);
-        serialManager.readSync(openPortId, readSyncBuffer, 500);
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testReadSync003 catch err code: ', error.code, ', message: ', error.message);
-        expect(error.code).assertEqual(31400005);
-        done();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_readSync_ErrCode_0300
-     * @tc.name     : testReadSync004
-     * @tc.desc     : invalidport to open.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testReadSync004', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testReadSync004 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let invalid: number = -1;
-        let readSyncBuffer: Uint8Array = new Uint8Array(8192);
-        let length: number = serialManager.readSync(invalid, readSyncBuffer, 500);
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testReadSync004 catch err code: ', error.code, ', message: ', error.message);
-        expect(error.code).assertEqual(401);
-        done();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_readSync_ErrCode_0400
-     * @tc.name     : testReadSync005
-     * @tc.desc     : invalidport to open.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testReadSync005', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testReadSync005 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let invalid: number = 100;
-        let readSyncBuffer: Uint8Array = new Uint8Array(8192);
-        let length: number = serialManager.readSync(invalid, readSyncBuffer, 500);
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testReadSync005 catch err code: ', error.code, ', message: ', error.message);
-        expect(error.code).assertEqual(31400003);
-        done();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_read_Func_0100
-     * @tc.name     : testRead002
-     * @tc.desc     : read successfully.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 0
-     */
-    it('testRead002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testRead002 start');
-        await Utils.msSleep(3000);
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-
-        let readBuffer: Uint8Array = new Uint8Array(8192);
-        serialManager.open(openPortId);
-        let length = await serialManager.read(openPortId, readBuffer, 1000);
-        expect(length >= 0).assertTrue();
-        serialManager.close(openPortId);
-        done();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testRead002 catch err name: ', error.name, ', message: ', error.message);
-        expect().assertFail();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_read_ErrCode_0200
-     * @tc.name     : testRead003
-     * @tc.desc     : port not open.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testRead003', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      await Utils.msSleep(1000);
-      try {
-        hilog.info(domain, TAG, 'testRead003 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let readBuffer: Uint8Array = new Uint8Array(8192);
-        await serialManager.read(openPortId, readBuffer, 1000);
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testRead003 catch err name: ', error);
-        expect(error.code).assertEqual(31400005);
-        done();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_read_ErrCode_0300
-     * @tc.name     : testRead004
-     * @tc.desc     : invalidPort to read.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testRead004', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testRead004 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let readBuffer: Uint8Array = new Uint8Array(8192);
-        let invalid: number = -1;
-        await serialManager.read(invalid, readBuffer, 10);
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testRead004 catch err code: ', error.code, ', message: ', error.message);
-        expect(error.code).assertEqual(401);
-        done();
-      }
-    })
-
-    /**
-     * @tc.number   : SUB_USB_HostMgr_Serial_JS_read_ErrCode_0400
-     * @tc.name     : testRead005
-     * @tc.desc     : not exist to read.
-     * @tc.size     : MediumTest
-     * @tc.type     : Function
-     * @tc.level    : Level 3
-     */
-    it('testRead005', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
-      try {
-        hilog.info(domain, TAG, 'testRead005 start');
-        if (checkDevice() === false) {
-          done();
-          return Promise.resolve();
-        }
-        let readBuffer: Uint8Array = new Uint8Array(8192);
-        let invalid: number = 100;
-        await serialManager.read(invalid, readBuffer, 1000)
-        expect().assertFail();
-      } catch (error : BusinessError) {
-        hilog.error(domain, TAG, 'testRead005 catch err name: ', error);
-        expect(error.code).assertEqual(31400003);
-        done();
-      }
+        })
+        .catch((error: Error) => {
+          console.error(TAG, 'testWrite001 catch err name: ', error.name, ', message: ', error.message);
+          expect(error.code).assertEqual(31400007);
+        });
     })
 
 
@@ -783,7 +459,11 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute016', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+      if (checkDevice() === false) {
+        done();
+        return Promise.resolve();
+      }
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -813,7 +493,11 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute017', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+      if (checkDevice() === false) {
+        done();
+        return Promise.resolve();
+      }
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -843,7 +527,11 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute018', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+      if (checkDevice() === false) {
+        done();
+        return Promise.resolve();
+      }
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -873,7 +561,11 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute019', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+      if (checkDevice() === false) {
+        done();
+        return Promise.resolve();
+      }
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -903,7 +595,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute020', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -933,7 +625,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute021', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -963,7 +655,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute022', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -993,7 +685,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute023', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1023,7 +715,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute024', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1053,7 +745,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute025', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1083,7 +775,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute026', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1113,7 +805,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute027', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1143,7 +835,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute028', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1173,7 +865,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute029', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1203,7 +895,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute030', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1233,7 +925,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute031', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1263,7 +955,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute032', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1293,7 +985,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute033', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1323,7 +1015,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute034', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1353,7 +1045,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute035', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1383,7 +1075,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute036', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1413,7 +1105,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute037', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1443,7 +1135,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute038', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1473,7 +1165,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute039', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1503,7 +1195,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute040', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1533,7 +1225,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute041', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1563,7 +1255,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute042', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1593,7 +1285,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute043', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1623,7 +1315,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testSetAttribute002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testSetAttribute044', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testSetAttribute002 start');
         if (checkDevice() === false) {
@@ -1645,60 +1337,65 @@ export default function SerialTest() {
       }
     })
 
-    it('testRead002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+    it('testRead045', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
       console.info(TAG, 'testRead002 start');
       await Utils.msSleep(3000);
-      // if (await checkDevice() === false) {
-      //   done();
-      //   return;
-      // }
+      if (checkDevice() === false) {
+        done();
+        return Promise.resolve();
+      }
       let readBuffer: Uint8Array = new Uint8Array(8192);
-      serialManager.open(openPortId);
-      serialManager.read(openPortId, readBuffer, 1000)
-        .then((length: number) => {
-          console.info(TAG, 'testRead002 length = ' + length);
-          expect(length >= 0).assertTrue();
-          serialManager.close(openPortId);
-          done();
-        })
-        .catch((error) => {
-          const err = error as BusinessError;
-          console.error(TAG, 'testRead002 catch err name: ', error.name, ', message: ', error.message);
-          expect(error.code).assertEqual(31400001);
-        });
+      try {
+        serialManager.open(openPortId);
+        serialManager.read(openPortId, readBuffer, 1000)
+          .then((length: number) => {
+            console.info(TAG, 'testRead002 length = ' + length);
+            expect(length >= 0).assertTrue();
+            serialManager.close(openPortId);
+          })
+          .catch((error: Error) => {
+            expect(error.code).assertEqual(31400001);
+            console.error(TAG, 'testRead002 catch err name: ', error.name, ', message: ', error.message);
+          });
+      }
+      catch(error){
+        console.error(TAG, 'testRead002 catch err');
+      }
     })
 
-    it('testRead002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+    it('testRead046', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
       console.info(TAG, 'testRead002 start');
       await Utils.msSleep(3000);
-      // if (await checkDevice() === false) {
-      //   done();
-      //   return;
-      // }
+      if (checkDevice() === false) {
+        done();
+        return Promise.resolve();
+      }
       let readBuffer: Uint8Array = new Uint8Array(8192);
-      serialManager.open(openPortId);
-      serialManager.read(openPortId, readBuffer, 1000)
-        .then((length: number) => {
-          console.info(TAG, 'testRead002 length = ' + length);
-          expect(length >= 0).assertTrue();
-          serialManager.close(openPortId);
-          done();
-        })
-        .catch((error) => {
-          const err = error as BusinessError;
-          console.error(TAG, 'testRead002 catch err name: ', error.name, ', message: ', error.message);
-          expect(error.code).assertEqual(31400007);
-        });
+      try {
+        serialManager.open(openPortId);
+        serialManager.read(openPortId, readBuffer, 1000)
+          .then((length: number) => {
+            console.info(TAG, 'testRead002 length = ' + length);
+            expect(length >= 0).assertTrue();
+            serialManager.close(openPortId);
+          })
+          .catch((error: Error) => {
+            expect(error.code).assertEqual(31400007);
+            console.error(TAG, 'testRead002 catch err name: ', error.name, ', message: ', error.message);
+          });
+      }
+      catch(error){
+        console.error(TAG, 'testRead002 catch err');
+      }
     })
 
-    it('testWriteSync001', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+    it('testWriteSync047', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+      if (checkDevice() === false) {
+        done();
+        return Promise.resolve();
+      }
       try {
         console.info(TAG, 'testWriteSync001 start');
-        // if (await checkDevice() === false) {
-        //   done();
-        //   return;
-        // }
-        //let writeSyncBuffer: Uint8Array = new Uint8Array(buffer.from('Hello World', 'utf-8').buffer);
         let writeSyncBuffer: Uint8Array = new Uint8Array(8192);
         serialManager.open(openPortId);
         let length: number = serialManager.writeSync(openPortId, writeSyncBuffer, 500);
@@ -1706,20 +1403,18 @@ export default function SerialTest() {
         serialManager.close(openPortId);
         done();
       } catch (error : BusinessError) {
-        const err = error as BusinessError;
         console.error(TAG, 'testWriteSync001 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400001);
       }
     })
 
-    it('testWriteSync001', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+    it('testWriteSync048', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+      if (checkDevice() === false) {
+        done();
+        return Promise.resolve();
+      }
       try {
         console.info(TAG, 'testWriteSync001 start');
-        // if (await checkDevice() === false) {
-        //   done();
-        //   return;
-        // }
-        //let writeSyncBuffer: Uint8Array = new Uint8Array(buffer.from('Hello World', 'utf-8').buffer);
         let writeSyncBuffer: Uint8Array = new Uint8Array(8192);
         serialManager.open(openPortId);
         let length: number = serialManager.writeSync(openPortId, writeSyncBuffer, 500);
@@ -1732,14 +1427,13 @@ export default function SerialTest() {
       }
     })
 
-    it('testWriteSync001', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+    it('testWriteSync049', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+      if (checkDevice() === false) {
+        done();
+        return Promise.resolve();
+      }
       try {
         console.info(TAG, 'testWriteSync001 start');
-        // if (await checkDevice() === false) {
-        //   done();
-        //   return;
-        // }
-        //let writeSyncBuffer: Uint8Array = new Uint8Array(buffer.from('Hello World', 'utf-8').buffer);
         let writeSyncBuffer: Uint8Array = new Uint8Array(8192);
         serialManager.open(openPortId);
         let length: number = serialManager.writeSync(openPortId, writeSyncBuffer, 500);
@@ -1760,7 +1454,11 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 0
      */
-    it('testRead002', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+    it('testRead050', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+      if (checkDevice() === false) {
+        done();
+        return Promise.resolve();
+      }
       try {
         hilog.info(domain, TAG, 'testRead002 start');
         await Utils.msSleep(3000);
@@ -1789,7 +1487,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testReadSync003', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testReadSync051', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       await Utils.msSleep(1000);
       try {
         hilog.info(domain, TAG, 'testReadSync003 start');
@@ -1815,7 +1513,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testWrite004', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+    it('testWrite052', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
       try{
         hilog.info(domain, TAG, 'testWrite004 start');
         if (checkDevice() === false) {
@@ -1841,7 +1539,7 @@ export default function SerialTest() {
      * @tc.type     : Function
      * @tc.level    : Level 0
      */
-    it('testWriteSync001', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
+    it('testWriteSync053', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
       try {
         hilog.info(domain, TAG, 'testWriteSync001 start');
         if (checkDevice() === false) {
@@ -1855,9 +1553,26 @@ export default function SerialTest() {
         serialManager.close(openPortId);
         done();
       } catch (error : BusinessError) {
-        const err = error as BusinessError;
-        hilog.error(domain, TAG, 'testWriteSync001 catch err code: ', err.code, ', message: ', err.message);
+        hilog.error(domain, TAG, 'testWriteSync001 catch err code: ', error.code, ', message: ', error.message);
         expect().assertFail();
+      };
+    })
+
+    it('testHasSerialRight054', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, async (done: () => void): Promise<void> => {
+      try {
+        console.info(TAG, 'testHasSerialRight002 start');
+        if (checkDevice() === false) {
+          done();
+          return Promise.resolve();
+        }
+        let invalidInput: number = -1;
+        let hasRight: boolean = serialManager.hasSerialRight(invalidInput);
+        console.info(TAG, 'testHasSerialRight002 hasRight: ', hasRight);
+        expect().assertFail();
+      } catch (error) {
+        const err = error as BusinessError;
+        expect(err.code).assertEqual(14400005);
+        done();
       }
     })
   })

@@ -96,7 +96,7 @@ export default function abilityTest() {
         moduleName: "entry",
         onAbilityCreate: (abilitys: UIAbility): void => {
         },
-      }, (err: BusinessError): void => {
+      }, (err: BusinessError | null): void => {
         if (err != null) {
           hilog.info(domain, tag, '%{public}s', '-----' + err.code);
         }
