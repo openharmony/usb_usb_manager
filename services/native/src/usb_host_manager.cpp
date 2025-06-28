@@ -1247,7 +1247,8 @@ void UsbHostManager::ReportHostPlugSysEvent(const std::string &event, const UsbD
         "DEVICE_SUBCLASS", dev.GetSubclass(), "DEVICE_CLASS", dev.GetClass(),
         "DEVICE_CLASS_DESCRIPTION", deviceUsageDes, "INTERFACE_CLASS_DESCRIPTION", extUsageDes,
         "VENDOR_ID", dev.GetVendorId(), "PRODUCT_ID", dev.GetProductId(),
-        "VERSION", dev.GetVersion(), "EVENT_NAME", event, "SN_NUM", snNum, "MANUFACTURER_NAME", dev.GetManufacturerName());
+        "VERSION", dev.GetVersion(), "EVENT_NAME", event, "SN_NUM", snNum,
+        "MANUFACTURER_NAME", dev.GetManufacturerName());
 }
 
 static std::string BcdToString(uint16_t bcdUsb)
