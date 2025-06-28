@@ -1698,10 +1698,12 @@ void UsbService::UpdateDeviceState(int32_t status)
 // LCOV_EXCL_START
 int32_t UsbService::UserChangeProcess()
 {
-    if (usbDeviceManager_ == nullptr) {
+    if (usbDeviceManager_ == nullptr || usbPortManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "usbDeviceManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    bool res = usbPortManager_->IsReverseCharge();
+    usbDeviceManager_->SetChargeFlag(res);
     return usbDeviceManager_->UserChangeProcess();
 }
 // LCOV_EXCL_STOP

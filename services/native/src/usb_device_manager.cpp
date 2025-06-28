@@ -482,6 +482,11 @@ void UsbDeviceManager::ProcessFuncChange(bool connected, int32_t currentFunc, bo
     ProcessFunctionNotifier(connected, currentFunc);
 }
 
+void UsbDeviceManager::SetChargeFlag(bool isReverseCharge)
+{
+    isReverseCharge_ = isReverseCharge;
+}
+
 void UsbDeviceManager::ProcessFunctionNotifier(bool connected, int32_t func)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: connected %{public}d, func %{public}d, hasHdcNotifier_ %{public}d",
@@ -492,7 +497,9 @@ void UsbDeviceManager::ProcessFunctionNotifier(bool connected, int32_t func)
             UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_MTP);
         } else if (func_uint & USB_FUNCTION_PTP) {
             UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_PTP);
-        } else {
+        } else if (isReverseCharge_) {
+	    UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_REVERSE_CHARGE);
+	} else {
             UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_CHARGE);
         }
 

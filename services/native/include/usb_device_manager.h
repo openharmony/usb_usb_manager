@@ -64,6 +64,7 @@ public:
     void Dump(int32_t fd, const std::vector<std::string> &args);
     bool IsGadgetConnected(void);
     int32_t UserChangeProcess();
+    void SetChargeFlag(bool isReverseCharge);
     int32_t GetCurrentFunctions(int32_t& funcs);
     int32_t SetCurrentFunctions(int32_t funcs);
 private:
@@ -84,6 +85,7 @@ private:
     static const std::map<std::string_view, uint32_t> FUNCTION_MAPPING_N2C;
     int32_t currentFunctions_ {UsbSrvSupport::FUNCTION_HDC};
     bool connected_ {false};
+    bool isReverseCharge_ {false};
     bool hasHdcNotifier_ {false};
     bool gadgetConnected_ {false};
     bool isDisableDialog_ {false};
