@@ -26,6 +26,7 @@ PLUG_IN_OUT_HOST_MODE:
   VERSION: {type: STRING, desc: device version}
   EVENT_NAME: {type: STRING, desc: event name}
   SN_NUM: {type: STRING, desc: sn num}
+  MANUFACTURER_NAME: {type: STRING, desc: manufacturer name}
 
 PLUG_IN_OUT_DEVICE_MODE:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: UsbManager, desc: UsbDevicePlugInDeviceMode}
