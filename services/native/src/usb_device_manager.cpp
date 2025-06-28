@@ -499,7 +499,7 @@ void UsbDeviceManager::ProcessFunctionNotifier(bool connected, int32_t func)
             UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_PTP);
         } else if (isReverseCharge_) {
 	    UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_REVERSE_CHARGE);
-	} else {
+        } else {
             UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_CHARGE);
         }
 
