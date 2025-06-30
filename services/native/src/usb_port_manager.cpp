@@ -165,11 +165,11 @@ bool UsbPortManager::IsReverseCharge()
     }
     powerRole_ = it->second.usbPortStatus.currentPowerRole;
     dataRole_ = it->second.usbPortStatus.currentDataRole;
-    if (powerRole_ == DEFAULT_ROLE_HOST && dataRole_ = PARAM_COUNT_TWO) {
-        UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUN_REVERSE_CHARGE);
+    if (powerRole_ == DEFAULT_ROLE_HOST && dataRole_ == PARAM_COUNT_TWO) {
+        UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_REVERSE_CHARGE);
 	return true;
     } else {
-        UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUN_CHARGE);
+        UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_CHARGE);
     }
     return false;
 }
