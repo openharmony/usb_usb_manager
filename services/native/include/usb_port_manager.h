@@ -44,6 +44,7 @@ public:
 #ifdef USB_MANAGER_V2_0
     bool InitUsbPortInterface();
     void Stop();
+    bool IsReverseCharge();
     int32_t BindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSubscriber> &subscriber);
     int32_t UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSubscriber> &subscriber);
 #endif // USB_MANAGER_V2_0

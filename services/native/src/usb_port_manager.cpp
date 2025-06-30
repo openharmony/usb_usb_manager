@@ -154,15 +154,28 @@ int32_t UsbPortManager::UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSub
 }
 #endif // USB_MANAGER_V2_0
 
-int32_t UsbPortManager::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole)
+bool UsbPortManager::IsReverseCharge()
 {
     int32_t powerRole_ = 0;
-    auto it = portMap_.find(portId);
+    int32_t dataRole_ = 0;
+    auto it = portMap_.find(CMD_INDEX);
     if (it == portMap_.end()) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Port %{public}d not found", portId);
+        USB_HILOGE(MODULE_USB_SERVICE, "Port not found");
         return UEC_SERVICE_INVALID_VALUE;
     }
     powerRole_ = it->second.usbPortStatus.currentPowerRole;
+    dataRole_ = it->second.usbPortStatus.currentDataRole;
+    if (powerRole_ == DEFAULT_ROLE_HOST && dataRole_ == PARAM_COUNT_TWO) {
+        UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_REVERSE_CHARGE);
+        return true;
+    } else {
+        UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_CHARGE);
+    }
+    return false;
+}
+
+int32_t UsbPortManager::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole)
+{
 #ifdef USB_MANAGER_V2_0
     if (usbPortInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::SetPortRole usbPortInterface_ is nullptr");
@@ -171,13 +184,9 @@ int32_t UsbPortManager::SetPortRole(int32_t portId, int32_t powerRole, int32_t d
     int32_t ret = usbPortInterface_->SetPortRole(portId, powerRole, dataRole);
     if (ret != UEC_OK) {
         USB_HILOGI(MODULE_USB_SERVICE, "setportrole failed");
-        return ret;
     }
-    if (powerRole_ == PARAM_COUNT_TWO && powerRole == DEFAULT_ROLE_HOST) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Start reverse charging");
-        UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_REVERSE_CHARGE);
-    }
-    return UEC_OK;
+    (void)IsReverseCharge();
+    return ret;
 #else
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::usbd_ is nullptr");
@@ -186,13 +195,8 @@ int32_t UsbPortManager::SetPortRole(int32_t portId, int32_t powerRole, int32_t d
     int32_t ret = usbd_->SetPortRole(portId, powerRole, dataRole);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "setportrole failed");
-        return ret;
     }
-    if (powerRole_ == PARAM_COUNT_TWO && powerRole == DEFAULT_ROLE_HOST) {
-        USB_HILOGI(MODULE_USB_SERVICE, "Start reverse charging");
-        UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_REVERSE_CHARGE);
-    }
-    return UEC_OK;
+    return ret;
 #endif // USB_MANAGER_V2_0
 }
 
