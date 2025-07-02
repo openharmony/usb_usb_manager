@@ -126,6 +126,12 @@ ohos_shared_library("usbservice") {
     "samgr:samgr_proxy",
     "hdf_core:libhdf_utils",
   ]
+
+  if (usb_manager_peripheral_fault_notifier) {
+     external_deps += [ "external_device_manager:driver_ext_mgr_client" ]
+     defines += [ "USB_PERIPHERAL_FAULT_NOTIFY" ]
+  }
+
   if (true) {
     external_deps += [ "distributed_notification_service:ans_innerkits" ]
   }
