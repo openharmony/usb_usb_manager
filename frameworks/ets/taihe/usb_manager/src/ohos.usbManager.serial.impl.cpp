@@ -103,100 +103,91 @@ array<SerialPort> GetPortList()
         return portList;
     }
     for (const auto &port : portIds) {
-        SerialPort serialPort {.portId = static_cast<double>(port.portId_),
+        SerialPort serialPort {.portId = port.portId_,
             .deviceName = std::to_string(port.busNum_) + "-" + std::to_string(port.devAddr_)};
         tempPortList.push_back(serialPort);
     }
-    USB_HILOGI(
-        MODULE_USB_INNERKIT, "GetPortList finish. ErrCode: %{public}d, size: %{public}d", ret, tempPortList.size());
     array<SerialPort> portList(tempPortList);
     return portList;
 }
 
-bool HasSerialRight(double portId)
+bool HasSerialRight(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "HasSerialRight start.");
-    int32_t port = static_cast<int32_t>(portId);
-    if (!CheckAndThrowOnError((port >= 0), SYSPARAM_INVALID_INPUT, "HasSerialRight failed.")) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "HasSerialRight failed, invalid portId [%{public}d]", port);
+    if (!CheckAndThrowOnError((portId >= 0), SYSPARAM_INVALID_INPUT, "HasSerialRight failed.")) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "HasSerialRight failed, invalid portId [%{public}d]", portId);
         return false;
     }
     bool hasRight = false;
-    int32_t ret = g_usbClient.HasSerialRight(port, hasRight);
+    int32_t ret = g_usbClient.HasSerialRight(portId, hasRight);
     CheckAndThrowOnError((ret == 0), ErrorCodeConversion(ret), "HasSerialRight failed.");
     USB_HILOGI(MODULE_USB_INNERKIT, "HasSerialRight finish. ErrCode: %{public}d, ret: %{public}d", ret, hasRight);
     return hasRight;
 }
 
-bool RequestSerialRight(double portId)
+bool RequestSerialRight(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "RequestSerialRight start.");
-    int32_t port = static_cast<int32_t>(portId);
-    if (!CheckAndThrowOnError((port >= 0), SYSPARAM_INVALID_INPUT, "RequestSerialRight failed.")) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "RequestSerialRight failed, invalid portId [%{public}d]", port);
+    if (!CheckAndThrowOnError((portId >= 0), SYSPARAM_INVALID_INPUT, "RequestSerialRight failed.")) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "RequestSerialRight failed, invalid portId [%{public}d]", portId);
         return false;
     }
     bool hasRight = false;
-    int32_t ret = g_usbClient.RequestSerialRight(port, hasRight);
+    int32_t ret = g_usbClient.RequestSerialRight(portId, hasRight);
     CheckAndThrowOnError((ret == 0), ErrorCodeConversion(ret), "RequestSerialRight failed.");
     USB_HILOGI(
         MODULE_USB_INNERKIT, "RequestSerialRight finish. ErrCode: %{public}d, ret: %{public}d", ret, hasRight);
     return hasRight;
 }
 
-void AddSerialRight(double tokenId, double portId)
+void AddSerialRight(int32_t tokenId, int32_t portId)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "AddSerialRight start.");
-    int32_t token = static_cast<int32_t>(tokenId);
-    int32_t port = static_cast<int32_t>(portId);
-    if (!CheckAndThrowOnError((token > 0), SYSPARAM_INVALID_INPUT, "AddSerialRight failed.")) {
-        USB_HILOGI(MODULE_USB_INNERKIT, "AddSerialRight failed, invalid tockenId [%{public}d]", token);
+    if (!CheckAndThrowOnError((tokenId > 0), SYSPARAM_INVALID_INPUT, "AddSerialRight failed.")) {
+        USB_HILOGI(MODULE_USB_INNERKIT, "AddSerialRight failed, invalid tockenId [%{public}d]", tokenId);
         return;
     }
-    if (!CheckAndThrowOnError((port >= 0), SYSPARAM_INVALID_INPUT, "AddSerialRight failed.")) {
-        USB_HILOGI(MODULE_USB_INNERKIT, "AddSerialRight failed, invalid portId [%{public}d]", port);
+    if (!CheckAndThrowOnError((portId >= 0), SYSPARAM_INVALID_INPUT, "AddSerialRight failed.")) {
+        USB_HILOGI(MODULE_USB_INNERKIT, "AddSerialRight failed, invalid portId [%{public}d]", portId);
         return;
     }
-    int32_t ret = g_usbClient.AddSerialRight(tokenId, port);
+    int32_t ret = g_usbClient.AddSerialRight(tokenId, portId);
     CheckAndThrowOnError((ret == 0), ErrorCodeConversion(ret), "AddSerialRight failed.");
     USB_HILOGI(MODULE_USB_INNERKIT, "AddSerialRight finish. ErrCode: %{public}d", ret);
 }
 
-void CancelSerialRight(double portId)
+void CancelSerialRight(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "CancelSerialRight start.");
-    int32_t port = static_cast<int32_t>(portId);
-    if (!CheckAndThrowOnError((port >= 0), SYSPARAM_INVALID_INPUT, "CancelSerialRight failed.")) {
-        USB_HILOGI(MODULE_USB_INNERKIT, "CancelSerialRight failed, invalid portId [%{public}d]", port);
+    if (!CheckAndThrowOnError((portId >= 0), SYSPARAM_INVALID_INPUT, "CancelSerialRight failed.")) {
+        USB_HILOGI(MODULE_USB_INNERKIT, "CancelSerialRight failed, invalid portId [%{public}d]", portId);
         return;
     }
-    int32_t ret = g_usbClient.CancelSerialRight(port);
+    int32_t ret = g_usbClient.CancelSerialRight(portId);
     CheckAndThrowOnError((ret == 0), ErrorCodeConversion(ret), "CancelSerialRight failed.");
     USB_HILOGI(MODULE_USB_INNERKIT, "CancelSerialRight finish. ErrCode: %{public}d", ret);
 }
 
-void OpenSerial(double portId)
+void OpenSerial(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "OpenSerial start.");
-    int32_t port = static_cast<int32_t>(portId);
-    if (!CheckAndThrowOnError((port >= 0), SYSPARAM_INVALID_INPUT, "OpenSerial failed.")) {
-        USB_HILOGI(MODULE_USB_INNERKIT, "OpenSerial failed, invalid portId [%{public}d]", port);
+    if (!CheckAndThrowOnError((portId >= 0), SYSPARAM_INVALID_INPUT, "OpenSerial failed.")) {
+        USB_HILOGI(MODULE_USB_INNERKIT, "OpenSerial failed, invalid portId [%{public}d]", portId);
         return;
     }
-    int ret = g_usbClient.SerialOpen(port);
+    int ret = g_usbClient.SerialOpen(portId);
     CheckAndThrowOnError((ret == 0), ErrorCodeConversion(ret), "OpenSerial failed.");
     USB_HILOGI(MODULE_USB_INNERKIT, "OpenSerial finish. ErrCode: %{public}d", ret);
 }
 
-void CloseSerial(double portId)
+void CloseSerial(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "CloseSerial start.");
-    int32_t port = static_cast<int32_t>(portId);
-    if (!CheckAndThrowOnError((port >= 0), SYSPARAM_INVALID_INPUT, "CloseSerial failed.")) {
-        USB_HILOGI(MODULE_USB_INNERKIT, "CloseSerial failed, invalid portId [%{public}d]", port);
+    if (!CheckAndThrowOnError((portId >= 0), SYSPARAM_INVALID_INPUT, "CloseSerial failed.")) {
+        USB_HILOGI(MODULE_USB_INNERKIT, "CloseSerial failed, invalid portId [%{public}d]", portId);
         return;
     }
-    int ret = g_usbClient.SerialClose(port);
+    int ret = g_usbClient.SerialClose(portId);
     CheckAndThrowOnError((ret == 0), ErrorCodeConversion(ret), "CloseSerial failed.");
     USB_HILOGI(MODULE_USB_INNERKIT, "CloseSerial finish. ErrCode: %{public}d", ret);
 }
@@ -213,19 +204,18 @@ void SerialAttributeToTaihe(const UsbSerialAttr serialAttribute, SerialAttribute
     taiheSerialAttribute.stopBits = optional<StopBits>::make(StopBits(stopBits.get_key()));
 }
 
-::ohos::usbManager::serial::SerialAttribute GetAttribute(double portId)
+::ohos::usbManager::serial::SerialAttribute GetAttribute(int32_t portId)
 {
-    int32_t iportId = static_cast<int32_t>(portId);
-    USB_HILOGI(MODULE_USB_INNERKIT, "getAttribute start. portId: %{public}d", iportId);
+    USB_HILOGI(MODULE_USB_INNERKIT, "getAttribute start. portId: %{public}d", portId);
     SerialAttribute taiheSerialAttribute = {BaudRates::key_t::BAUDRATE_50};
-    if (iportId < 0) {
+    if (portId < 0) {
         USB_HILOGE(MODULE_USB_INNERKIT, "portId is invalid!");
         set_business_error(SYSPARAM_INVALID_INPUT, "portId is invalid!");
         return taiheSerialAttribute;
     }
 
     UsbSerialAttr serialAttribute;
-    int32_t ret = g_usbClient.SerialGetAttribute(iportId, serialAttribute);
+    int32_t ret = g_usbClient.SerialGetAttribute(portId, serialAttribute);
     if (ret != 0) {
         USB_HILOGE(MODULE_USB_INNERKIT, "Failed to get attribute. errorCode: %{public}d", ErrorCodeConversion(ret));
         set_business_error(ErrorCodeConversion(ret), "Failed to get attribute!");
@@ -236,11 +226,10 @@ void SerialAttributeToTaihe(const UsbSerialAttr serialAttribute, SerialAttribute
     return taiheSerialAttribute;
 }
 
-void SetAttribute(double portId, ::ohos::usbManager::serial::SerialAttribute const& attribute)
+void SetAttribute(int32_t portId, ::ohos::usbManager::serial::SerialAttribute const& attribute)
 {
-    int32_t iportId = static_cast<int32_t>(portId);
-    USB_HILOGI(MODULE_USB_INNERKIT, "setAttribute start. portId: %{public}d", iportId);
-    if (iportId < 0) {
+    USB_HILOGI(MODULE_USB_INNERKIT, "setAttribute start. portId: %{public}d", portId);
+    if (portId < 0) {
         USB_HILOGE(MODULE_USB_INNERKIT, "portId is invalid!");
         set_business_error(SYSPARAM_INVALID_INPUT, "portId is invalid!");
         return;
@@ -273,7 +262,7 @@ void SetAttribute(double portId, ::ohos::usbManager::serial::SerialAttribute con
         return;
     }
 
-    int ret = g_usbClient.SerialSetAttribute(iportId, serialAttribute);
+    int ret = g_usbClient.SerialSetAttribute(portId, serialAttribute);
     if (ret != 0) {
         USB_HILOGE(MODULE_USB_INNERKIT, "Failed to set attribute. errorCode: %{public}d", ErrorCodeConversion(ret));
         set_business_error(ErrorCodeConversion(ret), "Failed to set attribute!");
@@ -281,11 +270,10 @@ void SetAttribute(double portId, ::ohos::usbManager::serial::SerialAttribute con
     USB_HILOGI(MODULE_USB_INNERKIT, "setAttribute finish, status: %{public}d", ret);
 }
 
-double ReadSync(double portId, ::taihe::array_view<uint8_t> buffer, ::taihe::optional_view<double> timeout)
+int32_t ReadSync(int32_t portId, ::taihe::array_view<uint8_t> buffer, ::taihe::optional_view<int32_t> timeout)
 {
-    int32_t iportId = static_cast<int32_t>(portId);
-    USB_HILOGI(MODULE_USB_INNERKIT, "readSync start. portId: %{public}d", iportId);
-    if (iportId < 0) {
+    USB_HILOGI(MODULE_USB_INNERKIT, "readSync start. portId: %{public}d", portId);
+    if (portId < 0) {
         USB_HILOGE(MODULE_USB_INNERKIT, "portId is invalid!");
         set_business_error(SYSPARAM_INVALID_INPUT, "portId is invalid!");
         return ERROR;
@@ -301,13 +289,13 @@ double ReadSync(double portId, ::taihe::array_view<uint8_t> buffer, ::taihe::opt
     uint32_t actualSize = 0;
     uint32_t utimeout = 0;
     if (timeout.has_value()) {
-        utimeout = static_cast<uint32_t>(timeout.value());
+        utimeout = timeout.value();
     } else {
         USB_HILOGE(MODULE_USB_INNERKIT, "timeout is invalid!");
         set_business_error(SYSPARAM_INVALID_INPUT, "timeout is invalid!");
         return ERROR;
     }
-    int32_t ret = g_usbClient.SerialRead(iportId, bufferData, buffer.size(), actualSize, utimeout);
+    int32_t ret = g_usbClient.SerialRead(portId, bufferData, buffer.size(), actualSize, utimeout);
     if (ret != 0) {
         USB_HILOGE(MODULE_USB_INNERKIT, "readSync Failed. errorCode: %{public}d", ErrorCodeConversion(ret));
         set_business_error(ErrorCodeConversion(ret), "readSync Failed!");
@@ -318,11 +306,10 @@ double ReadSync(double portId, ::taihe::array_view<uint8_t> buffer, ::taihe::opt
     return actualSize;
 }
 
-double WriteSync(double portId, ::taihe::array_view<uint8_t> buffer, ::taihe::optional_view<double> timeout)
+int32_t WriteSync(int32_t portId, ::taihe::array_view<uint8_t> buffer, ::taihe::optional_view<int32_t> timeout)
 {
-    int32_t iportId = static_cast<int32_t>(portId);
-    USB_HILOGI(MODULE_USB_INNERKIT, "writeSync start. portId: %{public}d", iportId);
-    if (iportId < 0) {
+    USB_HILOGI(MODULE_USB_INNERKIT, "writeSync start. portId: %{public}d", portId);
+    if (portId < 0) {
         USB_HILOGE(MODULE_USB_INNERKIT, "portId is invalid!");
         set_business_error(SYSPARAM_INVALID_INPUT, "portId is invalid!");
         return ERROR;
@@ -338,13 +325,13 @@ double WriteSync(double portId, ::taihe::array_view<uint8_t> buffer, ::taihe::op
     std::vector<uint8_t> bufferVector(buffer.data(), buffer.data() + buffer.size());
     uint32_t utimeout = 0;
     if (timeout.has_value()) {
-        utimeout = static_cast<uint32_t>(timeout.value());
+        utimeout = timeout.value();
     } else {
         USB_HILOGE(MODULE_USB_INNERKIT, "timeout is invalid!");
         set_business_error(SYSPARAM_INVALID_INPUT, "timeout is invalid!");
         return ERROR;
     }
-    int32_t ret = g_usbClient.SerialWrite(iportId, bufferVector, buffer.size(), actualSize, utimeout);
+    int32_t ret = g_usbClient.SerialWrite(portId, bufferVector, buffer.size(), actualSize, utimeout);
     if (ret != 0) {
         USB_HILOGE(MODULE_USB_INNERKIT, "writeSync Failed. errorCode: %{public}d", ErrorCodeConversion(ret));
         set_business_error(ErrorCodeConversion(ret), "readSync Failed!");

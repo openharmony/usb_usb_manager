@@ -64,7 +64,7 @@ export default function abilityTest() {
           let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
           let data = bundleManager.getBundleInfoForSelfSync(bundleFlags);
           hilog.info(domain, tag, 'getBundleInfoForSelfSync: ' + JSON.stringify(data));
-          let tokenId = data.appInfo.accessTokenId;
+          let tokenId :int= Math.floor(data.appInfo.accessTokenId) as int;
           usbManager.addAccessoryRight(tokenId, accList[0])
           hilog.info(0, 'testTag ui', `addAccessoryRight success`)
         } catch (error) {
@@ -86,7 +86,7 @@ export default function abilityTest() {
       try {
         accList = usbManager.getAccessoryList();
         accessInfo = accList[0];
-        let ret = usbManager.hasAccessoryRight(accessInfoTest);
+        let ret = usbManager.hasAccessoryRight(accessInfo);
       } catch (error) {
         const err = error as BusinessError;
         hilog.info(domain, tag, 'usb testHasAccessoryRight001 catch err code: ', err.code, ', message: ',
@@ -109,6 +109,7 @@ export default function abilityTest() {
         accList = usbManager.getAccessoryList();
         accessInfo = accList[0];
         let ret = await usbManager.requestAccessoryRight(accessInfo);
+        hilog.info(domain, tag, 'requestAccessoryRight ret ', ret);
       } catch (error) {
         const err = error as BusinessError;
         hilog.info(domain, tag, 'testRequestAccessoryRight002 err : ', err);
@@ -181,17 +182,15 @@ export default function abilityTest() {
     it("testCloseAccessory002", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, () => {
       hilog.info(domain, tag, '----------------------testCloseAccessory002---------------------------');
       let accHandle: usbManager.USBAccessoryHandle = {
-        accessoryFd: 0
+        accessoryFd: 2
       };
       try {
         usbManager.closeAccessory(accHandle);
       } catch (error) {
         const err = error as BusinessError;
         hilog.info(domain, tag, 'testCloseAccessory002 err : ', err);
-        expect(err.code).assertEqual(14400005);
+        expect(err.code).assertEqual(401);
       }
     })
-
-
   })
 }

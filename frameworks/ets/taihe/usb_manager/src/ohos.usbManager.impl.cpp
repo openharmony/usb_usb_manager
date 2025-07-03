@@ -448,7 +448,7 @@ bool addDeviceAccessRight(string_view tokenId, string_view deviceName)
     return bResult;
 }
 
-double getFunctionsFromString(string_view funcs)
+int32_t getFunctionsFromString(string_view funcs)
 {
     if (!HasFeature(FEATURE_HOST)) {
         ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
@@ -463,7 +463,7 @@ double getFunctionsFromString(string_view funcs)
         ThrowBusinessError(OHEC_COMMON_PERMISSION_NOT_ALLOWED, "");
         return OHEC_COMMON_PERMISSION_NOT_ALLOWED;
     }
-    return static_cast<double>(numFuncs);
+    return static_cast<int32_t>(numFuncs);
 }
 
 string getStringFromFunctions(FunctionType funcs)
@@ -560,7 +560,7 @@ array<USBPort> getPortList()
         taihe::array_view<::ohos::usbManager::USBPort>(convertedPorts.data(), convertedPorts.size()));
 }
 
-PortModeType getPortSupportModes(double portId)
+PortModeType getPortSupportModes(int32_t portId)
 {
     if (!HasFeature(FEATURE_PORT)) {
         ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
@@ -583,7 +583,7 @@ PortModeType getPortSupportModes(double portId)
     return {PortModeType::key_t(result)};
 }
 
-void setPortRoleTypesSync(double portId, PowerRoleType powerRole, DataRoleType dataRole)
+void setPortRoleTypesSync(int32_t portId, PowerRoleType powerRole, DataRoleType dataRole)
 {
     if (!HasFeature(FEATURE_PORT)) {
         ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
@@ -606,7 +606,7 @@ void setPortRoleTypesSync(double portId, PowerRoleType powerRole, DataRoleType d
     }
 }
 
-void addAccessoryRight(double tokenId, ohos::usbManager::USBAccessory const &accessory)
+void addAccessoryRight(int32_t tokenId, ohos::usbManager::USBAccessory const &accessory)
 {
     if (!HasFeature(FEATURE_PORT)) {
         ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
@@ -637,7 +637,7 @@ void addAccessoryRight(double tokenId, ohos::usbManager::USBAccessory const &acc
     }
 }
 
-double claimInterface(USBDevicePipe const &pipe, USBInterface const &iface, optional_view<bool> force)
+int32_t claimInterface(USBDevicePipe const &pipe, USBInterface const &iface, optional_view<bool> force)
 {
     if (!HasFeature(FEATURE_HOST)) {
         ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
@@ -651,7 +651,7 @@ double claimInterface(USBDevicePipe const &pipe, USBInterface const &iface, opti
     return ret;
 }
 
-double releaseInterface(USBDevicePipe const &pipe, USBInterface const &iface)
+int32_t releaseInterface(USBDevicePipe const &pipe, USBInterface const &iface)
 {
     if (!HasFeature(FEATURE_HOST)) {
         ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
@@ -665,7 +665,7 @@ double releaseInterface(USBDevicePipe const &pipe, USBInterface const &iface)
     return ret;
 }
 
-double setConfiguration(USBDevicePipe const &pipe, USBConfiguration const &config)
+int32_t setConfiguration(USBDevicePipe const &pipe, USBConfiguration const &config)
 {
     if (!HasFeature(FEATURE_HOST)) {
         ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
@@ -679,7 +679,7 @@ double setConfiguration(USBDevicePipe const &pipe, USBConfiguration const &confi
     return ret;
 }
 
-double setInterface(USBDevicePipe const &pipe, USBInterface const &iface)
+int32_t setInterface(USBDevicePipe const &pipe, USBInterface const &iface)
 {
     if (!HasFeature(FEATURE_HOST)) {
         ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
@@ -708,7 +708,7 @@ array<uint8_t> getRawDescriptor(USBDevicePipe const &pipe)
     return ::taihe::array<uint8_t>(bufferData);
 }
 
-double getFileDescriptor(USBDevicePipe const &pipe)
+int32_t getFileDescriptor(USBDevicePipe const &pipe)
 {
     if (!HasFeature(FEATURE_HOST)) {
         ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
@@ -722,8 +722,8 @@ double getFileDescriptor(USBDevicePipe const &pipe)
     return static_cast<int32_t>(fd);
 }
 
-double usbControlTransferSync(
-    USBDevicePipe const &pipe, USBDeviceRequestParams const &requestparam, optional_view<double> timeout)
+int32_t usbControlTransferSync(
+    USBDevicePipe const &pipe, USBDeviceRequestParams const &requestparam, optional_view<int32_t> timeout)
 {
     if (!HasFeature(FEATURE_HOST)) {
         ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
@@ -764,8 +764,8 @@ double usbControlTransferSync(
     return bufferData.size();
 }
 
-double bulkTransferSync(::ohos::usbManager::USBDevicePipe const &pipe, ::ohos::usbManager::USBEndpoint const &endpoint,
-    uintptr_t buffer, optional_view<double> timeout)
+int32_t bulkTransferSync(::ohos::usbManager::USBDevicePipe const &pipe, ::ohos::usbManager::USBEndpoint const &endpoint,
+    uintptr_t buffer, optional_view<int32_t> timeout)
 {
     if (!HasFeature(FEATURE_HOST)) {
         ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
@@ -805,7 +805,7 @@ double bulkTransferSync(::ohos::usbManager::USBDevicePipe const &pipe, ::ohos::u
     }
 }
 
-double closePipe(USBDevicePipe const &pipe)
+int32_t closePipe(USBDevicePipe const &pipe)
 {
     OHOS::USB::USBDevicePipe nativePipe;
     nativePipe.SetBusNum(static_cast<uint8_t>(pipe.busNum));

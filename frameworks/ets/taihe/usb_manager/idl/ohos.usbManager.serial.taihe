@@ -18,32 +18,32 @@
 
 function getPortList(): Array<SerialPort>;
 
-function hasSerialRight(portId: f64): bool;
+function hasSerialRight(portId: i32): bool;
 
 @gen_promise("requestSerialRight")
-function requestSerialRightSync(portId: f64): bool;
+function requestSerialRightSync(portId: i32): bool;
 
-function addSerialRight(tokenId: f64, portId: f64): void;
+function addSerialRight(tokenId: i32, portId: i32): void;
 
-function cancelSerialRight(portId: f64): void;
+function cancelSerialRight(portId: i32): void;
 
-function open(portId: f64): void;
+function open(portId: i32): void;
 
-function close(portId: f64): void;
+function close(portId: i32): void;
 
-function getAttribute(portId: f64): SerialAttribute;
+function getAttribute(portId: i32): SerialAttribute;
 
-function setAttribute(portId: f64, attribute: SerialAttribute): void;
+function setAttribute(portId: i32, attribute: SerialAttribute): void;
 
 @gen_promise("read")
-function readSync(portId: f64, buffer: @typedarray Array<u8>, timeout: Optional<f64>): f64;
+function readSync(portId: i32, buffer: @typedarray Array<u8>, timeout: Optional<i32>): i32;
 
 @gen_promise("write")
-function writeSync(portId: f64, buffer: @typedarray Array<u8>, timeout: Optional<f64>): f64;
+function writeSync(portId: i32, buffer: @typedarray Array<u8>, timeout: Optional<i32>): i32;
 
 struct SerialPort {
 
-  portId: f64;
+  portId: i32;
 
   deviceName: String;
 }

@@ -80,7 +80,7 @@ function checkDevice() {
 export default function SerialBaseTest() {
   describe("SerialBaseTest", (): void => {
     console.info(TAG, 'describe start');
-    let openPortId: number = -1;
+    let openPortId: int = -1;
     beforeAll(()=> {
       try {
         let portList: serialManager.SerialPort[] = serialManager.getPortList();
@@ -121,7 +121,7 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let invalidInput: number = -1;
+        let invalidInput: int = -1;
         let hasRight: boolean = serialManager.hasSerialRight(invalidInput);
         console.info(TAG, 'testHasSerialRight002 hasRight: ', hasRight);
         expect().assertFail();
@@ -139,7 +139,7 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let invalidInput: number = -1;
+        let invalidInput: int = -1;
         await serialManager.requestSerialRight(invalidInput);
         // await driveFn();
         try {
@@ -163,7 +163,7 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let invalidInput: number = -1;
+        let invalidInput: int = -1;
         await serialManager.requestSerialRight(invalidInput);
         // await driveFn();
         try {
@@ -242,7 +242,7 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let invalidPort: number = -1;
+        let invalidPort: int = -1;
         serialManager.open(openPortId);
         serialManager.close(invalidPort);
         expect().assertFail();
@@ -298,7 +298,7 @@ export default function SerialBaseTest() {
         // }
         serialManager.open(openPortId);
         let readSyncBuffer: Uint8Array = new Uint8Array(8192);
-        let length: number = serialManager.readSync(openPortId, readSyncBuffer, 500);
+        let length: int = serialManager.readSync(openPortId, readSyncBuffer, 500);
         console.info(TAG, 'testReadSync002 length = ' + length);
         expect(length >= 0).assertTrue();
         serialManager.close(openPortId);
@@ -323,7 +323,7 @@ export default function SerialBaseTest() {
         // }
         serialManager.open(openPortId);
         let readSyncBuffer: Uint8Array = new Uint8Array(8192);
-        let length: number = serialManager.readSync(openPortId, readSyncBuffer, 500);
+        let length: int = serialManager.readSync(openPortId, readSyncBuffer, 500);
         console.info(TAG, 'testReadSync002 length = ' + length);
         expect(length >= 0).assertTrue();
         serialManager.close(openPortId);
@@ -349,7 +349,7 @@ export default function SerialBaseTest() {
           // }
           serialManager.open(openPortId);
           let readSyncBuffer: Uint8Array = new Uint8Array(8192);
-          let length: number = serialManager.readSync(openPortId, readSyncBuffer, 500);
+          let length: int = serialManager.readSync(openPortId, readSyncBuffer, 500);
           console.info(TAG, 'testReadSync002 length = ' + length);
           expect(length >= 0).assertTrue();
           serialManager.close(openPortId);
@@ -375,7 +375,7 @@ export default function SerialBaseTest() {
           // }
           serialManager.open(openPortId);
           let readSyncBuffer: Uint8Array = new Uint8Array(8192);
-          let length: number = serialManager.readSync(openPortId, readSyncBuffer, 500);
+          let length: int = serialManager.readSync(openPortId, readSyncBuffer, 500);
           console.info(TAG, 'testReadSync002 length = ' + length);
           expect(length >= 0).assertTrue();
           serialManager.close(openPortId);
@@ -396,7 +396,7 @@ export default function SerialBaseTest() {
       //let writeBuffer: Uint8Array = new Uint8Array(8192);
       serialManager.open(openPortId);
       serialManager.write(openPortId, writeBuffer, 500)
-        .then((length: number) => {
+        .then((length: int) => {
           expect(length >= 0).assertTrue();
           serialManager.close(openPortId);
           done();
@@ -417,7 +417,7 @@ export default function SerialBaseTest() {
       //let writeBuffer: Uint8Array = new Uint8Array(8192);
       serialManager.open(openPortId);
       serialManager.write(openPortId, writeBuffer, 500)
-        .then((length: number) => {
+        .then((length: int) => {
           expect(length >= 0).assertTrue();
           serialManager.close(openPortId);
           done();
@@ -438,7 +438,7 @@ export default function SerialBaseTest() {
       //let writeBuffer: Uint8Array = new Uint8Array(8192);
       serialManager.open(openPortId);
       serialManager.write(openPortId, writeBuffer, 500)
-        .then((length: number) => {
+        .then((length: int) => {
           expect(length >= 0).assertTrue();
           serialManager.close(openPortId);
           done();
@@ -1348,7 +1348,7 @@ export default function SerialBaseTest() {
       try {
         serialManager.open(openPortId);
         serialManager.read(openPortId, readBuffer, 1000)
-          .then((length: number) => {
+          .then((length: int) => {
             console.info(TAG, 'testRead002 length = ' + length);
             expect(length >= 0).assertTrue();
             serialManager.close(openPortId);
@@ -1374,7 +1374,7 @@ export default function SerialBaseTest() {
       try {
         serialManager.open(openPortId);
         serialManager.read(openPortId, readBuffer, 1000)
-          .then((length: number) => {
+          .then((length: int) => {
             console.info(TAG, 'testRead002 length = ' + length);
             expect(length >= 0).assertTrue();
             serialManager.close(openPortId);
@@ -1398,7 +1398,7 @@ export default function SerialBaseTest() {
         console.info(TAG, 'testWriteSync001 start');
         let writeSyncBuffer: Uint8Array = new Uint8Array(8192);
         serialManager.open(openPortId);
-        let length: number = serialManager.writeSync(openPortId, writeSyncBuffer, 500);
+        let length: int = serialManager.writeSync(openPortId, writeSyncBuffer, 500);
         expect(length >= 0).assertTrue();
         serialManager.close(openPortId);
         done();
@@ -1417,7 +1417,7 @@ export default function SerialBaseTest() {
         console.info(TAG, 'testWriteSync001 start');
         let writeSyncBuffer: Uint8Array = new Uint8Array(8192);
         serialManager.open(openPortId);
-        let length: number = serialManager.writeSync(openPortId, writeSyncBuffer, 500);
+        let length: int = serialManager.writeSync(openPortId, writeSyncBuffer, 500);
         expect(length >= 0).assertTrue();
         serialManager.close(openPortId);
         done();
@@ -1436,7 +1436,7 @@ export default function SerialBaseTest() {
         console.info(TAG, 'testWriteSync001 start');
         let writeSyncBuffer: Uint8Array = new Uint8Array(8192);
         serialManager.open(openPortId);
-        let length: number = serialManager.writeSync(openPortId, writeSyncBuffer, 500);
+        let length: int = serialManager.writeSync(openPortId, writeSyncBuffer, 500);
         expect(length >= 0).assertTrue();
         serialManager.close(openPortId);
         done();
@@ -1520,7 +1520,7 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let invalidport: number = 100;
+        let invalidport: int = 100;
         let writeBuffer: Uint8Array = new Uint8Array(100).fill(1);
         await serialManager.write(invalidport, writeBuffer);
         expect().assertFail();
@@ -1548,7 +1548,7 @@ export default function SerialBaseTest() {
         }
         let writeSyncBuffer: Uint8Array = new Uint8Array(100).fill(1);
         serialManager.open(openPortId);
-        let length: number = serialManager.writeSync(openPortId, writeSyncBuffer);
+        let length: int = serialManager.writeSync(openPortId, writeSyncBuffer);
         expect(length >= 0).assertTrue();
         serialManager.close(openPortId);
         done();
@@ -1565,7 +1565,7 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let invalidInput: number = -1;
+        let invalidInput: int = -1;
         let hasRight: boolean = serialManager.hasSerialRight(invalidInput);
         console.info(TAG, 'testHasSerialRight002 hasRight: ', hasRight);
         expect().assertFail();

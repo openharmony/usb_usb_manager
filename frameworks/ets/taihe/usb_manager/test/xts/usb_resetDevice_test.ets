@@ -45,7 +45,7 @@ function devAccessoryFunc() {
 }
 
 function getTransfersParam(gPipe: usbManager.USBDevicePipe, flagsValue: usbManager.UsbTransferFlags,
-  endpointValue: number, typeValue: usbManager.UsbEndpointTransferType, timeOutValue: number) {
+  endpointValue: int, typeValue: usbManager.UsbEndpointTransferType, timeOutValue: int) {
   let transferParams: usbManager.UsbDataTransferParams = {
     devPipe: gPipe,
     flags: flagsValue,
@@ -142,12 +142,12 @@ export default function abilityTest() {
           let ret: boolean = usbManager.resetUsbDevice(devicePipe);
           hilog.info(domain, tag, `resetUsbDevice ret =${ret}`);
           expect(ret == true).assertTrue();
-          let ret0: number = usbManager.closePipe(devicePipe);
+          let ret0: int = usbManager.closePipe(devicePipe);
         } catch (err) {
           hilog.info(domain, tag, '%{public}s', 'test_resetUsbDevice001');
         }
         hilog.info(domain, tag, 'usb test_resetUsbDevice end');
         done();
-      })
+    })
   })
 }
