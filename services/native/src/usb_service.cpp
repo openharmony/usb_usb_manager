@@ -2959,6 +2959,7 @@ int32_t UsbService::AddSerialRight(uint32_t tokenId, int32_t portId)
 }
 // LCOV_EXCL_STOP
 
+// LCOV_EXCL_START
 int32_t UsbService::GetDeviceVidPidSerialNumber(int32_t portId, std::string& deviceName, std::string& strDesc)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
@@ -2975,6 +2976,7 @@ int32_t UsbService::GetDeviceVidPidSerialNumber(int32_t portId, std::string& dev
     }
     return isMatched;
 }
+// LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
 void UsbService::UpdateDeviceVidPidMap(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList)

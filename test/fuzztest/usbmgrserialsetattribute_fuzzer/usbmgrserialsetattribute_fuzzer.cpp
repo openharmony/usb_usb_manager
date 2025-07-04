@@ -23,17 +23,17 @@ constexpr int32_t OK = 0;
 }
 using OHOS::USB::UsbSrvClient;
 namespace OHOS {
+const uint32_t OFFSET = 4;
 namespace SERIAL {
 bool UsbMgrSerialSetAttributeFuzzTest(const uint8_t* data, size_t size)
 {
-    if (data == nullptr || size < sizeof(int32_t)) {
+    if (data == nullptr || size < sizeof(UsbSerialAttr) + OFFSET) {
         return false;
     }
     auto &usbSrvClient = UsbSrvClient::GetInstance();
-    struct UsbSerialAttr info;
     int32_t portId = *reinterpret_cast<const int32_t *>(data);
 
-    if (usbSrvClient.SerialGetAttribute(portId, info) != OK) {
+    if (usbSrvClient.SerialSetAttribute(portId, reinterpret_cast<UsbSerialAttr &>(std::move(data + OFFSET))) != OK) {
         return false;
     }
 
