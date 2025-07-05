@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +23,10 @@
 #include "usb_endpoint.h"
 #include "usb_errors.h"
 #include "hisysevent.h"
+
+#ifdef USB_PERIPHERAL_FAULT_NOTIFY
+#include "driver_ext_mgr_client.h"
+#endif
 
 using namespace OHOS::HiviewDFX;
 
@@ -51,6 +55,11 @@ void UsbReportSysEvent::ReportTransferFaultSysEvent(const std::string transferTy
     if (hiRet != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "HiSysEventWrite ret: %{public}d", hiRet);
     }
+
+#ifdef USB_PERIPHERAL_FAULT_NOTIFY
+    ExternalDeviceManager::DriverExtMgrClient::GetInstance().NotifyUsbPeripheralFault(
+        HiSysEvent::Domain::USB, "TRANSFOR_FAULT");
+#endif
 }
 
 void UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent(const std::string transferType,
@@ -78,6 +87,11 @@ void UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent(const std::str
     if (hiRet != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "HiSysEventWrite ret: %{public}d", hiRet);
     }
+
+#ifdef USB_PERIPHERAL_FAULT_NOTIFY
+    ExternalDeviceManager::DriverExtMgrClient::GetInstance().NotifyUsbPeripheralFault(
+        HiSysEvent::Domain::USB, "TRANSFOR_FAULT");
+#endif
 }
 
 bool UsbReportSysEvent::GetUsbInterfaceId(const HDI::Usb::V1_0::UsbDev &tmpDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe,

@@ -59,7 +59,8 @@
                 "bounds_checking_function",
                 "hitrace",
                 "selinux_adapter",
-                "hdf_core"
+                "hdf_core",
+                "external_device_manager"
             ]
         },
         "build": {
