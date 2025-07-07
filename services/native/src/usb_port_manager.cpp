@@ -69,6 +69,8 @@ void UsbPortManager::AddSupportedMode()
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:: Enter", __func__);
     supportedModeMap_.clear();
     for (const auto& [portId, port] : portMap_) {
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:: portId is %{public}d, supportedModes is %{public}d",
+            __func__, port.id, port.supportedModes);
         supportedModeMap_[portId] = port.supportedModes;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:: successed", __func__);
@@ -232,6 +234,8 @@ int32_t UsbPortManager::GetPorts(std::vector<UsbPort> &ports)
     std::lock_guard<std::mutex> lock(mutex_);
     if (portMap_.size() > 0) {
         for (auto it = portMap_.begin(); it != portMap_.end(); ++it) {
+            USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: portId is %{public}d, supportedModes is %{public}d",
+                it->second.id, it->second.supportedModes);
             ports.push_back(it->second);
         }
         USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::GetPorts success");
@@ -337,7 +341,6 @@ void UsbPortManager::UpdatePort(int32_t portId, int32_t powerRole, int32_t dataR
             it->second.usbPortStatus.currentPowerRole = powerRole;
             it->second.usbPortStatus.currentDataRole = dataRole;
             it->second.usbPortStatus.currentMode = mode;
-            it->second.supportedModes = supportedModes;
             USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::updatePort seccess");
             return;
         }
@@ -359,7 +362,8 @@ void UsbPortManager::AddPortInfo(int32_t portId, int32_t supportedModes,
 
 void UsbPortManager::AddPort(UsbPort &port)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "addPort run");
+    USB_HILOGI(MODULE_USB_SERVICE, "addPort run, portId is %{public}d, supportedModes is %{public}d",
+        port.id, port.supportedModes);
 
     auto res = portMap_.insert(std::map<int32_t, UsbPort>::value_type(port.id, port));
     if (!res.second) {
