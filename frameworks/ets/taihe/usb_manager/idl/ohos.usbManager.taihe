@@ -33,7 +33,7 @@ function removeRight(deviceName: String): bool;
 
 function addDeviceAccessRight(tokenId: String, deviceName: String): bool;
 
-function getFunctionsFromString(funcs: String): f64;
+function getFunctionsFromString(funcs: String): i32;
 
 function getStringFromFunctions(funcs: FunctionType): String;
 
@@ -44,37 +44,37 @@ function getDeviceFunctions(): FunctionType;
 
 function getPortList(): Array<USBPort>;
 
-function getPortSupportModes(portId: f64): PortModeType;
+function getPortSupportModes(portId: i32): PortModeType;
 
 @gen_promise("setPortRoleTypes")
-function setPortRoleTypesSync(portId: f64, powerRole: PowerRoleType, dataRole: DataRoleType): void;
+function setPortRoleTypesSync(portId: i32, powerRole: PowerRoleType, dataRole: DataRoleType): void;
 
-function addAccessoryRight(tokenId: f64, accessory: USBAccessory): void;
+function addAccessoryRight(tokenId: i32, accessory: USBAccessory): void;
 
-function claimInterface(pipe: USBDevicePipe, iface: USBInterface, force: Optional<bool>): f64;
+function claimInterface(pipe: USBDevicePipe, iface: USBInterface, force: Optional<bool>): i32;
 
-function releaseInterface(pipe: USBDevicePipe, iface: USBInterface): f64;
+function releaseInterface(pipe: USBDevicePipe, iface: USBInterface): i32;
 
-function setConfiguration(pipe: USBDevicePipe, config: USBConfiguration): f64;
+function setConfiguration(pipe: USBDevicePipe, config: USBConfiguration): i32;
 
-function setInterface(pipe: USBDevicePipe, iface: USBInterface): f64;
+function setInterface(pipe: USBDevicePipe, iface: USBInterface): i32;
 
 function getRawDescriptor(pipe: USBDevicePipe): @typedarray Array<u8>;
 
-function getFileDescriptor(pipe: USBDevicePipe): f64;
+function getFileDescriptor(pipe: USBDevicePipe): i32;
 
 @gen_promise("usbControlTransfer")
-function usbControlTransferSync(pipe: USBDevicePipe, requestparam: USBDeviceRequestParams, timeout: Optional<f64>): f64;
+function usbControlTransferSync(pipe: USBDevicePipe, requestparam: USBDeviceRequestParams, timeout: Optional<i32>): i32;
 
 @gen_promise("bulkTransfer")
 function bulkTransferSync(
   pipe: USBDevicePipe,
   endpoint: USBEndpoint,
   buffer: @sts_type("Uint8Array") Opaque,
-  timeout: Optional<f64>
-): f64;
+  timeout: Optional<i32>
+): i32;
 
-function closePipe(pipe: USBDevicePipe): f64;
+function closePipe(pipe: USBDevicePipe): i32;
 
 function hasAccessoryRight(accessory: USBAccessory): bool;
 
@@ -168,9 +168,9 @@ struct USBDevice {
 }
 
 struct USBDevicePipe {
-  busNum: f64;
+  busNum: i32;
 
-  devAddress: f64;
+  devAddress: i32;
 }
 
 enum PowerRoleType : i32 {
@@ -232,15 +232,15 @@ struct USBControlParams {
 }
 
 struct USBDeviceRequestParams {
-  bmRequestType: f64;
+  bmRequestType: i32;
 
-  bRequest: f64;
+  bRequest: i32;
 
-  wValue: f64;
+  wValue: i32;
 
-  wIndex: f64;
+  wIndex: i32;
 
-  wLength: f64;
+  wLength: i32;
 
   data: @sts_type("Uint8Array") Opaque;
 }
@@ -362,13 +362,13 @@ struct UsbDataTransferParams {
 
   flags: UsbTransferFlags;
 
-  endpoint: f64;
+  endpoint: i32;
 
   type: UsbEndpointTransferType;
 
-  timeout: f64;
+  timeout: i32;
 
-  length: f64;
+  length: i32;
 
   callback: @sts_type("AsyncCallback<SubmitTransferCallback>") Opaque;
 
@@ -376,7 +376,7 @@ struct UsbDataTransferParams {
 
   buffer: @sts_type("Uint8Array") Opaque;
 
-  isoPacketCount: f64;
+  isoPacketCount: i32;
 }
 
 function usbSubmitTransfer(transfer: UsbDataTransferParams): void;

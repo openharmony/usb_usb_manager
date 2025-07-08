@@ -46,7 +46,7 @@ let tag: string = 'testTag';
 const PARAM_NULLSTRING: string = "";
 
 function getTransfersParam(gPipe: usbManager.USBDevicePipe, flagsValue: usbManager.UsbTransferFlags,
-  endpointValue: number, typeValue: usbManager.UsbEndpointTransferType, timeOutValue: number) {
+  endpointValue: int, typeValue: usbManager.UsbEndpointTransferType, timeOutValue: int) {
   let transferParams: usbManager.UsbDataTransferParams = {
     devPipe: gPipe,
     flags: flagsValue,
@@ -103,9 +103,9 @@ export default function abilityTest() {
         }
         hilog.info(domain, tag, '%{public}s', 'BusinessError  end');
       });
-      await Utils.msSleep(2000)
-      abilityDelegator.executeShellCommand("aa start -a EntryAbility -b com.example.helloworld")
-      await Utils.msSleep(2000)
+      // await Utils.msSleep(2000)
+      // abilityDelegator.executeShellCommand("aa start -a EntryAbility -b com.example.helloworld")
+      // await Utils.msSleep(2000)
       hilog.info(domain, tag, '%{public}s', 'beforeAll end');
 
 
@@ -140,9 +140,6 @@ export default function abilityTest() {
     it('testGetDevices001', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'usb testGetDevices001 begin');
-        if (!isDeviceConnected) {
-          done();
-        }
         let getDeviceList: Array<usbManager.USBDevice> = usbManager.getDevices();
         hilog.info(domain, tag, 'usb case getDevices ret length: ' + getDeviceList.length);
         expect(getDeviceList.length > 0).assertTrue();
@@ -150,12 +147,9 @@ export default function abilityTest() {
       })
 
 
-    it("testGetPortListNormalApp001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("testGetPortListNormalApp002", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'abilityTest_getPortList_001');
-        if (!isDeviceConnected) {
-          hilog.info(domain, tag, 'usb not connected');
-        }
         try {
           let portList = usbManager.getPortList();
           hilog.info(domain, tag, 'abilityTest_getPortList_001 success: %{public}s', JSON.stringify(portList));
@@ -170,12 +164,9 @@ export default function abilityTest() {
         done();
       })
 
-    it("abilityTest_getRawDescriptorRight_001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("abilityTest_getRawDescriptorRight_003", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'USB getRawDescriptor begin');
-        if (!isDeviceConnected) {
-          hilog.info(domain, tag, 'usb not connected');
-        }
         try {
           hilog.info(domain, tag, 'USB getRawDescriptor begin 1');
           let hasRight = usbManager.requestRight(devices.name);
@@ -199,12 +190,9 @@ export default function abilityTest() {
         done();
       })
 
-    it("abilityTest_getPortSupportModes_001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("abilityTest_getPortSupportModes_004", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'abilityTest_getPortSupportModes_004');
-        if (!isDeviceConnected) {
-          hilog.info(domain, tag, 'usb not connected');
-        }
         try {
           hilog.info(domain, tag, 'api enter');
           let pid = 1;
@@ -216,12 +204,9 @@ export default function abilityTest() {
         done();
       })
 
-    it("abilityTest_claimInterface_001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("abilityTest_claimInterface_005", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'USB abilityTest_claimInterface_006 begin');
-        if (!isDeviceConnected) {
-          hilog.info(domain, tag, 'usb not connected');
-        }
         try {
           usbManager.requestRight(devices.name);
           let devicePipe: usbManager.USBDevicePipe = usbManager.connectDevice(devices);
@@ -231,7 +216,7 @@ export default function abilityTest() {
           hilog.info(domain, tag, `abilityTest_claimInterface_006 busNum = ${devicePipe.busNum}`);
           hilog.info(domain, tag, `abilityTest_claimInterface_006 busNum = ${devicePipe.devAddress}`);
           hilog.info(domain, tag, 'abilityTest_claimInterface_006 interfaces = %{public}s', JSON.stringify(interfaces));
-          let ret: number = usbManager.claimInterface(devicePipe, interfaces, false);
+          let ret: int = usbManager.claimInterface(devicePipe, interfaces, true);
           usbManager.releaseInterface(devicePipe, interfaces);
           hilog.info(domain, tag, `claimInterface = ${ret}`);
           expect(ret === 0).assertTrue();
@@ -241,12 +226,9 @@ export default function abilityTest() {
         done();
       })
 
-    it("abilityTest_releaseInterface_001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("abilityTest_releaseInterface_006", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'abilityTest_releaseInterface_007');
-        if (!isDeviceConnected) {
-          hilog.info(domain, tag, 'usb not connected');
-        }
         try {
           usbManager.requestRight(devices.name);
           let devicePipe: usbManager.USBDevicePipe = usbManager.connectDevice(devices);
@@ -267,12 +249,9 @@ export default function abilityTest() {
         done();
       })
 
-    it("abilityTest_setInterface_001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("abilityTest_setInterface_007", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'abilityTest_setInterface_008');
-        if (!isDeviceConnected) {
-          hilog.info(domain, tag, 'usb not connected');
-        }
         try {
           usbManager.requestRight(devices.name);
           let devicePipe = usbManager.connectDevice(devices);
@@ -292,19 +271,16 @@ export default function abilityTest() {
         done();
       })
 
-    it("abilityTest_setConfiguration_001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("abilityTest_setConfiguration_008", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'abilityTest_setConfiguration_009');
-        if (!isDeviceConnected) {
-          hilog.info(domain, tag, 'usb not connected');
-        }
         try {
           usbManager.requestRight(devices.name);
           let devicePipe: usbManager.USBDevicePipe = usbManager.connectDevice(devices);
           let config: usbManager.USBConfiguration = devices.configs[0];
           hilog.info(domain, tag, 'abilityTest_setConfiguration_009 interfaces = %{public}s',
             JSON.stringify(config));
-          let ret: number = usbManager.setConfiguration(devicePipe, config);
+          let ret: int = usbManager.setConfiguration(devicePipe, config);
           hilog.info(domain, tag, `setConfiguration = ${ret}`);
           expect(ret === 0).assertTrue();
         } catch (err) {
@@ -313,17 +289,14 @@ export default function abilityTest() {
         done();
       })
 
-    it("abilityTest_getFileDescriptor_001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("abilityTest_getFileDescriptor_009", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'abilityTest_getFileDescriptor_0010');
-        if (!isDeviceConnected) {
-          hilog.info(domain, tag, 'usb not connected');
-        }
         try {
           usbManager.requestRight(devices.name);
           let isHasRight = usbManager.hasRight(devices.name);
           gPipe = usbManager.connectDevice(devices);
-          let devs: number = usbManager.getFileDescriptor(gPipe);
+          let devs: int = usbManager.getFileDescriptor(gPipe);
           hilog.info(domain, tag, `usb abilityTest_getFileDescriptor_0010 success ret :` + devs);
           expect(devs >= 0).assertTrue();
         } catch (err) {
@@ -332,32 +305,9 @@ export default function abilityTest() {
         done();
       })
 
-    it("abilityTest_addAccessoryRight_001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
-      async (done: () => void): Promise<void> => {
-        hilog.info(domain, tag, 'USB abilityTest_addAccessoryRight_0012 begin');
-        if (!isDeviceConnected) {
-          hilog.info(domain, tag, 'usb not connected');
-        }
-        try {
-          let accList: usbManager.USBAccessory[] = usbManager.getAccessoryList()
-          let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
-          let data = bundleManager.getBundleInfoForSelfSync(bundleFlags);
-          hilog.info(domain, tag, 'getBundleInfoForSelfSync: ' + JSON.stringify(data));
-          let tokenId = data.appInfo.accessTokenId;
-          usbManager.addAccessoryRight(tokenId, accList[0])
-          hilog.info(0, 'testTag ui', `addAccessoryRight success`)
-        } catch (error) {
-          hilog.info(0, 'testTag ui', `addAccessoryRight error `)
-        }
-        done();
-      })
-
-    it("test_hasRight_001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("test_hasRight_0010", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'USB test_hasRight_13 begin');
-        if (!isDeviceConnected) {
-          expect(isDeviceConnected).assertFalse();
-        }
         try {
           let isHasRight = usbManager.hasRight(devices.name);
           hilog.info(domain, tag, 'usb case hasRight ret : ' + isHasRight);
@@ -371,12 +321,9 @@ export default function abilityTest() {
         done();
       })
 
-    it("test_requestRight_001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("test_requestRight_0011", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'test_requestRight_14');
-        if (!isDeviceConnected) {
-          hilog.info(domain, tag, 'usb not connected');
-        }
         try {
           let isHasRight = await usbManager.requestRight(devices.name);
           hilog.info(domain, tag, 'usb case test_requestRight_14 ret : ' + isHasRight);
@@ -388,12 +335,9 @@ export default function abilityTest() {
         done();
       })
 
-    it("test_hasRight_001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("test_hasRight_0012", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'USB test_hasRight_15 begin');
-        if (!isDeviceConnected) {
-          hilog.info(domain, tag, 'usb not connected');
-        }
         try {
           for (let i = 0; i < gDeviceList.length; i++) {
             let deviceName = gDeviceList[i].name;
@@ -409,12 +353,9 @@ export default function abilityTest() {
         done();
       })
 
-    it("test_removeRight001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("test_removeRight0013", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'test_removeRight17');
-        if (!isDeviceConnected) {
-          expect(isDeviceConnected).assertFalse();
-        }
         try {
           let remRight = usbManager.removeRight(devices.name);
           hilog.info(domain, tag, 'usb case test_removeRight17 ret : ' + remRight);
@@ -426,12 +367,9 @@ export default function abilityTest() {
         done();
       })
 
-    it("test_connectDevice001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("test_connectDevice0014", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'USB test_connectDevice18 begin');
-        if (!isDeviceConnected) {
-          expect(isDeviceConnected).assertFalse();
-        }
         try {
           let deviceName = devices.name;
           let isHasRight: boolean = await usbManager.requestRight(deviceName);
@@ -453,12 +391,9 @@ export default function abilityTest() {
         done();
       })
 
-    it("tes_addDeviceAccessRight001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("tes_addDeviceAccessRight0015", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'USB tes_addDeviceAccessRight19 begin');
-        if (!isDeviceConnected) {
-          expect(isDeviceConnected).assertFalse();
-        }
         try {
           let isHasRight = await usbManager.requestRight(devices.name);
           let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
@@ -482,12 +417,9 @@ export default function abilityTest() {
       })
 
 
-    it("test_getFunctionsFromString001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("test_getFunctionsFromString0016", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'USB test_getFunctionsFromString20 begin');
-        if (!isDeviceConnected) {
-          hilog.info(domain, tag, 'usb not connected');
-        }
         try {
           let ret = usbManager.getFunctionsFromString('acm');
           if (ret) {
@@ -503,14 +435,10 @@ export default function abilityTest() {
       })
 
 
-    it("test_getStringFromFunctions001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("test_getStringFromFunctions0017", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'test_getStringFromFunctions21');
-        if (!isDeviceConnected) {
-          hilog.info(domain, tag, 'usb not connected');
-        }
         try {
-
           let ret = usbManager.getStringFromFunctions(usbManager.FunctionType.ACM);
           if (ret) {
             hilog.info(domain, tag, 'getStringFromFunctions success:' + ret);
@@ -526,12 +454,9 @@ export default function abilityTest() {
       })
 
 
-    it("test_getDeviceFunctions001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("test_getDeviceFunctions0018", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'USB test_getDeviceFunctions23 begin');
-        if (!isDeviceConnected) {
-          hilog.info(domain, tag, 'usb not connected');
-        }
         try {
           let ret = usbManager.getDeviceFunctions();
         } catch (err) {
@@ -539,7 +464,7 @@ export default function abilityTest() {
           expect(err !== null).assertFalse();
         }
         done();
-      })
+    })
 
 
     /**
@@ -550,12 +475,8 @@ export default function abilityTest() {
      * @tc.type     : Function
      * @tc.level    : Level 3
      */
-    it('testGetRawDescriptor001', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, () => {
+    it('testGetRawDescriptor0019', TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL3, () => {
       hilog.info(domain, tag, 'usb testGetRawDescriptor001 begin');
-      if (!isDeviceConnected) {
-        expect(isDeviceConnected).assertFalse();
-        return
-      }
 
       getPipe('testGetRawDescriptor001');
       let descriptor = usbManager.getRawDescriptor(gPipe);
@@ -564,12 +485,9 @@ export default function abilityTest() {
       toClosePipe('testGetRawDescriptor001');
     })
 
-    it("test_setDeviceFunctions", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
+    it("test_setDeviceFunctions20", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL1,
       async (done: () => void): Promise<void> => {
         hilog.info(domain, tag, 'usb testsetDeviceFunctionsSync001 begin');
-        if (!isDeviceConnected) {
-          expect(isDeviceConnected).assertFalse();
-        }
         try {
 
           let ret = usbManager.setDeviceFunctions(usbManager.FunctionType.ACM);
@@ -586,15 +504,5 @@ export default function abilityTest() {
         hilog.info(domain, tag, 'usb test_setDeviceFunctions end');
         done();
       })
-
-    it("USBRequestTargetType001", TestType.FUNCTION | Size.MEDIUMTEST | Level.LEVEL0, async (done: () => void): Promise<void> => {
-      hilog.info(domain, tag, '%{public}s', '----------------------USBRequestTargetType001---------------------------');
-      hilog.info(domain, tag, `USB_REQUEST_DIR_TO_DEVICE: ${usbManager.USBRequestTargetType.USB_REQUEST_TARGET_DEVICE}`);
-      hilog.info(domain, tag, `USB_REQUEST_DIR_TO_DEVICE: ${usbManager.USBRequestTargetType.USB_REQUEST_TARGET_INTERFACE}`);
-      hilog.info(domain, tag, `USB_REQUEST_DIR_TO_DEVICE: ${usbManager.USBRequestTargetType.USB_REQUEST_TARGET_ENDPOINT}`);
-      hilog.info(domain, tag, `USB_REQUEST_DIR_TO_DEVICE: ${usbManager.USBRequestTargetType.USB_REQUEST_TARGET_OTHER}`);
-      done()
-      hilog.info(domain, tag, '%{public}s', 'USBRequestTargetType001 end');
-    })
   })
 }

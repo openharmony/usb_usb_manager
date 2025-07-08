@@ -77,7 +77,7 @@ function checkDevice() {
 export default function SerialBaseTest() {
   describe("SerialBaseTest", (): void => {
     console.info(TAG, 'describe start');
-    let openPortId: number = -1;
+    let openPortId: int = -1;
     beforeAll(()=> {
       try {
         let portList: serialManager.SerialPort[] = serialManager.getPortList();
@@ -180,7 +180,7 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let invalidInput: number = -1;
+        let invalidInput: int = -1;
         let hasRight: boolean = serialManager.hasSerialRight(invalidInput);
         console.info(TAG, 'testHasSerialRight002 hasRight: ', hasRight);
         expect().assertFail();
@@ -206,7 +206,7 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let invalidPort: number = 100;
+        let invalidPort: int = 100;
         let hasRight: boolean = serialManager.hasSerialRight(invalidPort);
         console.info(TAG, 'testHasSerialRight003 hasRight: ', hasRight);
         expect().assertFail();
@@ -263,7 +263,7 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let invalidInput: number = -1;
+        let invalidInput: int = -1;
         await serialManager.requestSerialRight(invalidInput);
         await driveFn();
         try {
@@ -295,7 +295,7 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let invalidPort: number = 100;
+        let invalidPort: int = 100;
         await serialManager.requestSerialRight(invalidPort);
         expect().assertFail();
       } catch (error) {
@@ -346,7 +346,7 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let invalidInput: number = -1;
+        let invalidInput: int = -1;
         serialManager.open(invalidInput);
         expect().assertFail();
       } catch (error) {
@@ -399,7 +399,7 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let invalidPort: number = 10;
+        let invalidPort: int = 10;
         serialManager.open(invalidPort);
         expect().assertFail();
       } catch (error) {
@@ -425,10 +425,10 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let bundleFlags: number = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
+        let bundleFlags: int = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
         await bundleManager.getBundleInfoForSelf(bundleFlags).then((bundleInfo: bundleManager.BundleInfo) => {
           console.info(TAG, 'getBundleInfoForSelf success Data: ', JSON.stringify(bundleInfo));
-          let tokenId: number = bundleInfo.appInfo.accessTokenId;
+          let tokenId: int = Math.floor(bundleInfo.appInfo.accessTokenId) as int;
           console.info(TAG, ' testAddSerialRight001 begin'+ JSON.stringify(tokenId));
           serialManager.addSerialRight(tokenId, openPortId);
           expect().assertFail();
@@ -515,7 +515,7 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let invalidPort: number = -1;
+        let invalidPort: int = -1;
         serialManager.open(openPortId);
         serialManager.close(invalidPort);
         expect().assertFail();
@@ -543,7 +543,7 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let invalidPort: number = 100;
+        let invalidPort: int = 100;
         serialManager.open(openPortId);
         serialManager.close(invalidPort);
         expect().assertFail();
@@ -633,7 +633,7 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let invalidInput: number = -1;
+        let invalidInput: int = -1;
         serialManager.cancelSerialRight(invalidInput);
         expect().assertFail();
       } catch (error) {
@@ -659,7 +659,7 @@ export default function SerialBaseTest() {
           done();
           return Promise.resolve();
         }
-        let invalidPort: number = 100;
+        let invalidPort: int = 100;
         serialManager.cancelSerialRight(invalidPort);
         console.info(TAG, 'testCancelSerialRight003');
       } catch (error) {

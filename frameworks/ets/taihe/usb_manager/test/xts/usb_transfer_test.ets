@@ -45,7 +45,7 @@ function devAccessoryFunc() {
 }
 
 function getTransfersParam(gPipe: usbManager.USBDevicePipe, flagsValue: usbManager.UsbTransferFlags,
-  endpointValue: number, typeValue: usbManager.UsbEndpointTransferType, timeOutValue: number) {
+  endpointValue: int, typeValue: usbManager.UsbEndpointTransferType, timeOutValue: int) {
   let transferParams: usbManager.UsbDataTransferParams = {
     devPipe: gPipe,
     flags: flagsValue,
@@ -150,10 +150,13 @@ export default function abilityTest() {
         usbManager.claimInterface(gPipe, tmpInterface, true);
         try {
           transferParams.callback = (err: BusinessError | null, callBackData: usbManager.SubmitTransferCallback | undefined) => {
-            hilog.info(domain, tag, 'callBackData = ' + JSON.stringify(callBackData));
-            hilog.info(domain, tag,
-              'testUsbSubmitTransfer003 transfer success, result = ' + transferParams.buffer.toString());
-            hilog.info(domain, tag, 'status = ' + callBackData?.status);
+            if (typeof callBackData != 'undefined') {
+              hilog.info(domain, tag, 'callBackData = ' + JSON.stringify(callBackData));
+              hilog.info(domain, tag,
+                'testUsbSubmitTransfer003 transfer success, result = ' + transferParams.buffer.toString());
+              hilog.info(domain, tag, 'status = ' + callBackData?.status);
+              expect(callBackData?.status == usbManager.UsbTransferStatus.TRANSFER_TIMED_OUT).assertEqual(true);
+            }
             usbManager.closePipe(gPipe);
             hilog.info(domain, tag, 'interrupt testUsbSubmitTransfer003 end');
             done()
@@ -191,7 +194,7 @@ export default function abilityTest() {
         usbManager.requestRight(devices.name);
         let gPipe: usbManager.USBDevicePipe = usbManager.connectDevice(devices);
         let endpoint = devices.configs[0].interfaces[0]?.endpoints.find((value) => {
-          return value.direction === 0 && value.type === 2
+          return value.direction == usbManager.USBRequestDirection.USB_REQUEST_DIR_TO_DEVICE; // && value.type === 2
         })
         let flags: usbManager.UsbTransferFlags = usbManager.UsbTransferFlags.USB_TRANSFER_FREE_BUFFER;
         let type: usbManager.UsbEndpointTransferType = usbManager.UsbEndpointTransferType.TRANSFER_TYPE_INTERRUPT;
@@ -235,7 +238,7 @@ export default function abilityTest() {
         usbManager.requestRight(devices.name);
         let gPipe: usbManager.USBDevicePipe = usbManager.connectDevice(devices);
         let endpoint = devices.configs[0].interfaces[0]?.endpoints.find((value) => {
-          return value.direction === 0 && value.type === 2
+          return value.direction === usbManager.USBRequestDirection.USB_REQUEST_DIR_TO_DEVICE;//  && value.type === 2
         })
         let flags: usbManager.UsbTransferFlags = usbManager.UsbTransferFlags.USB_TRANSFER_FREE_BUFFER;
         let type: usbManager.UsbEndpointTransferType = usbManager.UsbEndpointTransferType.TRANSFER_TYPE_INTERRUPT;
@@ -275,10 +278,10 @@ export default function abilityTest() {
           usbManager.requestRight(devicesList[0].name);
           hilog.info(domain, tag, `usbControlTransfer name = ${devicesList[0].name}`);
           let devicePipe: usbManager.USBDevicePipe = usbManager.connectDevice(devicesList[0]);
-          let timeout: number | undefined = 30.0;
+          let timeout: int | undefined = 30;
 
           hilog.info(domain, tag, `usbControlTransfer device.name = ${devicesList[0].name}`);
-          let ret = usbManager.usbControlTransfer(devicePipe, param, timeout).then((ret: number) => {
+          let ret = usbManager.usbControlTransfer(devicePipe, param, timeout).then((ret: int) => {
             hilog.info(domain, tag, `usbControlTransfer size= ${ret}`);
             expect(ret == 18).assertEqual(true);
           })
@@ -315,7 +318,7 @@ export default function abilityTest() {
           let endpoint: usbManager.USBEndpoint =
             device.configs[0].interfaces[0].endpoints[0]; //read 0x81 光驱  ; 1 U盘 write
           hilog.info(domain, tag, `usbManager.USBEndpoint = ${endpoint}`);
-          let ret: number = usbManager.claimInterface(devicePipe, interfaces, true);
+          let ret: int = usbManager.claimInterface(devicePipe, interfaces, true);
           hilog.info(domain, tag, `bulkTransfer begin  = ${ret}`);
           if (ret == 0) {
             hilog.info(domain, tag, 'USB claim sucess');
@@ -323,15 +326,13 @@ export default function abilityTest() {
 
             hilog.info(domain, tag, `test_bulkTransfer name = ${devicesList[0].name}`);
             hilog.info(domain, tag, `test_bulkTransfer buffer = ${bufferTransfer}`);
-            let timeout: number | undefined = 8000.0;
+            let timeout: int | undefined = 8000;
 
-            usbManager.bulkTransfer(devicePipe, endpoint, bufferTransfer, timeout).then((retVal: number) => {
+            usbManager.bulkTransfer(devicePipe, endpoint, bufferTransfer, timeout).then((retVal: int) => {
               hilog.info(domain, tag, `test_bulkTransfer02 retVal = ${retVal}`);
               expect(retVal == 128).assertTrue();
             });
           }
-          let ret0 = usbManager.releaseInterface(devicePipe, interfaces);
-          console.log(`releaseInterface = ${ret0}`);
           hilog.info(domain, tag, `bulkTransfer end `);
           usbManager.closePipe(devicePipe);
         } catch (error: BusinessError) {
