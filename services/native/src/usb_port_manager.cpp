@@ -235,7 +235,7 @@ int32_t UsbPortManager::GetPorts(std::vector<UsbPort> &ports)
     if (portMap_.size() > 0) {
         for (auto it = portMap_.begin(); it != portMap_.end(); ++it) {
             USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: portId is %{public}d, supportedModes is %{public}d",
-                it->second.id, it->second.supportedModes);
+                __func__, it->second.id, it->second.supportedModes);
             ports.push_back(it->second);
         }
         USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::GetPorts success");
@@ -320,7 +320,11 @@ void UsbPortManager::UpdatePort(int32_t portId, int32_t powerRole, int32_t dataR
                 it->second.usbPortStatus.currentDataRole, dataRole);
             it->second.usbPortStatus.currentPowerRole = powerRole;
             it->second.usbPortStatus.currentDataRole = dataRole;
-            it->second.usbPortStatus.currentMode = mode;
+            if ( it->second.usbPortStatus.currentDataRole == UsbSrvSupport::DATA_ROLE_HOST) {
+                it->second.usbPortStatus.currentMode = UsbSrvSupport::PORT_MODE_HOST;
+            } else if (it->second.usbPortStatus.currentDataRole == UsbSrvSupport::DATA_ROLE_DEVICE) {
+                it->second.usbPortStatus.currentMode = UsbSrvSupport::PORT_MODE_DEVICE;
+            }
             USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::updatePort seccess");
             return;
         }
@@ -340,7 +344,11 @@ void UsbPortManager::UpdatePort(int32_t portId, int32_t powerRole, int32_t dataR
                 it->second.usbPortStatus.currentDataRole, dataRole);
             it->second.usbPortStatus.currentPowerRole = powerRole;
             it->second.usbPortStatus.currentDataRole = dataRole;
-            it->second.usbPortStatus.currentMode = mode;
+            if ( it->second.usbPortStatus.currentDataRole == UsbSrvSupport::DATA_ROLE_HOST) {
+                it->second.usbPortStatus.currentMode = UsbSrvSupport::PORT_MODE_HOST;
+            } else if (it->second.usbPortStatus.currentDataRole == UsbSrvSupport::DATA_ROLE_DEVICE) {
+                it->second.usbPortStatus.currentMode = UsbSrvSupport::PORT_MODE_DEVICE;
+            }
             USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager::updatePort seccess");
             return;
         }
