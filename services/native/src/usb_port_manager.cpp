@@ -320,7 +320,7 @@ void UsbPortManager::UpdatePort(int32_t portId, int32_t powerRole, int32_t dataR
                 it->second.usbPortStatus.currentDataRole, dataRole);
             it->second.usbPortStatus.currentPowerRole = powerRole;
             it->second.usbPortStatus.currentDataRole = dataRole;
-            if ( it->second.usbPortStatus.currentDataRole == UsbSrvSupport::DATA_ROLE_HOST) {
+            if (it->second.usbPortStatus.currentDataRole == UsbSrvSupport::DATA_ROLE_HOST) {
                 it->second.usbPortStatus.currentMode = UsbSrvSupport::PORT_MODE_HOST;
             } else if (it->second.usbPortStatus.currentDataRole == UsbSrvSupport::DATA_ROLE_DEVICE) {
                 it->second.usbPortStatus.currentMode = UsbSrvSupport::PORT_MODE_DEVICE;
