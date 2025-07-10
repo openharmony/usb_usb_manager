@@ -1492,8 +1492,8 @@ int32_t UsbHostManager::GetEdmTypePolicy(sptr<IRemoteObject> remote, std::vector
     }
 
     int32_t size = reply.ReadInt32();
-    if (size > WHITELIST_POLICY_MAX_DEVICES) {
-        USB_HILOGE(MODULE_USB_SERVICE, "EdmTypeList size=[%{public}d] is too large", size);
+    if (size < 0 || static_cast<uint32_t>(size) > WHITELIST_POLICY_MAX_DEVICES) {
+        USB_HILOGE(MODULE_USB_SERVICE, "EdmTypeList size=[%{public}d] is invalid", size);
         return UEC_SERVICE_EDM_DEVICE_SIZE_EXCEED;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "GetEdmTypePolicy return size:%{public}d", size);
@@ -1593,8 +1593,8 @@ int32_t UsbHostManager::GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::v
     }
 
     int32_t size = reply.ReadInt32();
-    if (size > WHITELIST_POLICY_MAX_DEVICES) {
-        USB_HILOGE(MODULE_USB_SERVICE, "EdmWhiteList size=[%{public}d] is too large", size);
+    if (size < 0 || static_cast<uint32_t>(size) > WHITELIST_POLICY_MAX_DEVICES) {
+        USB_HILOGE(MODULE_USB_SERVICE, "EdmTypeList size=[%{public}d] is invalid", size);
         return UEC_SERVICE_EDM_DEVICE_SIZE_EXCEED;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "GetEdmWhiteListPolicy return size:%{public}d", size);

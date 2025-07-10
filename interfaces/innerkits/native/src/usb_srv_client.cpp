@@ -586,7 +586,7 @@ int32_t UsbSrvClient::OpenDevice(const UsbDevice &device, USBDevicePipe &pipe)
     return CAPABILITY_NOT_SUPPORT;
 }
 
-int32_t UsbSrvClient::ResetDevice(const UsbDevice &device, USBDevicePipe &pipe)
+int32_t UsbSrvClient::ResetDevice(USBDevicePipe &pipe)
 {
     USB_HILOGW(MODULE_USB_INNERKIT, "%{public}s: Capability not supported.", __FUNCTION__);
     return CAPABILITY_NOT_SUPPORT;
