@@ -1,0 +1,11 @@
+{
+    "string":[
+        {
+            "name":"USB_hdc_notifier_title",
+            "value":"Pokrenuto je ispravljanje grešaka putem USB-a",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}

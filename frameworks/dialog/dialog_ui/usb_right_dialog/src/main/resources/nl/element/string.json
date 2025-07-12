@@ -1,0 +1,11 @@
+{
+    "string":[
+        {
+            "name":"USB_hdc_notifier_title",
+            "value":"USB-foutopsporing gestart",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}

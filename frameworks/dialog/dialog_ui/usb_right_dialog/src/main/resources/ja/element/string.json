@@ -146,6 +146,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"USB_hdc_notifier_content",
+            "value":"タップしてUSBデバッグを無効にします",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

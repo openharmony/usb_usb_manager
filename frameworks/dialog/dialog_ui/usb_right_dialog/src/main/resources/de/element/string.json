@@ -1,0 +1,11 @@
+{
+    "string":[
+        {
+            "name":"USB_hdc_notifier_title",
+            "value":"USB-Debugging gestartet",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}
