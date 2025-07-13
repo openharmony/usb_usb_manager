@@ -1,0 +1,125 @@
+# Copyright (c) 2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import("//build/config/components/ets_frontend/ets2abc_config.gni")
+import("//build/ohos.gni")
+import("//build/ohos/taihe_idl/taihe.gni")
+import("//base/usb/usb_manager/usbmgr.gni")
+
+copy_taihe_idl("copy_usbManager") {
+  sources = [
+    "idl/ohos.usbManager.taihe",
+    "idl/ohos.usbManager.serial.taihe"
+     ]
+}
+
+subsystem_name = "usb"
+part_name = "usb_manager"
+taihe_generated_file_path = "$taihe_file_path/out/$subsystem_name/$part_name"
+
+ohos_taihe("run_taihe") {
+  taihe_generated_file_path = "$taihe_generated_file_path"
+  deps = [ ":copy_usbManager" ]
+  outputs = [
+    "$taihe_generated_file_path/src/ohos.usbManager.ani.cpp",
+    "$taihe_generated_file_path/src/ohos.usbManager.abi.c",
+    "$taihe_generated_file_path/src/ohos.usbManager.serial.ani.cpp",
+    "$taihe_generated_file_path/src/ohos.usbManager.serial.abi.c"
+  ]
+}
+
+taihe_shared_library("usb_manager_taihe_native") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
+  taihe_generated_file_path = "$taihe_generated_file_path"
+  part_name = "$part_name"
+  subsystem_name = "$subsystem_name"
+  sources = get_target_outputs(":run_taihe")
+
+  sources += [
+    "src/ani_constructor.cpp",
+    "src/ohos.usbManager.impl.cpp",
+    "src/ohos.usbManager.serial.impl.cpp"
+  ]
+
+  deps = [
+    ":run_taihe",
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client"
+  ]
+
+  defines = []
+  if (usb_manager_feature_host) {
+    defines += [ "USB_MANAGER_FEATURE_HOST" ]
+  }
+  if (usb_manager_feature_device) {
+    defines += [ "USB_MANAGER_FEATURE_DEVICE" ]
+  }
+  if (usb_manager_feature_port) {
+    defines += [ "USB_MANAGER_FEATURE_PORT" ]
+  }
+
+  public_external_deps = [ "cJSON:cjson" ]
+  external_deps = [
+    "bounds_checking_function:libsec_shared",
+    "c_utils:utils",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_single",
+    "eventhandler:libeventhandler",
+  ]
+
+}
+
+generate_static_abc("usb_manager_abc") {
+  base_url = "$taihe_generated_file_path"
+  files = [ "$taihe_generated_file_path/@ohos.usbManager.ets" ]
+  is_boot_abc = "True"
+  device_dst_file = "/system/framework/usb_manager_abc.abc"
+  dependencies = [ ":run_taihe" ]
+}
+
+generate_static_abc("usbmanager_serial_abc") {
+    base_url = "$taihe_generated_file_path"
+    files = ["$taihe_generated_file_path/@ohos.usbManager.serial.ets"]
+    is_boot_abc = "True"
+    device_dst_file = "/system/framework/usbmanager_serial_abc.abc"
+    dependencies = [":run_taihe"]
+}
+
+ohos_prebuilt_etc("usbmanager_etc") {
+  source = "$target_out_dir/usb_manager_abc.abc"
+  module_install_dir = "framework"
+  part_name = "$part_name"
+  subsystem_name = "$subsystem_name"
+  deps = [ ":usb_manager_abc" ]
+}
+
+ohos_prebuilt_etc("usbmanager_serial_etc") {
+    source = "$target_out_dir/usbmanager_serial_abc.abc"
+    module_install_dir = "framework"
+    part_name = "$part_name"
+    subsystem_name = "$subsystem_name"
+    deps=[":usbmanager_serial_abc"]
+}
+
+group("usbManager_taihe") {
+  deps = [
+    ":usbmanager_etc",
+    ":usb_manager_taihe_native",
+    ":usbmanager_serial_etc",
+  ]
+}
