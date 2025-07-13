@@ -59,7 +59,7 @@
                 "bounds_checking_function",
                 "hitrace",
                 "selinux_adapter",
-		"runtime_core",
+                "runtime_core",
                 "hdf_core"
             ]
         },
