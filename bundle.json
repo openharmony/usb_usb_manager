@@ -60,6 +60,7 @@
                 "hitrace",
                 "selinux_adapter",
                 "runtime_core",
+                "eventhandler",
                 "hdf_core"
             ]
         },
