@@ -71,7 +71,6 @@ taihe_shared_library("usb_manager_taihe_native") {
     defines += [ "USB_MANAGER_FEATURE_PORT" ]
   }
 
-  public_external_deps = [ "cJSON:cjson" ]
   external_deps = [
     "bounds_checking_function:libsec_shared",
     "c_utils:utils",
