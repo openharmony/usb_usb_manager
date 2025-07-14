@@ -1,0 +1,11 @@
+{
+    "string":[
+        {
+            "name":"USB_hdc_notifier_title",
+            "value":"ការបំបាត់ចោលធាតុមិនល្អនៅក្នុង USB បានចាប់ផ្ដើម",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}

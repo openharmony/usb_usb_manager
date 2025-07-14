@@ -1,0 +1,60 @@
+{
+    "string":[
+        {
+            "name":"USB_my_tablet",
+            "value":"Tablet saya",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_charge_connected_device",
+            "value":"Berikan kuasa kepada peranti yang disambungkan",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp_notifier",
+            "value":"Pelayaran foto melalui USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge_notifier",
+            "value":"Mengecas melalui USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hdc_notifier_title",
+            "value":"Penyahpepijatan USB dimulakan",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_reverse_charge",
+            "value":"Pengecasan berbalik",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge_connected_notifier",
+            "value":"Membekalkan kuasa kepada peranti yang disambungkan melalui USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_notifier",
+            "value":"Pemindahan fail melalui USB",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}

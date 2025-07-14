@@ -146,6 +146,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"USB_hdc_notifier_content",
+            "value":"탭하여 USB 디버깅을 종료합니다.",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

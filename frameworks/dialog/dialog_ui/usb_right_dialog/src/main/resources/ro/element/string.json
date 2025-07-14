@@ -1,0 +1,11 @@
+{
+    "string":[
+        {
+            "name":"USB_hdc_notifier_title",
+            "value":"Depanare USB inițiată",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}

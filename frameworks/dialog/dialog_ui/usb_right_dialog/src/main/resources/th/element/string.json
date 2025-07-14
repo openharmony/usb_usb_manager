@@ -1,0 +1,11 @@
+{
+    "string":[
+        {
+            "name":"USB_hdc_notifier_title",
+            "value":"เริ่มการแก้ไขข้อบกพร่อง USB แล้ว",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}

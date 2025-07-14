@@ -135,7 +135,7 @@
         },
         {
             "name":"USB_hdc_notifier_content",
-            "value":"انقر هنا لتعطيل تصحيح أخطاء USB.",
+            "value":"انقر لإيقاف تصحيح الأخطاء عبر USB.",
             "attr":{
                 "priority":"translate"
             }
