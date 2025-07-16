@@ -23,7 +23,7 @@
 #include "usb_errors.h"
 #include "usb_srv_client.h"
 #include "v1_2/usb_types.h"
-#include "ohos.usbManager.SubmitTransferCallback.ani.2.h"
+#include "ohos.usbManager.SubmitTransferCallback.ani.1.hpp"
 
 using namespace taihe;
 using namespace ohos::usbManager;
