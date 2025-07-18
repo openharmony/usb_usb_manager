@@ -755,7 +755,7 @@ int32_t usbControlTransferSync(
     int32_t ret;
     std::vector<uint8_t> bufferData(static_cast<uint8_t *>(data), static_cast<uint8_t *>(data) + size);
     ret = nativePipe.UsbControlTransfer(tctrl, bufferData);
-    if ((int(requestparam.bmRequestType) & OHOS::USB::USB_ENDPOINT_DIR_MASK) == OHOS::USB::USB_ENDPOINT_DIR_IN) {
+    if ((uint32_t(requestparam.bmRequestType) & OHOS::USB::USB_ENDPOINT_DIR_MASK) == OHOS::USB::USB_ENDPOINT_DIR_IN) {
         ret = memcpy_s(data, size, bufferData.data(), bufferData.size());
     }
     if (ret != OHOS::USB::UEC_OK) {
@@ -1153,8 +1153,12 @@ bool SetupCallback(USBTransferAsyncContext* context, ani_object callbackObj)
 {
     ani_ref callback;
     ani_env* env = ::taihe::get_env();
-    return env->GlobalReference_Create(callbackObj, &callback) == ANI_OK &&
-           (context->callbackRef = reinterpret_cast<ani_object>(callback));
+    if (env->GlobalReference_Create(callbackObj, &callback) == ANI_OK) {
+        context->callbackRef = reinterpret_cast<ani_object>(callback);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 OHOS::HDI::Usb::V1_2::USBTransferInfo PrepareTransferInfo(
