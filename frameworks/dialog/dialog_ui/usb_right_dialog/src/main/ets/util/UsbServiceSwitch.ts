@@ -14,6 +14,7 @@
  */
 
 import usbManagerService from '@ohos.usbManager';
+import systemParameterEnhance from '@ohos.systemParameterEnhance';
 
 const TAG: string = 'usbfunctionswitchwindow_UsbServiceSwitch';
 const USBFUNCTION_NONE: number = 0;
@@ -21,7 +22,6 @@ const USBFUNCTION_HDC: number = 4;
 const USBFUNCTION_MTP: number = 8;
 const USBFUNCTION_PTP: number = 16;
 const USBFUNCTION_STORAGE: number = 512;
-const USBFUNCTION_DEVMODE_AUTH: number = 4096;
 const supportedCompositeFuncs: Array<number> = [
   USBFUNCTION_HDC
 ];
@@ -29,7 +29,7 @@ const supportedCompositeFuncs: Array<number> = [
 class UsbServiceSwitch {
   private curFunc: number = USBFUNCTION_NONE;
   private tarFunc: number = USBFUNCTION_NONE;
-
+  
   getCurrentFunctions(): number {
     this.curFunc = usbManagerService.getCurrentFunctions();
     console.log(TAG + 'current' + this.curFunc);
@@ -68,7 +68,6 @@ class UsbServiceSwitch {
       return;
     }
 
-    this.tarFunc = this.tarFunc & (~USBFUNCTION_DEVMODE_AUTH); // remove dev auth
     console.log(TAG + 'setFunctions: current ' + JSON.stringify(this.curFunc) + 'target: ' + JSON.stringify(this.tarFunc));
     if (this.tarFunc !== this.curFunc) {
       usbManagerService.setCurrentFunctions(this.tarFunc).then((data) => {
@@ -78,6 +77,18 @@ class UsbServiceSwitch {
       });
     }
     return;
+  }
+
+  setUSBChargeDialog(inhibited: string): void {
+    try {
+      systemParameterEnhance.set('persist.usb.setting.gadget_conn_prompt', inhibited).then((value: void) => {
+        console.log(TAG, 'setUSBChargeDialog set success');
+      }).catch((err) => {
+        console.log(TAG, 'setUSBChargeDialog set error: ', err.code);
+      });
+    } catch (error) {
+      console.log(TAG, 'setUSBChargeDialog set unexpected error: ', error.code);
+    }
   }
 
   setPortRole(portId: number, powerRole: number, dataRole: number): Promise<void> {
