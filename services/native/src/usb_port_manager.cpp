@@ -284,7 +284,7 @@ int32_t UsbPortManager::QueryPort()
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s QueryPorts failed", __func__);
         return ret;
     }
- 
+
     for (const auto& it : portList) {
         AddPortInfo(it.id, it.supportedModes,
             it.usbPortStatus.currentMode, it.usbPortStatus.currentDataRole, it.usbPortStatus.currentPowerRole);
@@ -295,20 +295,19 @@ int32_t UsbPortManager::QueryPort()
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    
+
     int32_t portId = 0;
     int32_t powerRole = 0;
     int32_t dataRole = 0;
     int32_t mode = 0;
-
     int32_t ret = usbd_->QueryPort(portId, powerRole, dataRole, mode);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Get().queryPort failed");
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s QueryPort failed", __func__);
         return ret;
     }
+
     AddPortInfo(portId, SUPPORTED_MODES, mode, dataRole, powerRole);
 #endif // USB_MANAGER_V2_0
-
     return ret;
 }
 
@@ -358,7 +357,7 @@ void UsbPortManager::UpdatePort(int32_t portId, int32_t powerRole, int32_t dataR
     }
     USB_HILOGE(MODULE_USB_SERVICE, "updatePort false");
 }
- 
+
 void UsbPortManager::AddPortInfo(int32_t portId, int32_t supportedModes,
     int32_t currentMode, int32_t currentDataRole, int32_t currentPowerRole)
 {
