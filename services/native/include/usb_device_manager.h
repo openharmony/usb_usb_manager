@@ -39,6 +39,7 @@
 #define USB_FUNCTION_MTP     (1 << 3)
 #define USB_FUNCTION_PTP     (1 << 4)
 #define USB_FUNCTION_STORAGE     (1 << 9)
+#define USB_FUNCTION_DEVMODE_AUTH     (1 << 12)
 namespace OHOS {
 namespace USB {
 class UsbDeviceManager {
@@ -77,6 +78,7 @@ private:
     void ReportDevicePlugSysEvent(int32_t currentFunctions, bool connected);
     void ProcessFuncChange(bool connected, int32_t currentFunc, bool isDisableDialog = false);
     void BroadcastFuncChange(bool connected, int32_t currentFunc);
+    void ProcessStatus(int32_t status, bool &curConnect);
     static constexpr uint32_t functionSettable_ = UsbSrvSupport::FUNCTION_HDC | UsbSrvSupport::FUNCTION_ACM |
         UsbSrvSupport::FUNCTION_ECM | UsbSrvSupport::FUNCTION_MTP | UsbSrvSupport::FUNCTION_PTP |
         UsbSrvSupport::FUNCTION_RNDIS | UsbSrvSupport::FUNCTION_NCM | UsbSrvSupport::FUNCTION_STORAGE;
