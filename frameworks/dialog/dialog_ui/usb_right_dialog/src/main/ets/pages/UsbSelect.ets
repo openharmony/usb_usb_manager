@@ -69,7 +69,8 @@ struct SimpleContacts {
         usbServiceSwitch.serviceChoose(this.index);
     }
     if (!this.setPortRoleFinished) {
-        if (this.usbPortList.length > 0 && this.usbPortList[0].status.currentPowerRole !== usbManagerService.PortModeType.UFP) {
+        if (this.usbPortList.length > 0 &&
+              this.usbPortList[0].status.currentPowerRole !== usbManagerService.PortModeType.UFP) {
             usbServiceSwitch.setPortRole(this.usbPortList[0].id, usbManagerService.PortModeType.UFP,
                 usbManagerService.PortModeType.UFP);
         }
@@ -85,7 +86,8 @@ struct SimpleContacts {
     }
     this.usbPortList = usbServiceSwitch.getPorts()
     this.curFunc = usbServiceSwitch.getCurrentFunctions();
-    if (this.usbPortList.length > 0 && this.usbPortList[0].status.currentPowerRole == usbManagerService.PortModeType.UFP) {
+    if (this.usbPortList.length > 0 &&
+          this.usbPortList[0].status.currentPowerRole == usbManagerService.PortModeType.UFP) {
       this.reverseChargeChecked = true;
       this.index = USBSERVICESWITCH_ID_REVERSE_CHARGE;
     } else if (this.curFunc & USBSERVICESWITCH_ID_XFER_FILE) {
@@ -155,7 +157,8 @@ struct SimpleContacts {
               this.index = USBSERVICESWITCH_ID_XFER_FILE;
             } else if (data.parameters?.ptp !== undefined && data.parameters?.ptp === true) {
               this.index = USBSERVICESWITCH_ID_XFER_PIC;
-            } else if (this.usbPortList.length > 0 && this.usbPortList[0].status.currentPowerRole == usbManagerService.PortModeType.UFP) {
+            } else if (this.usbPortList.length > 0 &&
+                         this.usbPortList[0].status.currentPowerRole == usbManagerService.PortModeType.UFP) {
               this.index = USBSERVICESWITCH_ID_REVERSE_CHARGE;
             } else {
               this.index = USBSERVICESWITCH_ID_CHARGE_ONLY;
@@ -174,7 +177,8 @@ struct SimpleContacts {
           return;
         }
         if (data.event === commonEventManager.Support.COMMON_EVENT_USB_DEVICE_ATTACHED) {
-          if (this.usbPortList.length > 0 && this.usbPortList[0].status.currentPowerRole == usbManagerService.PortModeType.UFP) {
+          if (this.usbPortList.length > 0 &&
+                this.usbPortList[0].status.currentPowerRole == usbManagerService.PortModeType.UFP) {
             this.index = USBSERVICESWITCH_ID_REVERSE_CHARGE;
           } else {
             this.index = USBSERVICESWITCH_ID_CHARGE_ONLY;
@@ -332,7 +336,8 @@ struct SimpleContacts {
     this.setPortRoleTimeout = setTimeout(() => {
       console.log('setPortRole start' + JSON.stringify(this.usbPortList))
       this.usbPortList = usbServiceSwitch.getPorts();
-      if (this.usbPortList.length > 0 && this.usbPortList[0].status.currentDataRole == usbManagerService.PortModeType.DFP) {
+      if (this.usbPortList.length > 0 &&
+            this.usbPortList[0].status.currentDataRole == usbManagerService.PortModeType.DFP) {
         usbServiceSwitch.setPortRole(this.usbPortList[0].id, usbManagerService.PortModeType.UFP,
             usbManagerService.PortModeType.UFP);
       }
@@ -350,7 +355,8 @@ struct SimpleContacts {
     this.setPortRoleTimeout = setTimeout(() => {
       console.log('setPortRole start' + JSON.stringify(this.usbPortList))
       this.usbPortList = usbServiceSwitch.getPorts();
-      if (this.usbPortList.length > 0 && this.usbPortList[0].status.currentDataRole == usbManagerService.PortModeType.UFP) {
+      if (this.usbPortList.length > 0 &&
+            this.usbPortList[0].status.currentDataRole == usbManagerService.PortModeType.UFP) {
         usbServiceSwitch.setPortRole(this.usbPortList[0].id, usbManagerService.PortModeType.DFP,
             usbManagerService.PortModeType.DFP);
       }
