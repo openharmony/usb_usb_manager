@@ -163,15 +163,12 @@ bool UsbPortManager::IsReverseCharge()
     auto it = portMap_.find(CMD_INDEX);
     if (it == portMap_.end()) {
         USB_HILOGE(MODULE_USB_SERVICE, "Port not found");
-        return UEC_SERVICE_INVALID_VALUE;
+        return false;
     }
     powerRole_ = it->second.usbPortStatus.currentPowerRole;
     dataRole_ = it->second.usbPortStatus.currentDataRole;
-    if (powerRole_ == DEFAULT_ROLE_HOST && dataRole_ == PARAM_COUNT_TWO) {
-        UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_REVERSE_CHARGE);
+    if (powerRole_ == DEFAULT_ROLE_HOST) {
         return true;
-    } else {
-        UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_CHARGE);
     }
     return false;
 }
@@ -186,9 +183,14 @@ int32_t UsbPortManager::SetPortRole(int32_t portId, int32_t powerRole, int32_t d
     int32_t ret = usbPortInterface_->SetPortRole(portId, powerRole, dataRole);
     if (ret != UEC_OK) {
         USB_HILOGI(MODULE_USB_SERVICE, "setportrole failed");
+        return ret;
     }
-    (void)IsReverseCharge();
-    return ret;
+    if (IsReverseCharge()) {
+        UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_REVERSE_CHARGE);
+    } else {
+        UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_CHARGE);
+    }
+    return UEC_OK;
 #else
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::usbd_ is nullptr");

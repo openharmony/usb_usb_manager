@@ -63,6 +63,7 @@ enum SUPPORTED_FUNC : int32_t {
     SUPPORTED_FUNC_CHARGE = 0,
     SUPPORTED_FUNC_MTP = 8,
     SUPPORTED_FUNC_PTP = 16,
+    SUPPORTED_FUNC_REVERSECHARGE = 1 << 30,
 };
 
 namespace OHOS {
@@ -349,8 +350,10 @@ int32_t UsbConnectionNotifier::GetSupportedFunctions()
     }
     uint32_t mtp = supportedFuncStr.find("mtp") != std::string::npos ? SUPPORTED_FUNC_MTP : 0;
     uint32_t ptp = supportedFuncStr.find("ptp") != std::string::npos ? SUPPORTED_FUNC_PTP : 0;
+    uint32_t reverseCharge =
+        supportedFuncStr.find("reverseCharge") != std::string::npos ? SUPPORTED_FUNC_REVERSECHARGE : 0;
 
-    return static_cast<int32_t>(mtp | ptp);
+    return static_cast<int32_t>(mtp | ptp | reverseCharge);
 }
 
 void UsbConnectionNotifier::SendHdcNotification()

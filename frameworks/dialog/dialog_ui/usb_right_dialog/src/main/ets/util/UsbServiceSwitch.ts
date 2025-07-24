@@ -14,6 +14,7 @@
  */
 
 import usbManagerService from '@ohos.usbManager';
+import systemParameterEnhance from '@ohos.systemParameterEnhance';
 
 const TAG: string = 'usbfunctionswitchwindow_UsbServiceSwitch';
 const USBFUNCTION_NONE: number = 0;
@@ -78,6 +79,18 @@ class UsbServiceSwitch {
       });
     }
     return;
+  }
+
+  setUSBChargeDialog(inhibited: string): void {
+    try {
+      systemParameterEnhance.set('persist.usb.setting.gadget_conn_prompt', inhibited).then((value: void) => {
+        console.log(TAG, 'setUSBChargeDialog set success');
+      }).catch((err) => {
+        console.log(TAG, 'setUSBChargeDialog set error: ', err.code);
+      });
+    } catch (error) {
+      console.log(TAG, 'setUSBChargeDialog set unexpected error: ', error.code);
+    }
   }
 
   setPortRole(portId: number, powerRole: number, dataRole: number): Promise<void> {
