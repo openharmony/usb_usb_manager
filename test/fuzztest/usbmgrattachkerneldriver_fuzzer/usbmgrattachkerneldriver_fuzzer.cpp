@@ -91,7 +91,7 @@ bool DoSomethingInterestingWithMyAPI(const uint8_t *rawData, size_t size)
     data.RewindRead(0);
     MessageParcel reply;
     MessageOption option;
-    DelayedSpSingleton<UsbService>::GetInstance()->OnRemoteRequest(code, data, reply, option);
+    UsbService::GetGlobalInstance()->OnRemoteRequest(code, data, reply, option);
 
     return true;
 }
