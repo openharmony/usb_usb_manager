@@ -163,7 +163,9 @@ public:
     int32_t UsbFunctionsToString(int32_t funcs, std::string& funcResult) override;
     void UpdateDeviceState(int32_t status);
 
+#if defined(USB_MANAGER_FEATURE_PORT) && defined(USB_MANAGER_FEATURE_DEVICE)
     int32_t UserChangeProcess();
+#endif // USB_MANAGER_FEATURE_PORT && USB_MANAGER_FEATURE_DEVICE
     int32_t GetAccessoryList(std::vector<USBAccessory> &accessList) override;
     int32_t OpenAccessory(const USBAccessory &access, int32_t &fd) override;
     int32_t CloseAccessory(int32_t fd) override;
@@ -263,6 +265,7 @@ private:
     void FreeTokenId(int32_t portId, uint32_t tokenId);
     int32_t ValidateUsbSerialManagerAndPort(int32_t portId);
     int32_t CheckDbAbility(int32_t portId);
+    int32_t SplitFromRequestSerialRight(int32_t portId, std::string &deviceName, std::string &devSerialNum);
     void ReportUsbOperationFaultSysEvent(const std::string &operationType, int32_t failReason,
         const std::string &failDescription);
     void ReportUsbSerialOperationSysEvent(int32_t portId, const std::string &operationType);

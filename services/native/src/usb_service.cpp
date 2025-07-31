@@ -71,7 +71,9 @@ constexpr int32_t API_VERSION_ID_18 = 18;
 static const std::filesystem::path TTYUSB_PATH = "/sys/bus/usb-serial/devices";
 constexpr const pid_t ROOT_UID = 0;
 constexpr const pid_t EDM_UID = 3057;
+#if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
 constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
+#endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
 } // namespace
 auto g_serviceInstance = DelayedSpSingleton<UsbService>::GetInstance();
 const bool G_REGISTER_RESULT =
@@ -1696,6 +1698,7 @@ void UsbService::UpdateDeviceState(int32_t status)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
+#if defined(USB_MANAGER_FEATURE_PORT) && defined(USB_MANAGER_FEATURE_DEVICE)
 int32_t UsbService::UserChangeProcess()
 {
     if (usbDeviceManager_ == nullptr || usbPortManager_ == nullptr) {
@@ -1706,6 +1709,7 @@ int32_t UsbService::UserChangeProcess()
     usbDeviceManager_->SetChargeFlag(res);
     return usbDeviceManager_->UserChangeProcess();
 }
+#endif // USB_MANAGER_FEATURE_PORT && USB_MANAGER_FEATURE_DEVICE
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
@@ -2737,16 +2741,8 @@ int32_t UsbService::CheckDbAbility(int32_t portId)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
-int32_t UsbService::RequestSerialRight(int32_t portId, bool &hasRight)
+int32_t UsbService::SplitFromRequestSerialRight(int32_t portId, std::string &deviceName, std::string &devSerialNum)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
-    hasRight = false;
-    if (usbRightManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbRightManager_ is nullptr", __func__);
-        ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", UEC_SERVICE_INVALID_VALUE,
-            "usbRightManager_ is nullptr");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
     int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
@@ -2757,13 +2753,32 @@ int32_t UsbService::RequestSerialRight(int32_t portId, bool &hasRight)
         return ret;
     }
 
-    std::string deviceName;
-    std::string deviceVidPidSerialNum;
-
-    ret = GetDeviceVidPidSerialNumber(portId, deviceName, deviceVidPidSerialNum);
+    ret = GetDeviceVidPidSerialNumber(portId, deviceName, devSerialNum);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: can not find deviceName.", __func__);
         ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", ret, "can not find deviceName.");
+        return ret;
+    }
+    return UEC_OK;
+}
+// LCOV_EXCL_STOP
+
+// LCOV_EXCL_START
+int32_t UsbService::RequestSerialRight(int32_t portId, bool &hasRight)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
+    hasRight = false;
+    if (usbRightManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbRightManager_ is nullptr", __func__);
+        ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", UEC_SERVICE_INVALID_VALUE,
+            "usbRightManager_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    
+    std::string deviceName;
+    std::string deviceVidPidSerialNum;
+    int32_t ret = SplitFromRequestSerialRight(portId, deviceName, deviceVidPidSerialNum);
+    if (ret != UEC_OK) {
         return ret;
     }
 
@@ -2773,6 +2788,7 @@ int32_t UsbService::RequestSerialRight(int32_t portId, bool &hasRight)
         return UEC_OK;
     }
 
+#if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
     std::string bundleName;
     std::string tokenId;
     int32_t userId = USB_RIGHT_USERID_INVALID;
@@ -2791,6 +2807,7 @@ int32_t UsbService::RequestSerialRight(int32_t portId, bool &hasRight)
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:user don't agree", __func__);
         return UEC_OK;
     }
+#endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
 
     hasRight = true;
     return UEC_OK;
@@ -2833,6 +2850,7 @@ int32_t UsbService::CancelSerialRight(int32_t portId)
         return UEC_OK;
     }
 
+#if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
     std::string bundleName;
     std::string tokenId;
     int32_t userId = USB_RIGHT_USERID_INVALID;
@@ -2850,6 +2868,7 @@ int32_t UsbService::CancelSerialRight(int32_t portId)
             "RemoveDeviceRight failed");
         return UEC_SERVICE_PERMISSION_DENIED;
     }
+#endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
 
     usbSerialManager_->SerialClose(portId);
     return UEC_OK;
@@ -2889,6 +2908,7 @@ int32_t UsbService::HasSerialRight(int32_t portId, bool &hasRight)
         return UEC_OK;
     }
 
+#if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
     std::string bundleName;
     std::string tokenId;
     int32_t userId = USB_RIGHT_USERID_INVALID;
@@ -2906,6 +2926,7 @@ int32_t UsbService::HasSerialRight(int32_t portId, bool &hasRight)
         hasRight = true;
         return UEC_OK;
     }
+#endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
 
     return UEC_OK;
 }
@@ -3013,6 +3034,7 @@ void UsbService::ReportUsbSerialOperationSysEvent(int32_t portId, const std::str
         return;
     }
 
+#if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
     std::string bundleName;
     std::string tokenId;
     int32_t userId = USB_RIGHT_USERID_INVALID;
@@ -3031,6 +3053,7 @@ void UsbService::ReportUsbSerialOperationSysEvent(int32_t portId, const std::str
         "ATTRIBUTE_STOP_BIT", attribute.stopBits,
         "ATTRIBUTE_PARITY_CHECK", attribute.parity,
         "ATTRIBUTE_DATA_BIT", attribute.dataBits);
+#endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
 }
 // LCOV_EXCL_STOP
 
