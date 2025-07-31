@@ -2741,7 +2741,7 @@ int32_t UsbService::CheckDbAbility(int32_t portId)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
-int32_t UsbService::SplitRequestSerialRight(int32_t portId, std::string &deviceName, std::string &devVidPidSerialNum)
+int32_t UsbService::SplitFromRequestSerialRight(int32_t portId, std::string &deviceName, std::string &devSerialNum)
 {
     int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
@@ -2777,7 +2777,7 @@ int32_t UsbService::RequestSerialRight(int32_t portId, bool &hasRight)
     
     std::string deviceName;
     std::string deviceVidPidSerialNum;
-    int32_t ret = SplitRequestSerialRight(portId, deviceName, deviceVidPidSerialNum);
+    int32_t ret = SplitFromRequestSerialRight(portId, deviceName, deviceVidPidSerialNum);
     if (ret != UEC_OK) {
         return ret;
     }
