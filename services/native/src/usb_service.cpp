@@ -2753,7 +2753,7 @@ int32_t UsbService::SplitFromRequestSerialRight(int32_t portId, std::string &dev
         return ret;
     }
 
-    ret = GetDeviceVidPidSerialNumber(portId, deviceName, devVidPidSerialNum);
+    ret = GetDeviceVidPidSerialNumber(portId, deviceName, devSerialNum);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: can not find deviceName.", __func__);
         ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", ret, "can not find deviceName.");
