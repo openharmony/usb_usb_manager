@@ -2743,29 +2743,6 @@ int32_t UsbService::CheckDbAbility(int32_t portId)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
-int32_t UsbService::SplitFromRequestSerialRight(int32_t portId, std::string &deviceName, std::string &devSerialNum)
-{
-    int32_t ret = ValidateUsbSerialManagerAndPort(portId);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
-        ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", ret, "invalid portId");
-        return ret;
-    }
-    if ((ret = CheckDbAbility(portId)) != UEC_OK) {
-        return ret;
-    }
-
-    ret = GetDeviceVidPidSerialNumber(portId, deviceName, devSerialNum);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: can not find deviceName.", __func__);
-        ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", ret, "can not find deviceName.");
-        return ret;
-    }
-    return UEC_OK;
-}
-// LCOV_EXCL_STOP
-
-// LCOV_EXCL_START
 int32_t UsbService::RequestSerialRight(int32_t portId, bool &hasRight)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
