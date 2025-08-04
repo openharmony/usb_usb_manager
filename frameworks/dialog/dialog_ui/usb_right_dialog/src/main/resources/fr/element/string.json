@@ -65,7 +65,7 @@
         },
         {
             "name":"usb_right_content",
-            "value":"Voulez-vous autoriser %1$s à utiliser %2$s ?",
+            "value":"Autoriser %1$s à utiliser %2$s ?",
             "attr":{
                 "priority":"translate"
             }
