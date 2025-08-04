@@ -68,6 +68,7 @@ private:
     public:
         void CloseDialog();
     private:
+        std::mutex remoteMutex_;
         sptr<IRemoteObject> remoteObject_ = nullptr;
     };
     bool ShowFunctionSwitchWindow();
