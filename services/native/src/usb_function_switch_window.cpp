@@ -246,6 +246,7 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
         USB_HILOGE(MODULE_USB_SERVICE, "show dialog failed: %{public}d", ret);
         return;
     }
+    std::lock_guard<std::mutex> guard(remoteMutex_);
     remoteObject_ = remoteObject;
     return;
 }
@@ -254,12 +255,16 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityDisconnectDone(
     const AppExecFwk::ElementName& element, int resultCode)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "OnAbilityDisconnectDone");
+    std::lock_guard<std::mutex> guard(remoteMutex_);
     remoteObject_ = nullptr;
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbFuncAbilityConn remoteObject_ freed");
     return;
 }
 
 void UsbFunctionSwitchWindow::UsbFuncAbilityConn::CloseDialog()
 {
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbFuncAbilityConn CloseDialog enter");
+    std::lock_guard<std::mutex> guard(remoteMutex_);
     if (remoteObject_ == nullptr) {
         USB_HILOGW(MODULE_USB_SERVICE, "CloseDialog: disconnected");
         return;
