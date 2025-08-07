@@ -20,6 +20,7 @@
 #include <set>
 #include <thread>
 #include <ipc_skeleton.h>
+#include <codecvt>
 
 #include "usb_host_manager.h"
 #include "common_event_data.h"
@@ -1280,6 +1281,26 @@ int32_t UsbHostManager::FillDevStrings(UsbDevice &dev)
     return UEC_OK;
 }
 
+static std::string Utf16leToUtf8(const uint8_t* utf16leBytes, size_t length)
+{
+    if (utf16leBytes == NULL || length % HALF) {
+        USB_HILOGI(MODULE_USB_SERVICE, "Utf16leToUtf8: invalid length: %{public}zu", length);
+        return " ";
+    }
+    const char16_t* utf16leData = reinterpret_cast<const char16_t*>(utf16leBytes);
+    size_t charCount = length / HALF;
+    size_t startIdx = 0;
+    // check and skip BOM
+    if (charCount > 0 && utf16leData[0] == 0xFEFF) {
+        startIdx = 1;
+        charCount--;
+    }
+
+    std::u16string utf16leStr(utf16leData + startIdx, charCount);
+    std::wstring_convert<std::codecvt_utf8_utf16<char16_t, 0, std::little_endian>, char16_t> converter;
+    return converter.to_bytes(utf16leStr);
+}
+
 std::string UsbHostManager::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, uint8_t idx)
 {
     const UsbDev dev = {busNum, devAddr};
@@ -1313,7 +1334,7 @@ std::string UsbHostManager::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAd
         return strDesc;
     }
 
-    uint16_t *tbuf = new (std::nothrow) uint16_t[length + 1]();
+    uint8_t *tbuf = new (std::nothrow) uint8_t[length - DESCRIPTOR_VALUE_START_OFFSET]();
     if (tbuf == nullptr) {
         USB_HILOGI(MODULE_USB_SERVICE, "new failed");
         return strDesc;
@@ -1322,10 +1343,8 @@ std::string UsbHostManager::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAd
     for (uint32_t i = 0; i < length - DESCRIPTOR_VALUE_START_OFFSET; ++i) {
         tbuf[i] = strV[i + DESCRIPTOR_VALUE_START_OFFSET];
     }
-    size_t bufLen = (length - DESCRIPTOR_VALUE_START_OFFSET) / HALF;
-    size_t wstrLen = wcslen((wchar_t*)tbuf) <= bufLen ? wcslen((wchar_t*)tbuf) : bufLen;
-    std::wstring wstr(reinterpret_cast<wchar_t *>(tbuf), wstrLen);
-    strDesc = std::string(wstr.begin(), wstr.end());
+
+    strDesc = Utf16leToUtf8(tbuf, length - DESCRIPTOR_VALUE_START_OFFSET);
     USB_HILOGI(MODULE_USB_SERVICE, "getString idx:%{public}d length:%{public}zu, str: %{public}s",
         idx, strDesc.length(), strDesc.c_str());
     delete[] tbuf;
