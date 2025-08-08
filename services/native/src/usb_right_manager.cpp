@@ -114,13 +114,13 @@ public:
             }
 #endif // USB_MANAGER_FEATURE_DEVICE
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
-#if defined(USB_MANAGER_FEATURE_PORT) && defined(USB_MANAGER_FEATURE_DEVICE)
+#ifdef USB_MANAGER_FEATURE_DEVICE
             USB_HILOGI(MODULE_USB_SERVICE, "recv user switched.");
             auto usbService = UsbService::GetGlobalInstance();
             if (usbService != nullptr) {
                 usbService->UserChangeProcess();
             }
-#endif // USB_MANAGER_FEATURE_PORT && USB_MANAGER_FEATURE_DEVICE
+#endif // USB_MANAGER_FEATURE_DEVICE
         }
     }
 };

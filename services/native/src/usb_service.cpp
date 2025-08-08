@@ -66,14 +66,12 @@ constexpr int32_t SERVICE_STARTUP_MAX_TIME = 30;
 constexpr uint32_t UNLOAD_SA_TIMER_INTERVAL = 30 * 1000;
 #if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
+constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
 #endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
 constexpr int32_t API_VERSION_ID_18 = 18;
 static const std::filesystem::path TTYUSB_PATH = "/sys/bus/usb-serial/devices";
 constexpr const pid_t ROOT_UID = 0;
 constexpr const pid_t EDM_UID = 3057;
-#if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
-constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
-#endif // USB_MANAGER_FEATURE_HOST || USB_MANAGER_FEATURE_DEVICE
 } // namespace
 auto g_serviceInstance = DelayedSpSingleton<UsbService>::GetInstance();
 const bool G_REGISTER_RESULT =
@@ -1698,18 +1696,22 @@ void UsbService::UpdateDeviceState(int32_t status)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
-#if defined(USB_MANAGER_FEATURE_PORT) && defined(USB_MANAGER_FEATURE_DEVICE)
 int32_t UsbService::UserChangeProcess()
 {
-    if (usbDeviceManager_ == nullptr || usbPortManager_ == nullptr) {
+    if (usbDeviceManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "usbDeviceManager_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+#ifdef USB_MANAGER_FEATURE_PORT
+    if (usbPortManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbPortManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
     bool res = usbPortManager_->IsReverseCharge();
     usbDeviceManager_->SetChargeFlag(res);
+#endif // USB_MANAGER_FEATURE_PORT
     return usbDeviceManager_->UserChangeProcess();
 }
-#endif // USB_MANAGER_FEATURE_PORT && USB_MANAGER_FEATURE_DEVICE
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
@@ -2741,29 +2743,6 @@ int32_t UsbService::CheckDbAbility(int32_t portId)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
-int32_t UsbService::SplitFromRequestSerialRight(int32_t portId, std::string &deviceName, std::string &devSerialNum)
-{
-    int32_t ret = ValidateUsbSerialManagerAndPort(portId);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
-        ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", ret, "invalid portId");
-        return ret;
-    }
-    if ((ret = CheckDbAbility(portId)) != UEC_OK) {
-        return ret;
-    }
-
-    ret = GetDeviceVidPidSerialNumber(portId, deviceName, devSerialNum);
-    if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: can not find deviceName.", __func__);
-        ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", ret, "can not find deviceName.");
-        return ret;
-    }
-    return UEC_OK;
-}
-// LCOV_EXCL_STOP
-
-// LCOV_EXCL_START
 int32_t UsbService::RequestSerialRight(int32_t portId, bool &hasRight)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
@@ -2774,11 +2753,23 @@ int32_t UsbService::RequestSerialRight(int32_t portId, bool &hasRight)
             "usbRightManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    
+    int32_t ret = ValidateUsbSerialManagerAndPort(portId);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
+        ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", ret, "invalid portId");
+        return ret;
+    }
+    if ((ret = CheckDbAbility(portId)) != UEC_OK) {
+        return ret;
+    }
+
     std::string deviceName;
     std::string deviceVidPidSerialNum;
-    int32_t ret = SplitFromRequestSerialRight(portId, deviceName, deviceVidPidSerialNum);
+
+    ret = GetDeviceVidPidSerialNumber(portId, deviceName, deviceVidPidSerialNum);
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: can not find deviceName.", __func__);
+        ReportUsbSerialOperationFaultSysEvent(portId, "RequestSerialRight", ret, "can not find deviceName.");
         return ret;
     }
 
