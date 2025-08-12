@@ -27,7 +27,7 @@ bool UsbMgrSerialGetPortListFuzzTest(const uint8_t* data, size_t size)
     unsigned seed = 0;
     if (size >= sizeof(unsigned)) {
         errno_t ret = memcpy_s(&seed, sizeof(unsigned), data, sizeof(unsigned));
-        if (ret != UEC_OK) {
+        if (ret != USB::UEC_OK) {
             return false;
         }
         srand(seed);
@@ -36,7 +36,7 @@ bool UsbMgrSerialGetPortListFuzzTest(const uint8_t* data, size_t size)
     std::vector<UsbSerialPort> devList;
     devList.clear();
     int32_t ret = usbSrvClient.SerialGetPortList(devList);
-    if (ret == UEC_OK) {
+    if (ret == USB::UEC_OK) {
         return false;
     }
     return true;
