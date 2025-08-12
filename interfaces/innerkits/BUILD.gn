@@ -74,7 +74,7 @@ ohos_shared_library("usbsrv_client") {
     "cJSON:cjson",
     "drivers_interface_usb:libserial_proxy_1.0",
     "drivers_interface_usb:libserial_stub_1.0",
-    "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:usb_idl_headers",
     "drivers_interface_usb:usb_idl_headers_1.1",
     "drivers_interface_usb:usb_idl_headers_1.2",
   ]
@@ -82,7 +82,7 @@ ohos_shared_library("usbsrv_client") {
     "c_utils:utils",
     "drivers_interface_usb:libserial_proxy_1.0",
     "drivers_interface_usb:libserial_stub_1.0",
-    "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:usb_idl_headers",
     "drivers_interface_usb:usb_idl_headers_1.1",
     "drivers_interface_usb:usb_idl_headers_1.2",
     "hilog:libhilog",
