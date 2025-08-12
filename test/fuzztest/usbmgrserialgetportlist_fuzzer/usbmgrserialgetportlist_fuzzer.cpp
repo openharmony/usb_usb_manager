@@ -17,6 +17,7 @@
 
 #include <vector>
 #include "usb_srv_client.h"
+#include "usb_errors.h"
 #include "usb_serial_type.h"
 using OHOS::USB::UsbSrvClient;
 namespace OHOS {
@@ -33,7 +34,7 @@ bool UsbMgrSerialGetPortListFuzzTest(const uint8_t* data, size_t size)
     }
     auto &usbSrvClient = UsbSrvClient::GetInstance();
     std::vector<UsbSerialPort> devList;
-    portlist.clear();
+    devList.clear();
     int32_t ret = usbSrvClient.SerialGetPortList(devList);
     if (ret == UEC_OK) {
         return false;
