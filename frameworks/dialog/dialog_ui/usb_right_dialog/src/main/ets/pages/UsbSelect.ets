@@ -115,7 +115,7 @@ struct SimpleContacts {
         USBSERVICESWITCH_ID_XFER_PIC, this.ptpChecked));
     }
     if (usbSupportedFunctions & USBSERVICESWITCH_ID_REVERSE_CHARGE) {
-      this.contacts.push(new Contact($r('app.string.USB_func_reverse_charge'), $r('app.string.USB_func_charge_connected_notifier'),
+      this.contacts.push(new Contact($r('app.string.USB_func_reverse_charge'), $r('app.string.USB_charge_connected_device'),
         USBSERVICESWITCH_ID_REVERSE_CHARGE, this.reverseChargeChecked));
     }
     this.contacts.push(new Contact($r('app.string.USB_func_charge'), '',
@@ -130,7 +130,7 @@ struct SimpleContacts {
     commonEventManager.createSubscriber({ events: eventsToSubscribe }, (err, subscriber) => {
       if (err) {
         console.error('createSubscriber failed:', JSON.stringify(err));
-      return;
+        return;
       }
 
       commonEventManager.subscribe(subscriber, (err, data) => {
