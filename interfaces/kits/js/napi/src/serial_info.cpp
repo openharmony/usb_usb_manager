@@ -164,9 +164,9 @@ static bool ParseSetAttributeInterfaceParams(napi_env env, napi_callback_info in
         return false;
     }
     bool result = NapiUtil::JsObjectToUint32(env, obj, "baudRate", serialAttribute.baudRate_) &&
-        NapiUtil::JsObjectToUint8(env, obj, "dataBits", serialAttribute.dataBits_, 8) &&
-        NapiUtil::JsObjectToUint8(env, obj, "parity", serialAttribute.parity_, 0) &&
-        NapiUtil::JsObjectToUint8(env, obj, "stopBits", serialAttribute.stopBits_, 0);
+        NapiUtil::JsObjectToUint8(env, obj, "dataBits", serialAttribute.dataBits_) &&
+        NapiUtil::JsObjectToUint8(env, obj, "parity", serialAttribute.parity_) &&
+        NapiUtil::JsObjectToUint8(env, obj, "stopBits", serialAttribute.stopBits_);
     if (!CheckAndThrowOnError(env, result == true, SYSPARAM_INVALID_INPUT,
         "Parse attribute failed.")) {
         return false;
