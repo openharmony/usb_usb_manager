@@ -20,11 +20,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstdint>
-#include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <uv.h>
+
 #include "v1_2/usb_types.h"
 #include "ashmem.h"
 #include "hilog_wrapper.h"
@@ -2015,8 +2015,8 @@ static bool GetDescriptorOnBulkTransferParam(napi_env env, napi_value data,
         errno_t ret = memcpy_s(nativeArrayBuffer, bufferSize, buffer, bufferSize);
         if (ret != EOK) {
             USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed");
-            nativeArrayBuffer = nullptr;
             delete[] nativeArrayBuffer;
+            nativeArrayBuffer = nullptr;
             return false;
         }
 
@@ -2129,9 +2129,7 @@ static bool ParseTransferParams(const napi_env &env, const napi_value &object,
         return false;
     }
     asyncContext->flags = flags;
-
     NapiUtil::JsObjectToInt(env, object, "endpoint", asyncContext->endpoint);
-
     int32_t tranferType = static_cast<int32_t>(EndpointTransferTypeJs::TRANSFER_TYPE_UNKNOWN);
     NapiUtil::JsObjectToInt(env, object, "type", tranferType);
     if (tranferType == static_cast<int32_t>(EndpointTransferTypeJs::TRANSFER_TYPE_UNKNOWN)) {
@@ -2139,11 +2137,8 @@ static bool ParseTransferParams(const napi_env &env, const napi_value &object,
         return false;
     }
     asyncContext->type = tranferType;
-
     NapiUtil::JsObjectToInt(env, object, "timeout", asyncContext->timeOut);
-
     NapiUtil::JsObjectToInt(env, object, "length", asyncContext->length);
-
     napi_value valueCallBack;
     NapiUtil::JsObjectGetProperty(env, object, "callback", valueCallBack);
     napi_typeof(env, valueCallBack, &valueType);
@@ -2160,7 +2155,6 @@ static bool ParseTransferParams(const napi_env &env, const napi_value &object,
         USB_HILOGE(MODULE_JS_NAPI, "Transfer wrong argument, buffer is null");
         return false;
     }
-
     NapiUtil::JsObjectToUint(env, object, "isoPacketCount", asyncContext->numIsoPackets);
     return true;
 }
@@ -2256,7 +2250,7 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
     AsyncCallBackContext *asyncCBWork = new (std::nothrow) AsyncCallBackContext;
     if (asyncCBWork == nullptr) {
         delete asyncContext;
-        asyncCBWork = nullptr;
+        asyncContext = nullptr;
         return;
     }
     asyncCBWork->env = asyncContext->env;

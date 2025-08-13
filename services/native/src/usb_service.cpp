@@ -115,8 +115,8 @@ int32_t UsbService::SetUsbd(const sptr<OHOS::HDI::Usb::V1_2::IUsbInterface> &usb
         return UEC_SERVICE_INVALID_VALUE;
     }
     if (usbd_ == nullptr) {
-        usbd_ = usbd;
         USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:usbd_ = usbd", __func__);
+        usbd_ = usbd;
     } else {
         USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
     }
@@ -475,6 +475,7 @@ int32_t UsbService::OpenDevice(uint8_t busNum, uint8_t devAddr)
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
+    // LCOV_EXCL_START
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -485,22 +486,23 @@ int32_t UsbService::OpenDevice(uint8_t busNum, uint8_t devAddr)
     }
 
     return ret;
+    // LCOV_EXCL_STOP
 }
 
-// LCOV_EXCL_START
 int32_t UsbService::Close(uint8_t busNum, uint8_t devAddr)
 {
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
+    // LCOV_EXCL_START
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
     return usbHostManager_->Close(busNum, devAddr);
+    // LCOV_EXCL_STOP
 }
-// LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
 int32_t UsbService::ResetDevice(uint8_t busNum, uint8_t devAddr)
@@ -571,6 +573,7 @@ int32_t UsbService::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t in
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
+    // LCOV_EXCL_START
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
@@ -581,6 +584,7 @@ int32_t UsbService::ReleaseInterface(uint8_t busNum, uint8_t devAddr, uint8_t in
         return UEC_INTERFACE_INVALID_OPERATION;
     }
     return ret;
+    // LCOV_EXCL_STOP
 }
 
 int32_t UsbService::SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex)
@@ -589,11 +593,13 @@ int32_t UsbService::SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t con
         return UEC_SERVICE_PERMISSION_DENIED;
     }
 
+    // LCOV_EXCL_START
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
     return usbHostManager_->SetActiveConfig(busNum, devAddr, configIndex);
+    // LCOV_EXCL_STOP
 }
 
 int32_t UsbService::ManageGlobalInterface(bool disable)
@@ -945,7 +951,6 @@ int32_t UsbService::BulkTransferReadwithLength(uint8_t busNum, uint8_t devAddr, 
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-
     HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
     int32_t ret = usbHostManager_->BulkTransferReadwithLength(devInfo, pipe, length, bufferData.data_, timeOut);
@@ -963,6 +968,7 @@ int32_t UsbService::BulkTransferWrite(
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
     HDI::Usb::V1_0::UsbDev dev = {busNum, devAddr};
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
@@ -1209,8 +1215,8 @@ int32_t UsbService::UnRegBulkCallback(uint8_t busNum, uint8_t devAddr, const USB
         USB_HILOGE(MODULE_USB_SERVICE, "UnRegBulkCallback error ret:%{public}d", ret);
     }
     return ret;
+    // LCOV_EXCL_STOP
 }
-// LCOV_EXCL_STOP
 
 int32_t UsbService::BulkRead(uint8_t busNum, uint8_t devAddr, const USBEndpoint &ep, int32_t fd, int32_t memSize)
 {
@@ -1289,7 +1295,6 @@ int32_t UsbService::BulkCancel(uint8_t busNum, uint8_t devAddr, const USBEndpoin
     // LCOV_EXCL_STOP
 }
 
-// LCOV_EXCL_START
 bool UsbService::CheckDevicePermission(uint8_t busNum, uint8_t devAddr)
 {
     std::string name = std::to_string(busNum) + "-" + std::to_string(devAddr);
@@ -1300,11 +1305,13 @@ bool UsbService::CheckDevicePermission(uint8_t busNum, uint8_t devAddr)
     return true;
 }
 
+// LCOV_EXCL_START
 int32_t UsbService::HasRight(const std::string &deviceName, bool &hasRight)
 {
     hasRight = this->HasRight(deviceName);
     return UEC_OK;
 }
+// LCOV_EXCL_STOP
 
 bool UsbService::HasRight(const std::string &deviceName)
 {
@@ -1649,7 +1656,6 @@ int32_t UsbService::UsbFunctionsFromString(const std::string &funcs, int32_t &fu
     return UEC_OK;
 }
 
-// LCOV_EXCL_START
 int32_t UsbService::UsbFunctionsToString(int32_t funcs, std::string& funcResult)
 {
     if (usbRightManager_ == nullptr) {
@@ -1675,7 +1681,6 @@ int32_t UsbService::UsbFunctionsToString(int32_t funcs, std::string& funcResult)
     funcResult = UsbDeviceManager::ConvertToString(funcs);
     return UEC_OK;
 }
-// LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
 void UsbService::UpdateDeviceState(int32_t status)

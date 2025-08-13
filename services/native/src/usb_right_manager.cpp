@@ -83,7 +83,7 @@ public:
         auto &want = data.GetWant();
         std::string wantAction = want.GetAction();
 
-        USB_HILOGD(MODULE_USB_SERVICE, "%{public}s wantAction %{public}s", __func__, wantAction.c_str());
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s wantAction %{public}s", __func__, wantAction.c_str());
         if (wantAction == CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED ||
             wantAction == CommonEventSupport::COMMON_EVENT_BUNDLE_REMOVED ||
             wantAction == CommonEventSupport::COMMON_EVENT_PACKAGE_FULLY_REMOVED) {
