@@ -54,8 +54,8 @@ const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
     {SERIAL_PORT_OCCUPIED, "BusinessError 31400004:device is using by other application."},
     {SERIAL_PORT_NOT_OPEN, "BusinessError 31400005:device is not open, call open first."},
     {SERIAL_TIMED_OUT, "BusinessError 31400006:transfer timeout."},
-    {SERIAL_IO_EXCEPTION, "BusinessError 31400007: Possible causes:"
-                          "1. The transfer was canceled."
+    {SERIAL_IO_EXCEPTION, "BusinessError 31400007: IO exception. Possible causes: "
+                          "1. The transfer was canceled. "
                           "2. The device offered more data."},
 };
 #else
