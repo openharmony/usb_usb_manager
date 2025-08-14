@@ -416,8 +416,6 @@ void UsbPortManager::GetDumpHelp(int32_t fd)
     dprintf(fd, "=========== dump the all device port ===========\n");
     dprintf(fd, "usb_port -a: Query All Port List\n");
     dprintf(fd, "usb_port -p Q: Query Port\n");
-    dprintf(fd, "usb_port -p 1: Switch to host\n");
-    dprintf(fd, "usb_port -p 2: Switch to device\n");
     dprintf(fd, "------------------------------------------------\n");
 }
 
@@ -447,38 +445,8 @@ void UsbPortManager::DumpSetPortRoles(int32_t fd, const std::string &args)
         GetPortsInfo(fd);
         return;
     }
-#ifdef USB_MANAGER_V2_0
-    if (usbPortInterface_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::DumpSetPortRoles usbPortInterface_ is nullptr");
-        return;
-    }
-#else
-    if (usbd_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::DumpSetPortRoles usbd_ is nullptr");
-        return;
-    }
-#endif // USB_MANAGER_V2_0
-    if (!std::regex_match(args, std::regex("^[0-9]+$"))) {
-        dprintf(fd, "Invalid input, please enter a valid integer\n");
-        GetDumpHelp(fd);
-        return;
-    }
-    int32_t mode = stoi(args);
-    switch (mode) {
-        case DEFAULT_ROLE_HOST:
-            SetPortRole(
-                UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::POWER_ROLE_SOURCE, UsbSrvSupport::DATA_ROLE_HOST);
-            GetPortsInfo(fd);
-            break;
-        case DEFAULT_ROLE_DEVICE:
-            SetPortRole(
-                UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::POWER_ROLE_SINK, UsbSrvSupport::DATA_ROLE_DEVICE);
-            GetPortsInfo(fd);
-            break;
-        default:
-            dprintf(fd, "port param error, please enter again\n");
-            GetDumpHelp(fd);
-    }
+    dprintf(fd, "port param error, please enter again\n");
+    GetDumpHelp(fd);
 }
 
 void UsbPortManager::Dump(int32_t fd, const std::vector<std::string> &args)
