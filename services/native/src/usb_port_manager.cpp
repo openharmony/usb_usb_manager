@@ -36,7 +36,6 @@ constexpr int32_t SUPPORTED_MODES = 3;
 constexpr int32_t PARAM_COUNT_TWO = 2;
 constexpr int32_t PARAM_COUNT_THR = 3;
 constexpr int32_t DEFAULT_ROLE_HOST = 1;
-constexpr int32_t DEFAULT_ROLE_DEVICE = 2;
 constexpr uint32_t CMD_INDEX = 1;
 constexpr uint32_t PARAM_INDEX = 2;
 constexpr int32_t HOST_MODE = 2;
