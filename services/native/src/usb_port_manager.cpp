@@ -484,10 +484,10 @@ void UsbPortManager::DumpSetPortRoles(int32_t fd, const std::string &args)
             dprintf(fd, "port param error, please enter again\n");
             GetDumpHelp(fd);
     }
-    return;
-#endif // USB_MANAGER_HIDUMPER_SET
+#else
     dprintf(fd, "port param error, please enter again\n");
     GetDumpHelp(fd);
+#endif // USB_MANAGER_HIDUMPER_SET
 }
 
 void UsbPortManager::Dump(int32_t fd, const std::vector<std::string> &args)

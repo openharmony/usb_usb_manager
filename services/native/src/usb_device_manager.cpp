@@ -675,7 +675,6 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
         return;
     }
     dprintf(fd, "current function: %s\n", ConvertToString(currentFunction).c_str());
-    return;
 #else
     dprintf(fd, "Invalid input, please enter a valid argument\n");
     GetDumpHelp(fd);
