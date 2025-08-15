@@ -1,0 +1,10 @@
+{
+  "src": [
+    "pages/Index",
+    "pages/automation",
+    "pages/usb_info",
+    "pages/usb_listening",
+    "pages/split_test",
+    "pages/manual_test"
+  ]
+}
