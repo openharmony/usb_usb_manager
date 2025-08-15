@@ -259,7 +259,7 @@ private:
     bool InitSerial();
     int32_t GetDeviceVidPidSerialNumber(int32_t portId, std::string& deviceName, std::string& strDesc);
     void UpdateDeviceVidPidMap(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList);
-    bool DoDump(int fd, const std::vector<std::string> &argList);
+    int DoDump(int fd, const std::vector<std::string> &argList);
     void FreeTokenId(int32_t portId, uint32_t tokenId);
     int32_t ValidateUsbSerialManagerAndPort(int32_t portId);
     int32_t CheckDbAbility(int32_t portId);

@@ -57,6 +57,9 @@ ohos_shared_library("usbservice") {
   public_configs = [ ":usbsrv_public_config" ]
   deps = [ "${usb_manager_path}/interfaces/innerkits:usb_server_stub" ]
   defines = []
+  if (usb_manager_hidumper_set) {
+    defines += [ "USB_MANAGER_HIDUMPER_SET" ]
+  }
   if (usb_manager_pass_through) {
     defines += [
       "USB_MANAGER_PASS_THROUGH",

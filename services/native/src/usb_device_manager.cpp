@@ -547,6 +547,19 @@ void UsbDeviceManager::GetDumpHelp(int32_t fd)
     dprintf(fd, "========= dump the all device function =========\n");
     dprintf(fd, "usb_device -a:    Query all function\n");
     dprintf(fd, "usb_device -f Q:  Query Current function\n");
+#ifdef USB_MANAGER_HIDUMPER_SET
+    dprintf(fd, "usb_device -f 0:  Switch to function:none\n");
+    dprintf(fd, "usb_device -f 1:  Switch to function:acm\n");
+    dprintf(fd, "usb_device -f 2:  Switch to function:ecm\n");
+    dprintf(fd, "usb_device -f 3:  Switch to function:acm&ecm\n");
+    dprintf(fd, "usb_device -f 4:  Switch to function:hdc\n");
+    dprintf(fd, "usb_device -f 5:  Switch to function:acm&hdc\n");
+    dprintf(fd, "usb_device -f 6:  Switch to function:ecm&hdc\n");
+    dprintf(fd, "usb_device -f 32: Switch to function:rndis\n");
+    dprintf(fd, "usb_device -f 512:Switch to function:storage\n");
+    dprintf(fd, "usb_device -f 36: Switch to function:rndis&hdc\n");
+    dprintf(fd, "usb_device -f 516:Switch to function:storage&hdc\n");
+#endif // USB_MANAGER_HIDUMPER_SET
     dprintf(fd, "------------------------------------------------\n");
 }
 
@@ -592,8 +605,34 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
         dprintf(fd, "current function: %s\n", ConvertToString(currentFunction).c_str());
         return;
     }
+#ifdef USB_MANAGER_HIDUMPER_SET
+    if (!std::regex_match(args, std::regex("^[0-9]+$"))) {
+        dprintf(fd, "Invalid input, please enter a valid integer\n");
+        GetDumpHelp(fd);
+        return;
+    }
+    int32_t mode;
+    if (!StringToInteger(args, mode)) {
+        dprintf(fd, "Invalid input, the number is out of range\n");
+        GetDumpHelp(fd);
+        return;
+    }
+    ret = usbDeviceInterface_->SetCurrentFunctions(mode);
+    if (ret != UEC_OK) {
+        dprintf(fd, "SetCurrentFunctions failed");
+        return;
+    }
+    ret = usbDeviceInterface_->GetCurrentFunctions(currentFunction);
+    if (ret != UEC_OK) {
+        dprintf(fd, "GetCurrentFunctions failed: %d\n", ret);
+        return;
+    }
+
+    dprintf(fd, "current function: %s\n", ConvertToString(currentFunction).c_str());
+#else
     dprintf(fd, "Invalid input, please enter a valid argument\n");
     GetDumpHelp(fd);
+#endif // USB_MANAGER_HIDUMPER_SET
 }
 #else
 void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
@@ -613,8 +652,33 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
         dprintf(fd, "current function: %s\n", ConvertToString(currentFunction).c_str());
         return;
     }
+#ifdef USB_MANAGER_HIDUMPER_SET
+    if (!std::regex_match(args, std::regex("^[0-9]+$"))) {
+        dprintf(fd, "Invalid input, please enter a valid integer\n");
+        GetDumpHelp(fd);
+        return;
+    }
+    int32_t mode;
+    if (!StringToInteger(args, mode)) {
+        dprintf(fd, "Invalid input, the number is out of range\n");
+        GetDumpHelp(fd);
+        return;
+    }
+    ret = usbd_->SetCurrentFunctions(mode);
+    if (ret != UEC_OK) {
+        dprintf(fd, "SetCurrentFunctions failed");
+        return;
+    }
+    ret = usbd_->GetCurrentFunctions(currentFunction);
+    if (ret != UEC_OK) {
+        dprintf(fd, "GetCurrentFunctions failed: %d\n", ret);
+        return;
+    }
+    dprintf(fd, "current function: %s\n", ConvertToString(currentFunction).c_str());
+#else
     dprintf(fd, "Invalid input, please enter a valid argument\n");
     GetDumpHelp(fd);
+#endif // USB_MANAGER_HIDUMPER_SET
 }
 #endif // USB_MANAGER_V2_0
 

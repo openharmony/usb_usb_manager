@@ -36,6 +36,9 @@ constexpr int32_t SUPPORTED_MODES = 3;
 constexpr int32_t PARAM_COUNT_TWO = 2;
 constexpr int32_t PARAM_COUNT_THR = 3;
 constexpr int32_t DEFAULT_ROLE_HOST = 1;
+#ifdef USB_MANAGER_HIDUMPER_SET
+constexpr int32_t DEFAULT_ROLE_DEVICE = 2;
+#endif // USB_MANAGER_HIDUMPER_SET
 constexpr uint32_t CMD_INDEX = 1;
 constexpr uint32_t PARAM_INDEX = 2;
 constexpr int32_t HOST_MODE = 2;
@@ -415,6 +418,10 @@ void UsbPortManager::GetDumpHelp(int32_t fd)
     dprintf(fd, "=========== dump the all device port ===========\n");
     dprintf(fd, "usb_port -a: Query All Port List\n");
     dprintf(fd, "usb_port -p Q: Query Port\n");
+#ifdef USB_MANAGER_HIDUMPER_SET
+    dprintf(fd, "usb_port -p 1: Switch to host\n");
+    dprintf(fd, "usb_port -p 2: Switch to device\n");
+#endif // USB_MANAGER_HIDUMPER_SET
     dprintf(fd, "------------------------------------------------\n");
 }
 
@@ -440,10 +447,45 @@ void UsbPortManager::DumpGetSupportPort(int32_t fd)
 
 void UsbPortManager::DumpSetPortRoles(int32_t fd, const std::string &args)
 {
+#ifdef USB_MANAGER_V2_0
+    if (usbPortInterface_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::DumpSetPortRoles usbPortInterface_ is nullptr");
+        return;
+    }
+#else
+    if (usbd_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::DumpSetPortRoles usbd_ is nullptr");
+        return;
+    }
+#endif // USB_MANAGER_V2_0
     if (args.compare("Q") == 0) {
         GetPortsInfo(fd);
         return;
     }
+#ifdef USB_MANAGER_HIDUMPER_SET
+    if (!std::regex_match(args, std::regex("^[0-9]+$"))) {
+        dprintf(fd, "Invalid input, please enter a valid integer\n");
+        GetDumpHelp(fd);
+        return;
+    }
+    int32_t mode = stoi(args);
+    switch (mode) {
+        case DEFAULT_ROLE_HOST:
+            SetPortRole(
+                UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::POWER_ROLE_SOURCE, UsbSrvSupport::DATA_ROLE_HOST);
+            GetPortsInfo(fd);
+            break;
+        case DEFAULT_ROLE_DEVICE:
+            SetPortRole(
+                UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::POWER_ROLE_SINK, UsbSrvSupport::DATA_ROLE_DEVICE);
+            GetPortsInfo(fd);
+            break;
+        default:
+            dprintf(fd, "port param error, please enter again\n");
+            GetDumpHelp(fd);
+    }
+    return
+#endif // USB_MANAGER_HIDUMPER_SET
     dprintf(fd, "port param error, please enter again\n");
     GetDumpHelp(fd);
 }
