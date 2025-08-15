@@ -1,0 +1,49 @@
+{
+  "app": {
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+        "compileSdkVersion": 12,
+        "compatibleSdkVersion": 12,
+        "runtimeOS": "OpenHarmony"
+      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "debug"
+      },
+      {
+        "name": "release"
+      }
+    ],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "material": {
+          "certpath": "C:/Users/Administrator/.ohos/config/openharmony/default_nomralApp_ySXiDBhqTK_z-kX3Ufsjw-qX16hohMNZIyZHgM6AxrE=.cer",
+          "storePassword": "0000001B78580D2A75C1E8733C47A730DAEF69B615819EFE46C7EF7FE4A3A88065E520508B8DB210B4FD0D",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001BA01C24974EAAF7177746DD617019E0D75FF6855F499ACE5E734022A97DACBBACF9C2B0894CA203",
+          "profile": "C:/Users/Administrator/.ohos/config/openharmony/default_nomralApp_ySXiDBhqTK_z-kX3Ufsjw-qX16hohMNZIyZHgM6AxrE=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:/Users/Administrator/.ohos/config/openharmony/default_nomralApp_ySXiDBhqTK_z-kX3Ufsjw-qX16hohMNZIyZHgM6AxrE=.p12"
+        }
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "usbInfo",
+      "srcPath": "./usbInfo",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "UsbInfoAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "UsbInfoAbility_label",
+      "value": "label"
+    }
+  ]
+}

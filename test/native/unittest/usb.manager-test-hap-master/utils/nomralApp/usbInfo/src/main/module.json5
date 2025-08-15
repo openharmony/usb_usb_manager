@@ -1,0 +1,37 @@
+{
+  "module": {
+    "name": "usbInfo",
+    "type": "entry",
+    "description": "$string:module_desc",
+    "mainElement": "UsbInfoAbility",
+    "deviceTypes": [
+      "default",
+      "tablet"
+    ],
+    "deliveryWithInstall": true,
+    "installationFree": false,
+    "pages": "$profile:main_pages",
+    "abilities": [
+      {
+        "name": "UsbInfoAbility",
+        "srcEntry": "./ets/usbinfoability/UsbInfoAbility.ets",
+        "description": "$string:UsbInfoAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:UsbInfoAbility_label",
+        "startWindowIcon": "$media:startIcon",
+        "startWindowBackground": "$color:start_window_background",
+        "exported": true,
+        "skills": [
+          {
+            "entities": [
+              "entity.system.home"
+            ],
+            "actions": [
+              "action.system.home"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
