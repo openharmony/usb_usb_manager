@@ -28,12 +28,12 @@ struct Index {
 
   build() {
     Column() {
-      // Header Section with background image and Huawei icon
+      // Header Section with background image and hw icon
       Column() {
         // Row to place icon and title side by side
         Row() {
-          // Huawei Icon
-          Image($r('app.media.huawei'))  // Use the resource reference for the local icon
+          // hw Icon
+          Image($r('app.media.hw'))  // Use the resource reference for the local icon
             .width(60)
             .height(60)
             .margin({ right: '30px' })  // Add margin to the right of the icon
