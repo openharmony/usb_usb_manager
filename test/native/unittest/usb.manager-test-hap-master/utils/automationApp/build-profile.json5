@@ -1,0 +1,49 @@
+{
+  "app": {
+    "signingConfigs": [
+      {
+        "name": "default",
+        "material": {
+          "certpath": "C:/Users/Administrator/.ohos/config/openharmony/default_automationApp_m_uAv6W7byNnWs9nEYJ2TEceRFNNtz6VaYJia0KITcc=.cer",
+          "storePassword": "0000001BCA59CC4560E507591049C8B440E141C0DE11272E34F5DD2E914699B1DA93D4F6EA6057DEA091F1",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001BD59756A428A3CEB57C7F85ADBF16C32933393D0111EF16A199838C1A9C3EDABD98D989EB38AEE6",
+          "profile": "C:/Users/Administrator/.ohos/config/openharmony/default_automationApp_m_uAv6W7byNnWs9nEYJ2TEceRFNNtz6VaYJia0KITcc=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:/Users/Administrator/.ohos/config/openharmony/default_automationApp_m_uAv6W7byNnWs9nEYJ2TEceRFNNtz6VaYJia0KITcc=.p12"
+        }
+      }
+    ],
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+        "compileSdkVersion": 12,
+        "compatibleSdkVersion": 12,
+        "runtimeOS": "OpenHarmony",
+      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "debug",
+      },
+      {
+        "name": "release"
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "usbAutomation",
+      "srcPath": "./usbAutomation",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    }
+  ]
+}
