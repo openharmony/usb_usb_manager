@@ -1,0 +1,47 @@
+{
+  "module": {
+    "name": "usb",
+    "type": "entry",
+    "description": "$string:module_desc",
+    "mainElement": "UsbAbility",
+    "deviceTypes": [
+      "default",
+      "tablet",
+      "tv",
+      "wearable",
+      "car",
+      "2in1"
+    ],
+    "requestPermissions":[
+      {
+        "name" : "ohos.permission.MANAGE_USB_CONFIG",
+        "reason": "$string:reason",
+        "usedScene": {}
+      }],
+    "deliveryWithInstall": true,
+    "installationFree": false,
+    "pages": "$profile:main_pages",
+    "abilities": [
+      {
+        "name": "UsbAbility",
+        "srcEntry": "./ets/usbability/UsbAbility.ets",
+        "description": "$string:UsbAbility_desc",
+        "icon": "$media:usbPort",
+        "label": "$string:UsbAbility_label",
+        "startWindowIcon": "$media:startIcon",
+        "startWindowBackground": "$color:start_window_background",
+        "exported": true,
+        "skills": [
+          {
+            "entities": [
+              "entity.system.home"
+            ],
+            "actions": [
+              "action.system.home"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
