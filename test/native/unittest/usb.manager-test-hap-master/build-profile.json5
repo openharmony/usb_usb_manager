@@ -1,0 +1,61 @@
+{
+  "app": {
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "8Ro8SV66NFCfYl15YT5kkP7T3ow2AyhIf8xTQgVWzmc",
+        "compileSdkVersion": 12,
+        "compatibleSdkVersion": 12,
+        "runtimeOS": "OpenHarmony"
+      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "debug"
+      },
+      {
+        "name": "release"
+      }
+    ],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "material": {
+          "certpath": "C:/Users/Administrator/.ohos/config/openharmony/default_MyApplication2_sgU0fxsyE8KraxT0VobNlkk2VTtRFn6K5-CNHhCk_X8=.cer",
+          "storePassword": "0000001AA21A3CB9AC21473ECAF98205F5C78B821F48D8F91A05C4AA47A3ECB86F8824B2D969597FEE75",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001A3839F21A677C550820EF937D717A6839529C63AF0FCDFDE904B6C3445E658D34083E326644BC",
+          "profile": "C:/Users/Administrator/.ohos/config/openharmony/default_MyApplication2_sgU0fxsyE8KraxT0VobNlkk2VTtRFn6K5-CNHhCk_X8=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:/Users/Administrator/.ohos/config/openharmony/default_MyApplication2_sgU0fxsyE8KraxT0VobNlkk2VTtRFn6K5-CNHhCk_X8=.p12"
+        }
+      },
+      {
+        "name": "8Ro8SV66NFCfYl15YT5kkP7T3ow2AyhIf8xTQgVWzmc",
+        "material": {
+          "certpath": "C:/Users/Administrator/.ohos/config/openharmony/auto_ohos_8Ro8SV66NFCfYl15YT5kkP7T3ow2AyhIf8xTQgVWzmc_MyApplication2_com.example.myapplication.cer",
+          "storePassword": "0000001BC88CB82003BC6CB10394AADA355EBEDB712A0383400DBCCDAAF0868EF53C861F0C8411F74CD7A7",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001BEB3C7FF26958DF55F15B338C4699D26565021B78569E8EEBDA2E256653F22DB44662E3A7CFCB1C",
+          "profile": "C:/Users/Administrator/.ohos/config/openharmony/auto_ohos_8Ro8SV66NFCfYl15YT5kkP7T3ow2AyhIf8xTQgVWzmc_MyApplication2_com.example.myapplication.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:/Users/Administrator/.ohos/config/openharmony/auto_ohos_8Ro8SV66NFCfYl15YT5kkP7T3ow2AyhIf8xTQgVWzmc_MyApplication2_com.example.myapplication.p12"
+        }
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "usb",
+      "srcPath": "./usb",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    }
+  ]
+}
