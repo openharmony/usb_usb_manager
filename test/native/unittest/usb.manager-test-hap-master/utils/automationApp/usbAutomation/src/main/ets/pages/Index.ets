@@ -1,4 +1,4 @@
-import usb from '@ohos.usbManager';
+import usb from '@ohos.usb';
 import promptAction from '@ohos.promptAction';
 import fs, { ReadOptions } from '@ohos.file.fs';
 import common from '@ohos.app.ability.common';
