@@ -1,0 +1,1 @@
+java -jar hap-sign-tool.jar sign-app -keyAlias "openharmony application release" -signAlg "SHA256withECDSA" -mode "localSign" -appCertFile "OpenHarmonyApplication.pem" -profileFile "SgnedReleaseProfileTemplate.p7b" -inFile "usb-default-unsigned.hap" -keystoreFile "OpenHarmony.p12" -outFile "usb_test_newsigned.hap" -keyPwd "123456" -keystorePwd "123456"
