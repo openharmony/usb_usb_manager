@@ -52,6 +52,7 @@ public:
 #endif // USB_MANAGER_V2_0
     UsbDeviceManager();
     int32_t Init();
+    void SetPhyConnectState(bool phyConnect);
     static bool IsSettableFunctions(int32_t funcs);
 
     int32_t SetUsbd(const sptr<HDI::Usb::V1_0::IUsbInterface> &usbd);
@@ -92,6 +93,7 @@ private:
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
     uint32_t delayDisconnTimerId_ {UINT32_MAX};
     std::mutex functionMutex_;
+    bool phyConnect_;
 #ifdef USB_MANAGER_V2_0
     sptr<HDI::Usb::V2_0::IUsbDeviceInterface> usbDeviceInterface_ = nullptr;
     sptr<UsbManagerSubscriber> usbManagerSubscriber_;

@@ -1588,6 +1588,16 @@ int32_t UsbService::PreCallFunction()
 #endif // USB_MANAGER_FEATURE_HOST
 
 #ifdef USB_MANAGER_FEATURE_DEVICE
+void UsbService::SetPhyConnect(bool phyConnect)
+{
+    if (usbDeviceManager_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbDeviceManager_ is nullptr");
+        return;
+    }
+    usbDeviceManager_->SetPhyConnectState(phyConnect);
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: physic connect state is %{public}d", __func__, phyConnect);
+    return;
+}
 int32_t UsbService::GetCurrentFunctions(int32_t &functions)
 {
     if (usbRightManager_ == nullptr) {

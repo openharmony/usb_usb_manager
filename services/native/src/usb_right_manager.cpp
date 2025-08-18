@@ -112,6 +112,16 @@ public:
             if (!usbService->InitSettingsDataHdcStatus()) {
                 USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: function is get failed!", __func__);
             }
+	} else if (wantAction == CommonEventSupport::COMMON_EVENT_POWER_CONNECTED) {
+            auto usbService = UsbService::GetGlobalInstance();
+            if (usbService != nullptr) {
+                usbService->SetPhyConnect(true);
+            }
+	} else if (wantAction == CommonEventSupport::COMMON_EVENT_POWER_DISCONNECTED) {
+            auto usbService = UsbService::GetGlobalInstance();
+            if (usbService != nullptr) {
+                usbService->SetPhyConnect(false);
+            }
 #endif // USB_MANAGER_FEATURE_DEVICE
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
 #ifdef USB_MANAGER_FEATURE_DEVICE
@@ -140,6 +150,10 @@ int32_t UsbRightManager::Init()
 
 #ifdef USB_MANAGER_FEATURE_DEVICE
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_DATA_SHARE_READY);
+    /* subscribe Physic plug/unplug */
+    matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_REMOVED);
+    matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_STOPPED);
+
 #endif // USB_MANAGER_FEATURE_DEVICE
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
     CommonEventSubscribeInfo subscriberInfo(matchingSkills);
