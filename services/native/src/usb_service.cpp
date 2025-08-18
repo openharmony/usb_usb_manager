@@ -2198,36 +2198,51 @@ bool UsbService::GetBundleName(std::string &bundleName)
 // LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
-bool UsbService::DoDump(int fd, const std::vector<std::string> &argList)
+int UsbService::DoDump(int fd, const std::vector<std::string> &argList)
 {
 #ifdef USB_MANAGER_FEATURE_HOST
-    if (usbHostManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
-        return false;
-    }
     if (argList[0] == USB_HOST) {
+        if (usbHostManager_ == nullptr) {
+            USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
+            return UEC_SERVICE_INVALID_VALUE;
+        }
         usbHostManager_->Dump(fd, argList[1]);
+        return UEC_OK;
     }
 #endif // USB_MANAGER_FEATURE_HOST
 #ifdef USB_MANAGER_FEATURE_DEVICE
-    if (usbDeviceManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "usbDeviceManager_ is nullptr");
-        return false;
-    }
     if (argList[0] == USB_DEVICE) {
+        if (usbDeviceManager_ == nullptr) {
+            USB_HILOGE(MODULE_USB_SERVICE, "usbDeviceManager_ is nullptr");
+            return UEC_SERVICE_INVALID_VALUE;
+        }
         usbDeviceManager_->Dump(fd, argList);
+        return UEC_OK;
     }
 #endif // USB_MANAGER_FEATURE_DEVICE
 #ifdef USB_MANAGER_FEATURE_PORT
-    if (usbPortManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "usbPortManager_ is nullptr");
-        return false;
-    }
     if (argList[0] == USB_PORT) {
+        if (usbPortManager_ == nullptr) {
+            USB_HILOGE(MODULE_USB_SERVICE, "usbPortManager_ is nullptr");
+            return UEC_SERVICE_INVALID_VALUE;
+        }
         usbPortManager_->Dump(fd, argList);
+        return UEC_OK;
     }
 #endif // USB_MANAGER_FEATURE_PORT
-    return true;
+    if (argList[0] == USB_HELP) {
+        DumpHelp(fd);
+        usbSerialManager_->ListGetDumpHelp(fd);
+    } else if (argList[0] == USB_LIST) {
+        usbSerialManager_->SerialPortListDump(fd, argList);
+    } else if (argList[0] == USB_GETT) {
+        usbSerialManager_->SerialGetAttributeDump(fd, argList);
+    } else {
+        dprintf(fd, "Usb Dump service:invalid parameter.\n");
+        DumpHelp(fd);
+        usbSerialManager_->ListGetDumpHelp(fd);
+    }
+    return UEC_OK;
 }
 // LCOV_EXCL_STOP
 
@@ -2258,22 +2273,7 @@ int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
         usbSerialManager_->ListGetDumpHelp(fd);
         return UEC_SERVICE_INVALID_VALUE;
     }
-    if (!DoDump(fd, argList)) {
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    if (argList[0] == USB_HELP) {
-        DumpHelp(fd);
-        usbSerialManager_->ListGetDumpHelp(fd);
-    } else if (argList[0] == USB_LIST) {
-        usbSerialManager_->SerialPortListDump(fd, argList);
-    } else if (argList[0] == USB_GETT) {
-        usbSerialManager_->SerialGetAttributeDump(fd, argList);
-    } else {
-        dprintf(fd, "Usb Dump service:invalid parameter.\n");
-        DumpHelp(fd);
-        usbSerialManager_->ListGetDumpHelp(fd);
-    }
-    return UEC_OK;
+    return DoDump(fd, argList);
 }
 // LCOV_EXCL_STOP
 
