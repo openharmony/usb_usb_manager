@@ -21,7 +21,7 @@
 namespace OHOS {
 const uint32_t OFFSET = 4;
 namespace USB {
-    bool UsbMgrSerialWriteFuzzTest(const uint8_t* data, size_t size)
+    bool UsbMgrRequestSerialRightFuzzTest(const uint8_t* data, size_t size)
     {
         auto &usbSrvClient = UsbSrvClient::GetInstance();
         if (data == nullptr || size < sizeof(int32_t) + sizeof(bool)) {
