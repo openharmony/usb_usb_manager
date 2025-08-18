@@ -376,11 +376,11 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             ProcessFuncChange(connected_, currentFunctions_);
             return;
         };
-	int32_t delayTime = DELAY_DISCONN_INTERVAL;
-	if (phyConnect_) {
-	    delayTime = DELAY_DISCONN_INTERVAL + DELAY_DISCONN_INTERVAL;
-	    USB_HILOGI(MODULE_USB_SERVICE, "Physical is plug");
-	}
+        int32_t delayTime = DELAY_DISCONN_INTERVAL;
+        if (phyConnect_) {
+            delayTime = DELAY_DISCONN_INTERVAL + DELAY_DISCONN_INTERVAL;
+            USB_HILOGI(MODULE_USB_SERVICE, "Physical is plug");
+        }
         delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, delayTime, true);
     } else {
         USB_HILOGI(MODULE_USB_SERVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
