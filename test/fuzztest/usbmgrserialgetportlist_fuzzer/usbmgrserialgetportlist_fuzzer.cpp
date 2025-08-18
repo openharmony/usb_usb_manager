@@ -33,7 +33,7 @@ namespace USB {
         }
         auto &usbSrvClient = UsbSrvClient::GetInstance();
         std::vector<UsbSerialPort> devList;
-        devList.clear;
+        devList.clear();
         if (data == nullptr || size < sizeof(UsbSerialPort)) {
             return false;
         }
