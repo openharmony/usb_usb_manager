@@ -25,7 +25,7 @@ namespace USB {
     {
         unsigned seed = 0;
         if (size < sizeof(unsigned)) {
-            errno_t ret = memcpy_s(&seed, sizeof(unsigned), data, sizeof(unsigned))
+            errno_t ret = memcpy_s(&seed, sizeof(unsigned), data, sizeof(unsigned));
             if (ret != UEC_OK) {
                 return false;
             }
