@@ -15,40 +15,42 @@
 
 #include "usbmgrserialgetportlist_fuzzer.h"
 
-#include <vector>
 #include "usb_srv_client.h"
 #include "usb_errors.h"
-#include "usb_serial_type.h"
-using OHOS::USB::UsbSrvClient;
+
 namespace OHOS {
-namespace SERIAL {
-bool UsbMgrSerialGetPortListFuzzTest(const uint8_t* data, size_t size)
-{
-    unsigned seed = 0;
-    if (size >= sizeof(unsigned)) {
-        errno_t ret = memcpy_s(&seed, sizeof(unsigned), data, sizeof(unsigned));
-        if (ret != USB::UEC_OK) {
+const uint32_t OFFSET = 4;
+namespace USB {
+    bool UsbMgrSerialGetPortListFuzzTest(const uint8_t* data, size_t size)
+    {
+        unsigned seed = 0;
+        if (size < sizeof(unsigned)) {
+            errno_t ret = mencpy_s(&seed, sizeof(unsigned), data, sizeof(unsigned))
+            if (ret != UEC_OK) {
+                return false;
+            }
+            srand(seed);
+        }
+        auto &usbSrvClient = UsbSrvClient::GetInstance();
+        std::vector<UsbSerialPort> devList;
+        devList.clear;
+        if (data == nullptr || size < sizeof(UsbSerialPort)) {
             return false;
         }
-        srand(seed);
+        int32_t ret = usbSrvClient.SerialGetPortList(devList);
+        if (ret == UEC_OK) {
+            return false;
+        }
+        return true;
     }
-    auto &usbSrvClient = UsbSrvClient::GetInstance();
-    std::vector<UsbSerialPort> devList;
-    devList.clear();
-    int32_t ret = usbSrvClient.SerialGetPortList(devList);
-    if (ret == USB::UEC_OK) {
-        return false;
-    }
-    return true;
 }
-} // SERIAL
-} // OHOS
+}
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
-    OHOS::SERIAL::UsbMgrSerialGetPortListFuzzTest(data, size);
+    OHOS::USB::UsbMgrSerialGetPortListFuzzTest(data, size);
     return 0;
 }
 

@@ -15,36 +15,30 @@
 
 #include "usbmgrserialread_fuzzer.h"
 
-#include <memory>
 #include "usb_srv_client.h"
-#include "v1_0/serial_types.h"
+#include "usb_errors.h"
 
-namespace {
-constexpr int32_t OK = 0;
-constexpr int32_t MAX_MEMORY = 8192;
-}
-using OHOS::USB::UsbSrvClient;
 namespace OHOS {
-namespace SERIAL {
-
-bool UsbMgrSerialReadFuzzTest(const uint8_t* data, size_t size)
-{
-    if (data == nullptr || size < sizeof(int32_t) + sizeof(uint32_t) + sizeof(size_t)) {
-        return false;
+namespace USB {
+    bool UsbMgrSerialReadFuzzTest(const uint8_t* data, size_t size)
+    {
+        auto &usbSrvClient = UsbSrvClient::GetInstance();
+        if (data == nullptr || size < sizeof(int32_t)) {
+            return false;
+        }
+        uint32_t bufferSize = 0;
+        uint32_t actualSize = 0;
+        uint32_t timeout = 0;
+        std::vector<uint_8> = buf;
+        int32_t ret = usbSrvClient.SerialRead(*reinterpret_cast<const int32_t*>(data), buf,
+            bufferSize, actualSize, timeout);
+        if (ret == UEC_OK) {
+            return false;
+        }
+        return true;
     }
-    auto &usbSrvClient = UsbSrvClient::GetInstance();
-    const int32_t portId = *reinterpret_cast<const int32_t *>(data);
-    const uint32_t timeout = *reinterpret_cast<const uint32_t *>(data + sizeof(int32_t));
-    const uint32_t readSize = *reinterpret_cast<const size_t *>(data + sizeof(int32_t) + sizeof(uint32_t));
-    std::vector<uint8_t> bufferData;
-    uint32_t actualLen = 0;
-    if (usbSrvClient.SerialRead(portId, bufferData, readSize, actualLen, timeout) != OK) {
-        return false;
-    }
-    return true;
 }
-} // SERIAL
-} // OHOS
+}
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)

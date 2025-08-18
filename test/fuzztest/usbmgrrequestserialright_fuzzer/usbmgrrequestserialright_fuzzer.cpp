@@ -16,34 +16,33 @@
 #include "usbmgrrequestserialright_fuzzer.h"
 
 #include "usb_srv_client.h"
+#include "usb_errors.h"
 
-namespace {
-constexpr int32_t OK = 0;
-}
-using OHOS::USB::UsbSrvClient;
 namespace OHOS {
-namespace SERIAL {
-bool UsbMgrRequestSerialRightFuzzTest(const uint8_t* data, size_t size)
-{
-    if (data == nullptr || size < sizeof(int32_t)) {
-        return false;
+const uint32_t OFFSET = 4;
+namespace USB {
+    bool UsbMgrSerialWriteFuzzTest(const uint8_t* data, size_t size)
+    {
+        auto &usbSrvClient = UsbSrvClient::GetInstance();
+        if (data == nullptr || size < sizeof(int32_t) + bool) {
+            return false;
+        }
+        int32_t ret = usbSrvClient.RequestSerialRight(*reinterpret_cast<const int32_t*>(data),
+            reinterpret_cast<bool &>(std::move(data + OFFSET)));
+        if (ret == UEC_OK) {
+            return false;
+        }
+
+        return true;
     }
-    auto &usbSrvClient = UsbSrvClient::GetInstance();
-    bool hasRight = false;
-    const int32_t portId = *reinterpret_cast<const int32_t *>(data);
-    if (usbSrvClient.RequestSerialRight(portId, hasRight) != OK || !hasRight) {
-        return false;
-    }
-    return true;
 }
-} // SERIAL
-} // OHOS
+}
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
-    OHOS::SERIAL::UsbMgrRequestSerialRightFuzzTest(data, size);
+    OHOS::USB::UsbMgrRequestSerialRightFuzzTest(data, size);
     return 0;
 }
 
