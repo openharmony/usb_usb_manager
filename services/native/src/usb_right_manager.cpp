@@ -151,8 +151,8 @@ int32_t UsbRightManager::Init()
 #ifdef USB_MANAGER_FEATURE_DEVICE
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_DATA_SHARE_READY);
     /* subscribe Physic plug/unplug */
-    matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_REMOVED);
-    matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_STOPPED);
+    matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_POWER_CONNECTED);
+    matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_POWER_DISCONNECTED);
 
 #endif // USB_MANAGER_FEATURE_DEVICE
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
