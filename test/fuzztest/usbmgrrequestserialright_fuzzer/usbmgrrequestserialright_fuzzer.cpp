@@ -24,7 +24,7 @@ namespace USB {
     bool UsbMgrSerialWriteFuzzTest(const uint8_t* data, size_t size)
     {
         auto &usbSrvClient = UsbSrvClient::GetInstance();
-        if (data == nullptr || size < sizeof(int32_t) + bool) {
+        if (data == nullptr || size < sizeof(int32_t) + sizeof(bool)) {
             return false;
         }
         int32_t ret = usbSrvClient.RequestSerialRight(*reinterpret_cast<const int32_t*>(data),
