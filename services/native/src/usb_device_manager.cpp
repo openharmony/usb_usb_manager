@@ -338,7 +338,6 @@ void UsbDeviceManager::ProcessStatus(int32_t status, bool &curConnect)
 void UsbDeviceManager::SetPhyConnectState(bool phyConnect)
 {
     phyConnect_ = phyConnect;
-    return;
 }
 
 #ifdef USB_MANAGER_V2_0
