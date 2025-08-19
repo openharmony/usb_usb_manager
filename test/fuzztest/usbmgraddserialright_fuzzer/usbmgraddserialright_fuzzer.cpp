@@ -23,7 +23,7 @@ namespace USB {
     bool UsbMgrAddSerialRightFuzzTest(const uint8_t* data, size_t size)
     {
         auto &usbSrvClient = UsbSrvClient::GetInstance();
-        if (data == nullptr || size < sizeof(int32_t) + sizeof(uint32_t)) {
+        if (data == nullptr || size < sizeof(uint32_t) + sizeof(int32_t)) {
             return false;
         }
         int32_t ret = usbSrvClient.AddSerialRight(*reinterpret_cast<const uint32_t *>(data),

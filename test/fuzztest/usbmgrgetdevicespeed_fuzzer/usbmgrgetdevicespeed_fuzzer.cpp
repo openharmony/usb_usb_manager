@@ -26,6 +26,14 @@ namespace USB {
             USB_HILOGE(MODULE_USB_SERVICE, "data size is insufficient!");
             return false;
         }
+        unsigned seed = 0;
+        if (size >= sizeof(unsigned)) {
+            errno_t ret = memcpy_s(&seed, sizeof(unsigned), data, sizeof(unsigned));
+            if (ret != USB::UEC_OK) {
+                return false;
+            }
+            srand(seed);
+        }
         std::vector<UsbDevice> devList;
         auto &usbSrvClient = UsbSrvClient::GetInstance();
         auto ret = usbSrvClient.GetDevices(devList);
@@ -33,7 +41,6 @@ namespace USB {
             USB_HILOGE(MODULE_USB_SERVICE, "get devices failed ret=%{public}d", ret);
             return false;
         }
-
         USBDevicePipe pipe;
         UsbDevice device = devList.front();
         usbSrvClient.RequestRight(device.GetName());

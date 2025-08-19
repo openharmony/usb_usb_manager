@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#ifndef USBMGRGETDEVICESPEED_FUZZER_H
-#define USBMGRGETDEVICESPEED_FUZZER_H
+#ifndef USBMGRGETINTERFACESTATUS_FUZZER_H
+#define USBMGRGETINTERFACESTATUS_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "usbmgrgetdevicespeed_fuzzer"
+#define FUZZ_PROJECT_NAME "usbmgrgetinterfacestatus_fuzzer"
 
-#endif // USBMGRGETDEVICESPEED_FUZZER_H
+#endif // USBMGRGETINTERFACESTATUS_FUZZER_H

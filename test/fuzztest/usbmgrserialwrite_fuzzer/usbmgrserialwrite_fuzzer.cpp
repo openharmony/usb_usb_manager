@@ -16,38 +16,36 @@
 #include "usbmgrserialwrite_fuzzer.h"
 
 #include "usb_srv_client.h"
-#include "v1_0/serial_types.h"
+#include "usb_errors.h"
 
-namespace {
-constexpr int32_t OK = 0;
-}
-using OHOS::USB::UsbSrvClient;
 namespace OHOS {
-namespace SERIAL {
-bool UsbMgrSerialWriteFuzzTest(const uint8_t* data, size_t size)
-{
-    if (data == nullptr || size < sizeof(int32_t) + sizeof(uint32_t)) {
-        return false;
-    }
-    auto &usbSrvClient = UsbSrvClient::GetInstance();
-    const int32_t portId = *reinterpret_cast<const int32_t *>(data);
-    const uint32_t timeout = *reinterpret_cast<const uint32_t *>(data + sizeof(int32_t));
-    std::vector<uint8_t> buffer(data, data + size);
-    uint32_t actualLen = 0;
-    if (usbSrvClient.SerialWrite(portId, buffer, size, actualLen, timeout) != OK) {
-        return false;
-    }
+namespace USB {
+    bool UsbMgrSerialWriteFuzzTest(const uint8_t* data, size_t size)
+    {
+        auto &usbSrvClient = UsbSrvClient::GetInstance();
+        if (data == nullptr || size < sizeof(int32_t)) {
+            return false;
+        }
+        uint32_t bufferSize = 0;
+        uint32_t actualSize = 0;
+        uint32_t timeout = 0;
+        std::vector<uint8_t> buf;
+        int32_t ret = usbSrvClient.SerialWrite(*reinterpret_cast<const int32_t*>(data), buf,
+            bufferSize, actualSize, timeout);
+        if (ret == UEC_OK) {
+            return false;
+        }
 
-    return true;
+        return true;
+    }
 }
-} // SERIAL
-} // OHOS
+}
 
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
-    OHOS::SERIAL::UsbMgrSerialWriteFuzzTest(data, size);
+    OHOS::USB::UsbMgrSerialWriteFuzzTest(data, size);
     return 0;
 }
 

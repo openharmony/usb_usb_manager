@@ -93,7 +93,7 @@ enum class UsbInterfaceCode {
 };
 const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
 static uint32_t g_usbInterfaceCode = 0;
-static constexpr uint32_t USB_INTERFACE_CODE_COUNT = 64;
+static constexpr uint32_t USB_INTERFACE_CODE_COUNT = 64;    // UsbInterfaceCode Count - 1
 
 void SetTestCaseNative(TokenInfoParams *infoInstance)
 {

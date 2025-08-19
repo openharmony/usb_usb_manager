@@ -12,9 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef USBMGRSUBMITTRANSFER_FUZZER_H
-#define USBMGRSUBMITTRANSFER_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "usbmgrsubmittransfer_fuzzer"
+#ifndef USBMGRSERIAL_FUZZER_H
+#define USBMGRSERIAL_FUZZER_H
+#include "accesstoken_kit.h"
+#include "hdf_log.h"
+#include "nativetoken_kit.h"
+#include "token_setproc.h"
+#include "usb_common_test.h"
+#include "usb_errors.h"
+#include "hilog_wrapper.h"
 
-#endif // USBMGRSUBMITTRANSFER_FUZZER_H
+#define FUZZ_PROJECT_NAME "usbmgrserial_fuzzer"
+
+#endif // USBMGRSERIAL_FUZZER_H
