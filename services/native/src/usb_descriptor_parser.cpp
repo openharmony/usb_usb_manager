@@ -62,6 +62,7 @@ int32_t UsbDescriptorParser::ParseDeviceDescriptor(const uint8_t *buffer, uint32
     dev.SetProductId(deviceDescriptor.idProduct);
     dev.SetClass(deviceDescriptor.bDeviceClass);
     dev.SetSubclass(deviceDescriptor.bDeviceSubClass);
+    dev.SetProtocol(deviceDescriptor.bDeviceProtocol);
     dev.SetDescConfigCount(deviceDescriptor.bNumConfigurations);
 
     dev.SetbMaxPacketSize0(deviceDescriptor.bMaxPacketSize0);
