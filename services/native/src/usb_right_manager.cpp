@@ -112,12 +112,12 @@ public:
             if (!usbService->InitSettingsDataHdcStatus()) {
                 USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: function is get failed!", __func__);
             }
-	} else if (wantAction == CommonEventSupport::COMMON_EVENT_POWER_CONNECTED) {
+        } else if (wantAction == CommonEventSupport::COMMON_EVENT_POWER_CONNECTED) {
             auto usbService = UsbService::GetGlobalInstance();
             if (usbService != nullptr) {
                 usbService->SetPhyConnect(true);
             }
-	} else if (wantAction == CommonEventSupport::COMMON_EVENT_POWER_DISCONNECTED) {
+        } else if (wantAction == CommonEventSupport::COMMON_EVENT_POWER_DISCONNECTED) {
             auto usbService = UsbService::GetGlobalInstance();
             if (usbService != nullptr) {
                 usbService->SetPhyConnect(false);
