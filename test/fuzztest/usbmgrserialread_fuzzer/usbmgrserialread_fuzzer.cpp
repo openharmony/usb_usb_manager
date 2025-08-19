@@ -29,7 +29,7 @@ namespace USB {
         uint32_t bufferSize = 0;
         uint32_t actualSize = 0;
         uint32_t timeout = 0;
-        std::vector<uint8_t> = buf;
+        std::vector<uint8_t> buf;
         int32_t ret = usbSrvClient.SerialRead(*reinterpret_cast<const int32_t*>(data), buf,
             bufferSize, actualSize, timeout);
         if (ret == UEC_OK) {
