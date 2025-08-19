@@ -117,7 +117,7 @@ public:
     int32_t BulkCancel(const HDI::Usb::V1_0::UsbDev &devInfo, const HDI::Usb::V1_0::UsbPipe &pipe);
 
 private:
-    bool PublishCommonEvent(const std::string &event, const UsbDevice &dev);
+    bool PublishCommonEvent(const std::string &event, UsbDevice &dev);
     void ReportHostPlugSysEvent(const std::string &event, const UsbDevice &dev);
     std::string ConcatenateToDescription(const UsbDeviceType &interfaceType, const std::string& str);
     int32_t GetDeviceDescription(int32_t baseClass, std::string &description, uint8_t &usage);

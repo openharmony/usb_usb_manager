@@ -42,6 +42,7 @@
 #include "usbd_transfer_callback_impl.h"
 #include "usb_napi_errors.h"
 #include "accesstoken_kit.h"
+#include "usb_connection_notifier.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::EventFwk;
@@ -102,6 +103,7 @@ constexpr int32_t PROTOCAL_INDEX = 2;
 constexpr int32_t STORAGE_BASE_CLASS = 8;
 constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
+constexpr int32_t BASE_CLASS_AUDIO = 0x01;
 constexpr int32_t BASE_CLASS_HUB = 0x09;
 constexpr int32_t RETRY_NUM = 6;
 constexpr uint32_t RETRY_INTERVAL = 50;
@@ -1137,7 +1139,19 @@ bool UsbHostManager::AddDevice(UsbDevice *dev)
     return true;
 }
 
-bool UsbHostManager::PublishCommonEvent(const std::string &event, const UsbDevice &dev)
+static bool IsAudioDevice(UsbDevice &dev)
+{
+    for (auto &config : dev.GetConfigs()) {
+        for (auto &intf : config.GetInterfaces()) {
+            if (intf.GetClass() == BASE_CLASS_AUDIO) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool UsbHostManager::PublishCommonEvent(const std::string &event, UsbDevice &dev)
 {
     Want want;
     want.SetAction(event);
@@ -1146,6 +1160,12 @@ bool UsbHostManager::PublishCommonEvent(const std::string &event, const UsbDevic
     CommonEventPublishInfo publishInfo;
     if (dev.GetClass() == BASE_CLASS_HUB) {
         publishInfo.SetSubscriberType(SubscriberType::SYSTEM_SUBSCRIBER_TYPE);
+    } else if (!IsAudioDevice(dev)) {
+        if (event == CommonEventSupport::COMMON_EVENT_USB_DEVICE_DETACHED) {
+            UsbConnectionNotifier::GetInstance()->CancelNotification();
+        } else {
+            UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_REVERSE_CHARGE);
+        }
     }
     USB_HILOGI(MODULE_SERVICE, "send %{public}s broadcast device:%{public}s", event.c_str(),
         dev.getJsonString().c_str());
