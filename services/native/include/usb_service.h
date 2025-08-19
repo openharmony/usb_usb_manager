@@ -162,7 +162,7 @@ public:
     int32_t UsbFunctionsFromString(const std::string &funcs, int32_t &funcResult) override;
     int32_t UsbFunctionsToString(int32_t funcs, std::string& funcResult) override;
     void UpdateDeviceState(int32_t status);
-
+    void SetPhyConnect(bool phyConnect);
     int32_t UserChangeProcess();
     int32_t GetAccessoryList(std::vector<USBAccessory> &accessList) override;
     int32_t OpenAccessory(const USBAccessory &access, int32_t &fd) override;

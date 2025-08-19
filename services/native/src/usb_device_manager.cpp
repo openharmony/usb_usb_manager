@@ -335,6 +335,11 @@ void UsbDeviceManager::ProcessStatus(int32_t status, bool &curConnect)
     }
 }
 
+void UsbDeviceManager::SetPhyConnectState(bool phyConnect)
+{
+    phyConnect_ = phyConnect;
+}
+
 #ifdef USB_MANAGER_V2_0
 void UsbDeviceManager::HandleEvent(int32_t status)
 {
@@ -370,7 +375,12 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             ProcessFuncChange(connected_, currentFunctions_);
             return;
         };
-        delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, DELAY_DISCONN_INTERVAL, true);
+        int32_t delayTime = DELAY_DISCONN_INTERVAL;
+        if (phyConnect_) {
+            delayTime += DELAY_DISCONN_INTERVAL;
+            USB_HILOGI(MODULE_USB_SERVICE, "Physical is plug");
+        }
+        delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, delayTime, true);
     } else {
         USB_HILOGI(MODULE_USB_SERVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
     }
@@ -410,7 +420,12 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             ProcessFuncChange(connected_, currentFunctions_);
             return;
         };
-        delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, DELAY_DISCONN_INTERVAL, true);
+        int32_t delayTime = DELAY_DISCONN_INTERVAL;
+        if (phyConnect_) {
+            delayTime += DELAY_DISCONN_INTERVAL;
+            USB_HILOGI(MODULE_USB_SERVICE, "Physical is plug");
+        }
+        delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, delayTime, true);
     } else {
         USB_HILOGI(MODULE_USB_SERVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
     }
