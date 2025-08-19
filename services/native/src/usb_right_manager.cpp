@@ -114,8 +114,9 @@ public:
             }
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_POWER_CONNECTED ||
                    wantAction == CommonEventSupport::COMMON_EVENT_POWER_DISCONNECTED) {
-           auto usbService = UsbService::GetGlobalInstance();
-           if (usbService != nullptr) {
+            USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: COMMON_EVENT_POWER_CONNECTED action is start!", __func__);
+            auto usbService = UsbService::GetGlobalInstance();
+            if (usbService != nullptr) {
                 bool connected = (wantAction == CommonEventSupport::COMMON_EVENT_POWER_CONNECTED);
                 usbService->SetPhyConnect(connected);
             }
