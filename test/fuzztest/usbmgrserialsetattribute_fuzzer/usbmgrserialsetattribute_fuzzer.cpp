@@ -29,7 +29,7 @@ namespace USB {
         }
         int32_t ret = usbSrvClient.SerialSetAttribute(*reinterpret_cast<const int32_t*>(data),
             reinterpret_cast<UsbSerialAttr &>(std::move(data + OFFSET)));
-        if (ret = UEC_OK) {
+        if (ret == UEC_OK) {
             return false;
         }
         return true;

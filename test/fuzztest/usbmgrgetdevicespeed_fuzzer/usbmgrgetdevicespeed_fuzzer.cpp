@@ -33,7 +33,14 @@ namespace USB {
             USB_HILOGE(MODULE_USB_SERVICE, "get devices failed ret=%{public}d", ret);
             return false;
         }
-
+        unsigned seed = 0;
+        if (size >= sizeof(unsigned)) {
+            errno_t ret = memcpy_s(&seed, sizeof(unsigned), data, sizeof(unsigned));
+            if (ret != USB::UEC_OK) {
+                return false;
+            }
+            srand(seed);
+        }
         USBDevicePipe pipe;
         UsbDevice device = devList.front();
         usbSrvClient.RequestRight(device.GetName());
