@@ -1598,6 +1598,7 @@ void UsbService::SetPhyConnect(bool phyConnect)
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: physic connect state is %{public}d", __func__, phyConnect);
     return;
 }
+
 int32_t UsbService::GetCurrentFunctions(int32_t &functions)
 {
     if (usbRightManager_ == nullptr) {
