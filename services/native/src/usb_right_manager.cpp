@@ -117,8 +117,7 @@ public:
             USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: COMMON_EVENT_POWER_CONNECTED action is start!", __func__);
             auto usbService = UsbService::GetGlobalInstance();
             if (usbService != nullptr) {
-                bool connected = (wantAction == CommonEventSupport::COMMON_EVENT_POWER_CONNECTED);
-                usbService->SetPhyConnect(connected);
+                usbService->SetPhyConnect(wantAction == CommonEventSupport::COMMON_EVENT_POWER_CONNECTED);
             }
 #endif // USB_MANAGER_FEATURE_DEVICE
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
@@ -151,8 +150,8 @@ int32_t UsbRightManager::Init()
     /* subscribe Physic plug/unplug */
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_POWER_CONNECTED);
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_POWER_DISCONNECTED);
-
 #endif // USB_MANAGER_FEATURE_DEVICE
+
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
     CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     std::shared_ptr<RightSubscriber> subscriber = std::make_shared<RightSubscriber>(subscriberInfo);
