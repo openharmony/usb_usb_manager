@@ -119,7 +119,7 @@ HWTEST_F(UsbManageDevicePolicyTest, ManageDevicePolicy003, TestSize.Level1)
     ASSERT_EQ(ret, 0);
     ASSERT_TRUE(!devList.empty());
     UsbDeviceId devId = {0, 0};
-    whilteList.emplace_back(devId);
+    whiteList.emplace_back(devId);
     ret = client.ManageDevicePolicy(whiteList);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageDevicePolicy003 : ManageDevicePolicy");
@@ -142,7 +142,7 @@ HWTEST_F(UsbManageDevicePolicyTest, ManageDevicePolicy004, TestSize.Level1)
     UsbDeviceId devId;
     devId.productId = devList.at(0).GetProductId();
     devId.vendorId = devList.at(0).GetVendorId();
-    whilteList.emplace_back(devId);
+    whiteList.emplace_back(devId);
     ret = client.ManageDevicePolicy(whiteList);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageDevicePolicy004 : ManageDevicePolicy");
@@ -164,7 +164,7 @@ HWTEST_F(UsbManageDevicePolicyTest, ManageDevicePolicy005, TestSize.Level1)
     ASSERT_EQ(ret, 0);
     ASSERT_TRUE(!devList.empty());
     UsbDeviceId devId = {0, 0};
-    whilteList.emplace_back(devId);
+    whiteList.emplace_back(devId);
     ret = client.ManageDevicePolicy(whiteList);
     ASSERT_NE(ret, 0);
     UsbCommonTest::GrantPermissionSysNative();
@@ -189,7 +189,7 @@ HWTEST_F(UsbManageDevicePolicyTest, ManageDevicePolicy006, TestSize.Level1)
     UsbDeviceId devId;
     devId.productId = devList.at(0).GetProductId();
     devId.vendorId = devList.at(0).GetVendorId();
-    whilteList.emplace_back(devId);
+    whiteList.emplace_back(devId);
     ret = client.ManageDevicePolicy(whiteList);
     ASSERT_NE(ret, 0);
     UsbCommonTest::GrantPermissionSysNative();
