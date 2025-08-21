@@ -525,7 +525,7 @@ int32_t UsbSrvClient::ManageDevice(int32_t vendorId, int32_t productId, bool dis
     return ret;
 }
 
-void UsbSrvClient::UsbDeviceIdChange(const std::<UsbDeviceId> &deviceIdList,
+void UsbSrvClient::UsbDeviceIdChange(const std::vector<UsbDeviceId> &deviceIdList,
     std::vector<UsbDeviceIdInfo> &deviceIdInfoList)
 {
     for (auto &deviceId : deviceIdList) {
