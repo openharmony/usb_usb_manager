@@ -132,7 +132,8 @@ private:
     void UsbCtrlTransferChange(const HDI::Usb::V1_0::UsbCtrlTransfer &param, UsbCtlSetUp &ctlSetup);
     void UsbCtrlTransferChange(const HDI::Usb::V1_2::UsbCtrlTransferParams &param, UsbCtlSetUp &ctlSetup);
     void UsbTransInfoChange(const HDI::Usb::V1_2::USBTransferInfo &param, UsbTransInfo &info);
-    void UsbDeviceIdChange(const std::vector<UsbDeviceId> &deviceIdList, std::vector<UsbDeviceIdInfo> &deviceIdInfoList);
+    void UsbDeviceIdChange(const std::vector<UsbDeviceId> &deviceIdList,
+        std::vector<UsbDeviceIdInfo> &deviceIdInfoList);
     class UsbSrvDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         UsbSrvDeathRecipient() = default;
