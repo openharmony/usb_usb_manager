@@ -1433,7 +1433,7 @@ int32_t UsbHostManager::UsbDeviceAuthorize(
     USBConfig config;
     uint8_t configIndex = 0;
     if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex) || (configIndex < 1) ||
-        it->second->GetConfig(static_cast<uint8_t>(configIndex) - 1, config)) {
+        iterDev->second->GetConfig(static_cast<uint8_t>(configIndex) - 1, config)) {
             USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
             return UEC_SERVICE_INVALID_VALUE;
     }
@@ -1446,7 +1446,7 @@ int32_t UsbHostManager::UsbDeviceAuthorize(
     if (!authorized) {
         ReportManageDeviceInfo(operationType, iterDev->second, nullptr, false);
     }
-    if (authorizedStatus != NEW_ARRIVED) { // skip for newly arrived device here (send in AddDevice if not disabled)
+    if (authorizeStatus != NEW_ARRIVED) { // skip for newly arrived device here (send in AddDevice if not disabled)
         auto eventType = authorized? CommonEventSupport::COMMON_EVENT_USB_DEVICE_ATTACHED :
             CommonEventSupport::COMMON_EVENT_USB_DEVICE_DETACHED;
         auto isSuccess = PublishCommonEvent(eventType, *iterDev->second);
@@ -1793,7 +1793,7 @@ int32_t UsbHostManager::ManageGlobalInterfaceImpl(bool disable)
         ret = UsbDeviceAuthorize(it->second->GetBusNum(), it->second->GetDevAddr(), !disable, "GlobalType");
         USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceAuthorize ret = %{public}d", ret);
 
-        if (Close(dev.busNum, dev.devAddr) != UEC_OK) {
+        if (Close(it->second->GetBusNum(), it->second->GetDevAddr()) != UEC_OK) {
             USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl CloseDevice fail");
         }
     }
@@ -1816,7 +1816,7 @@ int32_t UsbHostManager::ManageDeviceImpl(int32_t vendorId, int32_t productId, bo
             }
             ret = UsbDeviceAuthorize(it->second->GetBusNum(), it->second->GetDevAddr(), !disable, "DeviceType");
             USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceAuthorize ret = %{public}d", ret);
-            if (Close(dev.busNum, dev.devAddr) != UEC_OK) {
+            if (Close(it->second->GetBusNum(), it->second->GetDevAddr()) != UEC_OK) {
                 USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceImpl Close fail");
             }
         }
