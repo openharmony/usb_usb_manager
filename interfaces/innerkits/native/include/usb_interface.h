@@ -255,6 +255,16 @@ public:
         return this->iInterface_;
     }
 
+    bool GetAuthorizeStatus()
+    {
+        return authorized_;
+    }
+
+    void SetAuthorizeStatus(bool authorized)
+    {
+        authorized_ = authorized;
+    }
+
     const std::string getJsonString() const
     {
         cJSON* interface = cJSON_CreateObject();
@@ -300,6 +310,7 @@ private:
     std::string name_;
     std::vector<USBEndpoint> endpoints_;
     uint8_t iInterface_ = UINT8_MAX;
+    bool authorized_ = true;
 };
 } // namespace USB
 } // namespace OHOS

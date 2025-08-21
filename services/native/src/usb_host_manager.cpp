@@ -380,6 +380,11 @@ int32_t UsbHostManager::ManageDevice(int32_t vendorId, int32_t productId, bool d
     return ManageDeviceImpl(vendorId, productId, disable);
 }
 
+int32_t UsbHostManager::ManageDevicePolicy(std::vector<UsbDeviceId> &whiteList)
+{
+    return ExecuteManageDevicePolicy(whiteList);
+}
+
 int32_t UsbHostManager::ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
     return ExecuteManageInterfaceType(disableType, disable);
@@ -451,7 +456,8 @@ int32_t UsbHostManager::GetDevices(std::vector<UsbDevice> &deviceList)
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
     bool isSystemAppOrSa = usbRightManager_->IsSystemAppOrSa();
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
-        if (it->second->GetClass() == BASE_CLASS_HUB && !isSystemAppOrSa) {
+        if ((it->second->GetClass() == BASE_CLASS_HUB && !isSystemAppOrSa) ||
+            it->second->GetAuthorizeStatus() != ENABLED) {
             continue;
         }
         auto dev = UsbDevice(*it->second);
@@ -1094,9 +1100,12 @@ bool UsbHostManager::DelDevice(uint8_t busNum, uint8_t devNum)
         return false;
     }
 
-    auto isSuccess = PublishCommonEvent(CommonEventSupport::COMMON_EVENT_USB_DEVICE_DETACHED, *devOld);
-    if (!isSuccess) {
-        USB_HILOGW(MODULE_SERVICE, "send device attached broadcast failed");
+    if (devOld->GetAuthorizeStatus() == ENABLED) {
+        // if enabled, then broadcast common event; o.w. dev is already unseen
+        auto isSuccess = PublishCommonEvent(CommonEventSupport::COMMON_EVENT_USB_DEVICE_DETACHED, *devOld);
+        if (!isSuccess) {
+            USB_HILOGW(MODULE_SERVICE, "send device attached broadcast failed");
+        }
     }
 
     delete devOld;
@@ -1132,9 +1141,19 @@ bool UsbHostManager::AddDevice(UsbDevice *dev)
     USB_HILOGI(MODULE_SERVICE,
         "device:%{public}s bus:%{public}hhu dev:%{public}hhu insert, cur device size: %{public}zu",
         name.c_str(), busNum, devNum, devices_.size());
-    auto isSuccess = PublishCommonEvent(CommonEventSupport::COMMON_EVENT_USB_DEVICE_ATTACHED, *dev);
-    if (!isSuccess) {
-        USB_HILOGW(MODULE_SERVICE, "send device attached broadcast failed");
+
+    // will update disable status in ExecuteStrategy
+    dev->SetAuthorizeStatus(NEW_ARRIVED);
+    ExecuteStrategy(dev);
+
+    if (dev->GetAuthorizeStatus() == DISABLED) {
+        USB_HILOGI(MODULE_SERVICE, "device is disallowed by EDM, skip common event broadcast");
+    } else {
+        dev->SetAuthorizeStatus(ENABLED);
+        auto isSuccess = PublishCommonEvent(CommonEventSupport::COMMON_EVENT_USB_DEVICE_ATTACHED, *dev);
+        if (!isSuccess) {
+            USB_HILOGW(MODULE_SERVICE, "send device attached broadcast failed");
+        }
     }
     return true;
 }
@@ -1393,6 +1412,62 @@ bool UsbHostManager::IsEdmEnabled()
     return edmParaValue == "true";
 }
 
+int32_t UsbHostManager::UsbDeviceAuthorize(
+    uint8_t busNum, uint8_t devAddr, bool authorized, const std::string &operationType)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceAuthorize: set authorized=%{public}d, operationType=%{public}s",
+        int(authorized), operationType.c_str());
+    std::string name = std::to_string(busNum) + "-" + std::to_string(devAddr);
+    auto iterDev = devices_.find(name);
+    if (iterDev == devices_.end()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceAuthorize: dev %{public}s not found", name.c_str());
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    auto authorizeStatus = iterDev->second->GetAuthorizeStatus();
+    if ((authorized && authorizeStatus != DISABLED) || (!authorized && authorizeStatus == DISABLED)) {
+        USB_HILOGI(MODULE_USB_SERVICE, "no need to change dev %{public}s authorize state", name.c_str());
+        return UEC_OK;
+    }
+
+    UsbDev dev = {busNum, devAddr};
+    USBConfig config;
+    uint8_t configIndex = 0;
+    if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex) || (configIndex < 1) ||
+        it->second->GetConfig(static_cast<uint8_t>(configIndex) - 1, config)) {
+            USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
+            return UEC_SERVICE_INVALID_VALUE;
+    }
+    for (auto &interface : config.GetInterfaces()) {
+        interface.SetAuthorizeStatus(authorized);
+        (void)ManageInterface(dev, interface.GetId(), !authorized);
+        std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
+    }
+
+    if (!authorized) {
+        ReportManageDeviceInfo(operationType, iterDev->second, nullptr, false);
+    }
+    if (authorizedStatus != NEW_ARRIVED) { // skip for newly arrived device here (send in AddDevice if not disabled)
+        auto eventType = authorized? CommonEventSupport::COMMON_EVENT_USB_DEVICE_ATTACHED :
+            CommonEventSupport::COMMON_EVENT_USB_DEVICE_DETACHED;
+        auto isSuccess = PublishCommonEvent(eventType, *iterDev->second);
+        if (!isSuccess) {
+            USB_HILOGW(MODULE_SERVICE, "send device attached/detached broadcast failed");
+        }
+    }
+    iterDev->second->SetAuthorizeStatus(authorized? ENABLED : DISABLED); // authorized==true -> ENABLED
+    std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
+    return UEC_OK;
+}
+
+int32_t UsbHostManager::UsbInterfaceAuthorize(
+    const HDI::Usb::V1_0::UsbDev &dev, uint8_t configId, uint8_t interfaceId, bool authorized)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbInterfaceAuthorize: set authorized=%{public}d", int(authorized));
+    auto ret = ManageInterface(dev, interfaceId, !authorized);
+    std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
+    return ret;
+}
+
 int32_t UsbHostManager::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whiteList)
 {
     int32_t ret = UEC_INTERFACE_NO_MEMORY;
@@ -1405,7 +1480,7 @@ int32_t UsbHostManager::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whit
                 break;
             }
         }
-        if (inWhiteList) {
+        if (inWhiteList || whiteList.empty()) {
             ret = ManageDeviceImpl(it->second->GetVendorId(), it->second->GetProductId(), false);
         } else {
             ret = ManageDeviceImpl(it->second->GetVendorId(), it->second->GetProductId(), true);
@@ -1710,32 +1785,14 @@ int32_t UsbHostManager::ManageGlobalInterfaceImpl(bool disable)
         if (it->second->GetClass() == BASE_CLASS_HUB) {
             continue;
         }
-        UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
-        uint8_t configIndex = 0;
-        if (OpenDevice(dev.busNum, dev.devAddr) != UEC_OK) {
-            USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl OpenDevice failed");
+        int32_t ret = OpenDevice(it->second->GetBusNum(), it->second->GetDevAddr());
+        if (ret != UEC_OK) {
+            USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl open fail ret = %{public}d", ret);
             continue;
         }
-        if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex) || (configIndex < 1)) {
-            USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
-            Close(dev.busNum, dev.devAddr);
-            continue;
-        }
-        USBConfig configs;
-        if (it->second->GetConfig(static_cast<uint8_t>(configIndex) - 1, configs)) {
-            USB_HILOGW(MODULE_USB_SERVICE, "get device config info failed.");
-            Close(dev.busNum, dev.devAddr);
-            continue;
-        }
+        ret = UsbDeviceAuthorize(it->second->GetBusNum(), it->second->GetDevAddr(), !disable, "GlobalType");
+        USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceAuthorize ret = %{public}d", ret);
 
-        std::vector<UsbInterface> interfaces = configs.GetInterfaces();
-        for (uint32_t i = 0; i < interfaces.size(); i++) {
-            ManageInterface(dev, interfaces[i].GetId(), disable);
-            std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
-        }
-        if (disable) {
-            ReportManageDeviceInfo("GlobalType", it->second, nullptr, false);
-        }
         if (Close(dev.busNum, dev.devAddr) != UEC_OK) {
             USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl CloseDevice fail");
         }
@@ -1752,31 +1809,13 @@ int32_t UsbHostManager::ManageDeviceImpl(int32_t vendorId, int32_t productId, bo
             continue;
         }
         if ((it->second->GetVendorId() == vendorId) && (it->second->GetProductId() == productId)) {
-            UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
-            uint8_t configIndex = 0;
-            if (OpenDevice(dev.busNum, dev.devAddr) != UEC_OK) {
-                USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceImpl open fail");
-                continue;
+            int32_t ret = OpenDevice(it->second->GetBusNum(), it->second->GetDevAddr());
+            if (ret != UEC_OK) {
+                USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceImpl open fail ret = %{public}d", ret);
+                return ret;
             }
-            if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex) || (configIndex < 1)) {
-                USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
-                Close(dev.busNum, dev.devAddr);
-                continue;
-            }
-            USBConfig configs;
-            if (it->second->GetConfig(static_cast<uint8_t>(configIndex) - 1, configs)) {
-                USB_HILOGW(MODULE_USB_SERVICE, "get device config info failed.");
-                Close(dev.busNum, dev.devAddr);
-                continue;
-            }
-            std::vector<UsbInterface> interfaces = configs.GetInterfaces();
-            for (uint32_t i = 0; i < interfaces.size(); i++) {
-                ManageInterface(dev, interfaces[i].GetId(), disable);
-                std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
-            }
-            if (disable) {
-                ReportManageDeviceInfo("DeviceType", it->second, nullptr, false);
-            }
+            ret = UsbDeviceAuthorize(it->second->GetBusNum(), it->second->GetDevAddr(), !disable, "DeviceType");
+            USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceAuthorize ret = %{public}d", ret);
             if (Close(dev.busNum, dev.devAddr) != UEC_OK) {
                 USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceImpl Close fail");
             }
@@ -1808,20 +1847,21 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
             continue;
         }
         std::vector<UsbInterface> interfaces = configs.GetInterfaces();
-
         for (uint32_t i = 0; i < interfaces.size(); i++) {
             int32_t ret = RANDOM_VALUE_INDICATE;
+            bool last_authorize_status = interfaces[i].GetAuthorizeStatus();
             // 0 indicate base class, 1 indicate subclass, 2 indicate protocal. -1 indicate any value.
             if ((interfaces[i].GetClass() == iterInterface->second[BASECLASS_INDEX]) && (interfaces[i].GetSubClass() ==
                 iterInterface->second[SUBCLASS_INDEX] || iterInterface->second[SUBCLASS_INDEX] ==
                 RANDOM_VALUE_INDICATE) && (interfaces[i].GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||
                 iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
-                    ManageInterface(dev, interfaces[i].GetId(), disable);
                     USB_HILOGI(MODULE_USB_SERVICE, "size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
                         devices_.size(), static_cast<int32_t>(interfaceType), disable);
-                    std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
+                    ret = UsbInterfaceAuthorize(dev, configs.GetId(), interfaces[i].GetId(), !disable);
+                    interfaces[i].SetAuthorizeStatus(!disable);
+                    USB_HILOGI(MODULE_USB_SERVICE, "UsbInterfaceAuthorize ret = %{public}d", ret);
             }
-            if (disable && ret == UEC_OK) {
+            if (disable && ret == UEC_OK && last_authorize_status == true) {
                 ReportManageDeviceInfo("InterfaceType", it->second, &interfaces[i], true);
             }
         }
@@ -1832,6 +1872,7 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
 int32_t UsbHostManager::ManageDeviceTypeImpl(InterfaceType interfaceType, bool disable)
 {
     auto iterInterface = d_typeMap.find(interfaceType);
+    int32_t ret;
     if (iterInterface == d_typeMap.end()) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager::not find interface type");
         return UEC_SERVICE_INVALID_VALUE;
@@ -1841,13 +1882,10 @@ int32_t UsbHostManager::ManageDeviceTypeImpl(InterfaceType interfaceType, bool d
             iterInterface->second[SUBCLASS_INDEX] || iterInterface->second[SUBCLASS_INDEX] ==
             RANDOM_VALUE_INDICATE) && (it->second->GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||
             iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
-                ManageDeviceImpl(it->second->GetVendorId(), it->second->GetProductId(), disable);
                 USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
                     devices_.size(), static_cast<int32_t>(interfaceType), disable);
-                std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
-        }
-        if (disable) {
-            ReportManageDeviceInfo("InterfaceType", it->second, nullptr, false);
+                ret = UsbDeviceAuthorize(it->second->GetBusNum(), it->second->GetDevAddr(), !disable, "InterfaceType");
+                USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceAuthorize ret = %{public}d", ret);
         }
     }
     return UEC_OK;

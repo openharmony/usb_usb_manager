@@ -99,6 +99,7 @@ public:
     int32_t AddAccessRight(const std::string &tokenId, const std::string &deviceName);
     int32_t ManageGlobalInterface(bool disable);
     int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable);
+    int32_t ManageDevicePolicy(std::vector<UsbDeviceId> &whiteList);
     int32_t ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable);
     int32_t ClearHalt(USBDevicePipe &pipe, const USBEndpoint &endpoint);
     int32_t AddAccessoryRight(const uint32_t tokenId, const USBAccessory &access);
@@ -131,6 +132,7 @@ private:
     void UsbCtrlTransferChange(const HDI::Usb::V1_0::UsbCtrlTransfer &param, UsbCtlSetUp &ctlSetup);
     void UsbCtrlTransferChange(const HDI::Usb::V1_2::UsbCtrlTransferParams &param, UsbCtlSetUp &ctlSetup);
     void UsbTransInfoChange(const HDI::Usb::V1_2::USBTransferInfo &param, UsbTransInfo &info);
+    void UsbDeviceIdChange(const std::<UsbDeviceId> &deviceIdList, std::vector<UsbDeviceIdInfo> &deviceIdInfoList);
     class UsbSrvDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         UsbSrvDeathRecipient() = default;
