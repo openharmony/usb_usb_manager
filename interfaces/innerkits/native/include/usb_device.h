@@ -35,7 +35,7 @@ enum AuthorizeStatus {
     DISABLED = 0,
     ENABLED = 1,
     NEW_ARRIVED = 2,
-}
+};
 
 class UsbDevice : public Parcelable {
 public:
