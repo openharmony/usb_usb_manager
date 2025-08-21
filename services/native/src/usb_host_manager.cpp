@@ -1408,13 +1408,8 @@ int32_t UsbHostManager::ExecuteManageInterfaceType(const std::vector<UsbDeviceTy
             USB_HILOGW(MODULE_USB_SERVICE, "ExecuteManageInterfaceType open fail ret = %{public}d", ret);
         }
     }
-    for (const auto &dev : disableType) {
-        if (!dev.isDeviceType) {
-            ExecuteManageDeviceType(disableType, disable, g_typeMap, false);
-        } else {
-            ExecuteManageDeviceType(disableType, disable, d_typeMap, true);
-        }
-    }
+    ExecuteManageDeviceType(disableType, disable, d_typeMap, true);
+    ExecuteManageDeviceType(disableType, disable, g_typeMap, false);
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         int32_t ret = Close(dev.busNum, dev.devAddr);
@@ -1816,8 +1811,8 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
 
 int32_t UsbHostManager::ManageDeviceTypeImpl(InterfaceType interfaceType, bool disable)
 {
-    auto iterInterface = g_typeMap.find(interfaceType);
-    if (iterInterface == g_typeMap.end()) {
+    auto iterInterface = d_typeMap.find(interfaceType);
+    if (iterInterface == d_typeMap.end()) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager::not find interface type");
         return UEC_SERVICE_INVALID_VALUE;
     }
