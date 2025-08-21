@@ -993,12 +993,24 @@ ohos_fuzztest("UsbMgrManageDevicePolicyFuzzTest") {
 
   external_deps = [
     "c_utils:utils",
+    "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_base",
+    "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libusb_proxy_2.0",
+    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
 
-  sources = [ "usbmgrmanagedevicepolicy_fuzzer/usbmgrmanagedevicepolicy_fuzzer.cpp" ]
+  sources = [
+    "../native/service_unittest/src/usb_common_test.cpp",
+    "usbmgrmanagedevicepolicy_fuzzer/usbmgrmanagedevicepolicy_fuzzer.cpp"
+  ]
 }
 ohos_fuzztest("UsbMgrManageManageInterfaceTypeFuzzTest") {
   module_out_path = module_output_path

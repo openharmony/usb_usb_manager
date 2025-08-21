@@ -35,8 +35,6 @@ using namespace std;
 using namespace OHOS::HDI::Usb::V1_0;
 using namespace OHOS::USB::Common;
 
-
-
 namespace OHOS {
 namespace USB {
 namespace ManageDevicePolicy {
@@ -58,7 +56,9 @@ void UsbManageDevicePolicyTest::SetUpTestCase(void)
     std::cout << "please connect device, press enter to continue" << std::endl;
     int32_t c;
     while ((c = getchar()) != '\n' && c != EOF) {
-        ;
+        if (c == '\n' || c == EOF) {
+            break;
+        }
     }
     USB_HILOGI(MODULE_USB_SERVICE, "Start UsbManageDevicePolicyTest");
 }

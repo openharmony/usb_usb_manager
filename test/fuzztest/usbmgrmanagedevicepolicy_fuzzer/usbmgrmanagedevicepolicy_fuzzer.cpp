@@ -16,10 +16,7 @@
 #include "usbmgrmanagedevicepolicy_fuzzer.h"
 #include "usb_srv_client.h"
 #include "usb_errors.h"
-
-namespace {
-    //const int32_t MAX_FUNC_NUM = 6;
-}
+#include "usb_common_test.h"
 
 namespace OHOS {
 constexpr int32_t OFFSET = 4;
@@ -27,6 +24,7 @@ constexpr size_t THRESHOLD = 10;
 namespace USB {
 bool UsbMgrManageDevicePolicyFuzzTest(const uint8_t* data, size_t size)
 {
+    Common::UsbCommonTest::GrantPermissionSysNative();
     if (data == nullptr || size < OFFSET + sizeof(int32_t)) {
         USB_HILOGE(MODULE_USB_SERVICE, "data size is insufficient!");
         return false;
