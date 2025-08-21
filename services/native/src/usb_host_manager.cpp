@@ -20,7 +20,7 @@
 #include <set>
 #include <thread>
 #include <ipc_skeleton.h>
-#include <codecvt>
+#include <iconv.h>
 
 #include "usb_host_manager.h"
 #include "common_event_data.h"
@@ -56,6 +56,9 @@ constexpr int32_t USAGE_IN_INTERFACE_CLASS = 0;
 constexpr uint8_t DES_USAGE_IN_INTERFACE = 0x02;
 constexpr int32_t BCD_HEX_DIGITS = 4;
 constexpr int LAST_FIVE = 5;
+constexpr int BOM_BYTE_COUNT = 2;
+constexpr int INVALID_RET = -1;
+constexpr int BYTES_PER_UTF8_CHAR = 4;
 std::map<int32_t, DeviceClassUsage> deviceUsageMap = {
     {0x00, {DeviceClassUsage(2, "Use class information in the Interface Descriptors")}},
     {0x01, {DeviceClassUsage(2, "Audio")}},
@@ -1315,24 +1318,39 @@ int32_t UsbHostManager::FillDevStrings(UsbDevice &dev)
     return UEC_OK;
 }
 
-static std::string Utf16leToUtf8(const uint8_t* utf16leBytes, size_t length)
+static std::string Utf16leToUtf8(char *utf16leBytes, size_t length)
 {
     if (utf16leBytes == nullptr || length % HALF) {
         USB_HILOGE(MODULE_USB_SERVICE, "Utf16leToUtf8: invalid length: %{public}zu", length);
         return " ";
     }
-    const char16_t* utf16leData = reinterpret_cast<const char16_t*>(utf16leBytes);
     size_t charCount = length / HALF;
-    size_t startIdx = 0;
     // check and skip BOM
-    if (charCount > 0 && utf16leData[0] == 0xFEFF) {
-        startIdx = 1;
+    if (charCount > 0 && utf16leBytes[0] == 0xFF && utf16leBytes[1] == 0xFE) {
         charCount--;
+        utf16leBytes += BOM_BYTE_COUNT;
+        length -= BOM_BYTE_COUNT;
     }
-
-    std::u16string utf16leStr(utf16leData + startIdx, charCount);
-    std::wstring_convert<std::codecvt_utf8_utf16<char16_t, 0x10FFFF, std::little_endian>, char16_t> converter;
-    return converter.to_bytes(utf16leStr);
+    if (charCount == 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "empty string");
+        return " ";
+    }
+    iconv_t cd = iconv_open("UTF-8", "UTF-16LE");
+    if (cd == reinterpret_cast<iconv_t>(INVALID_RET)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "iconv_open failed");
+        return " ";
+    }
+    std::vector<char> outbuf(charCount * BYTES_PER_UTF8_CHAR + 1, 0);
+    char *outptr = outbuf.data();
+    size_t outBytesLeft = outbuf.size();
+    size_t inBytesLeft = length;
+    size_t result = iconv(cd, &utf16leBytes, &inBytesLeft, &outptr, &outBytesLeft);
+    iconv_close(cd);
+    if (result == static_cast<size_t>(INVALID_RET)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "iconv failed: %{public}zu", result);
+        return " ";
+    }
+    return std::string(outbuf.data(), outptr - outbuf.data());
 }
 
 std::string UsbHostManager::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, uint8_t idx)
@@ -1369,7 +1387,7 @@ std::string UsbHostManager::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAd
         return strDesc;
     }
 
-    uint8_t *tbuf = new (std::nothrow) uint8_t[length - DESCRIPTOR_VALUE_START_OFFSET]();
+    char *tbuf = new (std::nothrow) char[length - DESCRIPTOR_VALUE_START_OFFSET]();
     if (tbuf == nullptr) {
         USB_HILOGI(MODULE_USB_SERVICE, "new failed");
         return strDesc;
@@ -1380,7 +1398,7 @@ std::string UsbHostManager::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAd
     }
 
     strDesc = Utf16leToUtf8(tbuf, length - DESCRIPTOR_VALUE_START_OFFSET);
-    USB_HILOGI(MODULE_USB_SERVICE, "getString idx:%{public}d length:%{public}zu, str: %{public}s",
+    USB_HILOGI(MODULE_USB_SERVICE, "getString idx: %{public}d length:%{public}zu, str: %{public}s",
         idx, strDesc.length(), strDesc.c_str());
     delete[] tbuf;
     return strDesc;
