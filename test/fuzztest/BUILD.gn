@@ -978,6 +978,28 @@ ohos_fuzztest("UsbMgrManageDeviceFuzzTest") {
 
   sources = [ "usbmgrmanagedevice_fuzzer/usbmgrmanagedevice_fuzzer.cpp" ]
 }
+ohos_fuzztest("UsbMgrManageDevicePolicyFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrmanagedevicepolicy_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_2.0",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  sources = [ "usbmgrmanagedevicepolicy_fuzzer/usbmgrmanagedevicepolicy_fuzzer.cpp" ]
+}
 ohos_fuzztest("UsbMgrManageManageInterfaceTypeFuzzTest") {
   module_out_path = module_output_path
 
@@ -1430,6 +1452,7 @@ group("fuzztest") {
       ":UsbMgrHasRightFuzzTest",
       ":UsbMgrHasSerialRightFuzzTest",
       ":UsbMgrManageDeviceFuzzTest",
+      ":UsbMgrManageDevicePolicyFuzzTest",
       ":UsbMgrManageGlobalInterfaceFuzzTest",
       ":UsbMgrManageManageInterfaceTypeFuzzTest",
       ":UsbMgrPipeRequestWaitFuzzTest",
