@@ -50,7 +50,7 @@ bool UsbIsoVecParcel::Marshalling(Parcel &out) const
 {
     const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> isoInfoVec = this->isoInfoVec;
     uint32_t vecSize = isoInfoVec.size();
-    if (!out.WriteUint32(vecSize)) {
+    if (vecSize > MAX_NUM_OF_ISO_PACKAGE || !out.WriteUint32(vecSize)) {
         return false;
     }
 
@@ -78,6 +78,11 @@ UsbIsoVecParcel *UsbIsoVecParcel::Unmarshalling(Parcel &in)
 
     uint32_t vecSize;
     if (!in.ReadUint32(vecSize)) {
+        delete (usbIsoVecParcel);
+        usbIsoVecParcel = nullptr;
+        return nullptr;
+    }
+    if (vecSize > MAX_NUM_OF_ISO_PACKAGE) {
         delete (usbIsoVecParcel);
         usbIsoVecParcel = nullptr;
         return nullptr;
@@ -128,7 +133,7 @@ bool UsbPassIsoVecParcel::Marshalling(Parcel &out) const
 {
     const std::vector<HDI::Usb::V2_0::UsbIsoPacketDescriptor> isoInfoVec = this->isoInfoVec;
     uint32_t vecSize = isoInfoVec.size();
-    if (!out.WriteUint32(vecSize)) {
+    if (vecSize > MAX_NUM_OF_ISO_PACKAGE || !out.WriteUint32(vecSize)) {
         return false;
     }
 
@@ -155,6 +160,11 @@ UsbPassIsoVecParcel *UsbPassIsoVecParcel::Unmarshalling(Parcel &in)
 
     uint32_t vecSize;
     if (!in.ReadUint32(vecSize)) {
+        delete (usbPassIsoVecParcel);
+        usbPassIsoVecParcel = nullptr;
+        return nullptr;
+    }
+    if (vecSize > MAX_NUM_OF_ISO_PACKAGE) {
         delete (usbPassIsoVecParcel);
         usbPassIsoVecParcel = nullptr;
         return nullptr;
