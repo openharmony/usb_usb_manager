@@ -50,7 +50,7 @@ bool UsbIsoVecParcel::Marshalling(Parcel &out) const
 {
     const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> isoInfoVec = this->isoInfoVec;
     uint32_t vecSize = isoInfoVec.size();
-    if (vecSize > MAX_NUM_OF_ISO_PACKAGE || !out.WriteUint32(vecSize)) {
+    if (!out.WriteUint32(vecSize)) {
         return false;
     }
 
@@ -133,7 +133,7 @@ bool UsbPassIsoVecParcel::Marshalling(Parcel &out) const
 {
     const std::vector<HDI::Usb::V2_0::UsbIsoPacketDescriptor> isoInfoVec = this->isoInfoVec;
     uint32_t vecSize = isoInfoVec.size();
-    if (vecSize > MAX_NUM_OF_ISO_PACKAGE || !out.WriteUint32(vecSize)) {
+    if (!out.WriteUint32(vecSize)) {
         return false;
     }
 
