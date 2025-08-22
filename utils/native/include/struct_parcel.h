@@ -25,6 +25,8 @@
 namespace OHOS {
 namespace USB {
 
+constexpr uint32_t MAX_NUM_OF_ISO_PACKAGE = 15000;
+
 struct UsbIsoParcel final : public Parcelable {
     UsbIsoParcel() = default;
     ~UsbIsoParcel() = default;
