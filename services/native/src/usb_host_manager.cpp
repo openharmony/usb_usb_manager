@@ -1846,26 +1846,25 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
             USB_HILOGW(MODULE_USB_SERVICE, "get device config info failed.");
             continue;
         }
-        std::vector<UsbInterface> interfaces = configs.GetInterfaces();
-        for (uint32_t i = 0; i < interfaces.size(); i++) {
+        for (auto &interface : configs.GetInterfaces()) {
             int32_t ret = RANDOM_VALUE_INDICATE;
-            if (interfaces[i].GetAuthorizeStatus() == !disable) {
+            if (interface.GetAuthorizeStatus() == !disable) {
                 continue;
             }
             // 0 indicate base class, 1 indicate subclass, 2 indicate protocal. -1 indicate any value.
-            if ((interfaces[i].GetClass() == iterInterface->second[BASECLASS_INDEX]) &&
-                (interfaces[i].GetSubClass() == iterInterface->second[SUBCLASS_INDEX] ||
+            if ((interface.GetClass() == iterInterface->second[BASECLASS_INDEX]) &&
+                (interface.GetSubClass() == iterInterface->second[SUBCLASS_INDEX] ||
                 iterInterface->second[SUBCLASS_INDEX] == RANDOM_VALUE_INDICATE) &&
-                (interfaces[i].GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||
+                (interface.GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||
                 iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
                 USB_HILOGI(MODULE_USB_SERVICE, "size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
                     devices_.size(), static_cast<int32_t>(interfaceType), disable);
-                ret = UsbInterfaceAuthorize(dev, configs.GetId(), interfaces[i].GetId(), !disable);
-                interfaces[i].SetAuthorizeStatus(!disable);
+                ret = UsbInterfaceAuthorize(dev, configs.GetId(), interface.GetId(), !disable);
+                interface.SetAuthorizeStatus(disable ? DISABLED : ENABLED);
                 USB_HILOGI(MODULE_USB_SERVICE, "UsbInterfaceAuthorize ret = %{public}d", ret);
             }
             if (disable && ret == UEC_OK) {
-                ReportManageDeviceInfo("InterfaceType", it->second, &interfaces[i], true);
+                ReportManageDeviceInfo("InterfaceType", it->second, &interface, true);
             }
         }
     }
