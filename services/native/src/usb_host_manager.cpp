@@ -1886,7 +1886,7 @@ int32_t UsbHostManager::ManageDeviceTypeImpl(InterfaceType interfaceType, bool d
             iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
             USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
                 devices_.size(), static_cast<int32_t>(interfaceType), disable);
-            int32_t ret = OpenDevice(it->second->GetBusNum(), it->second->GetDevAddr());
+            ret = OpenDevice(it->second->GetBusNum(), it->second->GetDevAddr());
             if (ret != UEC_OK) {
                 USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceTypeImpl open fail ret = %{public}d", ret);
                 continue;
