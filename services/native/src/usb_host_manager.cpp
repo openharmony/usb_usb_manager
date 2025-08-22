@@ -1832,7 +1832,7 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
         return UEC_SERVICE_INVALID_VALUE;
     }
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
-        if (it->second->GetClass() == BASE_CLASS_HUB) {
+        if (it->second->GetClass() == BASE_CLASS_HUB || it->second->GetAuthorizeStatus() == DISABLED) {
             continue;
         }
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
@@ -1849,7 +1849,9 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
         std::vector<UsbInterface> interfaces = configs.GetInterfaces();
         for (uint32_t i = 0; i < interfaces.size(); i++) {
             int32_t ret = RANDOM_VALUE_INDICATE;
-            bool lastAuthorizeStatus = interfaces[i].GetAuthorizeStatus();
+            if (interfaces[i].GetAuthorizeStatus() == !disable) {
+                continue;
+            }
             // 0 indicate base class, 1 indicate subclass, 2 indicate protocal. -1 indicate any value.
             if ((interfaces[i].GetClass() == iterInterface->second[BASECLASS_INDEX]) &&
                 (interfaces[i].GetSubClass() == iterInterface->second[SUBCLASS_INDEX] ||
@@ -1862,7 +1864,7 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
                 interfaces[i].SetAuthorizeStatus(!disable);
                 USB_HILOGI(MODULE_USB_SERVICE, "UsbInterfaceAuthorize ret = %{public}d", ret);
             }
-            if (disable && ret == UEC_OK && lastAuthorizeStatus) {
+            if (disable && ret == UEC_OK) {
                 ReportManageDeviceInfo("InterfaceType", it->second, &interfaces[i], true);
             }
         }
@@ -1891,7 +1893,7 @@ int32_t UsbHostManager::ManageDeviceTypeImpl(InterfaceType interfaceType, bool d
                 USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceTypeImpl open fail ret = %{public}d", ret);
                 continue;
             }
-            ret = UsbDeviceAuthorize(it->second->GetBusNum(), it->second->GetDevAddr(), !disable, "GlobalType");
+            ret = UsbDeviceAuthorize(it->second->GetBusNum(), it->second->GetDevAddr(), !disable, "InterfaceType");
             USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceAuthorize ret = %{public}d", ret);
             if (Close(it->second->GetBusNum(), it->second->GetDevAddr()) != UEC_OK) {
                 USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceTypeImpl CloseDevice fail");
