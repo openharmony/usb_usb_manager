@@ -1434,8 +1434,8 @@ int32_t UsbHostManager::UsbDeviceAuthorize(
     uint8_t configIndex = 0;
     if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex) || (configIndex < 1) ||
         iterDev->second->GetConfig(static_cast<uint8_t>(configIndex) - 1, config)) {
-            USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
-            return UEC_SERVICE_INVALID_VALUE;
+        USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
+        return UEC_SERVICE_INVALID_VALUE;
     }
     for (auto &interface : config.GetInterfaces()) {
         interface.SetAuthorizeStatus(authorized);
@@ -1849,19 +1849,20 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
         std::vector<UsbInterface> interfaces = configs.GetInterfaces();
         for (uint32_t i = 0; i < interfaces.size(); i++) {
             int32_t ret = RANDOM_VALUE_INDICATE;
-            bool last_authorize_status = interfaces[i].GetAuthorizeStatus();
+            bool lastAuthorizeStatus = interfaces[i].GetAuthorizeStatus();
             // 0 indicate base class, 1 indicate subclass, 2 indicate protocal. -1 indicate any value.
-            if ((interfaces[i].GetClass() == iterInterface->second[BASECLASS_INDEX]) && (interfaces[i].GetSubClass() ==
-                iterInterface->second[SUBCLASS_INDEX] || iterInterface->second[SUBCLASS_INDEX] ==
-                RANDOM_VALUE_INDICATE) && (interfaces[i].GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||
+            if ((interfaces[i].GetClass() == iterInterface->second[BASECLASS_INDEX]) &&
+                (interfaces[i].GetSubClass() == iterInterface->second[SUBCLASS_INDEX] ||
+                iterInterface->second[SUBCLASS_INDEX] == RANDOM_VALUE_INDICATE) &&
+                (interfaces[i].GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||
                 iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
-                    USB_HILOGI(MODULE_USB_SERVICE, "size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
-                        devices_.size(), static_cast<int32_t>(interfaceType), disable);
-                    ret = UsbInterfaceAuthorize(dev, configs.GetId(), interfaces[i].GetId(), !disable);
-                    interfaces[i].SetAuthorizeStatus(!disable);
-                    USB_HILOGI(MODULE_USB_SERVICE, "UsbInterfaceAuthorize ret = %{public}d", ret);
+                USB_HILOGI(MODULE_USB_SERVICE, "size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
+                    devices_.size(), static_cast<int32_t>(interfaceType), disable);
+                ret = UsbInterfaceAuthorize(dev, configs.GetId(), interfaces[i].GetId(), !disable);
+                interfaces[i].SetAuthorizeStatus(!disable);
+                USB_HILOGI(MODULE_USB_SERVICE, "UsbInterfaceAuthorize ret = %{public}d", ret);
             }
-            if (disable && ret == UEC_OK && last_authorize_status == true) {
+            if (disable && ret == UEC_OK && lastAuthorizeStatus) {
                 ReportManageDeviceInfo("InterfaceType", it->second, &interfaces[i], true);
             }
         }
@@ -1878,14 +1879,23 @@ int32_t UsbHostManager::ManageDeviceTypeImpl(InterfaceType interfaceType, bool d
         return UEC_SERVICE_INVALID_VALUE;
     }
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
-        if ((it->second->GetClass() == iterInterface->second[BASECLASS_INDEX]) && (it->second->GetSubclass() ==
-            iterInterface->second[SUBCLASS_INDEX] || iterInterface->second[SUBCLASS_INDEX] ==
-            RANDOM_VALUE_INDICATE) && (it->second->GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||
+        if ((it->second->GetClass() == iterInterface->second[BASECLASS_INDEX]) &&
+            (it->second->GetSubclass() == iterInterface->second[SUBCLASS_INDEX] ||
+            iterInterface->second[SUBCLASS_INDEX] == RANDOM_VALUE_INDICATE) &&
+            (it->second->GetProtocol() == iterInterface->second[PROTOCAL_INDEX] ||
             iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
-                USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
-                    devices_.size(), static_cast<int32_t>(interfaceType), disable);
-                ret = UsbDeviceAuthorize(it->second->GetBusNum(), it->second->GetDevAddr(), !disable, "InterfaceType");
-                USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceAuthorize ret = %{public}d", ret);
+            USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
+                devices_.size(), static_cast<int32_t>(interfaceType), disable);
+            int32_t ret = OpenDevice(it->second->GetBusNum(), it->second->GetDevAddr());
+            if (ret != UEC_OK) {
+                USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceTypeImpl open fail ret = %{public}d", ret);
+                continue;
+            }
+            ret = UsbDeviceAuthorize(it->second->GetBusNum(), it->second->GetDevAddr(), !disable, "GlobalType");
+            USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceAuthorize ret = %{public}d", ret);
+            if (Close(it->second->GetBusNum(), it->second->GetDevAddr()) != UEC_OK) {
+                USB_HILOGW(MODULE_USB_SERVICE, "ManageDeviceTypeImpl CloseDevice fail");
+            }
         }
     }
     return UEC_OK;
