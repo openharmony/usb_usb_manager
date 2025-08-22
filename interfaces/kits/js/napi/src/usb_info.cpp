@@ -2367,7 +2367,7 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
     asyncContext->env = env;
     HDI::Usb::V1_2::USBTransferInfo obj;
     GetUSBTransferInfo(obj, asyncContext);
-    if (!CreateAndWriteAshmem(asyncContext, obj) || obj.numIsoPackets > MAX_NUM_OF_ISO_PACKAGE) {
+    if (obj.numIsoPackets > MAX_NUM_OF_ISO_PACKAGE || !CreateAndWriteAshmem(asyncContext, obj)) {
         delete asyncContext;
         asyncContext = nullptr;
         return nullptr;
