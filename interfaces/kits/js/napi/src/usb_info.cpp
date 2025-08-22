@@ -42,7 +42,7 @@
 #include "usb_accessory.h"
 #include "hitrace_meter.h"
 #include "hdf_base.h"
-
+#include "struct_parcel.h"
 using namespace OHOS;
 using namespace OHOS::USB;
 using namespace OHOS::HDI::Usb::V1_0;
@@ -2367,8 +2367,9 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
     asyncContext->env = env;
     HDI::Usb::V1_2::USBTransferInfo obj;
     GetUSBTransferInfo(obj, asyncContext);
-    if (!CreateAndWriteAshmem(asyncContext, obj)) {
+    if (!CreateAndWriteAshmem(asyncContext, obj) || obj.numIsoPackets > MAX_NUM_OF_ISO_PACKAGE) {
         delete asyncContext;
+        asyncContext = nullptr;
         return nullptr;
     }
     static auto func = [] (const TransferCallbackInfo &info,
