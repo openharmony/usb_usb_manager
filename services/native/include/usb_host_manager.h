@@ -73,10 +73,14 @@ public:
     int32_t SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex);
     int32_t ManageGlobalInterface(bool disable);
     int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable);
+    int32_t ManageDevicePolicy(std::vector<UsbDeviceId> &whiteList);
     int32_t ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable);
     int32_t UsbAttachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid);
     int32_t UsbDetachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid);
     int32_t ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t interfaceId, uint8_t endpointId);
+    int32_t UsbDeviceAuthorize(uint8_t busNum, uint8_t devAddr, bool authorized, const std::string &operationType);
+    int32_t UsbInterfaceAuthorize(
+        const HDI::Usb::V1_0::UsbDev &dev, uint8_t configId, uint8_t interfaceId, bool authorized);
 
     int32_t GetDevices(std::vector<UsbDevice> &deviceList);
     int32_t GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &dev);

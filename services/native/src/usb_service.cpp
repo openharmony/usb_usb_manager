@@ -628,6 +628,33 @@ int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disab
     return usbHostManager_->ManageDevice(vendorId, productId, disable);
 }
 
+void UsbService::UsbDeviceIdChange(const std::vector<UsbDeviceIdInfo> &deviceIdInfoList,
+    std::vector<UsbDeviceId> &deviceIdList)
+{
+    for (auto &deviceInfo : deviceIdInfoList) {
+        UsbDeviceId devId;
+        devId.productId = deviceInfo.productId;
+        devId.vendorId = deviceInfo.vendorId;
+        deviceIdList.emplace_back(devId);
+    }
+    return;
+}
+
+int32_t UsbService::ManageDevicePolicy(const std::vector<UsbDeviceIdInfo> &whiteList)
+{
+    if (!IsCallerValid()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
+        return UEC_SERVICE_INVALID_OPERATION;
+    }
+    if (PreCallFunction() != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "PreCallFunction failed");
+        return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
+    }
+    std::vector<UsbDeviceId> devIdList;
+    UsbDeviceIdChange(whiteList, devIdList);
+    return usbHostManager_->ManageDevicePolicy(devIdList);
+}
+
 int32_t UsbService::ManageInterfaceType(const std::vector<UsbDeviceTypeInfo> &devTypeInfo, bool disable)
 {
     if (!IsCallerValid()) {
@@ -732,7 +759,6 @@ bool UsbService::AddDevice(uint8_t busNum, uint8_t devAddr)
     }
 
     usbHostManager_->AddDevice(devInfo);
-    usbHostManager_->ExecuteStrategy(devInfo);
     return true;
 }
 // LCOV_EXCL_STOP

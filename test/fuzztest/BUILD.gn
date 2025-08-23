@@ -978,6 +978,43 @@ ohos_fuzztest("UsbMgrManageDeviceFuzzTest") {
 
   sources = [ "usbmgrmanagedevice_fuzzer/usbmgrmanagedevice_fuzzer.cpp" ]
 }
+ohos_fuzztest("UsbMgrManageDevicePolicyFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrmanagedevicepolicy_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+    "selinux_adapter:librestorecon",
+  ]
+
+  sources = [
+    "../native/service_unittest/src/usb_common_test.cpp",
+    "usbmgrmanagedevicepolicy_fuzzer/usbmgrmanagedevicepolicy_fuzzer.cpp"
+  ]
+}
 ohos_fuzztest("UsbMgrManageManageInterfaceTypeFuzzTest") {
   module_out_path = module_output_path
 
@@ -1430,6 +1467,7 @@ group("fuzztest") {
       ":UsbMgrHasRightFuzzTest",
       ":UsbMgrHasSerialRightFuzzTest",
       ":UsbMgrManageDeviceFuzzTest",
+      ":UsbMgrManageDevicePolicyFuzzTest",
       ":UsbMgrManageGlobalInterfaceFuzzTest",
       ":UsbMgrManageManageInterfaceTypeFuzzTest",
       ":UsbMgrPipeRequestWaitFuzzTest",

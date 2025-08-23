@@ -524,6 +524,31 @@ int32_t UsbSrvClient::ManageDevice(int32_t vendorId, int32_t productId, bool dis
     }
     return ret;
 }
+
+void UsbSrvClient::UsbDeviceIdChange(const std::vector<UsbDeviceId> &deviceIdList,
+    std::vector<UsbDeviceIdInfo> &deviceIdInfoList)
+{
+    for (auto &deviceId : deviceIdList) {
+        UsbDeviceIdInfo info;
+        info.productId = deviceId.productId;
+        info.vendorId = deviceId.vendorId;
+        deviceIdInfoList.emplace_back(info);
+    }
+    return;
+}
+
+int32_t UsbSrvClient::ManageDevicePolicy(std::vector<UsbDeviceId> &whiteList)
+{
+    RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
+    std::vector<UsbDeviceIdInfo> deviceIdInfoList{};
+    UsbDeviceIdChange(whiteList, deviceIdInfoList);
+    int32_t ret = proxy_->ManageDevicePolicy(deviceIdInfoList);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "failed width ret = %{public}d !", ret);
+    }
+    return ret;
+}
+
 void UsbSrvClient::UsbDeviceTypeChange(const std::vector<UsbDeviceType> &disableType,
     std::vector<UsbDeviceTypeInfo> &deviceTypes)
 {
@@ -537,6 +562,7 @@ void UsbSrvClient::UsbDeviceTypeChange(const std::vector<UsbDeviceType> &disable
     }
     return;
 }
+
 int32_t UsbSrvClient::ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);

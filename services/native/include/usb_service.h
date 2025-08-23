@@ -102,6 +102,7 @@ public:
     int32_t SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex) override;
     int32_t ManageGlobalInterface(bool disable) override;
     int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable) override;
+    int32_t ManageDevicePolicy(const std::vector<UsbDeviceIdInfo> &whilteList) override;
     int32_t ManageInterfaceType(const std::vector<UsbDeviceTypeInfo> &devTypeInfo, bool disable) override;
     int32_t UsbAttachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid) override;
     int32_t UsbDetachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid) override;
@@ -272,6 +273,8 @@ private:
     bool GetBundleInfo(std::string &tokenId, int32_t &userId);
     void UsbCtrlTransferChange(HDI::Usb::V1_0::UsbCtrlTransfer &param, const UsbCtlSetUp &ctlSetup);
     void UsbCtrlTransferChange(HDI::Usb::V1_2::UsbCtrlTransferParams &param, const UsbCtlSetUp &ctlSetup);
+    void UsbDeviceIdChange(const std::vector<UsbDeviceIdInfo> &deviceIdInfoList,
+        std::vector<UsbDeviceId> &deviceIdList);
     void UsbDeviceTypeChange(std::vector<UsbDeviceType> &disableType,
         const std::vector<UsbDeviceTypeInfo> &deviceTypes);
     void UsbTransInfoChange(HDI::Usb::V1_2::USBTransferInfo &info, const UsbTransInfo &param);

@@ -30,6 +30,13 @@
 namespace OHOS {
 namespace USB {
 constexpr uint32_t USB_CONFIG_MAX_NUM = 128;
+
+enum AuthorizeStatus {
+    DISABLED = 0,
+    ENABLED = 1,
+    NEW_ARRIVED = 2,
+};
+
 class UsbDevice : public Parcelable {
 public:
     UsbDevice(std::string name, std::string manufacturerName, std::string productName, std::string version,
@@ -410,6 +417,16 @@ public:
         return this->bcdDevice_;
     }
 
+    AuthorizeStatus GetAuthorizeStatus()
+    {
+        return this->authorizeStatus_;
+    }
+
+    void SetAuthorizeStatus(AuthorizeStatus authorized)
+    {
+        this->authorizeStatus_ = authorized;
+    }
+
     const std::string getJsonString() const
     {
         cJSON* device = cJSON_CreateObject();
@@ -457,6 +474,7 @@ private:
     std::string productName_;
     std::string version_;
     std::string serial_;
+    AuthorizeStatus authorizeStatus_ = ENABLED;
     uint8_t devAddr_ = UINT8_MAX;
     uint8_t busNum_ = UINT8_MAX;
     uint8_t descConfigCount_ = UINT8_MAX;

@@ -39,3 +39,8 @@
    int protocol;
    boolean isDeviceType;
  };
+
+  struct UsbDeviceIdInfo {
+   int productId;
+   int vendorId;
+ };
