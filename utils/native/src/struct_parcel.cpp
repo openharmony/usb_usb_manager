@@ -82,6 +82,11 @@ UsbIsoVecParcel *UsbIsoVecParcel::Unmarshalling(Parcel &in)
         usbIsoVecParcel = nullptr;
         return nullptr;
     }
+    if (vecSize > MAX_NUM_OF_ISO_PACKAGE) {
+        delete (usbIsoVecParcel);
+        usbIsoVecParcel = nullptr;
+        return nullptr;
+    }
 
     for (uint32_t index = 0; index < vecSize; index++) {
         sptr<UsbIsoParcel> usbIsoParcel = in.ReadParcelable<UsbIsoParcel>();
@@ -155,6 +160,11 @@ UsbPassIsoVecParcel *UsbPassIsoVecParcel::Unmarshalling(Parcel &in)
 
     uint32_t vecSize;
     if (!in.ReadUint32(vecSize)) {
+        delete (usbPassIsoVecParcel);
+        usbPassIsoVecParcel = nullptr;
+        return nullptr;
+    }
+    if (vecSize > MAX_NUM_OF_ISO_PACKAGE) {
         delete (usbPassIsoVecParcel);
         usbPassIsoVecParcel = nullptr;
         return nullptr;
