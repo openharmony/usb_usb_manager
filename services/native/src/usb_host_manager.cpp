@@ -456,8 +456,7 @@ int32_t UsbHostManager::GetDevices(std::vector<UsbDevice> &deviceList)
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
     bool isSystemAppOrSa = usbRightManager_->IsSystemAppOrSa();
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
-        if ((it->second->GetClass() == BASE_CLASS_HUB && !isSystemAppOrSa) ||
-            it->second->GetAuthorizeStatus() != ENABLED) {
+        if (it->second->GetClass() == BASE_CLASS_HUB && !isSystemAppOrSa) {
             continue;
         }
         auto dev = UsbDevice(*it->second);
