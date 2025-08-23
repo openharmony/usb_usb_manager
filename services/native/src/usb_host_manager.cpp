@@ -1430,14 +1430,17 @@ int32_t UsbHostManager::UsbDeviceAuthorize(
     }
 
     UsbDev dev = {busNum, devAddr};
-    USBConfig config;
     uint8_t configIndex = 0;
-    if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex) || (configIndex < 1) ||
-        iterDev->second->GetConfig(static_cast<uint8_t>(configIndex) - 1, config)) {
+    if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex) || (configIndex < 1)) {
         USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    for (auto &interface : config.GetInterfaces()) {
+    uint8_t index = static_cast<uint8_t>(configIndex) - 1;
+    if (index >= iterDev->second->GetConfigs().size()) {
+        USB_HILOGW(MODULE_USB_SERVICE, "get device config info failed.");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    for (auto &interface : iterDev->second->GetConfigs()[index].GetInterfaces()) {
         interface.SetAuthorizeStatus(authorized);
         (void)ManageInterface(dev, interface.GetId(), !authorized);
         std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
@@ -1841,12 +1844,12 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
             USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
             continue;
         }
-        USBConfig configs;
-        if (it->second->GetConfig(static_cast<uint8_t>(configIndex) - 1, configs)) {
+        uint8_t index = static_cast<uint8_t>(configIndex) - 1;
+        if (index >= it->second->GetConfigs().size()) {
             USB_HILOGW(MODULE_USB_SERVICE, "get device config info failed.");
             continue;
         }
-        for (auto &interface : configs.GetInterfaces()) {
+        for (auto &interface : it->second->GetConfigs()[index].GetInterfaces()) {
             int32_t ret = RANDOM_VALUE_INDICATE;
             if (interface.GetAuthorizeStatus() == !disable) {
                 continue;
@@ -1859,7 +1862,7 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
                 iterInterface->second[PROTOCAL_INDEX] == RANDOM_VALUE_INDICATE)) {
                 USB_HILOGI(MODULE_USB_SERVICE, "size %{public}zu, interfaceType: %{public}d, disable: %{public}d",
                     devices_.size(), static_cast<int32_t>(interfaceType), disable);
-                ret = UsbInterfaceAuthorize(dev, configs.GetId(), interface.GetId(), !disable);
+                ret = UsbInterfaceAuthorize(dev, it->second->GetConfigs()[index].GetId(), interface.GetId(), !disable);
                 interface.SetAuthorizeStatus(disable ? DISABLED : ENABLED);
                 USB_HILOGI(MODULE_USB_SERVICE, "UsbInterfaceAuthorize ret = %{public}d", ret);
             }
