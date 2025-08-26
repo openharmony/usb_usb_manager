@@ -301,7 +301,12 @@ void UsbDeviceManager::UpdateFunctions(int32_t func)
     }
     ReportFuncChangeSysEvent(currentFunctions_, func);
     currentFunctions_ = func;
-    BroadcastFuncChange(connected_, currentFunctions_);
+    if (!connected_ && gadgetConnected_) {
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: connect %{public}d, gadget connect %{public}d",
+            __func__, connected_, gadgetConnected_);
+    } else {
+        BroadcastFuncChange(connected_, currentFunctions_);
+    }
     ProcessFunctionNotifier(connected_, func);
 }
 
