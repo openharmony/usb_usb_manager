@@ -2453,7 +2453,7 @@ sptr<UsbService> UsbService::GetGlobalInstance()
 bool CheckForTtyUSB()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "CheckForTtyUSB");
-    if (!exist(TTYUSB_PATH)) {
+    if (!exists(TTYUSB_PATH)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: The path does not exist", __func__);
         return false;
     }
