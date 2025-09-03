@@ -2352,6 +2352,8 @@ bool UsbService::IsNotNeedUnload()
 #ifdef USB_MANAGER_FEATURE_DEVICE
     isGadgetConnected = usbDeviceManager_->IsGadgetConnected();
 #endif // USB_MANAGER_FEATURE_DEVICE
+    USB_HILOGI(MODULE_USB_SERVICE, "hasActiveDevices=[%{public}d],isGadgetConnected=[%{public}d]",
+        hasActiveDevices, isGadgetConnected);
     return hasActiveDevices || isGadgetConnected;
 }
 // LCOV_EXCL_STOP
@@ -2359,12 +2361,15 @@ bool UsbService::IsNotNeedUnload()
 // LCOV_EXCL_START
 void UsbService::UnLoadSelf(UnLoadSaType type)
 {
+    USB_HILOGI(MODULE_USB_SERVICE, "UnLoadSelf enter,type=[%{public}d],unloadSelfTimerId_=[%{public}u]",
+        type, unloadSelfTimerId_);
     if (OHOS::system::GetBoolParameter("const.security.developermode.state", true)) {
         USB_HILOGI(MODULE_USB_SERVICE, "no need to unload in dev mode");
         return;
     }
 
     auto task = []() {
+        USB_HILOGI(MODULE_USB_SERVICE, "unload usb_service task start.");
         auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (samgrProxy == nullptr) {
             USB_HILOGE(MODULE_USB_SERVICE, "get samgr failed");
@@ -2408,6 +2413,7 @@ void UsbService::UnLoadSelf(UnLoadSaType type)
         return;
     }
     unloadSelfTimerId_ = unloadSelfTimer_.Register(task, UNLOAD_SA_TIMER_INTERVAL, true);
+    USB_HILOGI(MODULE_USB_SERVICE, "UnLoadSelf exit,unloadSelfTimerId_=[%{public}u]", unloadSelfTimerId_);
 }
 // LCOV_EXCL_STOP
 
