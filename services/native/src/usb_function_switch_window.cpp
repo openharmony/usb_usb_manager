@@ -217,7 +217,7 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
         const uint32_t cmdCode = 3;
         int32_t ret = remoteObject_->SendRequest(cmdCode, data, reply, option);
         if (ret != ERR_OK) {
-            success = reply.ReadInt32(replyCode);
+            USB_HILOGE(MODULE_USB_SERVICE, "abort dialog failed: %{public}d", ret);
         }
         return;
     }
