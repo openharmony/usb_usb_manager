@@ -27,8 +27,6 @@ ohos_shared_library("usb") {
     boundary_sanitize = true
   }
 
-  cflags_cc = [ "-Wno-c++20-designator" ]
-
   sources = [ "src/usb_middle.cpp" ]
   external_deps = [
     "c_utils:utils",
