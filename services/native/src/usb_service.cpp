@@ -2376,8 +2376,7 @@ void UsbService::UnLoadSelf(UnLoadSaType type)
             return;
         }
 
-        auto ret = samgrProxy->UnloadSystemAbility(USB_SYSTEM_ABILITY_ID);
-        if (ret != UEC_OK) {
+        if (samgrProxy->UnloadSystemAbility(USB_SYSTEM_ABILITY_ID) != UEC_OK) {
             USB_HILOGE(MODULE_USB_SERVICE, "unload failed");
         }
     };
