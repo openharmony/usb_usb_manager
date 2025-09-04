@@ -77,7 +77,7 @@ private:
         const std::string &failDescription);
     void ReportFuncChangeSysEvent(int32_t currentFunctions, int32_t updateFunctions);
     void ReportDevicePlugSysEvent(int32_t currentFunctions, bool connected);
-    void ProcessFuncChange(bool connected, int32_t currentFunc, bool isDisableDialog = false);
+    void ProcessFuncChange(bool connected, int32_t currentFunc);
     void BroadcastFuncChange(bool connected, int32_t currentFunc);
     void ProcessStatus(int32_t status, bool &curConnect);
     static constexpr uint32_t functionSettable_ = UsbSrvSupport::FUNCTION_HDC | UsbSrvSupport::FUNCTION_ACM |

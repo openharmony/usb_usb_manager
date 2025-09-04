@@ -212,6 +212,19 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (isAbortDialog_) {
+        USB_HILOGI(MODULE_USB_SERVICE, "abort function switch window");
+        const uint32_t cmdCode = 3;
+        int32_t ret = remoteObject_->SendRequest(cmdCode, data, reply, option);
+        int32_t replyCode = -1;
+        bool success = false;
+        if (ret == ERR_OK) {
+            success = reply.ReadInt32(replyCode);
+        }
+        USB_HILOGI(MODULE_USB_SERVICE, "dialog aborted: ret=%{public}d, %{public}d, %{public}d",
+            ret, success, replyCode);
+        return;
+    }
     data.WriteInt32(MESSAGE_PARCEL_KEY_SIZE);
     data.WriteString16(u"bundleName");
     data.WriteString16(u"com.usb.right");
@@ -264,6 +277,7 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityDisconnectDone(
 void UsbFunctionSwitchWindow::UsbFuncAbilityConn::CloseDialog()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbFuncAbilityConn CloseDialog enter");
+    isAbortDialog_ = true;
     std::lock_guard<std::mutex> guard(remoteMutex_);
     if (remoteObject_ == nullptr) {
         USB_HILOGW(MODULE_USB_SERVICE, "CloseDialog: disconnected");
@@ -283,6 +297,12 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::CloseDialog()
     USB_HILOGI(MODULE_USB_SERVICE, "CloseDialog: ret=%{public}d, %{public}d, %{public}d", ret, success, replyCode);
 }
 
+void UsbFunctionSwitchWindow::UsbFuncAbilityConn::ReopenDialog()
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbFuncAbilityConn ReopenDialog enter");
+    isAbortDialog_ = false;
+}
+
 bool UsbFunctionSwitchWindow::ShowFunctionSwitchWindow()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "show function switch window right now, installed: %{public}d", isDialogInstalled_);
@@ -293,6 +313,7 @@ bool UsbFunctionSwitchWindow::ShowFunctionSwitchWindow()
     if (usbFuncAbilityConn == nullptr) {
         usbFuncAbilityConn = sptr<UsbFuncAbilityConn>(new (std::nothrow) UsbFuncAbilityConn());
     }
+    usbFuncAbilityConn->ReopenDialog();
 
     auto abilityManager = AAFwk::AbilityManagerClient::GetInstance();
     if (abilityManager == nullptr) {

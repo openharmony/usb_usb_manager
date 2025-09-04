@@ -67,7 +67,9 @@ private:
         void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode) override;
     public:
         void CloseDialog();
+        void ReopenDialog();
     private:
+        bool isAbortDialog_ = false;
         std::mutex remoteMutex_;
         sptr<IRemoteObject> remoteObject_ = nullptr;
     };
