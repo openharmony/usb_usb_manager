@@ -35,8 +35,6 @@ ohos_shared_library("usbservice") {
   }
   branch_protector_ret = "pac_ret"
 
-  cflags_cc = [ "-Wno-gnu-zero-variadic-macro-arguments" ]
-
   install_enable = true
   sources = [
     "${utils_path}/native/src/usb_settings_datashare.cpp",
