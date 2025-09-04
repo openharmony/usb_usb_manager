@@ -216,13 +216,9 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
         USB_HILOGI(MODULE_USB_SERVICE, "abort function switch window");
         const uint32_t cmdCode = 3;
         int32_t ret = remoteObject_->SendRequest(cmdCode, data, reply, option);
-        int32_t replyCode = -1;
-        bool success = false;
-        if (ret == ERR_OK) {
+        if (ret != ERR_OK) {
             success = reply.ReadInt32(replyCode);
         }
-        USB_HILOGI(MODULE_USB_SERVICE, "dialog aborted: ret=%{public}d, %{public}d, %{public}d",
-            ret, success, replyCode);
         return;
     }
     data.WriteInt32(MESSAGE_PARCEL_KEY_SIZE);
@@ -231,23 +227,13 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     data.WriteString16(u"abilityName");
     data.WriteString16(u"UsbFunctionSwitchExtAbility");
     data.WriteString16(u"parameters");
-    cJSON* paramJson = cJSON_CreateObject();
-    int32_t supportedFuncs = GetSupportedFunctions();
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: supportedFuncs %{public}d", __func__, supportedFuncs);
-    cJSON_AddStringToObject(paramJson, "supportedFuncs", std::to_string(supportedFuncs).c_str());
-    std::string uiExtensionTypeStr = "sysDialog/common";
-    cJSON_AddStringToObject(paramJson, "ability.want.params.uiExtensionType", uiExtensionTypeStr.c_str());
-    char *pParamJson = cJSON_PrintUnformatted(paramJson);
-    cJSON_Delete(paramJson);
-    paramJson = nullptr;
-    if (!pParamJson) {
+    std::string paramStr;
+    PrepareJson(paramStr);
+    if (paramStr.size() == 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "Print paramJson error");
         return;
     }
-    std::string paramStr(pParamJson);
     data.WriteString16(Str8ToStr16(paramStr));
-    cJSON_free(pParamJson);
-    pParamJson = NULL;
 
     const uint32_t cmdCode = 1;
     int32_t ret = remoteObject->SendRequest(cmdCode, data, reply, option);
@@ -261,6 +247,27 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     }
     std::lock_guard<std::mutex> guard(remoteMutex_);
     remoteObject_ = remoteObject;
+    return;
+}
+
+void UsbFunctionSwitchWindow::UsbFuncAbilityConn::PrepareJson(std::string &jsonStr)
+{
+    cJSON* paramJson = cJSON_CreateObject();
+    int32_t supportedFuncs = GetSupportedFunctions();
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: supportedFuncs %{public}d", __func__, supportedFuncs);
+    cJSON_AddStringToObject(paramJson, "supportedFuncs", std::to_string(supportedFuncs).c_str());
+    std::string uiExtensionTypeStr = "sysDialog/common";
+    cJSON_AddStringToObject(paramJson, "ability.want.params.uiExtensionType", uiExtensionTypeStr.c_str());
+    char *pParamJson = cJSON_PrintUnformatted(paramJson);
+    cJSON_Delete(paramJson);
+    paramJson = nullptr;
+    if (!pParamJson) {
+        jsonStr = "";
+        return;
+    }
+    jsonStr = std::string(pParamJson);
+    cJSON_free(pParamJson);
+    pParamJson = NULL;
     return;
 }
 
