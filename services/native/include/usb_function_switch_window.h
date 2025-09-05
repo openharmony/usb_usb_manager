@@ -66,10 +66,10 @@ private:
             int32_t resultCode) override;
         void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode) override;
     public:
-        void PrepareJson(std::string &jsonStr);
         void CloseDialog();
         void ReopenDialog();
     private:
+        void PrepareJson(std::string &jsonStr);
         bool isAbortDialog_ = false;
         std::mutex remoteMutex_;
         sptr<IRemoteObject> remoteObject_ = nullptr;
