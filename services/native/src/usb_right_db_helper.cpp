@@ -64,6 +64,10 @@ bool UsbRightDbHelper::IsRecordExpired(int32_t uid, const std::string &deviceNam
 
 bool UsbRightDbHelper::IsRecordExpired(const struct UsbRightAppInfo &info, uint64_t expiredTime)
 {
+    if (expiredTime < info.requestTime) {
+        USB_HILOGW(MODULE_USB_SERVICE, "system time changed");
+        return true;
+    }
     if (info.validPeriod == USB_RIGHT_VALID_PERIOD_MIN) {
         USB_HILOGD(MODULE_USB_SERVICE, "allow temporary");
         return false;
