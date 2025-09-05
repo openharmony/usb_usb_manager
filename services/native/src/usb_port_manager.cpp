@@ -178,7 +178,7 @@ bool UsbPortManager::IsReverseCharge()
 int32_t UsbPortManager::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbPortManager SetPortRole enter");
-    std::lock_guard<std::mutex> guard(mutex_);
+    std::lock_guard<std::mutex> guard(setPortRoleMutex_);
 #ifdef USB_MANAGER_V2_0
     if (usbPortInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbPortManager::SetPortRole usbPortInterface_ is nullptr");
