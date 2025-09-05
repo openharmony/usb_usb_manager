@@ -71,6 +71,7 @@ private:
         int32_t currentMode, int32_t currentDataRole, int32_t currentPowerRole);
     void AddSupportedMode();
     std::mutex mutex_;
+    std::mutex setPortRoleMutex_;
     std::map<int32_t, UsbPort> portMap_;
     std::map<int32_t, int32_t> supportedModeMap_;
     sptr<HDI::Usb::V1_0::IUsbInterface> usbd_ = nullptr;
