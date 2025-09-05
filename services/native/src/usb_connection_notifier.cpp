@@ -68,62 +68,6 @@ enum SUPPORTED_FUNC : int32_t {
 
 namespace OHOS {
 namespace USB {
-class NfcNotificationSubscriber : public Notification::NotificationSubscriber {
-    // LCOV_EXCL_START
-    void OnConnected()
-    {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
-    }
-    void OnDisconnected()
-    {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
-    }
-    void OnUpdate(const std::shared_ptr<Notification::NotificationSortingMap> &sortingMap)
-    {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
-    }
-    void OnDoNotDisturbDateChange(const std::shared_ptr<Notification::NotificationDoNotDisturbDate> &date)
-    {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
-    }
-    void OnEnabledNotificationChanged(
-        const std::shared_ptr<Notification::EnabledNotificationCallbackData> &callbackData)
-    {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
-    }
-    void OnDied()
-    {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
-    }
-    void OnCanceled(const std::shared_ptr<OHOS::Notification::Notification> &request,
-        const std::shared_ptr<Notification::NotificationSortingMap> &sortingMap, int deleteReason)
-    {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
-    }
-    void OnConsumed(const std::shared_ptr<OHOS::Notification::Notification> &notification,
-        const std::shared_ptr<Notification::NotificationSortingMap> &sortingMap)
-    {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
-    }
-    void OnBadgeChanged(const std::shared_ptr<Notification::BadgeNumberCallbackData> &badgeData)
-    {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
-    }
-    void OnBadgeEnabledChanged(const sptr<Notification::EnabledNotificationCallbackData> &callbackData)
-    {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
-    }
-    void OnBatchCanceled(const std::vector<std::shared_ptr<OHOS::Notification::Notification>> &requestList,
-        const std::shared_ptr<Notification::NotificationSortingMap> &sortingMap, int32_t deleteReason)
-    {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
-    }
-    // LCOV_EXCL_STOP
-};
-
-static std::shared_ptr<NfcNotificationSubscriber> g_notificationSubscriber
-    = std::make_shared<NfcNotificationSubscriber>();
-
 std::mutex UsbConnectionNotifier::insMutex_;
 std::shared_ptr<UsbConnectionNotifier> UsbConnectionNotifier::instance_;
 
@@ -184,8 +128,7 @@ UsbConnectionNotifier::UsbConnectionNotifier()
     USB_TRACE;
     GetHapIcon();
 
-    int32_t result = Notification::NotificationHelper::SubscribeNotification(*g_notificationSubscriber);
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: result %{public}d", __func__, result);
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: end", __func__);
 }
 
 UsbConnectionNotifier::~UsbConnectionNotifier() {}
