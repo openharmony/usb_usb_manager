@@ -1491,7 +1491,7 @@ int32_t UsbHostManager::UsbInterfaceAuthorize(
 
 int32_t UsbHostManager::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whiteList)
 {
-    int32_t ret = UEC_INTERFACE_NO_MEMORY;
+    int32_t ret = UEC_OK;
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
         bool inWhiteList = false;
