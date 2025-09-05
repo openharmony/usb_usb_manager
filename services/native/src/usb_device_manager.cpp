@@ -358,7 +358,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
         auto task = [&]() {
             connected_ = true;
             GetCurrentFunctions(currentFunctions_);
-            ProcessFuncChange(connected_, currentFunctions_, isDisableDialog_);
+            ProcessFuncChange(connected_, currentFunctions_);
         };
         delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, DELAY_CONNECT_INTERVAL, true);
     } else if (!curConnect && (connected_ != curConnect)) {
@@ -403,7 +403,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
         auto task = [&]() {
             connected_ = true;
             GetCurrentFunctions(currentFunctions_);
-            ProcessFuncChange(connected_, currentFunctions_, isDisableDialog_);
+            ProcessFuncChange(connected_, currentFunctions_);
         };
         delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, DELAY_CONNECT_INTERVAL, true);
     } else if (!curConnect && (connected_ != curConnect)) {
@@ -491,12 +491,12 @@ void UsbDeviceManager::BroadcastFuncChange(bool connected, int32_t currentFunc)
     ReportDevicePlugSysEvent(currentFunc, connected);
 }
 
-void UsbDeviceManager::ProcessFuncChange(bool connected, int32_t currentFunc, bool isDisableDialog)
+void UsbDeviceManager::ProcessFuncChange(bool connected, int32_t currentFunc)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: connected %{public}d, currentFunc %{public}d, isDisableDialog "
-                                   "%{public}d", __func__, connected, currentFunc, isDisableDialog);
+                                   "%{public}d", __func__, connected, currentFunc, isDisableDialog_);
     BroadcastFuncChange(connected, currentFunc);
-    if (!isDisableDialog) {
+    if (!isDisableDialog_) {
         ProcessFunctionSwitchWindow(connected);
     }
     ProcessFunctionNotifier(connected, currentFunc);

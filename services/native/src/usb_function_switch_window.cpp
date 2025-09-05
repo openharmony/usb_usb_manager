@@ -212,29 +212,28 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    if (isAbortDialog_) {
+        USB_HILOGI(MODULE_USB_SERVICE, "abort function switch window");
+        const uint32_t cmdCode = 3;
+        int32_t ret = remoteObject_->SendRequest(cmdCode, data, reply, option);
+        if (ret != ERR_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "abort dialog failed: %{public}d", ret);
+        }
+        return;
+    }
     data.WriteInt32(MESSAGE_PARCEL_KEY_SIZE);
     data.WriteString16(u"bundleName");
     data.WriteString16(u"com.usb.right");
     data.WriteString16(u"abilityName");
     data.WriteString16(u"UsbFunctionSwitchExtAbility");
     data.WriteString16(u"parameters");
-    cJSON* paramJson = cJSON_CreateObject();
-    int32_t supportedFuncs = GetSupportedFunctions();
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: supportedFuncs %{public}d", __func__, supportedFuncs);
-    cJSON_AddStringToObject(paramJson, "supportedFuncs", std::to_string(supportedFuncs).c_str());
-    std::string uiExtensionTypeStr = "sysDialog/common";
-    cJSON_AddStringToObject(paramJson, "ability.want.params.uiExtensionType", uiExtensionTypeStr.c_str());
-    char *pParamJson = cJSON_PrintUnformatted(paramJson);
-    cJSON_Delete(paramJson);
-    paramJson = nullptr;
-    if (!pParamJson) {
+    std::string paramStr;
+    PrepareJson(paramStr);
+    if (paramStr.size() == 0) {
         USB_HILOGE(MODULE_USB_SERVICE, "Print paramJson error");
         return;
     }
-    std::string paramStr(pParamJson);
     data.WriteString16(Str8ToStr16(paramStr));
-    cJSON_free(pParamJson);
-    pParamJson = NULL;
 
     const uint32_t cmdCode = 1;
     int32_t ret = remoteObject->SendRequest(cmdCode, data, reply, option);
@@ -251,6 +250,27 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityConnectDone(const App
     return;
 }
 
+void UsbFunctionSwitchWindow::UsbFuncAbilityConn::PrepareJson(std::string &jsonStr)
+{
+    cJSON* paramJson = cJSON_CreateObject();
+    int32_t supportedFuncs = GetSupportedFunctions();
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: supportedFuncs %{public}d", __func__, supportedFuncs);
+    cJSON_AddStringToObject(paramJson, "supportedFuncs", std::to_string(supportedFuncs).c_str());
+    std::string uiExtensionTypeStr = "sysDialog/common";
+    cJSON_AddStringToObject(paramJson, "ability.want.params.uiExtensionType", uiExtensionTypeStr.c_str());
+    char *pParamJson = cJSON_PrintUnformatted(paramJson);
+    cJSON_Delete(paramJson);
+    paramJson = nullptr;
+    if (!pParamJson) {
+        jsonStr = "";
+        return;
+    }
+    jsonStr = std::string(pParamJson);
+    cJSON_free(pParamJson);
+    pParamJson = NULL;
+    return;
+}
+
 void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityDisconnectDone(
     const AppExecFwk::ElementName& element, int resultCode)
 {
@@ -264,6 +284,7 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::OnAbilityDisconnectDone(
 void UsbFunctionSwitchWindow::UsbFuncAbilityConn::CloseDialog()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbFuncAbilityConn CloseDialog enter");
+    isAbortDialog_ = true;
     std::lock_guard<std::mutex> guard(remoteMutex_);
     if (remoteObject_ == nullptr) {
         USB_HILOGW(MODULE_USB_SERVICE, "CloseDialog: disconnected");
@@ -283,6 +304,12 @@ void UsbFunctionSwitchWindow::UsbFuncAbilityConn::CloseDialog()
     USB_HILOGI(MODULE_USB_SERVICE, "CloseDialog: ret=%{public}d, %{public}d, %{public}d", ret, success, replyCode);
 }
 
+void UsbFunctionSwitchWindow::UsbFuncAbilityConn::ReopenDialog()
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbFuncAbilityConn ReopenDialog enter");
+    isAbortDialog_ = false;
+}
+
 bool UsbFunctionSwitchWindow::ShowFunctionSwitchWindow()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "show function switch window right now, installed: %{public}d", isDialogInstalled_);
@@ -293,6 +320,7 @@ bool UsbFunctionSwitchWindow::ShowFunctionSwitchWindow()
     if (usbFuncAbilityConn == nullptr) {
         usbFuncAbilityConn = sptr<UsbFuncAbilityConn>(new (std::nothrow) UsbFuncAbilityConn());
     }
+    usbFuncAbilityConn->ReopenDialog();
 
     auto abilityManager = AAFwk::AbilityManagerClient::GetInstance();
     if (abilityManager == nullptr) {
