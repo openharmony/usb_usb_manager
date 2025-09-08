@@ -1369,7 +1369,12 @@ static std::string Utf16leToUtf8(char *utf16leBytes, size_t length)
         USB_HILOGE(MODULE_USB_SERVICE, "iconv failed: %{public}zu", result);
         return " ";
     }
-    return std::string(outbuf.data(), outptr - outbuf.data());
+    std::string str = std::string(outbuf.data(), outptr - outbuf.data());
+    auto iter = str.find('\0');
+    if (iter != std::string::npos) {
+        str = str.substr(0, iter);
+    }
+    return str;
 }
 
 std::string UsbHostManager::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, uint8_t idx)
