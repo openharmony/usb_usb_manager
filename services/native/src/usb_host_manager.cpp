@@ -116,6 +116,11 @@ const std::string SERVICE_NAME = "usb_host_interface_service";
 #endif // USB_MANAGER_PASS_THROUGH
 UsbHostManager::UsbHostManager(SystemAbility *systemAbility)
 {
+    int32_t ret = WatchParameter("const.edm.is_enterprise_device", OnEdmSet, this);
+    if (ret != 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager: WatchParameter is_enterprise_device failed!");
+    }
+
     systemAbility_ = systemAbility;
     usbRightManager_ = std::make_shared<UsbRightManager>();
 #ifndef USB_MANAGER_PASS_THROUGH
@@ -131,6 +136,32 @@ UsbHostManager::~UsbHostManager()
         delete pair.second;
     }
     devices_.clear();
+}
+
+void UsbHostManager::OnEdmSet(const char *key, const char *value, void *context)
+{
+    if (!context || !key || !value) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: invalid function parameters", __func__);
+        return;
+    }
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s changed, value=%{public}s", key, value);
+    auto usbHostManager_ = reinterpret_cast<UsbHostManager*>(context);
+    if (std::string(value) == "true") {
+        // set authorized_default as -1
+        int32_t ret = usbHostManager_->UsbDeviceAuthorize(0, 0, true, "GlobalType");
+        if (ret != UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "set authorized_default failed, ret = %{public}d", ret);
+        }
+        // manage current usb devices
+        for (auto &pair : usbHostManager_->devices_) {
+            pair.second->SetAuthorizeStatus(DISABLED);
+        }
+        (void)usbHostManager_->ManageGlobalInterface(false);
+        if (!usbHostManager->devices_.empty()) {
+            // only need to execute ExecuteStrategy once to cover all devices
+            usbHostManager_->ExecuteStrategy(usbHostManager_->devices_.at(0));
+        }
+    }
 }
 
 #ifdef USB_MANAGER_PASS_THROUGH
@@ -1442,7 +1473,7 @@ int32_t UsbHostManager::UsbDeviceAuthorize(
         return UEC_SERVICE_INVALID_VALUE;
     }
     auto authorizeStatus = iterDev->second->GetAuthorizeStatus();
-    if ((authorized && authorizeStatus != DISABLED) || (!authorized && authorizeStatus == DISABLED)) {
+    if ((authorized && authorizeStatus == ENABLED) || (!authorized && authorizeStatus == DISABLED)) {
         USB_HILOGI(MODULE_USB_SERVICE, "no need to change dev %{public}s authorize state", name.c_str());
         return UEC_OK;
     }
