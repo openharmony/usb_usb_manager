@@ -62,6 +62,7 @@ private:
     sptr<OHOS::HDI::Usb::Serial::V1_0::ISerialInterface> serial_ = nullptr;
     std::shared_ptr<USB::UsbRightManager> usbRightManager_;
     std::mutex serialPortMapMutex_;
+    std::mutex portTokenMapMutex_;
 };
 } // namespace SERIAL
 } // namespace OHOS
