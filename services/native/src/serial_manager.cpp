@@ -96,6 +96,7 @@ int32_t SerialManager::SerialOpen(int32_t portId)
         return OHOS::USB::UEC_SERVICE_INVALID_VALUE;
     }
 
+    std::lock_guard<std::mutex> guard(portTokenMapMutex_);
     if (portTokenMap_.find(portId) != portTokenMap_.end()) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: The port has been opened", __func__);
         return OHOS::USB::UEC_SERIAL_PORT_REPEAT_OPEN;
@@ -133,6 +134,7 @@ int32_t SerialManager::SerialClose(int32_t portId)
         return ErrorCodeWrap(ret);
     }
 
+    std::lock_guard<std::mutex> guard(portTokenMapMutex_);
     portTokenMap_.erase(portId);
     return ret;
 }
@@ -249,11 +251,13 @@ bool SerialManager::IsPortIdExist(int32_t portId)
 
 bool SerialManager::IsPortStatus(int32_t portId)
 {
+    std::lock_guard<std::mutex> guard(portTokenMapMutex_);
     return portTokenMap_.find(portId) != portTokenMap_.end();
 }
 
 bool SerialManager::CheckTokenIdValidity(int32_t portId)
 {
+    std::lock_guard<std::mutex> guard(portTokenMapMutex_);
     if (IPCSkeleton::GetCallingTokenID() != portTokenMap_[portId]) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: The tokenId corresponding to the port is incorrect", __func__);
         return false;
@@ -265,6 +269,7 @@ bool SerialManager::CheckTokenIdValidity(int32_t portId)
 void SerialManager::FreeTokenId(int32_t portId, uint32_t tokenId)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: start", __func__);
+    std::lock_guard<std::mutex> guard(portTokenMapMutex_);
     if ((portTokenMap_.find(portId) == portTokenMap_.end()) || (portTokenMap_[portId] != tokenId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: portid not exist or tokenId failed", __func__);
         return;
