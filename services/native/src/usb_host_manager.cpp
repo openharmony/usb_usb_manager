@@ -116,11 +116,6 @@ const std::string SERVICE_NAME = "usb_host_interface_service";
 #endif // USB_MANAGER_PASS_THROUGH
 UsbHostManager::UsbHostManager(SystemAbility *systemAbility)
 {
-    int32_t ret = WatchParameter("const.edm.is_enterprise_device", OnEdmSet, this);
-    if (ret != 0) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager: WatchParameter is_enterprise_device failed!");
-    }
-
     systemAbility_ = systemAbility;
     usbRightManager_ = std::make_shared<UsbRightManager>();
 #ifndef USB_MANAGER_PASS_THROUGH
@@ -138,36 +133,15 @@ UsbHostManager::~UsbHostManager()
     devices_.clear();
 }
 
-void UsbHostManager::OnEdmSet(const char *key, const char *value, void *context)
-{
-    if (!context || !key || !value) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: invalid function parameters", __func__);
-        return;
-    }
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s changed, value=%{public}s", key, value);
-    auto usbHostManager_ = reinterpret_cast<UsbHostManager*>(context);
-    if (std::string(value) == "true") {
-        // set authorized_default as -1
-        int32_t ret = usbHostManager_->UsbDeviceAuthorize(0, 0, true, "GlobalType");
-        if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "set authorized_default failed, ret = %{public}d", ret);
-        }
-        // manage current usb devices
-        for (auto &pair : usbHostManager_->devices_) {
-            pair.second->SetAuthorizeStatus(DISABLED);
-        }
-        (void)usbHostManager_->ManageGlobalInterface(false);
-        if (!usbHostManager->devices_.empty()) {
-            // only need to execute ExecuteStrategy once to cover all devices
-            usbHostManager_->ExecuteStrategy(usbHostManager_->devices_.at(0));
-        }
-    }
-}
-
 #ifdef USB_MANAGER_PASS_THROUGH
 bool UsbHostManager::InitUsbHostInterface()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "InitUsbHostInterface in");
+    usbDeviceInterface_ = HDI::Usb::V2_0::IUsbDeviceInterface::Get();
+    if (usbDeviceInterface_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "InitUsbDeviceInterface get usbDeviceInterface_ is nullptr");
+        return false;
+    }
     usbHostInterface_ = HDI::Usb::V2_0::IUsbHostInterface::Get(SERVICE_NAME, true);
     if (usbHostInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "InitUsbHostInterface get usbHostInterface_ is nullptr");
@@ -227,7 +201,7 @@ void UsbHostManager::UsbSubmitTransferDeathRecipient::OnRemoteDied(const wptr<IR
 void UsbHostManager::ExecuteStrategy(UsbDevice *devInfo)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbHostManager::ExecuteStrategy start");
-    if (devInfo == nullptr || devInfo->GetClass() == BASE_CLASS_HUB) {
+    if (devInfo == nullptr) {
         return;
     }
     if (!IsEdmEnabled()) {
@@ -1466,6 +1440,10 @@ int32_t UsbHostManager::UsbDeviceAuthorize(
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceAuthorize: set authorized=%{public}d, operationType=%{public}s",
         int(authorized), operationType.c_str());
+    if (usbDeviceInterface_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbDeviceInterface_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     std::string name = std::to_string(busNum) + "-" + std::to_string(devAddr);
     auto iterDev = devices_.find(name);
     if (iterDev == devices_.end()) {
@@ -1478,21 +1456,12 @@ int32_t UsbHostManager::UsbDeviceAuthorize(
         return UEC_OK;
     }
 
-    UsbDev dev = {busNum, devAddr};
-    uint8_t configIndex = 0;
-    if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex) || (configIndex < 1)) {
-        USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    uint8_t index = static_cast<uint8_t>(configIndex) - 1;
-    if (index >= iterDev->second->GetConfigs().size()) {
-        USB_HILOGW(MODULE_USB_SERVICE, "get device config info failed.");
-        return UEC_SERVICE_INVALID_VALUE;
-    }
-    for (auto &interface : iterDev->second->GetConfigs()[index].GetInterfaces()) {
-        interface.SetAuthorizeStatus(authorized);
-        (void)ManageInterface(dev, interface.GetId(), !authorized);
-        std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
+    USB_HILOGI(MODULE_USB_SERVICE, "set dev %{public}s authorized state=%{public}d",
+        name.c_str(), int(authorized));
+    int32_t ret = usbDeviceInterface_->UsbDeviceAuthorize(busNum, devAddr, authorized);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceAuthorize: failed to (un)authorize dev %{public}s", name.c_str());
+        return ret;
     }
 
     if (!authorized) {
@@ -1514,8 +1483,10 @@ int32_t UsbHostManager::UsbDeviceAuthorize(
 int32_t UsbHostManager::UsbInterfaceAuthorize(
     const HDI::Usb::V1_0::UsbDev &dev, uint8_t configId, uint8_t interfaceId, bool authorized)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbInterfaceAuthorize: set authorized=%{public}d", int(authorized));
-    auto ret = ManageInterface(dev, interfaceId, !authorized);
+    const HDI::Usb::V2_0::UsbDev usbDev_ = {dev.busNum, dev.devAddr};
+    auto ret = usbDeviceInterface_->UsbInterfaceAuthorize(usbDev_, configId, interfaceId, authorized);
+    USB_HILOGI(MODULE_USB_SERVICE, "usbInterfaceAuthorize: authorized=%{public}d; ret=%{public}d",
+        int(authorized), ret);
     std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
     return ret;
 }
@@ -1790,22 +1761,9 @@ void UsbHostManager::ExecuteManageDeviceType(const std::vector<UsbDeviceType> &d
     const std::unordered_map<InterfaceType, std::vector<int32_t>> &map, bool isDev)
 {
     std::vector<InterfaceType> interfaceTypes;
-    for (const auto &dev : disableType) {
-        bool isMatch = false;
-        for (auto& [interfaceTypeValues, typeValues] : map) {
-            if ((typeValues[0] == dev.baseClass) &&
-                (typeValues[1] == -1 || typeValues[1] == dev.subClass) &&
-                (typeValues[HALF] == -1 || typeValues[HALF] == dev.protocol)) {
-                    isMatch = true;
-                    interfaceTypes.emplace_back(interfaceTypeValues);
-                    break;
-            }
-        }
-        if (!isMatch) {
-            USB_HILOGE(MODULE_USB_SERVICE, "is not in the type list, %{public}d, %{public}d, %{public}d",
-                dev.baseClass, dev.subClass, dev.protocol);
-        }
-    }
+    std::vector<InterfaceType> disableInterfaces;
+    std::vector<InterfaceType> enableInterfaces;
+    FindMatchingTypes(map, isDev, interfaceTypes, disableType);
 
     for (auto& [interfaceTypeValues, typeValues] : map) {
         bool canFind = false;
@@ -1815,17 +1773,46 @@ void UsbHostManager::ExecuteManageDeviceType(const std::vector<UsbDeviceType> &d
                 break;
             }
         }
-        if ((!isDev) && canFind) {
-            ManageInterfaceTypeImpl(interfaceTypeValues, disable);
+        bool execDisable = canFind? disable : !disable;
+        if (isDev) {
+            ManageDeviceTypeImpl(interfaceTypeValues, execDisable);
+        } else {
+            if (execDisable) {
+                disableInterfaces.emplace_back(interfaceTypeValues);
+            } else {
+                enableInterfaces.emplace_back(interfaceTypeValues);
+            }
         }
-        if ((!isDev) && (!canFind)) {
-            ManageInterfaceTypeImpl(interfaceTypeValues, !disable);
+    }
+
+    for (auto &ifaceTypes : enableInterfaces) {
+        ManageInterfaceTypeImpl(ifaceTypes, false);
+    }
+    for (auto &ifaceTypes : disableInterfaces) {
+        ManageInterfaceTypeImpl(ifaceTypes, true);
+    }
+}
+
+void UsbHostManager::FindMatchingTypes(const std::unordered_map<InterfaceType, std::vector<int32_t>> &map,
+    bool isDev, std::vector<InterfaceType> &matchingTypes, const std::vector<UsbDeviceType> &disableType)
+{
+    for (const auto &dev : disableType) {
+        bool isMatch = false;
+        if (dev.isDeviceType != isDev) {
+            continue;
         }
-        if (isDev && canFind) {
-            ManageDeviceTypeImpl(interfaceTypeValues, disable);
+        for (auto& [interfaceTypeValues, typeValues] : map) {
+            if ((typeValues[BASECLASS_INDEX] == dev.baseClass) &&
+                (typeValues[SUBCLASS_INDEX] == -1 || typeValues[SUBCLASS_INDEX] == dev.subClass) &&
+                (typeValues[PROTOCAL_INDEX] == -1 || typeValues[PROTOCAL_INDEX] == dev.protocol)) {
+                    isMatch = true;
+                    matchingTypes.emplace_back(interfaceTypeValues);
+                    break;
+            }
         }
-        if (isDev && !canFind) {
-            ManageDeviceTypeImpl(interfaceTypeValues, !disable);
+        if (!isMatch) {
+            USB_HILOGE(MODULE_USB_SERVICE, "is not in the type list, %{public}d, %{public}d, %{public}d",
+                dev.baseClass, dev.subClass, dev.protocol);
         }
     }
 }
@@ -1834,19 +1821,38 @@ int32_t UsbHostManager::ManageGlobalInterfaceImpl(bool disable)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
-        if (it->second->GetClass() == BASE_CLASS_HUB) {
+        if (disable && it->second->GetClass() != BASE_CLASS_HUB) {
             continue;
         }
-        int32_t ret = OpenDevice(it->second->GetBusNum(), it->second->GetDevAddr());
-        if (ret != UEC_OK) {
-            USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl open fail ret = %{public}d", ret);
-            continue;
-        }
-        ret = UsbDeviceAuthorize(it->second->GetBusNum(), it->second->GetDevAddr(), !disable, "GlobalType");
+        UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
+        int32_t ret = UsbDeviceAuthorize(dev.busNum, dev.devAddr, !disable, "GlobalType");
         USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceAuthorize ret = %{public}d", ret);
-
-        if (Close(it->second->GetBusNum(), it->second->GetDevAddr()) != UEC_OK) {
-            USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl CloseDevice fail");
+        if (!disable) {
+            ret = OpenDevice(dev.busNum, dev.devAddr);
+            if (ret != UEC_OK) {
+                USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl open fail ret = %{public}d", ret);
+                continue;
+            }
+            // global authorization need to enable all interfaces
+            uint8_t configIndex = 0;
+            if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex) || (configIndex < 1)) {
+                USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
+                (void)Close(dev.busNum, dev.devAddr);
+                continue;
+            }
+            uint8_t index = static_cast<uint8_t>(configIndex) - 1;
+            if (index >= it->second->GetConfigs().size()) {
+                USB_HILOGW(MODULE_USB_SERVICE, "get device config info failed.");
+                (void)Close(dev.busNum, dev.devAddr);
+                continue;
+            }
+            for (auto &interface : it->second->GetConfigs()[index].GetInterfaces()) {
+                UsbInterfaceAuthorize(dev, it->second->GetConfigs()[index].GetId(), interface.GetId(), !disable);
+                interface.SetAuthorizeStatus(!disable);
+            }
+            if (Close(dev.busNum, dev.devAddr) != UEC_OK) {
+                USB_HILOGW(MODULE_USB_SERVICE, "ManageGlobalInterfaceImpl CloseDevice fail");
+            }
         }
     }
     return UEC_OK;
@@ -1889,7 +1895,7 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
         }
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         uint8_t configIndex = 0;
-        if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex) || (configIndex < 1)) {
+        if (GetActiveConfig(dev.busNum, dev.devAddr, configIndex)) {
             USB_HILOGW(MODULE_USB_SERVICE, "get device active config failed.");
             continue;
         }
@@ -1900,8 +1906,9 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
         }
         for (auto &interface : it->second->GetConfigs()[index].GetInterfaces()) {
             int32_t ret = RANDOM_VALUE_INDICATE;
+            bool needReport = true;
             if (interface.GetAuthorizeStatus() == !disable) {
-                continue;
+                needReport = false;
             }
             // 0 indicate base class, 1 indicate subclass, 2 indicate protocal. -1 indicate any value.
             if ((interface.GetClass() == iterInterface->second[BASECLASS_INDEX]) &&
@@ -1915,7 +1922,7 @@ int32_t UsbHostManager::ManageInterfaceTypeImpl(InterfaceType interfaceType, boo
                 interface.SetAuthorizeStatus(disable ? DISABLED : ENABLED);
                 USB_HILOGI(MODULE_USB_SERVICE, "UsbInterfaceAuthorize ret = %{public}d", ret);
             }
-            if (disable && ret == UEC_OK) {
+            if (disable && needReport && ret == UEC_OK) {
                 ReportManageDeviceInfo("InterfaceType", it->second, &interface, true);
             }
         }
