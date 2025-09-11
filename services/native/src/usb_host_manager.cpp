@@ -152,6 +152,7 @@ bool UsbHostManager::InitUsbHostInterface()
         USB_HILOGE(MODULE_USB_SERVICE, "usbManagerSubscriber_ is nullptr");
         return false;
     }
+    SetMdmDefaultAuthorize(true);
     ErrCode ret = usbHostInterface_->BindUsbdHostSubscriber(usbManagerSubscriber_);
     USB_HILOGI(MODULE_USB_SERVICE, "entry InitUsbHostInterface ret: %{public}d", ret);
     return SUCCEEDED(ret);
@@ -1440,6 +1441,19 @@ bool UsbHostManager::IsEdmEnabled()
     return edmParaValue == "true";
 }
 
+void UsbHostManager::SetMdmDefaultAuthorize(bool authorized)
+{
+    std::string isEnterpriseDevice = OHOS::system::GetParameter("const.edm.is_enterprise", "false");
+    USB_HILOGI(MODULE_USB_SERVICE, "set mdm device enter, param=%{public}s", isEnterpriseDevice.c_str());
+    if (isEnterpriseDevice == "true") {
+        // set default authorize status with param {0, 0}, and will enable all devices
+        auto ret = UsbDeviceAuthorize(0, 0, authorized, "GlobalType");
+        if (ret != UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "failed to set usb default authorize for enterprise device");
+        }
+    }
+}
+
 int32_t UsbHostManager::UsbDeviceAuthorize(
     uint8_t busNum, uint8_t devAddr, bool authorized, const std::string &operationType)
 {
@@ -1449,6 +1463,11 @@ int32_t UsbHostManager::UsbDeviceAuthorize(
         USB_HILOGE(MODULE_USB_SERVICE, "usbDeviceInterface_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+    if (busNum == 0 && devAddr == 0) {
+        USB_HILOGI(MODULE_USB_SERVICE, "set default authorize value");
+        return usbDeviceInterface_->UsbDeviceAuthorize(busNum, devAddr, authorized);
+    }
+
     std::string name = std::to_string(busNum) + "-" + std::to_string(devAddr);
     auto iterDev = devices_.find(name);
     if (iterDev == devices_.end()) {

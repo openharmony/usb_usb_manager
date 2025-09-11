@@ -131,6 +131,7 @@ private:
     int32_t FillDevStrings(UsbDevice &dev);
     std::string GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, uint8_t idx);
     bool IsEdmEnabled();
+    void SetMdmDefaultAuthorize(bool authorized);
     int32_t ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whiteList);
     int32_t ExecuteManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable);
     int32_t GetEdmPolicy(bool &IsGlobalDisabled, std::vector<UsbDeviceType> &disableType,
