@@ -30,6 +30,7 @@
 #include "mem_mgr_proxy.h"
 #include "mem_mgr_client.h"
 #include "v2_0/iusb_host_interface.h"
+#include "v2_0/iusb_device_interface.h"
 #include "system_ability_definition.h"
 #include "usb_manager_subscriber.h"
 #include "usb_bulkcallback_impl.h"
@@ -141,6 +142,8 @@ private:
     int32_t GetEdmStroageTypePolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceType> &disableType);
     int32_t GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceId> &trustUsbDeviceIds);
     int32_t ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t interfaceId, bool disable);
+    void FindMatchingTypes(const std::unordered_map<InterfaceType, std::vector<int32_t>> &map, bool isDev,
+        std::vector<InterfaceType> &matchingTypes, const std::vector<UsbDeviceType> &disableType);
     void ExecuteManageDeviceType(const std::vector<UsbDeviceType> &disableType, bool disable,
         const std::unordered_map<InterfaceType, std::vector<int32_t>> &map, bool isDev);
     int32_t ManageGlobalInterfaceImpl(bool disable);
@@ -171,6 +174,7 @@ private:
     };
 
 #ifdef USB_MANAGER_PASS_THROUGH
+    sptr<HDI::Usb::V2_0::IUsbDeviceInterface> usbDeviceInterface_ = nullptr;
     sptr<HDI::Usb::V2_0::IUsbHostInterface> usbHostInterface_ = nullptr;
     sptr<HDI::Usb::V2_0::IUsbdBulkCallback> usbHostHdiCb_ = nullptr;
     sptr<UsbManagerSubscriber> usbManagerSubscriber_;
