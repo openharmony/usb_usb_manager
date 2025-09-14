@@ -104,6 +104,7 @@ int32_t SerialManager::SerialOpen(int32_t portId)
 
     int32_t ret = serial_->SerialOpen(portId);
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialOpen failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
 
@@ -131,6 +132,7 @@ int32_t SerialManager::SerialClose(int32_t portId)
 
     int32_t ret = serial_->SerialClose(portId);
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialClose failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
 
@@ -171,6 +173,7 @@ int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& d
 
     ret = serial_->SerialWrite(portId, data, size, timeout);
     if (ret < UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialWrite failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
     actualSize = static_cast<uint32_t>(ret);
@@ -188,6 +191,7 @@ int32_t SerialManager::SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial
 
     ret = serial_->SerialGetAttribute(portId, attribute);
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialGetAttribute failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
 
@@ -206,6 +210,7 @@ int32_t SerialManager::SerialSetAttribute(int32_t portId,
 
     ret = serial_->SerialSetAttribute(portId, attribute);
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialSetAttribute failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
 
@@ -223,6 +228,7 @@ int32_t SerialManager::SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_
 
     int32_t ret = serial_->SerialGetPortList(serialPortList);
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialGetPortList failed ret = %{public}d", __func__, ret);
         return ret;
     }
     
