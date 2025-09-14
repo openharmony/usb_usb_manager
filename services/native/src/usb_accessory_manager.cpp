@@ -152,6 +152,7 @@ void UsbAccessoryManager::GetAccessoryList(const std::string &bundleName,
         access.SetSerialNumber(bundleName + this->accessory.GetSerialNumber());
         accessoryList.push_back(access);
     }
+    USB_HILOGW(MODULE_USB_SERVICE, "%{public}s: status is not ACC_START", __func__);
     return;
 }
 
