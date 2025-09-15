@@ -2396,6 +2396,7 @@ void UsbService::UnLoadSelf(UnLoadSaType type)
         return;
     }
 #endif // USB_MANAGER_FEATURE_DEVICE
+    std::lock_guard<std::mutex>  guard(unloadSelfTimerMutex_);
     unloadSelfTimer_.Unregister(unloadSelfTimerId_);
     unloadSelfTimer_.Shutdown();
 
