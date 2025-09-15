@@ -4,21 +4,21 @@
             "name":"USB_func_mtp",
             "value":"Transferir archivos",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_hint_cancel",
             "value":"Aceptar",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"usb_right_title",
             "value":"Autorización de acceso USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -32,49 +32,49 @@
             "name":"USB_func_more_notifier",
             "value":"Pulsa para ver más opciones.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_charge_connected_device",
-            "value":"Suministrar energía a un dispositivo conectado",
+            "value":"Suministrar energía a un dispositivo conectado.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp",
             "value":"Transferir imágenes",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp_notifier",
             "value":"Búsqueda de fotos vía USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_charge",
             "value":"Cargar solamente",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"usb_right_content",
             "value":"¿Permitir que %1$s utilice %2$s?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_charge_notifier",
             "value":"Cargando vía USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -88,7 +88,7 @@
             "name":"USB_hint",
             "value":"Usar USB para",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -102,28 +102,28 @@
             "name":"USB_hdc_notifier_title",
             "value":"Depuración USB iniciada",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_reverse_charge",
             "value":"Carga inversa",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_charge_connected_notifier",
             "value":"Suministrando energía al dispositivo conectado vía USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"notAllowButton",
             "value":"Denegar",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -137,14 +137,14 @@
             "name":"allowButton",
             "value":"Permitir",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_notifier",
-            "value":"Transferencia de archivo vía USB",
+            "value":"Transferencia de archivos vía USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {

@@ -137,14 +137,14 @@
             "name":"USB_charge_connected_device",
             "value":"為已連接裝置供電",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_reverse_charge",
             "value":"逆向充電",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {

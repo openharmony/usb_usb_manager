@@ -135,16 +135,16 @@
         },
         {
             "name":"USB_charge_connected_device",
-            "value":"ئۇلانغان ئۈسكۈنىنى توك بىلەن تەمىنلەش ئۈچۈن",
+            "value":"ئۇلانغان ئۈسكۈنىگە توك تەمىنلىنىدۇ.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_reverse_charge",
-            "value":"تەتۈر يۆنىلىشلىك توكلاش",
+            "value":"تەتۈر توكلاش",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {

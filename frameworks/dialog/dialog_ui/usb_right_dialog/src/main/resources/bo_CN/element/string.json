@@ -137,14 +137,14 @@
             "name":"USB_charge_connected_device",
             "value":"སྦྲེལ་ཟིན་པའི་སྒྲིག་ཆས་ལ་གློག་མཁོ་སྤྲོད་བྱེད་པ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_reverse_charge",
-            "value":"ལྡོག་ཕྱོགས་ཀྱི་གློག་གསོག",
+            "value":"ལྡོག་ཕྱོགས་གློག་གསོག",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
