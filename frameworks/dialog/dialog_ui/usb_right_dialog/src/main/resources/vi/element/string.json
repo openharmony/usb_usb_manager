@@ -4,21 +4,21 @@
             "name":"USB_func_mtp",
             "value":"Truyền tệp tin",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_hint_cancel",
             "value":"OK",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"usb_right_title",
             "value":"Cấp quyền truy cập USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -32,70 +32,70 @@
             "name":"USB_func_more_notifier",
             "value":"Chạm để xem thêm tùy chọn.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_charge_connected_device",
-            "value":"Cấp nguồn cho thiết bị được kết nối",
+            "value":"Cấp nguồn cho thiết bị được kết nối.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp",
             "value":"Truyền hình ảnh",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp_notifier",
             "value":"Duyệt ảnh qua USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_charge",
             "value":"Chỉ sạc",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"usb_right_content",
             "value":"Cho phép %1$s sử dụng %2$s?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_charge_notifier",
             "value":"Sạc điện qua USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp_tip",
             "value":"Dành cho hình ảnh và video trong Bộ sưu tập.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_hint",
             "value":"Sử dụng USB để",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_tip2",
             "value":"Đối với các mục trong \"%s\" trong Tệp tin.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -109,42 +109,42 @@
             "name":"USB_func_reverse_charge",
             "value":"Sạc pin cho thiết bị khác",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_charge_connected_notifier",
             "value":"Cấp nguồn cho thiết bị được kết nối qua USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"notAllowButton",
             "value":"Từ chối",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_tip",
             "value":"Đối với các mục trong \"Điện thoại của tôi\" trong Tệp tin.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"allowButton",
             "value":"Cho phép",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_notifier",
             "value":"Truyền tệp tin qua USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {

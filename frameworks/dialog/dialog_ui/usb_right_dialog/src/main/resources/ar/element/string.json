@@ -2,44 +2,44 @@
     "string":[
         {
             "name":"USB_charge_connected_device",
-            "value":"تزويد الأجهزة المتصلة بالطاقة",
+            "value":"توفير الطاقة للأجهزة المتصلة",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_reverse_charge",
             "value":"الشحن العكسي",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_charge_connected_notifier",
             "value":"الجهاز المتصل جارٍ شحنه بالطاقة عبر كابل USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp",
             "value":"نقل الملفات",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_hint_cancel",
             "value":"موافق",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"usb_right_title",
             "value":"تخويل الوصول عبر USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -53,105 +53,105 @@
             "name":"USB_func_more_notifier",
             "value":"انقر هنا لعرض المزيد من الخيارات.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp",
             "value":"نقل الصور",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp_notifier",
             "value":"استعراض الصور عبر كابل USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_charge",
             "value":"الشحن فقط",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"usb_right_content",
             "value":"هل تسمح لتطبيق %1$s باستخدام \"\u202a%2$s\u202c\"؟",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_charge_notifier",
             "value":"الشحن عبر كابل USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp_tip",
-            "value":"للصور والفيديوهات ضمن المعرض",
+            "value":"مناسب للصور والفيديوهات ضمن المعرض",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_hint",
             "value":"استخدام كابل USB لـ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_tip2",
-            "value":"للعناصر ضمن \"%s\" في مدير الملفات.",
+            "value":"مناسب للعناصر الموجودة ضمن \"%s\" في مدير الملفات.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_hdc_notifier_title",
             "value":"تم تشغيل وضع تصحيح أخطاء USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"notAllowButton",
             "value":"رفض",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_tip",
-            "value":"للعناصر ضمن \"هاتفي\" في مدير الملفات.",
+            "value":"مناسب للعناصر الموجودة ضمن \"هاتفي\" في مدير الملفات.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_hdc_notifier_content",
             "value":"انقر لإيقاف تصحيح الأخطاء عبر USB.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"allowButton",
             "value":"سماح",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_notifier",
             "value":"نقل الملفات عبر كابل USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]
