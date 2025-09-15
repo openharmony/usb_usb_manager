@@ -288,6 +288,7 @@ private:
     int32_t commEventRetryTimes_ = 0;
     std::mutex mutex_;
     std::mutex serialPidVidMapMutex_;
+    std::mutex unloadSelfTimerMutex_;
 #ifdef USB_MANAGER_FEATURE_HOST
     std::shared_ptr<UsbHostManager> usbHostManager_;
 #endif // USB_MANAGER_FEATURE_HOST
