@@ -628,7 +628,6 @@ int32_t UsbService::ManageDevice(int32_t vendorId, int32_t productId, bool disab
     return usbHostManager_->ManageDevice(vendorId, productId, disable);
 }
 
-// LCOV_EXCL_START
 void UsbService::UsbDeviceIdChange(const std::vector<UsbDeviceIdInfo> &deviceIdInfoList,
     std::vector<UsbDeviceId> &deviceIdList)
 {
@@ -640,9 +639,7 @@ void UsbService::UsbDeviceIdChange(const std::vector<UsbDeviceIdInfo> &deviceIdI
     }
     return;
 }
-// LCOV_EXCL_STOP
 
-// LCOV_EXCL_START
 int32_t UsbService::ManageDevicePolicy(const std::vector<UsbDeviceIdInfo> &whiteList)
 {
     if (!IsCallerValid()) {
@@ -657,7 +654,6 @@ int32_t UsbService::ManageDevicePolicy(const std::vector<UsbDeviceIdInfo> &white
     UsbDeviceIdChange(whiteList, devIdList);
     return usbHostManager_->ManageDevicePolicy(devIdList);
 }
-// LCOV_EXCL_STOP
 
 int32_t UsbService::ManageInterfaceType(const std::vector<UsbDeviceTypeInfo> &devTypeInfo, bool disable)
 {
