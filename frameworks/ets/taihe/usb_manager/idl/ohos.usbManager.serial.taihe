@@ -14,7 +14,7 @@
  */
 
 @!namespace("@ohos.usbManager.serial", "serialManager")
-@!sts_inject("""loadLibrary("usb_manager_taihe_native.z")""")
+@!sts_inject("""loadLibraryWithPermissionCheck("usb_manager_taihe_native.z", "@ohos.usbManager.serial")""")
 
 function getPortList(): Array<SerialPort>;
 
