@@ -537,11 +537,11 @@ void UsbSrvClient::UsbDeviceIdChange(const std::vector<UsbDeviceId> &deviceIdLis
     return;
 }
 
-int32_t UsbSrvClient::ManageDevicePolicy(std::vector<UsbDeviceId> &whiteList)
+int32_t UsbSrvClient::ManageDevicePolicy(std::vector<UsbDeviceId> &trustList)
 {
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
     std::vector<UsbDeviceIdInfo> deviceIdInfoList{};
-    UsbDeviceIdChange(whiteList, deviceIdInfoList);
+    UsbDeviceIdChange(trustList, deviceIdInfoList);
     int32_t ret = proxy_->ManageDevicePolicy(deviceIdInfoList);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "failed width ret = %{public}d !", ret);

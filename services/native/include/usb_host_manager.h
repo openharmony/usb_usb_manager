@@ -74,7 +74,7 @@ public:
     int32_t SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t configIndex);
     int32_t ManageGlobalInterface(bool disable);
     int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable);
-    int32_t ManageDevicePolicy(std::vector<UsbDeviceId> &whiteList);
+    int32_t ManageDevicePolicy(std::vector<UsbDeviceId> &trustList);
     int32_t ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable);
     int32_t UsbAttachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid);
     int32_t UsbDetachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid);
@@ -131,8 +131,7 @@ private:
     int32_t FillDevStrings(UsbDevice &dev);
     std::string GetDevStringValFromIdx(uint8_t busNum, uint8_t devAddr, uint8_t idx);
     bool IsEdmEnabled();
-    void SetMdmDefaultAuthorize(bool authorized);
-    int32_t ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whiteList);
+    int32_t ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &trustList);
     int32_t ExecuteManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable);
     int32_t GetEdmPolicy(bool &IsGlobalDisabled, std::vector<UsbDeviceType> &disableType,
         std::vector<UsbDeviceId> &trustUsbDeviceIds);
@@ -141,7 +140,7 @@ private:
     int32_t GetEdmTypePolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceType> &disableType);
     int32_t GetEdmGlobalPolicy(sptr<IRemoteObject> remote, bool &IsGlobalDisabled);
     int32_t GetEdmStroageTypePolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceType> &disableType);
-    int32_t GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceId> &trustUsbDeviceIds);
+    int32_t GetEdmTrustListPolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceId> &trustUsbDeviceIds);
     int32_t ManageInterface(const HDI::Usb::V1_0::UsbDev &dev, uint8_t interfaceId, bool disable);
     void FindMatchingTypes(const std::unordered_map<InterfaceType, std::vector<int32_t>> &map, bool isDev,
         std::vector<InterfaceType> &matchingTypes, const std::vector<UsbDeviceType> &disableType);
