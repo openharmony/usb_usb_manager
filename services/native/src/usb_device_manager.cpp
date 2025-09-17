@@ -386,6 +386,8 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             USB_HILOGI(MODULE_USB_SERVICE, "Physical is plug");
         }
         delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, delayTime, true);
+        USB_HILOGI(MODULE_USB_SERVICE, "register a task, id %{public}u, delaytime: %{public}d",
+            delayDisconnTimerId_, delayTime);
     } else {
         USB_HILOGI(MODULE_USB_SERVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
     }
@@ -431,6 +433,8 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             USB_HILOGI(MODULE_USB_SERVICE, "Physical is plug");
         }
         delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, delayTime, true);
+        USB_HILOGI(MODULE_USB_SERVICE, "register a task, id %{public}u, delaytime: %{public}d",
+            delayDisconnTimerId_, delayTime);
     } else {
         USB_HILOGI(MODULE_USB_SERVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
     }
