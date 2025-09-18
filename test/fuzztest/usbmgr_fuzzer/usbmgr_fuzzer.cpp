@@ -25,6 +25,7 @@ using namespace OHOS::USB;
 
 namespace OHOS {
 constexpr int32_t OFFSET = 4;
+constexpr uint32_t CODECOUNTMAX = 100;
 constexpr size_t THRESHOLD = 10;
 const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
 
@@ -55,7 +56,7 @@ bool DoSomethingInterestingWithMyAPI(const uint8_t *rawData, size_t size)
     data.RewindRead(0);
     MessageParcel reply;
     MessageOption option;
-    UsbService::GetGlobalInstance()->OnRemoteRequest(code % 100, data, reply, option);
+    UsbService::GetGlobalInstance()->OnRemoteRequest(code % CODECOUNTMAX, data, reply, option);
     return true;
 }
 } // namespace OHOS
