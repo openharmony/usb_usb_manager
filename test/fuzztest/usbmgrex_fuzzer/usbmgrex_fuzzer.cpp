@@ -95,6 +95,18 @@ const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
 static uint32_t g_usbInterfaceCode = 0;
 static constexpr uint32_t USB_INTERFACE_CODE_COUNT = 64;    // UsbInterfaceCode Count - 1
 
+uint32_t Convert2Uint32(const uint8_t *ptr)
+{
+    if (ptr == nullptr) {
+        return 0;
+    }
+    /*
+     * Move the 0th digit 24 to the left, the first digit 16 to the left, the second digit 8 to the left,
+     * and the third digit no left
+     */
+    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | (ptr[3]);
+}
+
 void SetTestCaseNative(TokenInfoParams *infoInstance)
 {
     uint64_t tokenId = GetAccessTokenId(infoInstance);
@@ -152,10 +164,7 @@ bool DoSomethingInterestingWithMyAPI(const uint8_t *rawData, size_t size)
     if (g_usbInterfaceCode > USB_INTERFACE_CODE_COUNT) {
         return true;
     }
-    uint32_t code = g_usbInterfaceCode;
-    if (code <= USB_INTERFACE_CODE_COUNT) {
-        g_usbInterfaceCode += 1;
-    }
+    uint32_t code = Convert2Uint32(rawData);
     rawData = rawData + OFFSET;
     size = size - OFFSET;
 
