@@ -98,7 +98,7 @@ constexpr uint32_t DISABLE_USB = 1043;
 constexpr uint32_t ALLOWED_USB_DEVICES = 1044;
 constexpr uint32_t USB_STORAGE_DEVICE_ACCESS_POLICY = 1026;
 constexpr uint32_t USB_DEVICE_ACCESS_POLICY = 1059;
-constexpr int32_t WHITELIST_POLICY_MAX_DEVICES = 1000;
+constexpr int32_t TRUSTLIST_POLICY_MAX_DEVICES = 1000;
 constexpr uint32_t EDM_SA_TIME_OUT_CODE = 9200007;
 constexpr int32_t BASECLASS_INDEX = 0;
 constexpr int32_t SUBCLASS_INDEX = 1;
@@ -152,7 +152,6 @@ bool UsbHostManager::InitUsbHostInterface()
         USB_HILOGE(MODULE_USB_SERVICE, "usbManagerSubscriber_ is nullptr");
         return false;
     }
-    SetMdmDefaultAuthorize(true);
     ErrCode ret = usbHostInterface_->BindUsbdHostSubscriber(usbManagerSubscriber_);
     USB_HILOGI(MODULE_USB_SERVICE, "entry InitUsbHostInterface ret: %{public}d", ret);
     return SUCCEEDED(ret);
@@ -389,9 +388,9 @@ int32_t UsbHostManager::ManageDevice(int32_t vendorId, int32_t productId, bool d
     return ManageDeviceImpl(vendorId, productId, disable);
 }
 
-int32_t UsbHostManager::ManageDevicePolicy(std::vector<UsbDeviceId> &whiteList)
+int32_t UsbHostManager::ManageDevicePolicy(std::vector<UsbDeviceId> &trustList)
 {
-    return ExecuteManageDevicePolicy(whiteList);
+    return ExecuteManageDevicePolicy(trustList);
 }
 
 int32_t UsbHostManager::ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
@@ -1441,19 +1440,6 @@ bool UsbHostManager::IsEdmEnabled()
     return edmParaValue == "true";
 }
 
-void UsbHostManager::SetMdmDefaultAuthorize(bool authorized)
-{
-    std::string isEnterpriseDevice = OHOS::system::GetParameter("const.edm.is_enterprise", "false");
-    USB_HILOGI(MODULE_USB_SERVICE, "set mdm device enter, param=%{public}s", isEnterpriseDevice.c_str());
-    if (isEnterpriseDevice == "true") {
-        // set default authorize status with param {0, 0}, and will enable all devices
-        auto ret = UsbDeviceAuthorize(0, 0, authorized, "GlobalType");
-        if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "failed to set usb default authorize for enterprise device");
-        }
-    }
-}
-
 int32_t UsbHostManager::UsbDeviceAuthorize(
     uint8_t busNum, uint8_t devAddr, bool authorized, const std::string &operationType)
 {
@@ -1463,11 +1449,6 @@ int32_t UsbHostManager::UsbDeviceAuthorize(
         USB_HILOGE(MODULE_USB_SERVICE, "usbDeviceInterface_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    if (busNum == 0 && devAddr == 0) {
-        USB_HILOGI(MODULE_USB_SERVICE, "set default authorize value");
-        return usbDeviceInterface_->UsbDeviceAuthorize(busNum, devAddr, authorized);
-    }
-
     std::string name = std::to_string(busNum) + "-" + std::to_string(devAddr);
     auto iterDev = devices_.find(name);
     if (iterDev == devices_.end()) {
@@ -1475,7 +1456,7 @@ int32_t UsbHostManager::UsbDeviceAuthorize(
         return UEC_SERVICE_INVALID_VALUE;
     }
     auto authorizeStatus = iterDev->second->GetAuthorizeStatus();
-    if ((authorized && authorizeStatus == ENABLED) || (!authorized && authorizeStatus == DISABLED)) {
+    if ((authorized && authorizeStatus != DISABLED) || (!authorized && authorizeStatus == DISABLED)) {
         USB_HILOGI(MODULE_USB_SERVICE, "no need to change dev %{public}s authorize state", name.c_str());
         return UEC_OK;
     }
@@ -1515,19 +1496,19 @@ int32_t UsbHostManager::UsbInterfaceAuthorize(
     return ret;
 }
 
-int32_t UsbHostManager::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &whiteList)
+int32_t UsbHostManager::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &trustList)
 {
     int32_t ret = UEC_OK;
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
-        bool inWhiteList = false;
-        for (auto dev : whiteList) {
+        bool inTrustList = false;
+        for (auto dev : trustList) {
             if (it->second->GetProductId() == dev.productId && it->second->GetVendorId() == dev.vendorId) {
-                inWhiteList = true;
+                inTrustList = true;
                 break;
             }
         }
-        if (inWhiteList || whiteList.empty()) {
+        if (inTrustList || trustList.empty()) {
             ret = ManageDeviceImpl(it->second->GetVendorId(), it->second->GetProductId(), false);
         } else {
             ret = ManageDeviceImpl(it->second->GetVendorId(), it->second->GetProductId(), true);
@@ -1590,9 +1571,9 @@ int32_t UsbHostManager::GetEdmPolicy(bool &IsGlobalDisabled, std::vector<UsbDevi
         USB_HILOGE(MODULE_USB_SERVICE, "GetEdmTypePolicy failed.");
         return ret;
     }
-    ret = GetEdmWhiteListPolicy(remote, trustUsbDeviceIds);
+    ret = GetEdmTrustListPolicy(remote, trustUsbDeviceIds);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmWhiteListPolicy failed.");
+        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmTrustListPolicy failed.");
         return ret;
     }
     return UEC_OK;
@@ -1648,7 +1629,7 @@ int32_t UsbHostManager::GetEdmTypePolicy(sptr<IRemoteObject> remote, std::vector
     }
 
     int32_t size = reply.ReadInt32();
-    if (size < 0 || static_cast<uint32_t>(size) > WHITELIST_POLICY_MAX_DEVICES) {
+    if (size < 0 || static_cast<uint32_t>(size) > TRUSTLIST_POLICY_MAX_DEVICES) {
         USB_HILOGE(MODULE_USB_SERVICE, "EdmTypeList size=[%{public}d] is invalid", size);
         return UEC_SERVICE_EDM_DEVICE_SIZE_EXCEED;
     }
@@ -1725,7 +1706,7 @@ int32_t UsbHostManager::GetEdmStroageTypePolicy(sptr<IRemoteObject> remote, std:
     return UEC_OK;
 }
 
-int32_t UsbHostManager::GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceId> &trustUsbDeviceIds)
+int32_t UsbHostManager::GetEdmTrustListPolicy(sptr<IRemoteObject> remote, std::vector<UsbDeviceId> &trustUsbDeviceIds)
 {
     if (remote == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "Remote is nullpter.");
@@ -1743,17 +1724,17 @@ int32_t UsbHostManager::GetEdmWhiteListPolicy(sptr<IRemoteObject> remote, std::v
     int32_t ret = ERR_INVALID_VALUE;
     bool IsSuccess = reply.ReadInt32(ret) && (ret == ERR_OK);
     if (!IsSuccess || (sendRet != UEC_OK)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmWhiteListPolicy failed. sendRet =  %{public}d, ret = %{public}d",
+        USB_HILOGE(MODULE_USB_SERVICE, "GetEdmTrustListPolicy failed. sendRet =  %{public}d, ret = %{public}d",
             sendRet, ret);
         return UEC_SERVICE_EDM_SEND_REQUEST_FAILED;
     }
 
     int32_t size = reply.ReadInt32();
-    if (size < 0 || static_cast<uint32_t>(size) > WHITELIST_POLICY_MAX_DEVICES) {
+    if (size < 0 || static_cast<uint32_t>(size) > TRUSTLIST_POLICY_MAX_DEVICES) {
         USB_HILOGE(MODULE_USB_SERVICE, "EdmTypeList size=[%{public}d] is invalid", size);
         return UEC_SERVICE_EDM_DEVICE_SIZE_EXCEED;
     }
-    USB_HILOGI(MODULE_USB_SERVICE, "GetEdmWhiteListPolicy return size:%{public}d", size);
+    USB_HILOGI(MODULE_USB_SERVICE, "GetEdmTrustListPolicy return size:%{public}d", size);
     for (int32_t i = 0; i < size; i++) {
         UsbDeviceId usbDeviceId;
         usbDeviceId.vendorId = reply.ReadInt32();

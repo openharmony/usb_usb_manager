@@ -640,7 +640,7 @@ void UsbService::UsbDeviceIdChange(const std::vector<UsbDeviceIdInfo> &deviceIdI
     return;
 }
 
-int32_t UsbService::ManageDevicePolicy(const std::vector<UsbDeviceIdInfo> &whiteList)
+int32_t UsbService::ManageDevicePolicy(const std::vector<UsbDeviceIdInfo> &trustList)
 {
     if (!IsCallerValid()) {
         USB_HILOGE(MODULE_USB_SERVICE, "not root or edm process.");
@@ -651,7 +651,7 @@ int32_t UsbService::ManageDevicePolicy(const std::vector<UsbDeviceIdInfo> &white
         return UEC_SERVICE_PRE_MANAGE_INTERFACE_FAILED;
     }
     std::vector<UsbDeviceId> devIdList;
-    UsbDeviceIdChange(whiteList, devIdList);
+    UsbDeviceIdChange(trustList, devIdList);
     return usbHostManager_->ManageDevicePolicy(devIdList);
 }
 

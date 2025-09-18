@@ -30,7 +30,7 @@ bool UsbMgrManageDevicePolicyFuzzTest(const uint8_t* data, size_t size)
         return false;
     }
     std::vector<UsbDevice> devList;
-    std::vector<UsbDeviceId> whiteList;
+    std::vector<UsbDeviceId> trustList;
     UsbDeviceId devId{*reinterpret_cast<const int32_t *>(data), *reinterpret_cast<const int32_t *>(data + OFFSET)};
     auto &usbSrvClient = UsbSrvClient::GetInstance();
     auto ret = usbSrvClient.GetDevices(devList);
@@ -38,12 +38,12 @@ bool UsbMgrManageDevicePolicyFuzzTest(const uint8_t* data, size_t size)
         USB_HILOGE(MODULE_USB_SERVICE, "get devices failed ret=%{public}d", ret);
         return false;
     }
-    ret = usbSrvClient.ManageDevicePolicy(whiteList);
+    ret = usbSrvClient.ManageDevicePolicy(trustList);
     if (ret != UEC_OK) {
         return false;
     }
-    whiteList.emplace_back(devId);
-    ret = usbSrvClient.ManageDevicePolicy(whiteList);
+    trustList.emplace_back(devId);
+    ret = usbSrvClient.ManageDevicePolicy(trustList);
     if (ret != UEC_OK) {
         return false;
     }

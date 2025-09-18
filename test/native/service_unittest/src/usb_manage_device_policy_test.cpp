@@ -74,22 +74,22 @@ void UsbManageDevicePolicyTest::TearDown(void) {}
 
 /**
  * @tc.name: ManageDevicePolicy001
- * @tc.desc: Test functions to ManageDevicePolicy(std::vector<UsbDeviceId> &whiteList);
+ * @tc.desc: Test functions to ManageDevicePolicy(std::vector<UsbDeviceId> &trustList);
  * @tc.type: FUNC
  */
 HWTEST_F(UsbManageDevicePolicyTest, ManageGlobalInterface001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ManageDevicePolicy001 : ManageDevicePolicy");
     auto &client = UsbSrvClient::GetInstance();
-    std::vector<UsbDeviceId> whiteList{};
-    auto ret = client.ManageDevicePolicy(whiteList);
+    std::vector<UsbDeviceId> trustList{};
+    auto ret = client.ManageDevicePolicy(trustList);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageDevicePolicy001 : ManageDevicePolicy");
 }
 
 /**
  * @tc.name: ManageDevicePolicy002
- * @tc.desc: Test functions to ManageDevicePolicy(std::vector<UsbDeviceId> &whiteList);
+ * @tc.desc: Test functions to ManageDevicePolicy(std::vector<UsbDeviceId> &trustList);
  * @tc.type: FUNC
  */
 HWTEST_F(UsbManageDevicePolicyTest, ManageDevicePolicy002, TestSize.Level1)
@@ -97,8 +97,8 @@ HWTEST_F(UsbManageDevicePolicyTest, ManageDevicePolicy002, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ManageDevicePolicy002 : ManageDevicePolicy");
     UsbCommonTest::GrantPermissionNormalNative();
     auto &client = UsbSrvClient::GetInstance();
-    std::vector<UsbDeviceId> whiteList{};
-    auto ret = client.ManageDevicePolicy(whiteList);
+    std::vector<UsbDeviceId> trustList{};
+    auto ret = client.ManageDevicePolicy(trustList);
     ASSERT_NE(ret, 0);
     UsbCommonTest::GrantPermissionSysNative();
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageDevicePolicy002 : ManageDevicePolicy");
@@ -106,7 +106,7 @@ HWTEST_F(UsbManageDevicePolicyTest, ManageDevicePolicy002, TestSize.Level1)
 
 /**
  * @tc.name: ManageDevicePolicy003
- * @tc.desc: Test functions to ManageDevicePolicy(std::vector<UsbDeviceId> &whiteList);
+ * @tc.desc: Test functions to ManageDevicePolicy(std::vector<UsbDeviceId> &trustList);
  * @tc.type: FUNC
  */
 HWTEST_F(UsbManageDevicePolicyTest, ManageDevicePolicy003, TestSize.Level1)
@@ -114,20 +114,20 @@ HWTEST_F(UsbManageDevicePolicyTest, ManageDevicePolicy003, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ManageDevicePolicy003 : ManageDevicePolicy");
     auto &client = UsbSrvClient::GetInstance();
     std::vector<UsbDevice> devList;
-    std::vector<UsbDeviceId> whiteList;
+    std::vector<UsbDeviceId> trustList;
     auto ret = client.GetDevices(devList);
     ASSERT_EQ(ret, 0);
     ASSERT_TRUE(!devList.empty());
     UsbDeviceId devId = {0, 0};
-    whiteList.emplace_back(devId);
-    ret = client.ManageDevicePolicy(whiteList);
+    trustList.emplace_back(devId);
+    ret = client.ManageDevicePolicy(trustList);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageDevicePolicy003 : ManageDevicePolicy");
 }
 
 /**
  * @tc.name: ManageDevicePolicy004
- * @tc.desc: Test functions to ManageDevicePolicy(std::vector<UsbDeviceId> &whiteList);
+ * @tc.desc: Test functions to ManageDevicePolicy(std::vector<UsbDeviceId> &trustList);
  * @tc.type: FUNC
  */
 HWTEST_F(UsbManageDevicePolicyTest, ManageDevicePolicy004, TestSize.Level1)
@@ -135,22 +135,22 @@ HWTEST_F(UsbManageDevicePolicyTest, ManageDevicePolicy004, TestSize.Level1)
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ManageDevicePolicy004 : ManageDevicePolicy");
     auto &client = UsbSrvClient::GetInstance();
     std::vector<UsbDevice> devList;
-    std::vector<UsbDeviceId> whiteList;
+    std::vector<UsbDeviceId> trustList;
     auto ret = client.GetDevices(devList);
     ASSERT_EQ(ret, 0);
     ASSERT_TRUE(!devList.empty());
     UsbDeviceId devId;
     devId.productId = devList.at(0).GetProductId();
     devId.vendorId = devList.at(0).GetVendorId();
-    whiteList.emplace_back(devId);
-    ret = client.ManageDevicePolicy(whiteList);
+    trustList.emplace_back(devId);
+    ret = client.ManageDevicePolicy(trustList);
     ASSERT_EQ(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageDevicePolicy004 : ManageDevicePolicy");
 }
 
 /**
  * @tc.name: ManageDevicePolicy005
- * @tc.desc: Test functions to ManageDevicePolicy(std::vector<UsbDeviceId> &whiteList);
+ * @tc.desc: Test functions to ManageDevicePolicy(std::vector<UsbDeviceId> &trustList);
  * @tc.type: FUNC
  */
 HWTEST_F(UsbManageDevicePolicyTest, ManageDevicePolicy005, TestSize.Level1)
@@ -159,13 +159,13 @@ HWTEST_F(UsbManageDevicePolicyTest, ManageDevicePolicy005, TestSize.Level1)
     UsbCommonTest::GrantPermissionNormalNative();
     auto &client = UsbSrvClient::GetInstance();
     std::vector<UsbDevice> devList;
-    std::vector<UsbDeviceId> whiteList;
+    std::vector<UsbDeviceId> trustList;
     auto ret = client.GetDevices(devList);
     ASSERT_EQ(ret, 0);
     ASSERT_TRUE(!devList.empty());
     UsbDeviceId devId = {0, 0};
-    whiteList.emplace_back(devId);
-    ret = client.ManageDevicePolicy(whiteList);
+    trustList.emplace_back(devId);
+    ret = client.ManageDevicePolicy(trustList);
     ASSERT_NE(ret, 0);
     UsbCommonTest::GrantPermissionSysNative();
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageDevicePolicy005 : ManageDevicePolicy");
@@ -173,7 +173,7 @@ HWTEST_F(UsbManageDevicePolicyTest, ManageDevicePolicy005, TestSize.Level1)
 
 /**
  * @tc.name: ManageDevicePolicy006
- * @tc.desc: Test functions to ManageDevicePolicy(std::vector<UsbDeviceId> &whiteList);
+ * @tc.desc: Test functions to ManageDevicePolicy(std::vector<UsbDeviceId> &trustList);
  * @tc.type: FUNC
  */
 HWTEST_F(UsbManageDevicePolicyTest, ManageDevicePolicy006, TestSize.Level1)
@@ -182,15 +182,15 @@ HWTEST_F(UsbManageDevicePolicyTest, ManageDevicePolicy006, TestSize.Level1)
     UsbCommonTest::GrantPermissionNormalNative();
     auto &client = UsbSrvClient::GetInstance();
     std::vector<UsbDevice> devList;
-    std::vector<UsbDeviceId> whiteList;
+    std::vector<UsbDeviceId> trustList;
     auto ret = client.GetDevices(devList);
     ASSERT_EQ(ret, 0);
     ASSERT_TRUE(!devList.empty());
     UsbDeviceId devId;
     devId.productId = devList.at(0).GetProductId();
     devId.vendorId = devList.at(0).GetVendorId();
-    whiteList.emplace_back(devId);
-    ret = client.ManageDevicePolicy(whiteList);
+    trustList.emplace_back(devId);
+    ret = client.ManageDevicePolicy(trustList);
     ASSERT_NE(ret, 0);
     UsbCommonTest::GrantPermissionSysNative();
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : ManageDevicePolicy006 : ManageDevicePolicy");
