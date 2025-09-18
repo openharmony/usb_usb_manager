@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#include "accesstoken_kit.h"
+#include "nativetoken_kit.h"
+#include "token_setproc.h"
 #include "usbmgr_fuzzer.h"
 #include <cstddef>
 #include <cstdint>
@@ -52,7 +55,7 @@ bool DoSomethingInterestingWithMyAPI(const uint8_t *rawData, size_t size)
     data.RewindRead(0);
     MessageParcel reply;
     MessageOption option;
-    UsbService::GetGlobalInstance()->OnRemoteRequest(code, data, reply, option);
+    UsbService::GetGlobalInstance()->OnRemoteRequest(code % 100, data, reply, option);
     return true;
 }
 } // namespace OHOS
@@ -66,5 +69,26 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
     /* Run your code on data */
     OHOS::DoSomethingInterestingWithMyAPI(data, size);
+    return 0;
+}
+static const uint64_t SYSTEM_APP_MASK = (static_cast<uint64_t>(1) << 32);
+
+extern "C" int LLVMFuzzerInitialize(int *argc, char **argv)
+{
+    constexpr int permissionNum = 1;
+    const char *perms[permissionNum] = {"ohos.permission.MANAGE_USB_CONFIG"};
+    NativeTokenInfoParams info = {
+        .dcapsNum = 0,
+        .permsNum = permissionNum,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .processName = "usb_manager_fuzztest",
+        .aplStr = "system_basic",
+    };
+    uint64_t tokenId = GetAccessTokenId(&info);
+    SetSelfTokenID(tokenId | SYSTEM_APP_MASK);
+    OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
     return 0;
 }
