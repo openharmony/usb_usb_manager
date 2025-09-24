@@ -33,6 +33,7 @@ int32_t UsbTransferCallbackImpl::OnTransferWriteCallback(int32_t status, int32_t
     OHOS::MessageParcel data;
     OHOS::MessageParcel reply;
     OHOS::MessageOption option;
+    data.WriteInterfaceToken(UsbdStubCallBack::GetDescriptor());
 
     UsbPassIsoVecParcel usbIsoVecParcel;
     usbIsoVecParcel.isoInfoVec = isoInfo;
@@ -70,6 +71,7 @@ int32_t UsbTransferCallbackImpl::OnTransferReadCallback(int32_t status, int32_t 
         return UEC_SERVICE_INVALID_VALUE;
     }
     OHOS::MessageParcel data;
+    data.WriteInterfaceToken(UsbdStubCallBack::GetDescriptor());
     UsbPassIsoVecParcel usbIsoVecParcel;
     usbIsoVecParcel.isoInfoVec = isoInfo;
     if (!data.WriteParcelable(&usbIsoVecParcel)) {

@@ -22,12 +22,22 @@ namespace OHOS::USB {
 int32_t UsbdStubCallBack::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
     MessageOption &option)
 {
+    std::u16string descriptor = GetDescriptor();
+    std::u16string remoteDescriptor = data.ReadInterfaceToken()
     switch (code) {
         case CMD_USBD_TRANSFER_CALLBACK_WRITE: {
+            if (descriptor != remoteDescriptor) {
+                USB_HILOGE(MODULE_USB_INNERKIT, "UsbdStubCallBack: invalid descriptor");
+                return UEC_INTERFACE_PERMISSION_DENIED;
+            }
             TransferWriteCallback(code, data);
             break;
         }
         case CMD_USBD_TRANSFER_CALLBACK_READ: {
+            if (descriptor != remoteDescriptor) {
+                USB_HILOGE(MODULE_USB_INNERKIT, "UsbdStubCallBack: invalid descriptor");
+                return UEC_INTERFACE_PERMISSION_DENIED;
+            }
             TransferReadCallback(code, data);
             break;
         }

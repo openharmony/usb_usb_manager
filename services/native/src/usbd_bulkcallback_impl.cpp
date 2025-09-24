@@ -31,6 +31,7 @@ int32_t UsbdBulkCallbackImpl::OnBulkWriteCallback(int32_t status, int32_t actLen
     OHOS::MessageParcel data;
     OHOS::MessageParcel reply;
     OHOS::MessageOption option;
+    data.WriteInterfaceToken(UsbdBulkCallBack::GetDescriptor());
     if (!data.WriteInt32(status)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write status failed", __func__);
         return UEC_SERVICE_INVALID_VALUE;
@@ -54,6 +55,7 @@ int32_t UsbdBulkCallbackImpl::OnBulkReadCallback(int32_t status, int32_t actLeng
         return UEC_SERVICE_INVALID_VALUE;
     }
     OHOS::MessageParcel data;
+    data.WriteInterfaceToken(UsbdBulkCallBack::GetDescriptor());
     if (!data.WriteInt32(status)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write status failed", __func__);
         return UEC_SERVICE_INVALID_VALUE;
