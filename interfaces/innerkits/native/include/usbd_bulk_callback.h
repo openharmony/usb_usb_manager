@@ -16,8 +16,6 @@
 #ifndef USBD_BULK_CALLBACK_H
 #define USBD_BULK_CALLBACK_H
 
-#include <iremote_proxy.h>
-
 #include "ipc_object_stub.h"
 
 namespace OHOS::USB {
