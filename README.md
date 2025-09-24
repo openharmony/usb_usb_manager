@@ -17,7 +17,7 @@ The architecture logically consists of three layers:
 
 1. USB API: provides USB APIs that implement various basic functions, for example, query of the USB device list, USB device plug notification, USB host and device mode switching, bulk transfer, control transfer, right management, and function switching in device mode.
 2. USB Service: interacts with the HAL layer to receive, parse, and distribute data, manages foreground and background policies, and performs USB device management and right control.
-3. USB HAL: provides driver capability APIs that can be directly called in user mode. The APIs are classified into the DDK initialization class, interface operation class, and request operation class by function. They can be used to perform DDK initialization, bind/release and open/close an interface, allocate/release a request, and implement isochronous or non-isochronous transfer. The USB HAL code is stored in [drivers\_peripheral](https://gitee.com/openharmony/drivers_peripheral/blob/master/README.md).
+3. USB HAL: provides driver capability APIs that can be directly called in user mode. The APIs are classified into the DDK initialization class, interface operation class, and request operation class by function. They can be used to perform DDK initialization, bind/release and open/close an interface, allocate/release a request, and implement isochronous or non-isochronous transfer. The USB HAL code is stored in [drivers\_peripheral](https://gitcode.com/openharmony/drivers_peripheral/blob/master/README.md).
 
 ## Directory Structure`<a name="section19472752217"></a>`
 
@@ -36,7 +36,7 @@ base/usb/usb_manager
 
 ## Available APIs`<a name="section19472752218"></a>`
 
-### [External APIs](https://gitee.com/openharmony/usb_manager/blob/master/interfaces/kits/js/@ohos.usb.d.ts)
+### [External APIs](https://gitcode.com/openharmony/usb_manager/blob/master/interfaces/kits/js/@ohos.usb.d.ts)
 
 ### Internal APIs
 
@@ -167,12 +167,12 @@ usb.setCurrentFunctions(funType).then(data => {
 
 ## Repositories Involved`<a name="section63151229062"></a>`
 
-[Drive Subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/driver.md)
+[Drive Subsystem](https://gitcode.com/openharmony/docs/blob/master/en/readme/driver.md)
 
-[drivers\_peripheral](https://gitee.com/openharmony/drivers_peripheral/blob/master/README.md)
+[drivers\_peripheral](https://gitcode.com/openharmony/drivers_peripheral/blob/master/README.md)
 
-[drivers\_framework](https://gitee.com/openharmony/drivers_framework/blob/master/README.md)
+[drivers\_framework](https://gitcode.com/openharmony/drivers_framework/blob/master/README.md)
 
-[drivers\_adapter](https://gitee.com/openharmony/drivers_adapter/blob/master/README.md)
+[drivers\_adapter](https://gitcode.com/openharmony/drivers_adapter/blob/master/README.md)
 
-[drivers\_adapter\_khdf\_linux](https://gitee.com/openharmony/drivers_adapter_khdf_linux/blob/master/README.md)
+[drivers\_adapter\_khdf\_linux](https://gitcode.com/openharmony/drivers_adapter_khdf_linux/blob/master/README.md)

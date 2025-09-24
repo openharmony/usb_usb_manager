@@ -15,7 +15,7 @@ USB服务框架如下图所示：
 架构及功能介绍：
 1. USB API：提供USB的基础API，主要包含查询USB设备的列表、设备插拔通知、USB HOST/DEVICE 功能切换、批量数据传输、控制命令传输、USB设备打开的权限控制及USB device模式下的function功能切换等。
 2. USB Service：主要实现HAL层数据接收、解析、分发，前后台的策略管控，对该设备USB的管理，USB权限管控等。
-3. USB HAL层：提供给用户态可直接调用的驱动能力接口，按照功能分类三大类：DDK初始化类、对interface对象操作类、对request对象操作类，可以提供DDK初始化、interface绑定和释放，打开和关闭操作，request的申请和释放，同步和异步传输等。HAL层代码位于[drivers\_peripheral](https://gitee.com/openharmony/drivers_peripheral/blob/master/README_zh.md)
+3. USB HAL层：提供给用户态可直接调用的驱动能力接口，按照功能分类三大类：DDK初始化类、对interface对象操作类、对request对象操作类，可以提供DDK初始化、interface绑定和释放，打开和关闭操作，request的申请和释放，同步和异步传输等。HAL层代码位于[drivers\_peripheral](https://gitcode.com/openharmony/drivers_peripheral/blob/master/README_zh.md)
 
 ## 目录<a name="section19472752217"></a>
 ```
@@ -31,7 +31,7 @@ base/usb/usb_manager
 └── utils                       # 工具和通用层
 ```
 ## 接口<a name="section19472752218"></a>
-### [外部接口](interfaces/kits/js/@ohos.usbManager.d.ts)
+### [外部接口](https://gitcode.com/openharmony/interface_sdk-js/blob/master/api/@ohos.usbManager.d.ts)
 
 ### 内部接口
 #### Host 功能接口
@@ -142,12 +142,12 @@ usb.setCurrentFunctions(funType).then(data => {
 
 ## 相关仓<a name="section63151229062"></a>
 
-[驱动子系统](https://gitee.com/openharmony/docs/blob/master/zh-cn/readme/%E9%A9%B1%E5%8A%A8%E5%AD%90%E7%B3%BB%E7%BB%9F.md)
+[驱动子系统](https://gitcode.com/openharmony/docs/blob/master/zh-cn/readme/%E9%A9%B1%E5%8A%A8%E5%AD%90%E7%B3%BB%E7%BB%9F.md)
 
-[drivers\_peripheral](https://gitee.com/openharmony/drivers_peripheral/blob/master/README_zh.md)
+[drivers\_peripheral](https://gitcode.com/openharmony/drivers_peripheral/blob/master/README_zh.md)
 
-[drivers\_framework](https://gitee.com/openharmony/drivers_framework/blob/master/README_zh.md)
+[drivers\_framework](https://gitcode.com/openharmony/drivers_framework/blob/master/README_zh.md)
 
-[drivers\_adapter](https://gitee.com/openharmony/drivers_adapter/blob/master/README_zh.md)
+[drivers\_adapter](https://gitcode.com/openharmony/drivers_adapter/blob/master/README_zh.md)
 
-[drivers\_adapter\_khdf\_linux](https://gitee.com/openharmony/drivers_adapter_khdf_linux/blob/master/README_zh.md)
+[drivers\_adapter\_khdf\_linux](https://gitcode.com/openharmony/drivers_adapter_khdf_linux/blob/master/README_zh.md)
