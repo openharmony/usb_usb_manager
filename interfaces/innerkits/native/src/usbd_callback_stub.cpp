@@ -24,7 +24,7 @@ int32_t UsbdStubCallBack::OnRemoteRequest(uint32_t code, MessageParcel &data, Me
 {
     switch (code) {
         case CMD_USBD_TRANSFER_CALLBACK_WRITE: {
-            std::u16string descriptor = GetObjectDescriptor();
+            std::u16string descriptor = GetInterfaceDescriptor();
             std::u16string remoteDescriptor = data.ReadInterfaceToken();
             if (descriptor != remoteDescriptor) {
                 USB_HILOGE(MODULE_USB_INNERKIT, "UsbdStubCallBack: invalid descriptor");
@@ -34,7 +34,7 @@ int32_t UsbdStubCallBack::OnRemoteRequest(uint32_t code, MessageParcel &data, Me
             break;
         }
         case CMD_USBD_TRANSFER_CALLBACK_READ: {
-            std::u16string descriptor = GetObjectDescriptor();
+            std::u16string descriptor = GetInterfaceDescriptor();
             std::u16string remoteDescriptor = data.ReadInterfaceToken();
             if (descriptor != remoteDescriptor) {
                 USB_HILOGE(MODULE_USB_INNERKIT, "UsbdStubCallBack: invalid descriptor");
