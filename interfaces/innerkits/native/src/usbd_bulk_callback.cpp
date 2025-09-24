@@ -24,9 +24,7 @@ int32_t UsbdBulkCallBack::OnRemoteRequest(uint32_t code, MessageParcel &data, Me
 {
     switch (code) {
         case CMD_USBD_BULK_CALLBACK_WRITE: {
-            std::u16string descriptor = GetDescriptor();
-            std::u16string remoteDescriptor = data.ReadInterfaceToken();
-            if (descriptor != remoteDescriptor) {
+            if (GetDescriptor() != data.ReadInterfaceToken()) {
                 USB_HILOGE(MODULE_USB_INNERKIT, "UsbdBulkCallBack: invalid descriptor");
                 return UEC_INTERFACE_PERMISSION_DENIED;
             }
@@ -45,9 +43,7 @@ int32_t UsbdBulkCallBack::OnRemoteRequest(uint32_t code, MessageParcel &data, Me
             break;
         }
         case CMD_USBD_BULK_CALLBACK_READ: {
-            std::u16string descriptor = GetDescriptor();
-            std::u16string remoteDescriptor = data.ReadInterfaceToken();
-            if (descriptor != remoteDescriptor) {
+            if (GetDescriptor() != data.ReadInterfaceToken()) {
                 USB_HILOGE(MODULE_USB_INNERKIT, "UsbdBulkCallBack: invalid descriptor");
                 return UEC_INTERFACE_PERMISSION_DENIED;
             }
