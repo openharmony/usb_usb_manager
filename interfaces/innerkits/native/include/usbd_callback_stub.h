@@ -16,6 +16,8 @@
 #ifndef USBD_STUB_CALLBACK_H
 #define USBD_STUB_CALLBACK_H
 
+#include <iremote_proxy.h>
+
 #include "ipc_object_stub.h"
 #include "v1_2/usb_types.h"
 
