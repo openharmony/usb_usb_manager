@@ -36,7 +36,10 @@ int32_t UsbdTransferCallbackImpl::OnTransferWriteCallback(int32_t status, int32_
 
     UsbIsoVecParcel usbIsoVecParcel;
     usbIsoVecParcel.isoInfoVec = isoInfo;
-    data.WriteInterfaceToken(UsbdStubCallBack::GetDescriptor());
+    if (!data.WriteInterfaceToken(UsbdStubCallBack::GetDescriptor())) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write token failed", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     if (!data.WriteParcelable(&usbIsoVecParcel)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:write usbIsoVecParcel failed", __func__);
         return UEC_SERVICE_INVALID_VALUE;
@@ -73,7 +76,10 @@ int32_t UsbdTransferCallbackImpl::OnTransferReadCallback(int32_t status, int32_t
     OHOS::MessageParcel data;
     UsbIsoVecParcel usbIsoVecParcel;
     usbIsoVecParcel.isoInfoVec = isoInfo;
-    data.WriteInterfaceToken(UsbdStubCallBack::GetDescriptor());
+    if (!data.WriteInterfaceToken(UsbdStubCallBack::GetDescriptor())) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write token failed", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     if (!data.WriteParcelable(&usbIsoVecParcel)) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:write usbIsoVecParcel failed", __func__);
         return UEC_SERVICE_INVALID_VALUE;
