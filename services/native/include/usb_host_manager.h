@@ -152,6 +152,7 @@ private:
     int32_t ManageDeviceTypeImpl(InterfaceType interfaceType, bool disable);
     void ReportManageDeviceInfo(const std::string &operationType, UsbDevice* device,
         const UsbInterface* interface, bool isInterfaceType);
+    int32_t CheckDevPathIsExist(uint8_t busNum, uint8_t devAddr);
     MAP_STR_DEVICE devices_;
     SystemAbility *systemAbility_;
     std::mutex mutex_;
