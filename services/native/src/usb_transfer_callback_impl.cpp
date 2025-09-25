@@ -33,6 +33,10 @@ int32_t UsbTransferCallbackImpl::OnTransferWriteCallback(int32_t status, int32_t
     OHOS::MessageParcel data;
     OHOS::MessageParcel reply;
     OHOS::MessageOption option;
+    if (!data.WriteInterfaceToken(remote_->GetInterfaceDescriptor())) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write token failed", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
 
     UsbPassIsoVecParcel usbIsoVecParcel;
     usbIsoVecParcel.isoInfoVec = isoInfo;
@@ -70,6 +74,10 @@ int32_t UsbTransferCallbackImpl::OnTransferReadCallback(int32_t status, int32_t 
         return UEC_SERVICE_INVALID_VALUE;
     }
     OHOS::MessageParcel data;
+    if (!data.WriteInterfaceToken(remote_->GetInterfaceDescriptor())) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: write token failed", __func__);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     UsbPassIsoVecParcel usbIsoVecParcel;
     usbIsoVecParcel.isoInfoVec = isoInfo;
     if (!data.WriteParcelable(&usbIsoVecParcel)) {
