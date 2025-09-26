@@ -1418,10 +1418,14 @@ ohos_fuzztest("UsbMgrSerialSetAttributeFuzzTest") {
   ]
 
   external_deps = [
+    "ability_runtime:ability_manager",
     "c_utils:utils",
     "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
   ]
 
   sources = [ "usbmgrserialsetattribute_fuzzer/usbmgrserialsetattribute_fuzzer.cpp" ]

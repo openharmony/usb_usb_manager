@@ -15,23 +15,26 @@
 
 #include "usbmgrserialsetattribute_fuzzer.h"
 
-#include "usb_srv_client.h"
+#include "usb_service.h"
 #include "usb_errors.h"
 
 namespace OHOS {
 const uint32_t OFFSET = 4;
+const uint32_t code = 0x3C;
+const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
 namespace USB {
-    bool UsbMgrSerialSetAttributeFuzzTest(const uint8_t* data, size_t size)
+    bool UsbMgrSerialSetAttributeFuzzTest(const uint8_t* rawData, size_t size)
     {
-        auto &usbSrvClient = UsbSrvClient::GetInstance();
-        if (data == nullptr || size < OFFSET + sizeof(UsbSerialAttr)) {
+        if (rawData == nullptr) {
             return false;
         }
-        int32_t ret = usbSrvClient.SerialSetAttribute(*reinterpret_cast<const int32_t*>(data),
-            reinterpret_cast<const UsbSerialAttr &>(std::move(data + OFFSET)));
-        if (ret == UEC_OK) {
-            return false;
-        }
+        MessageParcel data;
+        data.WriteInterfaceToken(USB_INTERFACE_TOKEN);
+        data.WriteBuffer(rawData, size);
+        data.RewindRead(0);
+        MessageParcel reply;
+        MessageOption option;
+        UsbService::GetGlobalInstance()->OnRemoteRequest(code, data, reply, option);
         return true;
     }
 }
