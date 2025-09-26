@@ -25,7 +25,7 @@ const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
 namespace USB {
     bool UsbMgrSerialSetAttributeFuzzTest(const uint8_t* rawData, size_t size)
     {
-        if (data == nullptr) {
+        if (rawData == nullptr) {
             return false;
         }
         MessageParcel data;
