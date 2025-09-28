@@ -156,6 +156,7 @@ private:
     MAP_STR_DEVICE devices_;
     SystemAbility *systemAbility_;
     std::mutex mutex_;
+    std::shared_mutex devicesMutex_;
     std::shared_ptr<UsbRightManager> usbRightManager_;
     sptr<HDI::Usb::V1_0::IUsbdBulkCallback> hdiCb_ = nullptr;
     std::mutex hdiCbMutex_;
