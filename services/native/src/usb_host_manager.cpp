@@ -43,6 +43,7 @@
 #include "usb_napi_errors.h"
 #include "accesstoken_kit.h"
 #include "usb_connection_notifier.h"
+#include "securec.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::EventFwk;
@@ -110,7 +111,8 @@ constexpr int32_t BASE_CLASS_AUDIO = 0x01;
 constexpr int32_t BASE_CLASS_HUB = 0x09;
 constexpr int32_t RETRY_NUM = 6;
 constexpr uint32_t RETRY_INTERVAL = 50;
-
+constexpr uint32_t USB_PATH_LENGTH = 64;
+constexpr const char* USB_DEV_FS_PATH = "/dev/bus/usb";
 #ifdef USB_MANAGER_PASS_THROUGH
 const std::string SERVICE_NAME = "usb_host_interface_service";
 #endif // USB_MANAGER_PASS_THROUGH
@@ -477,6 +479,32 @@ int32_t UsbHostManager::GetDevices(std::vector<UsbDevice> &deviceList)
     return UEC_OK;
 }
 
+int32_t UsbHostManager::CheckDevPathIsExist(uint8_t busNum, uint8_t devAddr)
+{
+    char path[USB_PATH_LENGTH] = {"\0"};
+    int32_t ret = sprintf_s(path, sizeof(path), "%s/%03u/%03u", USB_DEV_FS_PATH, busNum, devAddr);
+    if (ret < UEC_OK) {
+        USB_HILOGW(MODULE_USB_SERVICE, "check dev path, sprintf_s failed, ret: %{public}d, path, %{public}s. ",
+            ret, path);
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+
+    ret = access(path, F_OK);
+    if (ret != UEC_OK) {
+        USB_HILOGW(MODULE_USB_SERVICE, "check dev path, path not exist, ret: %{public}d, path, %{public}s. ",
+            ret, path);
+        return UEC_SERVICE_INNER_ERR;
+    }
+
+    ret = access(path, R_OK | W_OK);
+    if (ret != UEC_OK) {
+        USB_HILOGW(MODULE_USB_SERVICE, "has no read or write permission, ret: %{public}d, path, %{public}s. ",
+            ret, path);
+        return UEC_SERVICE_INNER_ERR;
+    }
+    return UEC_OK;
+}
+
 int32_t UsbHostManager::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice &dev)
 {
     const UsbDev uDev = {busNum, devAddr};
@@ -485,12 +513,13 @@ int32_t UsbHostManager::GetDeviceInfo(uint8_t busNum, uint8_t devAddr, UsbDevice
     int32_t res = UEC_OK;
     int32_t ret = UEC_OK;
     for (int32_t i = 0; i < RETRY_NUM; i++) {
-        ret = OpenDevice(busNum, devAddr);
+        ret = CheckDevPathIsExist(busNum, devAddr);
         if (ret == UEC_OK) {
             break;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(RETRY_INTERVAL));
     }
+    ret = OpenDevice(busNum, devAddr);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetDeviceInfo OpenDevice failed ret=%{public}d", ret);
         return ret;
