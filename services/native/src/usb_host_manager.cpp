@@ -468,8 +468,8 @@ int32_t UsbHostManager::ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t inter
 
 int32_t UsbHostManager::GetDevices(std::vector<UsbDevice> &deviceList)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
     std::shared_lock lock(devicesMutex_);
+    USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
     bool isSystemAppOrSa = usbRightManager_->IsSystemAppOrSa();
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
         if ((it->second->GetClass() == BASE_CLASS_HUB && !isSystemAppOrSa) ||
