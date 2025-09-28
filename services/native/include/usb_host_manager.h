@@ -155,6 +155,7 @@ private:
     int32_t CheckDevPathIsExist(uint8_t busNum, uint8_t devAddr);
     MAP_STR_DEVICE devices_;
     SystemAbility *systemAbility_;
+    std::mutex mutex_;
     std::shared_mutex devicesMutex_;
     std::shared_ptr<UsbRightManager> usbRightManager_;
     sptr<HDI::Usb::V1_0::IUsbdBulkCallback> hdiCb_ = nullptr;
