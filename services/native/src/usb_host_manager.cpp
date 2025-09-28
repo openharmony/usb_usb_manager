@@ -1550,6 +1550,7 @@ int32_t UsbHostManager::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &trus
         } else {
             ret = ManageDeviceImpl(it->second->GetVendorId(), it->second->GetProductId(), true);
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
     }
     if (ret != UEC_OK) {
         USB_HILOGI(MODULE_USB_SERVICE, "ManageDevice failed");
