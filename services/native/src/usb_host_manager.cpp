@@ -129,6 +129,7 @@ UsbHostManager::UsbHostManager(SystemAbility *systemAbility)
 
 UsbHostManager::~UsbHostManager()
 {
+    std::unique_lock lock(devicesMutex_);
     for (auto &pair : devices_) {
         delete pair.second;
     }
@@ -464,6 +465,7 @@ int32_t UsbHostManager::ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t inter
 int32_t UsbHostManager::GetDevices(std::vector<UsbDevice> &deviceList)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
+    std::shared_lock lock(devicesMutex_);
     bool isSystemAppOrSa = usbRightManager_->IsSystemAppOrSa();
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
         if ((it->second->GetClass() == BASE_CLASS_HUB && !isSystemAppOrSa) ||
@@ -1103,11 +1105,13 @@ int32_t UsbHostManager::BulkCancel(const HDI::Usb::V1_0::UsbDev &devInfo, const 
 
 void UsbHostManager::GetDevices(MAP_STR_DEVICE &devices)
 {
+    std::shared_lock lock(devicesMutex_);
     devices = devices_;
 }
 
 bool UsbHostManager::GetProductName(const std::string &deviceName, std::string &productName)
 {
+    std::shared_lock lock(devicesMutex_);
     auto iter = devices_.find(deviceName);
     if (iter == devices_.end()) {
         return false;
@@ -1125,6 +1129,7 @@ bool UsbHostManager::GetProductName(const std::string &deviceName, std::string &
 bool UsbHostManager::DelDevice(uint8_t busNum, uint8_t devNum)
 {
     std::string name = std::to_string(busNum) + "-" + std::to_string(devNum);
+    std::unique_lock lock(devicesMutex_);
     MAP_STR_DEVICE::iterator iter = devices_.find(name);
     if (iter == devices_.end()) {
         USB_HILOGF(MODULE_SERVICE, "name:%{public}s bus:%{public}hhu dev:%{public}hhu not exist", name.c_str(), busNum,
@@ -1163,6 +1168,7 @@ bool UsbHostManager::AddDevice(UsbDevice *dev)
     uint8_t busNum = dev->GetBusNum();
     uint8_t devNum = dev->GetDevAddr();
     std::string name = std::to_string(busNum) + "-" + std::to_string(devNum);
+    std::unique_lock lock(devicesMutex_);
     MAP_STR_DEVICE::iterator iter = devices_.find(name);
     if (iter != devices_.end()) {
         USB_HILOGF(MODULE_SERVICE, "device:%{public}s bus:%{public}hhu dev:%{public}hhu already exist", name.c_str(),
@@ -1237,6 +1243,7 @@ bool UsbHostManager::Dump(int fd, const std::string &args)
     }
 
     dprintf(fd, "Usb Host all device list info:\n");
+    std::shared_lock lock(devicesMutex_);
     for (const auto &item : devices_) {
         dprintf(fd, "usb host list info: %s\n", item.second->getJsonString().c_str());
     }
@@ -1528,6 +1535,7 @@ int32_t UsbHostManager::UsbInterfaceAuthorize(
 int32_t UsbHostManager::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &trustList)
 {
     int32_t ret = UEC_OK;
+    std::shared_lock lock(devicesMutex_);
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
         bool inTrustList = false;
@@ -1542,7 +1550,6 @@ int32_t UsbHostManager::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &trus
         } else {
             ret = ManageDeviceImpl(it->second->GetVendorId(), it->second->GetProductId(), true);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
     }
     if (ret != UEC_OK) {
         USB_HILOGI(MODULE_USB_SERVICE, "ManageDevice failed");
@@ -1553,6 +1560,7 @@ int32_t UsbHostManager::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &trus
 
 int32_t UsbHostManager::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
+    std::shared_lock lock(devicesMutex_);
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         int32_t ret = OpenDevice(dev.busNum, dev.devAddr);
@@ -1854,6 +1862,7 @@ void UsbHostManager::FindMatchingTypes(const std::unordered_map<InterfaceType, s
 int32_t UsbHostManager::ManageGlobalInterfaceImpl(bool disable)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
+    std::shared_lock lock(devicesMutex_);
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
         if (disable && it->second->GetClass() != BASE_CLASS_HUB) {
             continue;
@@ -1894,6 +1903,7 @@ int32_t UsbHostManager::ManageGlobalInterfaceImpl(bool disable)
 
 int32_t UsbHostManager::ManageDeviceImpl(int32_t vendorId, int32_t productId, bool disable)
 {
+    std::shared_lock lock(devicesMutex_);
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu, vId: %{public}d, pId: %{public}d, b: %{public}d",
         devices_.size(), vendorId, productId, disable);
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
