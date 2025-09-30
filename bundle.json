@@ -8,12 +8,8 @@
     },
     "repository": "https://gitee.com/openharmony/usb_manager",
     "license": "Apache License 2.0",
-    "dirs": {
-
-    },
-    "scripts": {
-
-    },
+    "dirs": {},
+    "scripts": {},
     "component": {
         "name": "usb_manager",
         "subsystem": "usb",
@@ -55,25 +51,22 @@
                 "access_token",
                 "memmgr",
                 "os_account",
+                "runtime_core",
                 "relational_store",
-                "resource_management",
                 "ability_runtime",
                 "hisysevent",
                 "cJSON",
-                "external_device_manager",
                 "bounds_checking_function",
                 "hitrace",
                 "selinux_adapter",
-                "runtime_core",
-                "eventhandler",
-                "hdf_core"
+                "hdf_core",
+                "external_device_manager",
+                "eventhandler"
             ]
         },
         "build": {
             "group_type": {
-                "base_group": [
-
-                ],
+                "base_group": [],
                 "fwk_group": [
                     "//base/usb/usb_manager/interfaces/innerkits:usbsrv_client",
                     "//base/usb/usb_manager/interfaces/kits/js/napi:usbmanager",
@@ -89,22 +82,19 @@
                     "//base/usb/usb_manager/etc:usb_etc_files"
                 ]
             },
-            "inner_kits": [
-                {
-                    "name": "//base/usb/usb_manager/interfaces/innerkits:usbsrv_client",
-                    "header": {
-                        "header_files": [
-                            "usb_srv_client.h",
-                            "usb_interface_type.h",
-                            "iusb_srv.h"
-                        ],
-                        "header_base": "//base/usb/usb_manager/interfaces/innerkits/native/include"
-                    }
-                },
-                {
-                    "name": "//base/usb/usb_manager/frameworks/ets/taihe/usb_manager:copy_usbManager"
+            "inner_kits": [{
+                "name": "//base/usb/usb_manager/interfaces/innerkits:usbsrv_client",
+                "header": {
+                    "header_files": [
+                        "usb_srv_client.h",
+                        "usb_interface_type.h",
+                        "iusb_srv.h"
+                    ],
+                    "header_base": "//base/usb/usb_manager/interfaces/innerkits/native/include"
                 }
-            ],
+            }, {
+                    "name": "//base/usb/usb_manager/frameworks/ets/taihe/usb_manager:copy_usbManager"
+            }],
             "test": [
                 "//base/usb/usb_manager/test/native:usb_unittest_test"
             ]

@@ -352,6 +352,15 @@ USBDevicePipe connectDevice(USBDevice const &device)
         USB_HILOGE(MODULE_JS_NAPI, "Connect Device failed, return code:%{public}d", ret);
         return {};
     }
+    if (ret == HDF_DEV_ERR_NO_DEVICE) {
+        ThrowBusinessError(USB_SUBMIT_TRANSFER_IO_ERROR, "");
+        return {};
+    }
+    if (ret != OHOS::USB::UEC_OK) {
+        USB_HILOGE(MODULE_JS_NAPI, "Connect Device failed, return code:%{public}d", ret);
+        ThrowBusinessError(UEC_COMMON_SERVICE_EXCEPTION, "");
+        return {};
+    }
     return {
         .busNum = pipe.GetBusNum(),
         .devAddress = pipe.GetDevAddr()
@@ -374,6 +383,7 @@ array<ohos::usbManager::USBDevice> getDevices()
     std::vector<OHOS::USB::UsbDevice> deviceList;
     auto ret = g_usbClient.GetDevices(deviceList);
     if (ret != 0) {
+        ThrowBusinessError(UEC_COMMON_SERVICE_EXCEPTION, "");
         return array<ohos::usbManager::USBDevice>(res);
     }
     for (auto &usbDevice : deviceList) {
@@ -402,10 +412,6 @@ bool requestRightSync(string_view deviceName)
     int32_t ret = g_usbClient.RequestRight(std::string(deviceName));
     if (ret == OHOS::USB::UEC_OK) {
         bRet = true;
-    } else {
-        USB_HILOGE(MODULE_JS_NAPI, "RequestRight failed, return code:%{public}d", ret);
-        ThrowBusinessError(ret, "");
-        return bRet;
     }
     return bRet;
 }
@@ -420,10 +426,6 @@ bool removeRight(string_view deviceName)
     int32_t ret = g_usbClient.RemoveRight(std::string(deviceName));
     if (ret == OHOS::USB::UEC_OK) {
         bResult = true;
-    } else {
-        USB_HILOGE(MODULE_JS_NAPI, "RemoveRight failed, return code:%{public}d", ret);
-        ThrowBusinessError(ret, "");
-        return bResult;
     }
     return bResult;
 }
@@ -445,8 +447,7 @@ bool addDeviceAccessRight(string_view tokenId, string_view deviceName)
         ThrowBusinessError(OHEC_COMMON_PERMISSION_NOT_ALLOWED, "Permission not allowed");
         return bResult;
     } else {
-        ThrowBusinessError(ret, "");
-        return bResult;
+        USB_HILOGE(MODULE_JS_NAPI, "AddAccessRight ret = %{public}d", ret);
     }
     return bResult;
 }
@@ -469,7 +470,7 @@ int32_t getFunctionsFromString(string_view funcs)
     return static_cast<int32_t>(numFuncs);
 }
 
-string getStringFromFunctions(FunctionType funcs)
+string getStringFromFunctions(int32_t funcs)
 {
     if (!HasFeature(FEATURE_DEVICE)) {
         ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
@@ -487,7 +488,7 @@ string getStringFromFunctions(FunctionType funcs)
     return strFuncs;
 }
 
-void setDeviceFunctionsSync(FunctionType funcs)
+void setDeviceFunctionsSync(int32_t funcs)
 {
     if (!HasFeature(FEATURE_DEVICE)) {
         ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
@@ -505,36 +506,34 @@ void setDeviceFunctionsSync(FunctionType funcs)
     } else if (ret == OHOS::USB::UEC_SERVICE_PERMISSION_CHECK_HDC) {
         ThrowBusinessError(UEC_COMMON_HDC_NOT_ALLOWED, "");
         return;
-    } else if (ret == OHOS::USB::UEC_SERVICE_FUNCTION_NOT_SUPPORT) {
-        ThrowBusinessError(UEC_COMMON_FUNCTION_NOT_SUPPORT, "");
-        return;
     } else {
         USB_HILOGE(MODULE_JS_NAPI, "setDeviceFunctionsSync failed, return code:%{public}d", ret);
-        ThrowBusinessError(ret, "");
+        ThrowBusinessError(UEC_COMMON_FUNCTION_NOT_SUPPORT, "");
         return;
     }
 }
 
-FunctionType getDeviceFunctions()
+int32_t getDeviceFunctions()
 {
     int32_t cfuncs = 0;
     if (!HasFeature(FEATURE_DEVICE)) {
         ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
-        return {FunctionType::key_t(cfuncs)};
+        return cfuncs;
     }
     int32_t ret = g_usbClient.GetCurrentFunctions(cfuncs);
     if (ret == OHOS::USB::UEC_SERVICE_PERMISSION_DENIED_SYSAPI) {
         ThrowBusinessError(OHEC_COMMON_NORMAL_APP_NOT_ALLOWED, "Normal app not allowed");
-        return {FunctionType::key_t(cfuncs)};
+        return cfuncs;
     }
     if (ret == OHOS::USB::UEC_SERVICE_PERMISSION_DENIED_SYSAPI_FAILED) {
         ThrowBusinessError(OHEC_COMMON_PERMISSION_NOT_ALLOWED, "Permission not allowed");
-        return {FunctionType::key_t(cfuncs)};
+        return cfuncs;
     }
     if (ret != OHOS::USB::UEC_OK) {
-        ThrowBusinessError(ret, "");
+        USB_HILOGE(MODULE_JS_NAPI, "GetCurrentFunctions ret = %{public}d", ret);
+        ThrowBusinessError(UEC_COMMON_SERVICE_EXCEPTION, "");
     }
-    return {FunctionType::key_t(cfuncs)};
+    return cfuncs;
 }
 
 array<USBPort> getPortList()
@@ -554,7 +553,8 @@ array<USBPort> getPortList()
         return {};
     }
     if (ret != OHOS::USB::UEC_OK) {
-        ThrowBusinessError(ret, "");
+        USB_HILOGE(MODULE_JS_NAPI, "GetPorts ret = %{public}d", ret);
+        ThrowBusinessError(UEC_COMMON_SERVICE_EXCEPTION, "");
         return {};
     }
     if (ports.empty()) {
@@ -591,8 +591,7 @@ PortModeType getPortSupportModes(int32_t portId)
         return {PortModeType::key_t(result)};
     }
     if (ret != OHOS::USB::UEC_OK) {
-        USB_HILOGE(MODULE_JS_NAPI, "false ret = %{public}d", ret);
-        ThrowBusinessError(ret, "");
+        USB_HILOGE(MODULE_JS_NAPI, "GetSupportedModes ret = %{public}d", ret);
     }
     return {PortModeType::key_t(result)};
 }
@@ -616,12 +615,9 @@ void setPortRoleTypesSync(int32_t portId, PowerRoleType powerRole, DataRoleType 
         ThrowBusinessError(OHEC_COMMON_PERMISSION_NOT_ALLOWED, "");
         return;
     }
-    if (ret == OHOS::USB::UEC_SERVICE_NOT_SUPPORT_SWITCH_PORT) {
-        ThrowBusinessError(UEC_COMMON_PORTROLE_SWITCH_NOT_ALLOWED, "");
-        return;
-    }
     if (ret != OHOS::USB::UEC_OK) {
-        ThrowBusinessError(ret, "false ret: " + std::to_string(ret));
+        USB_HILOGD(MODULE_JS_NAPI, "SetPortRole ret: %{public}d", ret);
+        ThrowBusinessError(UEC_COMMON_PORTROLE_SWITCH_NOT_ALLOWED, "");
         return;
     }
 }
@@ -668,9 +664,7 @@ int32_t claimInterface(USBDevicePipe const &pipe, USBInterface const &iface, opt
     OHOS::USB::USBDevicePipe internalPipe = ConvertUSBDevicePipe(pipe);
     bool forceClaim = force.has_value() ? *force : false;
     int ret = internalPipe.ClaimInterface(ConvertToUsbInterface(iface), forceClaim);
-    if (ret != OHOS::USB::UEC_OK) {
-        ThrowBusinessError(ret, "pipe call ClaimInterface");
-    }
+    USB_HILOGD(MODULE_JS_NAPI, "pipe call claimInterface ret: %{public}d", ret);
     return ret;
 }
 
@@ -682,10 +676,7 @@ int32_t releaseInterface(USBDevicePipe const &pipe, USBInterface const &iface)
     }
     OHOS::USB::USBDevicePipe internalPipe = ConvertUSBDevicePipe(pipe);
     int ret = internalPipe.ReleaseInterface(ConvertToUsbInterface(iface));
-    if (ret != OHOS::USB::UEC_OK) {
-        USB_HILOGE(MODULE_JS_NAPI, "releaseInterface failed:%{public}d", ret);
-        ThrowBusinessError(ret, "");
-    }
+    USB_HILOGD(MODULE_JS_NAPI, "pipe call releaseInterface ret: %{public}d", ret);
     return ret;
 }
 
@@ -696,12 +687,7 @@ int32_t setConfiguration(USBDevicePipe const &pipe, USBConfiguration const &conf
         return ERROR;
     }
     OHOS::USB::USBDevicePipe internalPipe = ConvertUSBDevicePipe(pipe);
-    int ret = g_usbClient.SetConfiguration(internalPipe, ConvertToUSBConfig(config));
-    if (ret != OHOS::USB::UEC_OK) {
-        USB_HILOGE(MODULE_JS_NAPI, "setConfiguration failed:%{public}d", ret);
-        ThrowBusinessError(ret, "");
-    }
-    return ret;
+    return g_usbClient.SetConfiguration(internalPipe, ConvertToUSBConfig(config));
 }
 
 int32_t setInterface(USBDevicePipe const &pipe, USBInterface const &iface)
@@ -711,12 +697,7 @@ int32_t setInterface(USBDevicePipe const &pipe, USBInterface const &iface)
         return ERROR;
     }
     OHOS::USB::USBDevicePipe internalPipe = ConvertUSBDevicePipe(pipe);
-    int ret = g_usbClient.SetInterface(internalPipe, ConvertToUsbInterface(iface));
-    if (ret != OHOS::USB::UEC_OK) {
-        USB_HILOGE(MODULE_JS_NAPI, "setInterface failed:%{public}d", ret);
-        ThrowBusinessError(ret, "");
-    }
-    return ret;
+    return g_usbClient.SetInterface(internalPipe, ConvertToUsbInterface(iface));
 }
 
 array<uint8_t> getRawDescriptor(USBDevicePipe const &pipe)
@@ -728,9 +709,15 @@ array<uint8_t> getRawDescriptor(USBDevicePipe const &pipe)
     std::vector<uint8_t> bufferData;
     OHOS::USB::USBDevicePipe internalPipe = ConvertUSBDevicePipe(pipe);
     int ret = g_usbClient.GetRawDescriptors(internalPipe, bufferData);
+    if (ret == OHOS::USB::UEC_SERVICE_PERMISSION_DENIED) {
+        ThrowBusinessError(UEC_COMMON_HAS_NO_RIGHT, "need call requestRight to get the permission");
+        USB_HILOGE(MODULE_JS_NAPI, "Connect Device failed, return code:%{public}d", ret);
+        return {};
+    }
     if (ret != OHOS::USB::UEC_OK) {
         USB_HILOGE(MODULE_JS_NAPI, "getRawDescriptor failed:%{public}d", ret);
-        ThrowBusinessError(ret, "");
+        ThrowBusinessError(UEC_COMMON_SERVICE_EXCEPTION, "");
+        return {};
     }
     return ::taihe::array<uint8_t>(bufferData);
 }
@@ -824,6 +811,10 @@ int32_t bulkTransferSync(::ohos::usbManager::USBDevicePipe const &pipe, ::ohos::
     }
     int32_t ret = nativePipe.BulkTransfer(ep, bufferData, timeOut);
     if (ep.GetDirection() == OHOS::USB::USB_ENDPOINT_DIR_IN) {
+        if (bufferData.size() > size) {
+            USB_HILOGE(MODULE_JS_NAPI, "src buffer size larger than dst.");
+            return ERROR;
+        }
         ret = memcpy_s(data, size, bufferData.data(), bufferData.size());
     }
     if (ret == OHOS::USB::UEC_OK) {
@@ -910,9 +901,9 @@ void cancelAccessoryRight(ohos::usbManager::USBAccessory const &accessory)
         return;
     }
     if (g_accFd != 0) {
+        g_usbClient.CloseAccessory(g_accFd);
         close(g_accFd);
         g_accFd = 0;
-        g_usbClient.CloseAccessory(g_accFd);
     }
     int32_t ret = g_usbClient.CancelAccessoryRight(taihe2Native(accessory));
     if (ret == OHOS::USB::UEC_OK) {
@@ -937,10 +928,6 @@ array<ohos::usbManager::USBAccessory> getAccessoryList()
     }
     std::vector<OHOS::USB::USBAccessory> accessoryList;
     std::vector<ohos::usbManager::USBAccessory> results;
-    if (!HasFeature(FEATURE_DEVICE)) {
-        ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
-        return array<ohos::usbManager::USBAccessory>(results);
-    }
     int32_t ret = g_usbClient.GetAccessoryList(accessoryList);
     if (ret == OHOS::USB::UEC_OK) {
         for (const auto &item : accessoryList) {
@@ -986,7 +973,7 @@ void closeAccessory(USBAccessoryHandle const &accessoryHandle)
         return;
     }
     auto accessoryFd = accessoryHandle.accessoryFd;
-    if (accessoryFd == 0 || accessoryFd != g_accFd || g_accFd == 0) {
+    if (accessoryFd != g_accFd && g_accFd != 0) {
         ThrowBusinessError(OHEC_COMMON_PARAM_ERROR, "Parameter accessoryHandle error, need openAccessory first.");
         return;
     }
@@ -1170,8 +1157,8 @@ static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::
             USB_HILOGI(MODULE_JS_NAPI, "%{public}s: callbackFunc is not instance Of Function2.", __func__);
         }
         auto errCode = env->FunctionalObject_Call(static_cast<ani_fn_object>(callbackFunc), 2, ani_argv, &ani_result);
+        USB_HILOGE(MODULE_JS_NAPI, "AniCallBack FunctionalObject_Call returned %{public}d.", errCode);
         env->DestroyLocalScope();
-        USB_HILOGI(MODULE_JS_NAPI, "AniCallBack enter 5 call returned %{public}d.", errCode);
     };
     if (!SendEventToMainThread(task)) {
         USB_HILOGI(MODULE_JS_NAPI, "SendEventToMainThread failed.");
@@ -1256,11 +1243,7 @@ void usbSubmitTransfer(UsbDataTransferParams const &transfer)
         ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
         return;
     }
-    USB_HILOGE(MODULE_JS_NAPI, "SubmitTransfer enter");
-    if (!HasFeature(FEATURE_HOST)) {
-        ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
-        return;
-    }
+    USB_HILOGD(MODULE_JS_NAPI, "SubmitTransfer enter");
     auto context = CreateTransferContext(transfer);
     if (!context) {
         return;
@@ -1275,15 +1258,15 @@ void usbSubmitTransfer(UsbDataTransferParams const &transfer)
         delete context;
         return;
     }
-    USB_HILOGE(MODULE_JS_NAPI, "CreateAndWriteAshmem OK.");
+    USB_HILOGD(MODULE_JS_NAPI, "CreateAndWriteAshmem OK.");
     int32_t ret = context->pipe.UsbSubmitTransfer(transferInfo, TransferCompleteCallback, context->ashmem);
-    USB_HILOGE(MODULE_JS_NAPI, "usbSubmitTransfer ret: %{public}d", ret);
+    USB_HILOGD(MODULE_JS_NAPI, "usbSubmitTransfer ret: %{public}d", ret);
     if (ret != OHOS::USB::UEC_OK) {
         context->ashmem->CloseAshmem();
         delete context;
         ThrowBusinessError(UsbSubmitTransferErrorCode(ret), "");
     }
-    USB_HILOGE(MODULE_JS_NAPI, "usbSubmitTransfer fin.");
+    USB_HILOGD(MODULE_JS_NAPI, "usbSubmitTransfer fin.");
 }
 
 void usbCancelTransfer(UsbDataTransferParams const &transfer)
@@ -1298,8 +1281,7 @@ void usbCancelTransfer(UsbDataTransferParams const &transfer)
     int32_t endpoint = transfer.endpoint;
     int32_t ret = nativePipe.UsbCancelTransfer(endpoint);
     if (ret != OHOS::USB::UEC_OK) {
-        ret = UsbSubmitTransferErrorCode(ret);
-        ThrowBusinessError(ret, "");
+        ThrowBusinessError(UsbSubmitTransferErrorCode(ret), "");
     }
 }
 

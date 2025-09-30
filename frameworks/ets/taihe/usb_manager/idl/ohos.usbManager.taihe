@@ -35,12 +35,12 @@ function addDeviceAccessRight(tokenId: String, deviceName: String): bool;
 
 function getFunctionsFromString(funcs: String): i32;
 
-function getStringFromFunctions(funcs: FunctionType): String;
+function getStringFromFunctions(funcs: i32): String;
 
 @gen_promise("setDeviceFunctions")
-function setDeviceFunctionsSync(funcs: FunctionType): void;
+function setDeviceFunctionsSync(funcs: i32): void;
 
-function getDeviceFunctions(): FunctionType;
+function getDeviceFunctions(): i32;
 
 function getPortList(): Array<USBPort>;
 
