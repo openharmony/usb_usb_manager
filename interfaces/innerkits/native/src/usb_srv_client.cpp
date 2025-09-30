@@ -249,7 +249,7 @@ void UsbSrvClient::UsbCtrlTransferChange(const HDI::Usb::V1_0::UsbCtrlTransfer &
     ctlSetup.reqCmd = param.requestCmd;
     ctlSetup.value = param.value;
     ctlSetup.index = param.index;
-    ctlSetup.length = param.timeout;
+    ctlSetup.timeout = param.timeout;
     return;
 }
 

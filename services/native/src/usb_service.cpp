@@ -1043,7 +1043,7 @@ void UsbService::UsbCtrlTransferChange(HDI::Usb::V1_0::UsbCtrlTransfer &param, c
     param.requestCmd = ctlSetup.reqCmd ;
     param.value = ctlSetup.value;
     param.index = ctlSetup.index;
-    param.timeout = ctlSetup.length;
+    param.timeout = ctlSetup.timeout;
     return;
 }
 // LCOV_EXCL_STOP
@@ -1056,7 +1056,7 @@ void UsbService::UsbCtrlTransferChange(HDI::Usb::V1_2::UsbCtrlTransferParams &pa
     param.value = ctlSetup.value;
     param.index = ctlSetup.index;
     param.length = ctlSetup.length;
-    param.timeout = ctlSetup.length;
+    param.timeout = ctlSetup.timeout;
     return;
 }
 // LCOV_EXCL_STOP
