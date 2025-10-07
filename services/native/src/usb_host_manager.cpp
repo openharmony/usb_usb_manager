@@ -1435,14 +1435,14 @@ std::string UsbHostManager::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAd
 #ifdef USB_MANAGER_PASS_THROUGH
     if (usbHostInterface_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager::usbHostInterface_ is nullptr");
-        return nullptr;
+        return strDesc;
     }
     const HDI::Usb::V2_0::UsbDev &usbDev_ = reinterpret_cast<const HDI::Usb::V2_0::UsbDev &>(dev);
     int32_t ret = usbHostInterface_->GetStringDescriptor(usbDev_, idx, strV);
 #else
     if (usbd_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager::usbd_ is nullptr");
-        return nullptr;
+        return strDesc;
     }
     int32_t ret = usbd_->GetStringDescriptor(dev, idx, strV);
 #endif // USB_MANAGER_PASS_THROUGH
