@@ -1528,18 +1528,18 @@ int32_t UsbHostManager::UsbDeviceAuthorize(
 int32_t UsbHostManager::UsbInterfaceAuthorize(
     const HDI::Usb::V1_0::UsbDev &dev, uint8_t configId, uint8_t interfaceId, bool authorized)
 {
-    const HDI::Usb::V2_0::UsbDev usbDev_ = {dev.busNum, dev.devAddr};
-    int32_t ret = UEC_OK;
-    if (authorized) {
-        ret = usbDeviceInterface_->UsbInterfaceAuthorize(usbDev_, configId, interfaceId, authorized);
-        (void)ManageInterface(dev, interfaceId, !authorized);
-    } else {
-        (void)ManageInterface(dev, interfaceId, !authorized);
-        ret = usbDeviceInterface_->UsbInterfaceAuthorize(usbDev_, configId, interfaceId, authorized);
+    if (usbDeviceInterface_ == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "usbDeviceInterface_ is nullptr");
+        return UEC_SERVICE_INVALID_VALUE;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
+    const HDI::Usb::V2_0::UsbDev usbDev_ = {dev.busNum, dev.devAddr};
+    auto ret = usbDeviceInterface_->UsbInterfaceAuthorize(usbDev_, configId, interfaceId, authorized);
     USB_HILOGI(MODULE_USB_SERVICE, "usbInterfaceAuthorize: authorized=%{public}d; ret=%{public}d",
         int(authorized), ret);
+    if (authorized) {
+        ret += ManageInterface(dev, interfaceId, !authorized);
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
     return ret;
 }
 
