@@ -150,8 +150,9 @@ int32_t UsbDescriptorParser::ParseConfigDescriptors(std::vector<uint8_t> &descri
             break;
         }
         UsbdDescriptorHeader descriptorHeader = *(reinterpret_cast<const UsbdDescriptorHeader *>(buffer + cursor));
-        if (descriptorHeader.bLength > (length - cursor)) {
-            USB_HILOGW(MODULE_USB_SERVICE, "invalid data length, length=%{public}u, cursor=%{public}u", length, cursor);
+        if (descriptorHeader.bLength < sizeof(UsbdDescriptorHeader) || descriptorHeader.bLength > (length - cursor)) {
+            USB_HILOGW(MODULE_USB_SERVICE, "invalid data length, bLen=%{public}u, length=%{public}u, cursor=%{public}u",
+                descriptorHeader.bLength, length, cursor);
             break;
         }
         switch (descriptorHeader.bDescriptorType) {
