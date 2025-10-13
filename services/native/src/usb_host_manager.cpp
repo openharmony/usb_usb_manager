@@ -1536,8 +1536,9 @@ int32_t UsbHostManager::UsbInterfaceAuthorize(
     auto ret = usbDeviceInterface_->UsbInterfaceAuthorize(usbDev_, configId, interfaceId, authorized);
     USB_HILOGI(MODULE_USB_SERVICE, "usbInterfaceAuthorize: authorized=%{public}d; ret=%{public}d",
         int(authorized), ret);
-    if (authorized) {
-        ret += ManageInterface(dev, interfaceId, !authorized);
+    if (ret == UEC_OK && authorized) {
+        ret = ManageInterface(dev, interfaceId, !authorized);
+        USB_HILOGI(MODULE_USB_SERVICE, "usbInterfaceAuthorize: ManageInterface ret=%{public}d", ret);
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(MANAGE_INTERFACE_INTERVAL));
     return ret;
