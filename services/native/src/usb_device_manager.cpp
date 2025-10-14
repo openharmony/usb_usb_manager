@@ -361,6 +361,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             ProcessFuncChange(connected_, currentFunctions_);
         };
         delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, DELAY_CONNECT_INTERVAL, true);
+        USB_HILOGI(MODULE_USB_SERVICE, "register a connect task, id %{public}u", delayDisconnTimerId_,);
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             USB_HILOGI(MODULE_USB_SERVICE, "execute disconnect task:%{public}d", currentFunctions_);
@@ -386,7 +387,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             USB_HILOGI(MODULE_USB_SERVICE, "Physical is plug");
         }
         delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, delayTime, true);
-        USB_HILOGI(MODULE_USB_SERVICE, "register a task, id %{public}u, delaytime: %{public}d",
+        USB_HILOGI(MODULE_USB_SERVICE, "register a disconnect task, id %{public}u, delaytime: %{public}d",
             delayDisconnTimerId_, delayTime);
     } else {
         USB_HILOGI(MODULE_USB_SERVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
@@ -408,6 +409,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             ProcessFuncChange(connected_, currentFunctions_);
         };
         delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, DELAY_CONNECT_INTERVAL, true);
+        USB_HILOGI(MODULE_USB_SERVICE, "register a connect task, id %{public}u", delayDisconnTimerId_,);
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             USB_HILOGI(MODULE_USB_SERVICE, "execute disconnect task:%{public}d", currentFunctions_);
@@ -433,7 +435,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             USB_HILOGI(MODULE_USB_SERVICE, "Physical is plug");
         }
         delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, delayTime, true);
-        USB_HILOGI(MODULE_USB_SERVICE, "register a task, id %{public}u, delaytime: %{public}d",
+        USB_HILOGI(MODULE_USB_SERVICE, "register a disconnect task, id %{public}u, delaytime: %{public}d",
             delayDisconnTimerId_, delayTime);
     } else {
         USB_HILOGI(MODULE_USB_SERVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
