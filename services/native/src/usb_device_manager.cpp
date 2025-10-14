@@ -362,7 +362,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
             ProcessFuncChange(connected_, currentFunctions_);
         };
         delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, DELAY_CONNECT_INTERVAL, true);
-        USB_HILOGI(MODULE_USB_SERVICE, "register a connect task, id %{public}u", delayDisconnTimerId_,);
+        USB_HILOGI(MODULE_USB_SERVICE, "register a connect task, id %{public}u", delayDisconnTimerId_);
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
             USB_HILOGI(MODULE_USB_SERVICE, "execute disconnect task:%{public}d", currentFunctions_);
