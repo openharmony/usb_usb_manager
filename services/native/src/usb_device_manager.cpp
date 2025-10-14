@@ -356,6 +356,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     UsbTimerWrapper::GetInstance()->Unregister(delayDisconnTimerId_);
     if (curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
+            USB_HILOGI(MODULE_USB_SERVICE, "execute connect task:%{public}d", currentFunctions_);
             connected_ = true;
             GetCurrentFunctions(currentFunctions_);
             ProcessFuncChange(connected_, currentFunctions_);
@@ -404,6 +405,7 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     UsbTimerWrapper::GetInstance()->Unregister(delayDisconnTimerId_);
     if (curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
+            USB_HILOGI(MODULE_USB_SERVICE, "execute connect task:%{public}d", currentFunctions_);
             connected_ = true;
             GetCurrentFunctions(currentFunctions_);
             ProcessFuncChange(connected_, currentFunctions_);
