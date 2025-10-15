@@ -195,7 +195,7 @@ HWTEST_F(UsbDfxTest, GetCurrentFunctions002, TestSize.Level1)
 
 /**
  * @tc.name: ReportSysEvent003
- * @tc.desc: Trigger the dot event USB_TRANSFOR_FAULT
+ * @tc.desc: Trigger the dot event USB_TRANSFER_FAULT
  * @tc.type: FUNC
  */
 HWTEST_F(UsbDfxTest, GetCurrentFunctions003, TestSize.Level1)

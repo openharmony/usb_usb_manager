@@ -45,7 +45,7 @@ PORT_ROLE_CHANGED:
   CURRENT_DATAROLE: {type: INT32, desc: current datarole}
   UPDATE_DATAROLE: {type: INT32, desc: update datarole}
 
-TRANSFOR_FAULT:
+TRANSFER_FAULT:
   __BASE: {type: FAULT, level: CRITICAL, tag: UsbManager, desc: Usb Transfor interface happen fault}
   TRANSFER_TYPE: {type: STRING, desc: interface name}
   VENDOR_ID: {type: INT32, desc: vendor id}
