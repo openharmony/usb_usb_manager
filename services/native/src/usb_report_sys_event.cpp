@@ -45,7 +45,7 @@ void UsbReportSysEvent::ReportTransferFaultSysEvent(const std::string transferTy
         USB_HILOGE(MODULE_SERVICE, "GetUsbConfigs failed");
         return;
     }
-    int32_t hiRet = HiSysEventWrite(HiSysEvent::Domain::USB, "TRANSFOR_FAULT",
+    int32_t hiRet = HiSysEventWrite(HiSysEvent::Domain::USB, "TRANSFER_FAULT",
         HiSysEvent::EventType::FAULT, "TRANSFER_TYPE", transferType,
         "VENDOR_ID", dev.GetVendorId(), "PRODUCT_ID", dev.GetProductId(),
         "INTERFACE_CLASS", itIF.GetClass(), "INTERFACE_SUBCLASS", itIF.GetSubClass(),
@@ -58,7 +58,7 @@ void UsbReportSysEvent::ReportTransferFaultSysEvent(const std::string transferTy
 
 #ifdef USB_PERIPHERAL_FAULT_NOTIFY
     ExternalDeviceManager::DriverExtMgrClient::GetInstance().NotifyUsbPeripheralFault(
-        HiSysEvent::Domain::USB, "TRANSFOR_FAULT");
+        HiSysEvent::Domain::USB, "TRANSFER_FAULT");
 #endif
 }
 
@@ -77,7 +77,7 @@ void UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent(const std::str
         USB_HILOGE(MODULE_SERVICE, "GetUsbConfigs failed");
         return;
     }
-    int32_t hiRet = HiSysEventWrite(HiSysEvent::Domain::USB, "TRANSFOR_FAULT",
+    int32_t hiRet = HiSysEventWrite(HiSysEvent::Domain::USB, "TRANSFER_FAULT",
         HiSysEvent::EventType::FAULT, "TRANSFER_TYPE", transferType,
         "VENDOR_ID", dev.GetVendorId(), "PRODUCT_ID", dev.GetProductId(),
         "INTERFACE_CLASS", itIF.GetClass(), "INTERFACE_SUBCLASS", itIF.GetSubClass(),
@@ -90,7 +90,7 @@ void UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent(const std::str
 
 #ifdef USB_PERIPHERAL_FAULT_NOTIFY
     ExternalDeviceManager::DriverExtMgrClient::GetInstance().NotifyUsbPeripheralFault(
-        HiSysEvent::Domain::USB, "TRANSFOR_FAULT");
+        HiSysEvent::Domain::USB, "TRANSFER_FAULT");
 #endif
 }
 
