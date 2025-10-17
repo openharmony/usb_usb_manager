@@ -1920,7 +1920,7 @@ static napi_value PipeUsbControlTransfer(napi_env env, napi_callback_info info)
     if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
         uint8_t *nativeArrayBuffer = nullptr;
         if (controlParam.dataLength > 0) {
-            uint8_t *nativeArrayBuffer = new (std::nothrow) uint8_t[controlParam.dataLength];
+            nativeArrayBuffer = new (std::nothrow) uint8_t[controlParam.dataLength];
             if (nativeArrayBuffer == nullptr) {
                 delete asyncContext;
                 return nullptr;
