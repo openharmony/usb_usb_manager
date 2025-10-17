@@ -236,6 +236,30 @@ bool NapiUtil::JsUint8ArrayParse(
     return true;
 }
 
+bool NapiUtil::JsUint8ArrayParseReserveZeroBuffer(
+    const napi_env &env, const napi_value &object, uint8_t **uint8Buffer, size_t &bufferSize, size_t &offset)
+{
+    bool isTypedArray = false;
+    if (napi_is_typedarray(env, object, &isTypedArray) != napi_ok || !isTypedArray) {
+        USB_ASSERT_RETURN_FALSE(env, isTypedArray, OHEC_COMMON_PARAM_ERROR, "The type of buffer must be TypedArray.");
+        USB_HILOGW(MODULE_JS_NAPI, "invalid type");
+        return false;
+    }
+
+    napi_typedarray_type type;
+    napi_value buffer;
+
+    napi_status infoStatus = napi_get_typedarray_info(
+        env, object, &type, &bufferSize, reinterpret_cast<void **>(uint8Buffer), &buffer, &offset);
+    if (infoStatus != napi_ok) {
+        USB_HILOGW(MODULE_JS_NAPI, "get typedarray info failed, status: %{public}d", infoStatus);
+        return false;
+    }
+    USB_ASSERT_RETURN_FALSE(
+        env, type == napi_uint8_array, OHEC_COMMON_PARAM_ERROR, "The type of buffer must be Uint8Array.");
+    return true;
+}
+
 void NapiUtil::Uint8ArrayToJsValue(
     const napi_env &env, std::vector<uint8_t> &uint8Buffer, size_t bufferSize, napi_value &result)
 {
