@@ -38,6 +38,8 @@ public:
         const napi_env &env, const napi_value &object, const std::string &fieldStr, uint8_t &fieldRef);
     static bool JsUint8ArrayParse(
         const napi_env &env, const napi_value &object, uint8_t **uint8Buffer, size_t &bufferSize, size_t &offset);
+    static bool JsUint8ArrayParseReserveZeroBuffer(
+        const napi_env &env, const napi_value &object, uint8_t **uint8Buffer, size_t &bufferSize, size_t &offset);
     static void Uint8ArrayToJsValue(
         const napi_env &env, std::vector<uint8_t> &uint8Buffer, size_t bufferSize, napi_value &result);
     static void SetValueUtf8String(const napi_env &env, std::string fieldStr, std::string str, napi_value &result);

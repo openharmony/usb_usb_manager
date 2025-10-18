@@ -335,7 +335,7 @@ static bool ParsePipeControlParam(const napi_env env, const napi_value jsObj, Pi
     uint8_t *data = nullptr;
     size_t dataLength = 0;
     size_t offset = 0;
-    NapiUtil::JsUint8ArrayParse(env, dataValue, &data, dataLength, offset);
+    NapiUtil::JsUint8ArrayParseReserveZeroBuffer(env, dataValue, &data, dataLength, offset);
     controlParam.request = request;
     controlParam.target = target;
     controlParam.reqType = reqType;
@@ -377,7 +377,7 @@ static void ParseUsbPipeControlParam(const napi_env env, const napi_value jsObj,
     uint8_t *data = nullptr;
     size_t dataLength = 0;
     size_t offset = 0;
-    NapiUtil::JsUint8ArrayParse(env, dataValue, &data, dataLength, offset);
+    NapiUtil::JsUint8ArrayParseReserveZeroBuffer(env, dataValue, &data, dataLength, offset);
     controlParam.reqType = reqType;
     controlParam.request = request;
     controlParam.value = value;
@@ -1642,7 +1642,7 @@ static auto g_controlTransferExecute = [](napi_env env, void *data) {
             break;
         }
 
-        if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_IN) {
+        if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_IN && asyncContext->bufferLength > 0) {
             ret = memcpy_s(asyncContext->buffer, asyncContext->bufferLength, bufferData.data(), bufferData.size());
         }
     } while (0);
@@ -1751,18 +1751,22 @@ static napi_value PipeControlTransfer(napi_env env, napi_callback_info info)
     asyncContext->index = controlParam.index;
 
     if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
-        uint8_t *nativeArrayBuffer = new (std::nothrow) uint8_t[controlParam.dataLength];
-        if (nativeArrayBuffer == nullptr) {
-            delete asyncContext;
-            return nullptr;
-        }
+        uint8_t *nativeArrayBuffer = nullptr;
+        if (controlParam.dataLength > 0) {
+            nativeArrayBuffer = new (std::nothrow) uint8_t[controlParam.dataLength];
+            if (nativeArrayBuffer == nullptr) {
+                delete asyncContext;
+                return nullptr;
+            }
 
-        errno_t ret = memcpy_s(nativeArrayBuffer, controlParam.dataLength, controlParam.data, controlParam.dataLength);
-        if (ret != EOK) {
-            USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed");
-            delete asyncContext;
-            delete[] nativeArrayBuffer;
-            return nullptr;
+            errno_t ret = memcpy_s(nativeArrayBuffer, controlParam.dataLength,
+                controlParam.data, controlParam.dataLength);
+            if (ret != EOK) {
+                USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed");
+                delete asyncContext;
+                delete[] nativeArrayBuffer;
+                return nullptr;
+            }
         }
         asyncContext->buffer = nativeArrayBuffer;
     } else {
@@ -1802,7 +1806,7 @@ static auto g_usbControlTransferExecute = [](napi_env env, void *data) {
             break;
         }
 
-        if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_IN) {
+        if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_IN && asyncContext->bufferLength > 0) {
             ret = memcpy_s(asyncContext->buffer, asyncContext->bufferLength, bufferData.data(), bufferData.size());
         }
     } while (0);
@@ -1914,18 +1918,22 @@ static napi_value PipeUsbControlTransfer(napi_env env, napi_callback_info info)
     asyncContext->length = controlParam.length;
 
     if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_OUT) {
-        uint8_t *nativeArrayBuffer = new (std::nothrow) uint8_t[controlParam.dataLength];
-        if (nativeArrayBuffer == nullptr) {
-            delete asyncContext;
-            return nullptr;
-        }
+        uint8_t *nativeArrayBuffer = nullptr;
+        if (controlParam.dataLength > 0) {
+            nativeArrayBuffer = new (std::nothrow) uint8_t[controlParam.dataLength];
+            if (nativeArrayBuffer == nullptr) {
+                delete asyncContext;
+                return nullptr;
+            }
 
-        errno_t ret = memcpy_s(nativeArrayBuffer, controlParam.dataLength, controlParam.data, controlParam.dataLength);
-        if (ret != EOK) {
-            USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed");
-            delete asyncContext;
-            delete[] nativeArrayBuffer;
-            return nullptr;
+            errno_t ret = memcpy_s(nativeArrayBuffer, controlParam.dataLength,
+                controlParam.data, controlParam.dataLength);
+            if (ret != EOK) {
+                USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed");
+                delete asyncContext;
+                delete[] nativeArrayBuffer;
+                return nullptr;
+            }
         }
         asyncContext->buffer = nativeArrayBuffer;
     } else {
