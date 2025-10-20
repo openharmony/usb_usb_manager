@@ -214,6 +214,7 @@ HWTEST_F(UsbDfxTest, GetCurrentFunctions003, TestSize.Level1)
     UsbSrvClient.SetPortRole(
         UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::POWER_ROLE_SOURCE, UsbSrvSupport::DATA_ROLE_HOST);
     
+    UsbCommonTest::GrantPermissionSysNative();
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDfxTest::ret=%{public}d", ret);
     ASSERT_EQ(ret, 0);
     std::vector<UsbDevice> devs;
@@ -223,10 +224,11 @@ HWTEST_F(UsbDfxTest, GetCurrentFunctions003, TestSize.Level1)
     USBDevicePipe pipe;
     UsbSrvClient.OpenDevice(device, pipe);
     vector<uint8_t> buffData;
-    USBEndpoint pointIn(USB_ENDPOINT_DIR_IN, 0, 0, 0);
-    UsbSrvClient.BulkTransfer(pipe, pointIn, buffData, 100);
-    USBEndpoint pointOut(USB_ENDPOINT_DIR_OUT, 0, 0, 0);
-    UsbSrvClient.BulkTransfer(pipe, pointOut, buffData, 100);
+    ASSERT_NE(device.GetConfigs().front().GetInterfaces().size(), 0);
+    UsbInterface interface = device.GetConfigs().front().GetInterfaces().at(0);
+    ASSERT_NE(interface.GetEndpoints().size(), 0);
+    USBEndpoint point = interface.GetEndpoints().front();
+    UsbSrvClient.BulkTransfer(pipe, point, buffData, 100);
 
     struct UsbCtrlTransfer ctrldata = {0b10000000, 8, 0, 0, 500};
     UsbSrvClient.ControlTransfer(pipe, ctrldata, buffData);
@@ -237,8 +239,8 @@ HWTEST_F(UsbDfxTest, GetCurrentFunctions003, TestSize.Level1)
     sptr<Ashmem> ashmem;
     uint8_t rflg = 0;
     InitAshmemOne(ashmem, MEM_DATA, rflg);
-    UsbSrvClient.BulkRead(pipe, pointIn, ashmem);
-    ret = UsbSrvClient.BulkWrite(pipe, pointOut, ashmem);
+    UsbSrvClient.BulkRead(pipe, point, ashmem);
+    ret = UsbSrvClient.BulkWrite(pipe, point, ashmem);
 
     UsbCommonTest::GrantPermissionSysNative();
     ASSERT_NE(ret, 0);
