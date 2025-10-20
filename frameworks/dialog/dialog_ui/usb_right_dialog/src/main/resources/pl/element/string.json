@@ -2,7 +2,154 @@
     "string":[
         {
             "name":"USB_hdc_notifier_title",
-            "value":"Rozpoczęto debugowanie USB",
+            "value":"Zainicjowano tryb debugowania USB",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_mtp",
+            "value":"Transferuj pliki",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hint_cancel",
+            "value":"OK",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"usb_right_title",
+            "value":"Autoryzacja dostępu do USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_my_tablet",
+            "value":"Mój tablet",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_more_notifier",
+            "value":"Dotknij, aby uzyskać więcej opcji.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_charge_connected_device",
+            "value":"Zasilanie podłączonego urządzenia",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp",
+            "value":"Transferuj obrazy",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp_notifier",
+            "value":"Przeglądanie zdjęć przez USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge",
+            "value":"Tylko ładowanie",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"usb_right_content",
+            "value":"Zezwolić aplikacji %1$s na używanie %2$s?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge_notifier",
+            "value":"Ładowanie przez USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp_tip",
+            "value":"Dla obrazów i filmów w Galerii.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hint",
+            "value":"Użyj USB do",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip2",
+            "value":"Dla elementów w katalogu „%s” w aplikacji Pliki.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_reverse_charge",
+            "value":"Udostępniania zasilania",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge_connected_notifier",
+            "value":"Zasilanie urządzenia połączonego przez USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"notAllowButton",
+            "value":"Odmów",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip",
+            "value":"Dla elementów w katalogu „Mój telefon” w aplikacji Pliki.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hdc_notifier_content",
+            "value":"Dotknij, aby wyłączyć debugowanie USB.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"allowButton",
+            "value":"Zezwól",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_notifier",
+            "value":"Przesyłanie plików przez USB",
             "attr":{
                 "priority":"translate"
             }

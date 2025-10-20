@@ -2,7 +2,154 @@
     "string":[
         {
             "name":"USB_hdc_notifier_title",
-            "value":"เริ่มการแก้ไขข้อบกพร่อง USB แล้ว",
+            "value":"เริ่มต้นการแก้ไขข้อบกพร่องของ USB แล้ว",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_mtp",
+            "value":"ถ่ายโอนไฟล์",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hint_cancel",
+            "value":"ตกลง",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"usb_right_title",
+            "value":"การอนุญาตการเข้าถึง USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_my_tablet",
+            "value":"แท็บเล็ตของฉัน",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_more_notifier",
+            "value":"แตะเพื่อดูตัวเลือกเพิ่มเติม",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_charge_connected_device",
+            "value":"จ่ายพลังงานให้กับอุปกรณ์ที่เชื่อมต่อ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp",
+            "value":"ถ่ายโอนรูปภาพ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp_notifier",
+            "value":"การเรียกดูภาพถ่ายผ่าน USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge",
+            "value":"ชาร์จเท่านั้น",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"usb_right_content",
+            "value":"อนุญาตให้ %1$s ใช้ %2$s หรือไม่",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge_notifier",
+            "value":"กำลังชาร์จผ่าน USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp_tip",
+            "value":"สำหรับรูปภาพและวิดีโอในแกลเลอรี่",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hint",
+            "value":"ใช้ USB เพื่อ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip2",
+            "value":"สำหรับรายการภายใต้ \"%s\" ในไฟล์",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_reverse_charge",
+            "value":"การชาร์จย้อนกลับ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge_connected_notifier",
+            "value":"การจ่ายพลังงานให้กับอุปกรณ์ที่เชื่อมต่อผ่าน USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"notAllowButton",
+            "value":"ปฏิเสธ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip",
+            "value":"สำหรับรายการภายใต้ \"โทรศัพท์ของฉัน\" ในไฟล์",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hdc_notifier_content",
+            "value":"แตะเพื่อปิดใช้งานการแก้ไขข้อบกพร่องของ USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"allowButton",
+            "value":"อนุญาต",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_notifier",
+            "value":"การถ่ายโอนไฟล์ผ่าน USB",
             "attr":{
                 "priority":"translate"
             }

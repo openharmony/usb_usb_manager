@@ -2,7 +2,154 @@
     "string":[
         {
             "name":"USB_hdc_notifier_title",
-            "value":"USB-Debugging gestartet",
+            "value":"USB-Debugging eingeleitet",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"USB_func_mtp",
+            "value":"Dateien übertragen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hint_cancel",
+            "value":"OK",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"usb_right_title",
+            "value":"USB-Zugriffsautorisierung",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_my_tablet",
+            "value":"Mein Tablet",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_more_notifier",
+            "value":"Für weitere Optionen antippen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_charge_connected_device",
+            "value":"Verbundenes Gerät laden",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp",
+            "value":"Bilder übertragen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp_notifier",
+            "value":"Durchsuchen von Photos per USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge",
+            "value":"Telefon aufladen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"usb_right_content",
+            "value":"Zulassen, dass %1$s %2$s nutzt?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge_notifier",
+            "value":"Laden per USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp_tip",
+            "value":"Für Bilder und Videos in der Galerie",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hint",
+            "value":"USB-Nutzung",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip2",
+            "value":"Für Elemente in Dateien unter „%s“",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_reverse_charge",
+            "value":"Umgekehrtes Laden",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge_connected_notifier",
+            "value":"Das verbundene Gerät über USB mit Strom versorgen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"notAllowButton",
+            "value":"Ablehnen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip",
+            "value":"Für Elemente in Dateien unter „Mein Telefon“",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hdc_notifier_content",
+            "value":"Zum Deaktivieren von USB-Debugging berühren",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"allowButton",
+            "value":"Zulassen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_notifier",
+            "value":"Dateiübertragung per USB",
             "attr":{
                 "priority":"translate"
             }

@@ -1,155 +1,155 @@
 {
     "string":[
         {
-            "name":"USB_hdc_notifier_title",
-            "value":"Depuração USB iniciada",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"USB_func_mtp",
-            "value":"Transferir ficheiros",
+            "value":"ໂອນ​ໄຟ​ລ໌",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_hint_cancel",
-            "value":"OK",
+            "value":"ຕົກລົງ",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"usb_right_title",
-            "value":"Autorização de acesso ao USB",
+            "value":"ການ​ອະ​ນຸ​ຍາດ​ການ​ເຂົ້າ​ເຖິງ USB",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_my_tablet",
-            "value":"O meu tablet",
+            "value":"ແທັບ​ເລັດ​ຂອງຂ້ອຍ",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_more_notifier",
-            "value":"Toque aqui para obter mais opções.",
+            "value":"ແຕະ​ສຳ​ລັບ​ຕົວ​ເລືອກ​ເພີ່ມ​ເຕີມ.",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_charge_connected_device",
-            "value":"Fornecer energia ao dispositivo ligado",
+            "value":"​ສະ​ໜອງ​ໄຟ​ໃຫ້​ແກ່​ອຸ​ປະ​ກອນ​ທີ່​ເຊື່ອມ​ຕໍ່",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_ptp",
-            "value":"Transferir imagens",
+            "value":"ໂອນ​ຮູບ​ພາບ",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_ptp_notifier",
-            "value":"Visualização de fotografias via USB",
+            "value":"ການ​ທ່ອງ​ເບິ່ງ​ຮູບ​ຜ່ານ USB",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_charge",
-            "value":"Apenas carregar",
+            "value":"ສາກ​ເທົ່າ​ນັ້ນ",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"usb_right_content",
-            "value":"Permitir a %1$s utilizar %2$s?",
+            "value":"ອະນຸຍາດໃຫ້ %1$s ໃຊ້ %2$s ບໍ?",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_charge_notifier",
-            "value":"Carregamento via USB",
+            "value":"ກຳ​ລັງ​ສາກ​ຜ່ານ USB",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_ptp_tip",
-            "value":"Para imagens e vídeos na Galeria.",
+            "value":"ສຳ​ລັບ​ຮູບ​ພາບ ແລະ ວິ​ດີ​ໂອ​ໃນ​ແກ​ເລີ​ຣີ.",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_hint",
-            "value":"Utilizar USB para",
+            "value":"ໃຊ້ USB ເພື່ອ",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_mtp_tip2",
-            "value":"Para itens em \"%s\" nos Ficheiros.",
+            "value":"ສຳ​ລັບ​ລາຍ​ການ​ພາຍ​ໃຕ້ \"%s\" ​ໃນ​ໄຟ​ລ໌.",
             "attr":{
                 "priority":"translate"
             }
         },
         {
+            "name":"USB_hdc_notifier_title",
+            "value":"ການ​ແກ້​ໄຂຂໍ້​ຂັດ​ຂ້ອງ USB ເລີ່​ມຕົ້ນແລ້ວ",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
             "name":"USB_func_reverse_charge",
-            "value":"Carregar outro dispositivo",
+            "value":"ປີ້ນ​ດ້ານ​ສາກ",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_charge_connected_notifier",
-            "value":"A fornecer energia a outro dispositivo via USB",
+            "value":"ກຳ​ລັງ​ສະ​ໜອງ​ໄຟ​ໃຫ້​ອຸ​ປະ​ກອນທີ່​ເຊື່ອມ​ຕໍ່​​ແລ້ວຜ່ານ USB",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"notAllowButton",
-            "value":"Negar",
+            "value":"ປະຕິເສດ",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_mtp_tip",
-            "value":"Para itens em \"O meu telemóvel\" nos Ficheiros.",
+            "value":"ສຳ​ລັບ​ລາຍ​ການ​ພາຍ​ໃຕ້ \"ໂທ​ລະ​ສັບ​ຂອງ​ຂ້ອຍ\" ​ໃນ​ໄຟ​ລ໌.",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_hdc_notifier_content",
-            "value":"Toque para desativar a depuração USB.",
+            "value":"ແຕະ​ເພື່ອ​ປິດ​ໃຊ້​ງານການແກ້ໄຂຂໍ້​ຂັດ​ຂ້ອງ USB.",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"allowButton",
-            "value":"Permitir",
+            "value":"ອະນຸຍາດ",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"USB_func_mtp_notifier",
-            "value":"Transferência de ficheiros via USB",
+            "value":"ການໂອນ​ໄຟ​ລ໌​ຜ່ານ USB",
             "attr":{
                 "priority":"translate"
             }
