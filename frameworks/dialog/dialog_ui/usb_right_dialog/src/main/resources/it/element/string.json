@@ -6,6 +6,153 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"USB_func_mtp",
+            "value":"Trasferisci file",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hint_cancel",
+            "value":"OK",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"usb_right_title",
+            "value":"Autorizzazione accesso USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_my_tablet",
+            "value":"Il mio tablet",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_more_notifier",
+            "value":"Tocca per altre opzioni.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_charge_connected_device",
+            "value":"Carica il dispositivo collegato",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp",
+            "value":"Trasferisci immagini",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp_notifier",
+            "value":"Visualizzazione foto USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge",
+            "value":"Solo carica",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"usb_right_content",
+            "value":"Vuoi consentire a %1$s di utilizzare %2$s?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge_notifier",
+            "value":"Ricarica USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp_tip",
+            "value":"Per immagini e video in Galleria.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hint",
+            "value":"Utilizza USB per",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip2",
+            "value":"Per gli elementi in \"%s\" in Gestione file.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_reverse_charge",
+            "value":"Alimentatore",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge_connected_notifier",
+            "value":"Alimentazione del dispositivo collegato tramite USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"notAllowButton",
+            "value":"Nega",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip",
+            "value":"Per gli elementi in \"Mio telefono\" in Gestione file.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hdc_notifier_content",
+            "value":"Tocca per disattivare il debug USB.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"allowButton",
+            "value":"Consenti",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_notifier",
+            "value":"Trasferimento file USB",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

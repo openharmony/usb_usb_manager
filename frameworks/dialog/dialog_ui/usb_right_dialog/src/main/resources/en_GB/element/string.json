@@ -6,6 +6,153 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"USB_func_mtp",
+            "value":"Transfer files",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hint_cancel",
+            "value":"OK",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"usb_right_title",
+            "value":"USB access authorisation",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_my_tablet",
+            "value":"My tablet",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_more_notifier",
+            "value":"Tap for more options.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_charge_connected_device",
+            "value":"Supply power to a connected device.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp",
+            "value":"Transfer images",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp_notifier",
+            "value":"Photo browsing via USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge",
+            "value":"Charge only",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"usb_right_content",
+            "value":"Allow %1$s to use %2$s?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge_notifier",
+            "value":"Charging via USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_ptp_tip",
+            "value":"For images and videos in Gallery.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hint",
+            "value":"Use USB to",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip2",
+            "value":"For items under \"%s\" in Files.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_reverse_charge",
+            "value":"Reverse charge",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_charge_connected_notifier",
+            "value":"Supplying power to the connected device over USB",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"notAllowButton",
+            "value":"Deny",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_tip",
+            "value":"For items under \"My phone\" in Files.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_hdc_notifier_content",
+            "value":"Tap to disable USB debugging.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"allowButton",
+            "value":"Allow",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"USB_func_mtp_notifier",
+            "value":"File transfer via USB",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
