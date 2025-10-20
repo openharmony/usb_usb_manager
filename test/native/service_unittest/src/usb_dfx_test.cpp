@@ -218,6 +218,7 @@ HWTEST_F(UsbDfxTest, GetCurrentFunctions003, TestSize.Level1)
     ASSERT_EQ(ret, 0);
     std::vector<UsbDevice> devs;
     UsbSrvClient.GetDevices(devs);
+    ASSERT_NE(devs.size(), 0);
     UsbDevice device = devs.at(0);
     USBDevicePipe pipe;
     UsbSrvClient.OpenDevice(device, pipe);
