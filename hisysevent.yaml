@@ -34,7 +34,7 @@ PLUG_IN_OUT_DEVICE_MODE:
   CONNECTED: {type: BOOL, desc: event name}
 
 FUNCTION_CHANGED:
-  __BASE: {type: BEHAVIOR, level: MINOR, tag: UsbManager, desc: UsbDeviceFunctionChanged}
+  __BASE: {type: BEHAVIOR, level: CRITICAL, tag: UsbManager, desc: UsbDeviceFunctionChanged}
   CURRENT_FUNCTION: {type: INT32, desc: current function}
   UPDATE_FUNCTION: {type: INT32, desc: update function}
 
