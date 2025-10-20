@@ -214,7 +214,6 @@ HWTEST_F(UsbDfxTest, GetCurrentFunctions003, TestSize.Level1)
     UsbSrvClient.SetPortRole(
         UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::POWER_ROLE_SOURCE, UsbSrvSupport::DATA_ROLE_HOST);
     
-    UsbCommonTest::GrantPermissionSysNative();
     USB_HILOGI(MODULE_USB_SERVICE, "UsbDfxTest::ret=%{public}d", ret);
     ASSERT_EQ(ret, 0);
     std::vector<UsbDevice> devs;
@@ -222,7 +221,6 @@ HWTEST_F(UsbDfxTest, GetCurrentFunctions003, TestSize.Level1)
     UsbDevice device = devs.at(0);
     USBDevicePipe pipe;
     UsbSrvClient.OpenDevice(device, pipe);
-    UsbCommonTest::GrantSysNoPermissionNative();
     vector<uint8_t> buffData;
     USBEndpoint pointIn(USB_ENDPOINT_DIR_IN, 0, 0, 0);
     UsbSrvClient.BulkTransfer(pipe, pointIn, buffData, 100);
