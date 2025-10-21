@@ -951,7 +951,7 @@ int32_t UsbService::BulkTransferRead(
         MAP_STR_DEVICE devices;
         usbHostManager_->GetDevices(devices);
         UsbReportSysEvent::ReportTransferFaultSysEvent("BulkRead", devInfo, pipe,
-            UEC_SERVICE_PERMISSION_DENIED, "checkDevicePermissionFail", devices);
+            UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed", devices);
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     int32_t ret = usbHostManager_->BulkTransferRead(devInfo, pipe, bufferData.data_, timeOut);
@@ -981,7 +981,7 @@ int32_t UsbService::BulkTransferReadwithLength(uint8_t busNum, uint8_t devAddr, 
         MAP_STR_DEVICE devices;
         usbHostManager_->GetDevices(devices);
         UsbReportSysEvent::ReportTransferFaultSysEvent("BulkRead", devInfo, pipe,
-            UEC_SERVICE_PERMISSION_DENIED, "checkDevicePermissionFail", devices);
+            UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed", devices);
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     int32_t ret = usbHostManager_->BulkTransferReadwithLength(devInfo, pipe, length, bufferData.data_, timeOut);
@@ -1010,7 +1010,7 @@ int32_t UsbService::BulkTransferWrite(
         MAP_STR_DEVICE devices;
         usbHostManager_->GetDevices(devices);
         UsbReportSysEvent::ReportTransferFaultSysEvent("BulkWrite", dev, pipe,
-            UEC_SERVICE_PERMISSION_DENIED, "checkDevicePermissionFail", devices);
+            UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed", devices);
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     int32_t ret = usbHostManager_->BulkTransferWrite(dev, pipe, bufferData.data_, timeOut);
@@ -1018,7 +1018,7 @@ int32_t UsbService::BulkTransferWrite(
         MAP_STR_DEVICE devices;
         usbHostManager_->GetDevices(devices);
         UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkWrite", dev, pipe, ep,
-            UEC_SERVICE_PERMISSION_DENIED, "BulkTransferWriteFail", devices);
+            ret, "BulkTransferWriteFail", devices);
         USB_HILOGE(MODULE_USB_SERVICE, "BulkTransferWrite error ret:%{public}d", ret);
     }
     return ret;
@@ -1037,7 +1037,7 @@ int32_t UsbService::ControlTransfer(uint8_t busNum, uint8_t devAddr,
         MAP_STR_DEVICE devices;
         usbHostManager_->GetDevices(devices);
         UsbReportSysEvent::ReportTransferFaultSysEvent("ControlTransfer", dev, {0, 0},
-            UEC_SERVICE_INVALID_VALUE, "checkDevicePermissionFail", devices);
+            UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed", devices);
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     HDI::Usb::V1_0::UsbCtrlTransfer ctrl;
@@ -1266,7 +1266,7 @@ int32_t UsbService::BulkRead(uint8_t busNum, uint8_t devAddr, const USBEndpoint 
         MAP_STR_DEVICE devices;
         usbHostManager_->GetDevices(devices);
         UsbReportSysEvent::ReportTransferFaultSysEvent("BulkRead", devInfo, pipe,
-            UEC_SERVICE_PERMISSION_DENIED, "checkDevicePermissionFail", devices);
+            UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed", devices);
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     sptr<Ashmem> ashmem = new Ashmem(fd, memSize);
@@ -1294,7 +1294,7 @@ int32_t UsbService::BulkWrite(uint8_t busNum, uint8_t devAddr, const USBEndpoint
         MAP_STR_DEVICE devices;
         usbHostManager_->GetDevices(devices);
         UsbReportSysEvent::ReportTransferFaultSysEvent("BulkWrite", devInfo, pipe,
-            UEC_SERVICE_PERMISSION_DENIED, "checkDevicePermissionFail", devices);
+            UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed", devices);
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     sptr<Ashmem> ashmem = new Ashmem(fd, memSize);
