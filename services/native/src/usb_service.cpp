@@ -970,18 +970,28 @@ int32_t UsbService::BulkTransferRead(
 int32_t UsbService::BulkTransferReadwithLength(uint8_t busNum, uint8_t devAddr, const USBEndpoint &ep,
     int32_t length, UsbBulkTransData &bufferData, int32_t timeOut)
 {
+    HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
+    UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        MAP_STR_DEVICE devices;
+        if (GetDevices(devices) == UEC_OK) {
+            UsbReportSysEvent::ReportTransferFaultSysEvent("BulkRead", devInfo, pipe,
+                UEC_SERVICE_PERMISSION_DENIED, "checkDevicePermissionFail", devices);
+        }
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
-    UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
+    
     int32_t ret = usbHostManager_->BulkTransferReadwithLength(devInfo, pipe, length, bufferData.data_, timeOut);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "BulkTransferRead error ret:%{public}d", ret);
+        MAP_STR_DEVICE devices;
+        usbHostManager_->GetDevices(devices);
+        UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkRead", devInfo, pipe, ep,
+            ret, "BulkTransferReadFail", devices);
+        USB_HILOGE(MODULE_USB_SERVICE, "BulkTransferReadWithLength error ret:%{public}d", ret);
     }
     return ret;
 }
