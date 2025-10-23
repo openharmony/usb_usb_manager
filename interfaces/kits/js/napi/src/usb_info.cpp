@@ -1635,6 +1635,7 @@ static auto g_controlTransferExecute = [](napi_env env, void *data) {
     const UsbCtrlTransfer tctrl = {
         asyncContext->reqType, asyncContext->request, asyncContext->value, asyncContext->index, asyncContext->timeOut};
     int32_t ret;
+    size_t bufLen = bufferData.size();
     do {
         ret = asyncContext->pipe.ControlTransfer(tctrl, bufferData);
         if (ret != UEC_OK) {
@@ -1642,14 +1643,21 @@ static auto g_controlTransferExecute = [](napi_env env, void *data) {
             break;
         }
 
-        if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_IN && asyncContext->bufferLength > 0) {
-            ret = memcpy_s(asyncContext->buffer, asyncContext->bufferLength, bufferData.data(), bufferData.size());
+        if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_IN &&
+            asyncContext->bufferLength > 0 && bufferData.size() > 0) {
+            bufLen = bufferData.size();
+            if (bufLen > asyncContext->bufferLength) {
+                USB_HILOGW(MODULE_JS_NAPI, "read warn, expect read len: %{public}u, actualLength: %{public}zu",
+                    asyncContext->bufferLength, bufLen);
+                bufLen = asyncContext->bufferLength;
+            }
+            ret = memcpy_s(asyncContext->buffer, asyncContext->bufferLength, bufferData.data(), bufLen);
         }
     } while (0);
 
     if (ret == UEC_OK) {
         asyncContext->status = napi_ok;
-        asyncContext->dataSize = bufferData.size();
+        asyncContext->dataSize = bufLen;
     } else {
         asyncContext->status = napi_generic_failure;
         asyncContext->dataSize = 0;
@@ -1799,6 +1807,7 @@ static auto g_usbControlTransferExecute = [](napi_env env, void *data) {
     const UsbCtrlTransferParams tctrl = {asyncContext->reqType, asyncContext->request,
         asyncContext->value, asyncContext->index, asyncContext->length, asyncContext->timeOut};
     int32_t ret;
+    size_t bufLen = bufferData.size();
     do {
         ret = asyncContext->pipe.UsbControlTransfer(tctrl, bufferData);
         if (ret != UEC_OK) {
@@ -1806,14 +1815,21 @@ static auto g_usbControlTransferExecute = [](napi_env env, void *data) {
             break;
         }
 
-        if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_IN && asyncContext->bufferLength > 0) {
-            ret = memcpy_s(asyncContext->buffer, asyncContext->bufferLength, bufferData.data(), bufferData.size());
+        if ((asyncContext->reqType & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_DIR_IN &&
+            asyncContext->bufferLength > 0 && bufferData.size() > 0) {
+            bufLen = bufferData.size();
+            if (bufLen > asyncContext->bufferLength) {
+                USB_HILOGW(MODULE_JS_NAPI, "read warn, expect read len: %{public}u, actualLength: %{public}zu",
+                    asyncContext->bufferLength, bufLen);
+                bufLen = asyncContext->bufferLength;
+            }
+            ret = memcpy_s(asyncContext->buffer, asyncContext->bufferLength, bufferData.data(), bufLen);
         }
     } while (0);
 
     if (ret == UEC_OK) {
         asyncContext->status = napi_ok;
-        asyncContext->dataSize = bufferData.size();
+        asyncContext->dataSize = bufLen;
     } else {
         asyncContext->status = napi_generic_failure;
         asyncContext->dataSize = 0;
@@ -1964,22 +1980,30 @@ static auto g_bulkTransferExecute = [](napi_env env, void *data) {
     }
 
     int32_t ret;
+    size_t bufLen = bufferData.size();
     do {
         ret = asyncContext->pipe.BulkTransfer(asyncContext->endpoint, bufferData, asyncContext->timeOut);
         if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_JS_NAPI, "ControlTransferExecute failed");
+            USB_HILOGE(MODULE_JS_NAPI, "BulkTransferExecute failed");
             break;
         }
 
-        if (asyncContext->endpoint.GetDirection() == USB_ENDPOINT_DIR_IN) {
-            ret = memcpy_s(asyncContext->buffer, asyncContext->bufferLength, bufferData.data(), bufferData.size());
+        if (asyncContext->endpoint.GetDirection() == USB_ENDPOINT_DIR_IN &&
+            asyncContext->bufferLength > 0 && bufferData.size() > 0) {
+            bufLen = bufferData.size();
+            if (bufLen > asyncContext->bufferLength) {
+                USB_HILOGW(MODULE_JS_NAPI, "read warn, expect read len: %{public}u, actualLength: %{public}zu",
+                    asyncContext->bufferLength, bufLen);
+                bufLen = asyncContext->bufferLength;
+            }
+            ret = memcpy_s(asyncContext->buffer, asyncContext->bufferLength, bufferData.data(), bufLen);
         }
     } while (0);
 
     USB_HILOGD(MODULE_JS_NAPI, "call pipe result %{public}d", ret);
     if (ret == UEC_OK) {
         asyncContext->status = napi_ok;
-        asyncContext->dataSize = bufferData.size();
+        asyncContext->dataSize = bufLen;
     } else {
         asyncContext->status = napi_generic_failure;
         asyncContext->dataSize = 0;
@@ -2230,31 +2254,39 @@ static napi_value ParmsInput(napi_env env, AsyncCallBackContext &asyncCBWork)
     return res;
 }
 
-static void ReadDataToBuffer(USBTransferAsyncContext *asyncContext, const TransferCallbackInfo &info)
+static int32_t ReadDataToBuffer(USBTransferAsyncContext *asyncContext, const TransferCallbackInfo &info)
 {
     uint8_t endpointId = static_cast<uint8_t>(asyncContext->endpoint) & USB_ENDPOINT_DIR_MASK;
-    if (endpointId == USB_ENDPOINT_DIR_IN) {
+    size_t actBufLen = info.actualLength;
+    if (endpointId == USB_ENDPOINT_DIR_IN && asyncContext->bufferLength > 0 && info.actualLength > 0) {
         asyncContext->ashmem->MapReadAndWriteAshmem();
         auto ashmemBuffer = asyncContext->ashmem->ReadFromAshmem(info.actualLength, 0);
         if (ashmemBuffer == nullptr) {
             asyncContext->ashmem->UnmapAshmem();
             asyncContext->ashmem->CloseAshmem();
-            return;
+            return actBufLen;
         }
-        int32_t ret = memcpy_s(asyncContext->buffer, asyncContext->bufferLength, ashmemBuffer, info.actualLength);
+
+        if (actBufLen > asyncContext->bufferLength) {
+            USB_HILOGW(MODULE_JS_NAPI, "read warn, expect read len: %{public}zu, actualLength: %{public}zu",
+                asyncContext->bufferLength, actBufLen);
+            actBufLen = asyncContext->bufferLength;
+        }
+        int32_t ret = memcpy_s(asyncContext->buffer, asyncContext->bufferLength, ashmemBuffer, actBufLen);
         if (ret != EOK) {
             USB_HILOGE(MODULE_JS_NAPI, "memcpy_s fatal failed error: %{public}d", ret);
         }
     }
     asyncContext->ashmem->UnmapAshmem();
     asyncContext->ashmem->CloseAshmem();
+    return actBufLen;
 }
 
 static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCallbackInfo &info,
     const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo)
 {
     USB_HILOGI(MODULE_JS_NAPI, "JsCallBack enter.");
-    ReadDataToBuffer(asyncContext, info);
+    int32_t actBufLen = ReadDataToBuffer(asyncContext, info);
     AsyncCallBackContext *asyncCBWork = new (std::nothrow) AsyncCallBackContext;
     if (asyncCBWork == nullptr) {
         delete asyncContext;
@@ -2262,7 +2294,7 @@ static void JsCallBack(USBTransferAsyncContext *asyncContext, const TransferCall
         return;
     }
     asyncCBWork->env = asyncContext->env;
-    asyncCBWork->actualLength = info.actualLength;
+    asyncCBWork->actualLength = actBufLen;
     asyncCBWork->status = info.status;
     asyncCBWork->isoInfo = isoInfo;
     asyncCBWork->callbackRef = asyncContext->callbackRef;
