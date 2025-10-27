@@ -278,7 +278,10 @@ export default function SerialBaseTest() {
           expect(serialManager.getAttribute(openPortId).stopBits).assertEqual(serialManager.StopBits.STOPBIT_2);
           serialManager.close(openPortId);
           done();
-        } catch (error : BusinessError) {
+        } catch (error) {
+          if (!(error instanceof BusinessError)) {
+            throw error;
+          }
           console.error(TAG, 'testGetAttribute001 catch err code: ', error.code, ', message: ', error.message);
           expect(error.code).assertEqual(31400001);
         }
@@ -303,7 +306,10 @@ export default function SerialBaseTest() {
         expect(length >= 0).assertTrue();
         serialManager.close(openPortId);
         done();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         console.error(TAG, 'testReadSync002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400001);
       }
@@ -328,7 +334,10 @@ export default function SerialBaseTest() {
         expect(length >= 0).assertTrue();
         serialManager.close(openPortId);
         done();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         console.error(TAG, 'testReadSync002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400007);
       }
@@ -354,7 +363,10 @@ export default function SerialBaseTest() {
           expect(length >= 0).assertTrue();
           serialManager.close(openPortId);
           done();
-        } catch (error : BusinessError) {
+        } catch (error) {
+          if (!(error instanceof BusinessError)) {
+            throw error;
+          }
           console.error(TAG, 'testReadSync002 catch err code: ', error.code, ', message: ', error.message);
           expect(error.code).assertEqual(31400007);
         }
@@ -380,7 +392,10 @@ export default function SerialBaseTest() {
           expect(length >= 0).assertTrue();
           serialManager.close(openPortId);
           done();
-        } catch (error : BusinessError) {
+        } catch (error) {
+          if (!(error instanceof BusinessError)) {
+            throw error;
+          }
           console.error(TAG, 'testReadSync002 catch err code: ', error.code, ', message: ', error.message);
           expect(error.code).assertEqual(31400001);
         }
@@ -478,7 +493,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -512,7 +530,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -546,7 +567,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -580,7 +604,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -610,7 +637,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -640,7 +670,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -670,7 +703,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -700,7 +736,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -730,7 +769,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -760,7 +802,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -790,7 +835,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -820,7 +868,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -850,7 +901,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -880,7 +934,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -910,7 +967,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -940,7 +1000,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -970,7 +1033,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -1000,7 +1066,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -1030,7 +1099,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -1060,7 +1132,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -1090,7 +1165,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -1120,7 +1198,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -1150,7 +1231,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -1180,7 +1264,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -1210,7 +1297,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -1240,7 +1330,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -1270,7 +1363,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -1300,7 +1396,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -1330,7 +1429,10 @@ export default function SerialBaseTest() {
         };
         serialManager.setAttribute(openPortId, attribute);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testSetAttribute002 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -1402,7 +1504,10 @@ export default function SerialBaseTest() {
         expect(length >= 0).assertTrue();
         serialManager.close(openPortId);
         done();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         console.error(TAG, 'testWriteSync001 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400001);
       }
@@ -1421,7 +1526,10 @@ export default function SerialBaseTest() {
         expect(length >= 0).assertTrue();
         serialManager.close(openPortId);
         done();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         console.error(TAG, 'testWriteSync001 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400006);
       }
@@ -1440,7 +1548,10 @@ export default function SerialBaseTest() {
         expect(length >= 0).assertTrue();
         serialManager.close(openPortId);
         done();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         console.error(TAG, 'testWriteSync001 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400007);
       }
@@ -1473,7 +1584,10 @@ export default function SerialBaseTest() {
         expect(length >= 0).assertTrue();
         serialManager.close(openPortId);
         done();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testRead002 catch err name: ', error.name, ', message: ', error.message);
         expect().assertFail();
       }
@@ -1498,7 +1612,10 @@ export default function SerialBaseTest() {
         let readSyncBuffer: Uint8Array = new Uint8Array(8192);
         serialManager.readSync(openPortId, readSyncBuffer);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testReadSync003 catch err code: ', error.code, ', message: ', error.message);
         expect(error.code).assertEqual(31400005);
         done();
@@ -1524,7 +1641,10 @@ export default function SerialBaseTest() {
         let writeBuffer: Uint8Array = new Uint8Array(100).fill(1);
         await serialManager.write(invalidport, writeBuffer);
         expect().assertFail();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testWrite004 catch err name: ', error);
         expect(error.code).assertEqual(31400003);
         done();
@@ -1552,7 +1672,10 @@ export default function SerialBaseTest() {
         expect(length >= 0).assertTrue();
         serialManager.close(openPortId);
         done();
-      } catch (error : BusinessError) {
+      } catch (error) {
+        if (!(error instanceof BusinessError)) {
+          throw error;
+        }
         hilog.error(domain, TAG, 'testWriteSync001 catch err code: ', error.code, ', message: ', error.message);
         expect().assertFail();
       };
