@@ -208,7 +208,10 @@ export default function abilityTest() {
           usbManager.usbSubmitTransfer(transferParams);
           usbManager.usbCancelTransfer(transferParams);
           hilog.info(domain, tag, 'USB transfer request submitted.');
-        } catch (error: BusinessError) {
+        } catch (error) {
+          if (!(error instanceof BusinessError)) {
+            throw error;
+          }
           hilog.info(domain, tag, 'testUsbCancelTransfer004 catch err code================: ' + JSON.stringify(error));
         }
         done();
@@ -248,7 +251,10 @@ export default function abilityTest() {
           usbManager.usbCancelTransfer(transferParams);
           expect().assertFail();
           hilog.info(domain, tag, 'USB transfer request submitted.');
-        } catch (error: BusinessError) {
+        } catch (error) {
+          if (!(error instanceof BusinessError)) {
+            throw error;
+          }
           hilog.info(domain, tag, 'interrupt cancel failed:' + error.code);
           expect(error.code).assertEqual(14400011);
         }
@@ -286,7 +292,10 @@ export default function abilityTest() {
             expect(ret == 18).assertEqual(true);
           })
           usbManager.closePipe(devicePipe);
-        } catch (error: BusinessError) {
+        } catch (error) {
+          if (!(error instanceof BusinessError)) {
+            throw error;
+          }
           hilog.info(0, 'testTag ui', `closeAccessory error `)
           hilog.info(domain, tag, 'usbControlTransfer end');
           let err: BusinessError = error as BusinessError;
@@ -335,7 +344,10 @@ export default function abilityTest() {
           }
           hilog.info(domain, tag, `bulkTransfer end `);
           usbManager.closePipe(devicePipe);
-        } catch (error: BusinessError) {
+        } catch (error) {
+          if (!(error instanceof BusinessError)) {
+            throw error;
+          }
           hilog.info(domain, tag, `bulkTransfer error `)
           hilog.info(domain, tag, `bulkTransfer err.code= ${error.code}`);
         }
