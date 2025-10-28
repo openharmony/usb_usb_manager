@@ -1246,8 +1246,8 @@ int32_t UsbService::UnRegBulkCallback(uint8_t busNum, uint8_t devAddr, const USB
 
 int32_t UsbService::BulkRead(uint8_t busNum, uint8_t devAddr, const USBEndpoint &ep, int32_t fd, int32_t memSize)
 {
-    if (usbHostManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
+    if (usbHostManager_ == nullptr || fd <= 0 || memSize <= 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid param, fd=[%{public}d],memSize=[%{public}d]", fd, memSize);
         return UEC_SERVICE_INVALID_VALUE;
     }
 
@@ -1274,8 +1274,8 @@ int32_t UsbService::BulkRead(uint8_t busNum, uint8_t devAddr, const USBEndpoint 
 
 int32_t UsbService::BulkWrite(uint8_t busNum, uint8_t devAddr, const USBEndpoint &ep, int32_t fd, int32_t memSize)
 {
-    if (usbHostManager_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
+    if (usbHostManager_ == nullptr || fd <= 0 || memSize <= 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid param, fd=[%{public}d],memSize=[%{public}d]", fd, memSize);
         return UEC_SERVICE_INVALID_VALUE;
     }
 
@@ -1452,15 +1452,15 @@ int32_t UsbService::AddRight(const std::string &bundleName, const std::string &d
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    std::string deviceVidPidSerialNum = "";
-    int32_t ret = GetDeviceVidPidSerialNumber(deviceName, deviceVidPidSerialNum);
+    // LCOV_EXCL_START
+    int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "can not find deviceName.");
         return ret;
     }
-    // LCOV_EXCL_START
-    ret = CheckSysApiPermission();
+    std::string deviceVidPidSerialNum = "";
+    ret = GetDeviceVidPidSerialNumber(deviceName, deviceVidPidSerialNum);
     if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "can not find deviceName.");
         return ret;
     }
     std::string tokenId;
