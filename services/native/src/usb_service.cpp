@@ -1467,7 +1467,7 @@ int32_t UsbService::AddRight(const std::string &bundleName, const std::string &d
     int32_t userId = USB_RIGHT_USERID_INVALID;
     if (!GetBundleInfo(tokenId, userId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "GetCallingInfo false");
-        return false;
+        return UEC_SERVICE_INVALID_VALUE;
     }
     USB_HILOGI(MODULE_USB_SERVICE, "AddRight bundleName = %{public}s, deviceName = %{public}s", bundleName.c_str(),
         deviceName.c_str());
