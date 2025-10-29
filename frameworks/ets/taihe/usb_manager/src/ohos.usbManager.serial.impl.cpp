@@ -144,11 +144,11 @@ void AddSerialRight(int32_t tokenId, int32_t portId)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "AddSerialRight start.");
     if (!CheckAndThrowOnError((tokenId > 0), SYSPARAM_INVALID_INPUT, "AddSerialRight failed.")) {
-        USB_HILOGI(MODULE_USB_INNERKIT, "AddSerialRight failed, invalid tockenId [%{public}d]", tokenId);
+        USB_HILOGE(MODULE_USB_INNERKIT, "AddSerialRight failed, invalid tokenId [%{public}d]", tokenId);
         return;
     }
     if (!CheckAndThrowOnError((portId >= 0), SYSPARAM_INVALID_INPUT, "AddSerialRight failed.")) {
-        USB_HILOGI(MODULE_USB_INNERKIT, "AddSerialRight failed, invalid portId [%{public}d]", portId);
+        USB_HILOGE(MODULE_USB_INNERKIT, "AddSerialRight failed, invalid portId [%{public}d]", portId);
         return;
     }
     int32_t ret = g_usbClient.AddSerialRight(tokenId, portId);
@@ -334,7 +334,7 @@ int32_t WriteSync(int32_t portId, ::taihe::array_view<uint8_t> buffer, ::taihe::
     int32_t ret = g_usbClient.SerialWrite(portId, bufferVector, buffer.size(), actualSize, utimeout);
     if (ret != 0) {
         USB_HILOGE(MODULE_USB_INNERKIT, "writeSync Failed. errorCode: %{public}d", ErrorCodeConversion(ret));
-        set_business_error(ErrorCodeConversion(ret), "readSync Failed!");
+        set_business_error(ErrorCodeConversion(ret), "writeSync Failed!");
         return ERROR;
     }
     USB_HILOGI(MODULE_USB_INNERKIT, "writeSync finish, status: %{public}d", ret);
