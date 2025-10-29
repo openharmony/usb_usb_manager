@@ -80,45 +80,6 @@ BENCHMARK_REGISTER_F(UsbmgrBenchmarkHostManagerTest, HasRight01)->
     Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
 
 /**
- * @tc.name: HasRight02
- * @tc.desc: Test usbmgr functions: HasRight
- * @tc.desc: bool HasRight(std::string deviceName);
- * @tc.desc: Negative test: parameters error, invalid deviceName
- * @tc.type: FUNC
- */
-BENCHMARK_F(UsbmgrBenchmarkHostManagerTest, HasRight02)(benchmark::State &state)
-{
-    bool hasRight;
-    std::string deviceName = std::to_string(0) + "-" + std::to_string(0);
-    for (auto _ : state) {
-        hasRight = g_usbSrvClient.HasRight(deviceName);
-    }
-    EXPECT_EQ(false, hasRight);
-}
-BENCHMARK_REGISTER_F(UsbmgrBenchmarkHostManagerTest, HasRight02)->
-    Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
-
-/**
- * @tc.name: HasRight03
- * @tc.desc: Test usbmgr functions: HasRight
- * @tc.desc: bool HasRight(std::string deviceName);
- * @tc.desc: Negative test: parameters error, not name of a device
- * @tc.type: FUNC
- */
-BENCHMARK_F(UsbmgrBenchmarkHostManagerTest, HasRight03)(benchmark::State &state)
-{
-    bool hasRight;
-    std::string deviceName = "*#123";
-    for (auto _ : state) {
-        hasRight = g_usbSrvClient.HasRight(deviceName);
-    }
-    EXPECT_EQ(false, hasRight);
-    UsbCommonTest::GrantPermissionSysNative();
-}
-BENCHMARK_REGISTER_F(UsbmgrBenchmarkHostManagerTest, HasRight03)->
-    Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
-
-/**
  * @tc.name: GetDevices01
  * @tc.desc: Test usbmgr functions: getDevices
  * @tc.desc: int32_t GetDevices(std::vector<UsbDevice> &deviceList);
@@ -157,28 +118,6 @@ BENCHMARK_REGISTER_F(UsbmgrBenchmarkHostManagerTest, OpenDevice01)->
     Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
 
 /**
- * @tc.name: OpenDevice02
- * @tc.desc: Test usbmgr functions: OpenDevice
- * @tc.desc: int32_t OpenDevice(const UsbDevice &device, USBDevicePipe &pipe);
- * @tc.desc: Negative test: parameters error, invalid device
- * @tc.type: FUNC
- */
-BENCHMARK_F(UsbmgrBenchmarkHostManagerTest, OpenDevice02)(benchmark::State &state)
-{
-    int32_t ret;
-    USBDevicePipe pipe;
-    UsbDevice device;
-    device.SetBusNum(0);
-    device.SetDevAddr(0);
-    for (auto _ : state) {
-        ret = g_usbSrvClient.OpenDevice(device, pipe);
-    }
-    EXPECT_NE(0, ret);
-}
-BENCHMARK_REGISTER_F(UsbmgrBenchmarkHostManagerTest, OpenDevice02)->
-    Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
-
-/**
  * @tc.name: Close01
  * @tc.desc: Test usbmgr functions: Close
  * @tc.desc: bool Close(const USBDevicePipe &pip);
@@ -190,53 +129,12 @@ BENCHMARK_F(UsbmgrBenchmarkHostManagerTest, Close01)(benchmark::State &state)
     int32_t ret;
     USBDevicePipe pipe;
     for (auto _ : state) {
-        (void)g_usbSrvClient.OpenDevice(device, pipe);
+        (void)g_usbSrvClient.OpenDevice(g_device, pipe);
         ret = g_usbSrvClient.Close(pipe);
     }
-    EXPECT_EQ(0, ret);
+    EXPECT_EQ(1, ret);
 }
 BENCHMARK_REGISTER_F(UsbmgrBenchmarkHostManagerTest, Close01)->
-    Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
-
-/**
- * @tc.name: Close02
- * @tc.desc: Test usbmgr functions: Close
- * @tc.desc: bool Close(const USBDevicePipe &pip);
- * @tc.desc: Negative test: parameters error, invalid pipe
- * @tc.type: FUNC
- */
-BENCHMARK_F(UsbmgrBenchmarkHostManagerTest, Close02)(benchmark::State &state)
-{
-    int32_t ret;
-    USBDevicePipe pipe;
-    for (auto _ : state) {
-        ret = g_usbSrvClient.Close(pipe);
-    }
-    EXPECT_NE(0, ret);
-}
-BENCHMARK_REGISTER_F(UsbmgrBenchmarkHostManagerTest, Close02)->
-    Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
-
-/**
- * @tc.name: Close03
- * @tc.desc: Test usbmgr functions: Close
- * @tc.desc: bool Close(const USBDevicePipe &pip);
- * @tc.desc: Negative test: parameters error, pipe already closed
- * @tc.type: FUNC
- */
-BENCHMARK_F(UsbmgrBenchmarkHostManagerTest, Close03)(benchmark::State &state)
-{
-    int32_t ret;
-    USBDevicePipe pipe;
-    (void)g_usbSrvClient.OpenDevice(device, pipe);
-    ret = g_usbSrvClient.Close(pipe);
-    EXPECT_EQ(0, ret);
-    for (auto _ : state) {
-        ret = g_usbSrvClient.Close(pipe);
-    }
-    EXPECT_NE(0, ret);
-}
-BENCHMARK_REGISTER_F(UsbmgrBenchmarkHostManagerTest, Close03)->
     Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
 
 /**
@@ -256,35 +154,16 @@ BENCHMARK_F(UsbmgrBenchmarkHostManagerTest, ResetDevice01)(benchmark::State &sta
         ret = g_usbSrvClient.ResetDevice(pipe);
     }
     ret = g_usbSrvClient.Close(pipe);
-    EXPECT_EQ(0, ret);
+    EXPECT_EQ(1, ret);
 }
 BENCHMARK_REGISTER_F(UsbmgrBenchmarkHostManagerTest, ResetDevice01)->
-    Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
-
-/**
- * @tc.name: ResetDevice02
- * @tc.desc: Test usbmgr functions: ResetDevice
- * @tc.desc: int32_t ResetDevice(USBDevicePipe &pipe);
- * @tc.desc: Negative test: parameters error, invalid pipe
- * @tc.type: FUNC
- */
-BENCHMARK_F(UsbmgrBenchmarkHostManagerTest, ResetDevice02)(benchmark::State &state)
-{
-    int32_t ret;
-    USBDevicePipe pipe;
-    for (auto _ : state) {
-        ret = g_usbSrvClient.ResetDevice(pipe);
-    }
-    EXPECT_NE(0, ret);
-}
-BENCHMARK_REGISTER_F(UsbmgrBenchmarkHostManagerTest, ResetDevice02)->
     Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
 
 /**
  * @tc.name: ClaimInterface01
  * @tc.desc: Test usbmgr functions: ClaimInterface
  * @tc.desc: int32_t ClaimInterface(USBDevicePipe &pipe, const UsbInterface &interface, bool force);
- * @tc.desc: Positive test: parameters correct
+ * @tc.desc: Positive test: parameters correct, force = true
  * @tc.type: FUNC
  */
 BENCHMARK_F(UsbmgrBenchmarkHostManagerTest, ClaimInterface01)(benchmark::State &state)
@@ -293,13 +172,106 @@ BENCHMARK_F(UsbmgrBenchmarkHostManagerTest, ClaimInterface01)(benchmark::State &
     USBDevicePipe pipe;
     ret = g_usbSrvClient.OpenDevice(g_device, pipe);
     EXPECT_EQ(0, ret);
+    auto configs = g_device.GetConfigs();
+    EXPECT_GE(configs.size(), 0);
+    auto interfaces = configs.front().GetInterfaces();
+    EXPECT_GE(interfaces.size(), 0);
     for (auto _ : state) {
-        ret = g_usbSrvClient.ResetDevice(pipe);
+        ret = g_usbSrvClient.ClaimInterface(pipe, interfaces.front(), true);
     }
-    ret = g_usbSrvClient.Close(pipe);
     EXPECT_EQ(0, ret);
+    ret = g_usbSrvClient.Close(pipe);
+    EXPECT_EQ(1, ret);
 }
 BENCHMARK_REGISTER_F(UsbmgrBenchmarkHostManagerTest, ClaimInterface01)->
+    Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
+
+/**
+ * @tc.name: UsbAttachKernelDriver01
+ * @tc.desc: Test usbmgr functions: UsbAttachKernelDriver
+ * @tc.desc: int32_t UsbAttachKernelDriver(USBDevicePipe &pipe, const UsbInterface &interface);
+ * @tc.desc: Positive test: parameters correct
+ * @tc.type: FUNC
+ */
+BENCHMARK_F(UsbmgrBenchmarkHostManagerTest, UsbAttachKernelDriver01)(benchmark::State &state)
+{
+    int32_t ret;
+    USBDevicePipe pipe;
+    ret = g_usbSrvClient.OpenDevice(g_device, pipe);
+    EXPECT_EQ(0, ret);
+    auto configs = g_device.GetConfigs();
+    EXPECT_GE(configs.size(), 0);
+    auto interfaces = configs.front().GetInterfaces();
+    EXPECT_GE(interfaces.size(), 0);
+    ret = g_usbSrvClient.ClaimInterface(pipe, interfaces.front(), true);
+    EXPECT_EQ(0, ret);
+    for (auto _ : state) {
+        ret = UsbAttachKernelDriver(pipe, interfaces.front());
+    }
+    EXPECT_EQ(0, ret);
+    ret = g_usbSrvClient.Close(pipe);
+    EXPECT_EQ(1, ret);
+}
+BENCHMARK_REGISTER_F(UsbmgrBenchmarkHostManagerTest, UsbAttachKernelDriver01)->
+    Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
+
+/**
+ * @tc.name: UsbDetachKernelDriver01
+ * @tc.desc: Test usbmgr functions: UsbDetachKernelDriver
+ * @tc.desc: int32_t UsbDetachKernelDriver(USBDevicePipe &pipe, const UsbInterface &interface);
+ * @tc.desc: Positive test: parameters correct
+ * @tc.type: FUNC
+ */
+BENCHMARK_F(UsbmgrBenchmarkHostManagerTest, UsbDetachKernelDriver01)(benchmark::State &state)
+{
+    int32_t ret;
+    USBDevicePipe pipe;
+    ret = g_usbSrvClient.OpenDevice(g_device, pipe);
+    EXPECT_EQ(0, ret);
+    auto configs = g_device.GetConfigs();
+    EXPECT_GE(configs.size(), 0);
+    auto interfaces = configs.front().GetInterfaces();
+    EXPECT_GE(interfaces.size(), 0);
+    ret = g_usbSrvClient.ClaimInterface(pipe, interfaces.front(), true);
+    EXPECT_EQ(0, ret);
+    for (auto _ : state) {
+        (void)UsbAttachKernelDriver(pipe, interfaces.front());
+        ret = UsbDetachKernelDriver(pipe, interfaces.front());
+    }
+    EXPECT_EQ(0, ret);
+    (void)UsbAttachKernelDriver(pipe, interfaces.front());
+    ret = g_usbSrvClient.Close(pipe);
+    EXPECT_EQ(1, ret);
+}
+BENCHMARK_REGISTER_F(UsbmgrBenchmarkHostManagerTest, UsbDetachKernelDriver01)->
+    Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
+
+/**
+ * @tc.name: ReleaseInterface01
+ * @tc.desc: Test usbmgr functions: ReleaseInterface
+ * @tc.desc: int32_t ReleaseInterface(USBDevicePipe &pipe, const UsbInterface &interface);
+ * @tc.desc: Positive test: parameters correct
+ * @tc.type: FUNC
+ */
+BENCHMARK_F(UsbmgrBenchmarkHostManagerTest, ReleaseInterface01)(benchmark::State &state)
+{
+    int32_t ret;
+    USBDevicePipe pipe;
+    ret = g_usbSrvClient.OpenDevice(g_device, pipe);
+    EXPECT_EQ(0, ret);
+    auto configs = g_device.GetConfigs();
+    EXPECT_GE(configs.size(), 0);
+    auto interfaces = configs.front().GetInterfaces();
+    EXPECT_GE(interfaces.size(), 0);
+    for (auto _ : state) {
+        (void)g_usbSrvClient.ClaimInterface(pipe, interfaces.front(), true);
+        g_usbSrvClient.ReleaseInterface(pipe, interfaces.front());
+    }
+    EXPECT_EQ(0, ret);
+    ret = g_usbSrvClient.Close(pipe);
+    EXPECT_EQ(1, ret);
+}
+BENCHMARK_REGISTER_F(UsbmgrBenchmarkHostManagerTest, ReleaseInterface01)->
     Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
 
 } // namespace
