@@ -14,7 +14,7 @@
 domain: USB
 
 PLUG_IN_OUT_HOST_MODE:
-  __BASE: {type: BEHAVIOR, level: MINOR, tag: UsbManager, desc: UsbDevicePlugInHostMode}
+  __BASE: {type: BEHAVIOR, level: CRITICAL, tag: UsbManager, desc: UsbDevicePlugInHostMode}
   DEVICE_NAME: {type: STRING, desc: device name}
   DEVICE_PROTOCOL: {type: INT32, desc: device protocol}
   DEVICE_SUBCLASS: {type: INT32, desc: device subclass}
@@ -29,7 +29,7 @@ PLUG_IN_OUT_HOST_MODE:
   MANUFACTURER_NAME: {type: STRING, desc: manufacturer name}
 
 PLUG_IN_OUT_DEVICE_MODE:
-  __BASE: {type: BEHAVIOR, level: MINOR, tag: UsbManager, desc: UsbDevicePlugInDeviceMode}
+  __BASE: {type: BEHAVIOR, level: CRITICAL, tag: UsbManager, desc: UsbDevicePlugInDeviceMode}
   CURRENT_FUNCTIONS: {type: INT32, desc: current functios}
   CONNECTED: {type: BOOL, desc: event name}
 
