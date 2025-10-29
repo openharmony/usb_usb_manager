@@ -1200,13 +1200,15 @@ int32_t UsbService::UsbSubmitTransfer(uint8_t busNum, uint8_t devAddr, const Usb
 {
     USB_HILOGI(MODULE_USBD, "UsbService UsbSubmitTransfer enter");
     if (cb == nullptr || fd <= 0 || memSize <= 0) {
+        ::close(fd);
         USB_HILOGE(MODULE_USB_SERVICE, "invalid param, fd=[%{public}d],memSize=[%{public}d]", fd, memSize);
         return UEC_SERVICE_INVALID_VALUE;
     }
     HDI::Usb::V1_2::USBTransferInfo info;
     UsbTransInfoChange(info, param);
-    sptr<Ashmem> ashmem = new Ashmem(fd, memSize);
+    sptr<Ashmem> ashmem = new (std::nothrow) Ashmem(fd, memSize);
     if (ashmem == nullptr) {
+        ::close(fd);
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService UsbSubmitTransfer error ashmem");
         return UEC_SERVICE_INVALID_VALUE;
     }
@@ -1247,6 +1249,7 @@ int32_t UsbService::UnRegBulkCallback(uint8_t busNum, uint8_t devAddr, const USB
 int32_t UsbService::BulkRead(uint8_t busNum, uint8_t devAddr, const USBEndpoint &ep, int32_t fd, int32_t memSize)
 {
     if (usbHostManager_ == nullptr || fd <= 0 || memSize <= 0) {
+        ::close(fd);
         USB_HILOGE(MODULE_USB_SERVICE, "invalid param, fd=[%{public}d],memSize=[%{public}d]", fd, memSize);
         return UEC_SERVICE_INVALID_VALUE;
     }
@@ -1254,13 +1257,19 @@ int32_t UsbService::BulkRead(uint8_t busNum, uint8_t devAddr, const USBEndpoint 
     HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        ::close(fd);
         MAP_STR_DEVICE devices;
         usbHostManager_->GetDevices(devices);
         UsbReportSysEvent::ReportTransferFaultSysEvent("BulkRead", devInfo, pipe,
             UEC_SERVICE_PERMISSION_DENIED, "checkDevicePermissionFail", devices);
         return UEC_SERVICE_PERMISSION_DENIED;
     }
-    sptr<Ashmem> ashmem = new Ashmem(fd, memSize);
+    sptr<Ashmem> ashmem = new (std::nothrow) Ashmem(fd, memSize);
+    if (ashmem == nullptr) {
+        ::close(fd);
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService BulkRead error ashmem");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     int32_t ret = usbHostManager_->BulkRead(devInfo, pipe, ashmem);
     if (ret != UEC_OK) {
         MAP_STR_DEVICE devices;
@@ -1275,6 +1284,7 @@ int32_t UsbService::BulkRead(uint8_t busNum, uint8_t devAddr, const USBEndpoint 
 int32_t UsbService::BulkWrite(uint8_t busNum, uint8_t devAddr, const USBEndpoint &ep, int32_t fd, int32_t memSize)
 {
     if (usbHostManager_ == nullptr || fd <= 0 || memSize <= 0) {
+        ::close(fd);
         USB_HILOGE(MODULE_USB_SERVICE, "invalid param, fd=[%{public}d],memSize=[%{public}d]", fd, memSize);
         return UEC_SERVICE_INVALID_VALUE;
     }
@@ -1282,13 +1292,19 @@ int32_t UsbService::BulkWrite(uint8_t busNum, uint8_t devAddr, const USBEndpoint
     HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        ::close(fd);
         MAP_STR_DEVICE devices;
         usbHostManager_->GetDevices(devices);
         UsbReportSysEvent::ReportTransferFaultSysEvent("BulkWrite", devInfo, pipe,
             UEC_SERVICE_PERMISSION_DENIED, "checkDevicePermissionFail", devices);
         return UEC_SERVICE_PERMISSION_DENIED;
     }
-    sptr<Ashmem> ashmem = new Ashmem(fd, memSize);
+    sptr<Ashmem> ashmem = new (std::nothrow) Ashmem(fd, memSize);
+    if (ashmem == nullptr) {
+        ::close(fd);
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService BulkWrite error ashmem");
+        return UEC_SERVICE_INVALID_VALUE;
+    }
     int32_t ret = usbHostManager_->BulkWrite(devInfo, pipe, ashmem);
     if (ret != UEC_OK) {
         MAP_STR_DEVICE devices;
