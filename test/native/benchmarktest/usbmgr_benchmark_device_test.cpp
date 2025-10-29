@@ -33,50 +33,69 @@ using namespace testing::ext;
 
 namespace {
 UsbSrvClient &g_usbSrvClient = UsbSrvClient::GetInstance();
-OHOS::USB::UsbDevice g_device;
 
 constexpr int32_t ITERATION_FREQUENCY = 100;
 constexpr int32_t REPETITION_FREQUENCY = 3;
 
-class UsbmgrBenchmarkPortManagerTest : public benchmark::Fixture {
+// benchmark test for functions as a usb device (EXCEPT accessory, and callback)
+class UsbmgrBenchmarkDeviceTest : public benchmark::Fixture {
 public:
     void SetUp(const ::benchmark::State &state);
     void TearDown(const ::benchmark::State &state);
 };
 
-void UsbmgrBenchmarkPortManagerTest::SetUp(const ::benchmark::State &state)
+void UsbmgrBenchmarkDeviceTest::SetUp(const ::benchmark::State &state)
 {
     // initialization
     UsbCommonTest::GrantPermissionSysNative();
-    std::vector<UsbDevice> devices;
-    (void)g_usbSrvClient.GetDevices(devices);
-    ASSERT_NE(devices.size(), 0);
-    g_device = devices.back();
 }
 
-void UsbmgrBenchmarkPortManagerTest::TearDown(const ::benchmark::State &state)
+void UsbmgrBenchmarkDeviceTest::TearDown(const ::benchmark::State &state)
 {
     // end of the test
     ;
 }
 
 /**
- * @tc.name: GetPorts01
- * @tc.desc: Test usbmgr functions: GetPorts
- * @tc.desc: int32_t GetPorts(std::vector<UsbPort> &usbPorts);
+ * @tc.name: GetCurrentFunctions01
+ * @tc.desc: Test usbmgr functions: GetCurrentFunctions
+ * @tc.desc: int32_t GetCurrentFunctions(int32_t &funcs);
  * @tc.desc: Positive test: parameters correct
  * @tc.type: FUNC
  */
-BENCHMARK_F(UsbmgrBenchmarkPortManagerTest, GetPorts01)(benchmark::State &state)
+BENCHMARK_F(UsbmgrBenchmarkDeviceTest, GetCurrentFunctions01)(benchmark::State &state)
 {
     int32_t ret;
-    std::vector<UsbPort> usbPorts;
+    int32_t func;
     for (auto _ : state) {
-        ret = g_usbSrvClient.GetPorts(usbPorts);
+        ret = g_usbSrvClient.GetCurrentFunctions(func);
     }
     EXPECT_EQ(0, ret);
 }
-BENCHMARK_REGISTER_F(UsbmgrBenchmarkPortManagerTest, GetPorts01)->
+BENCHMARK_REGISTER_F(UsbmgrBenchmarkDeviceTest, GetCurrentFunctions01)->
+    Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
+
+/**
+ * @tc.name: SetCurrentFunctions01
+ * @tc.desc: Test usbmgr functions: SetCurrentFunctions
+ * @tc.desc: int32_t SetCurrentFunctions(int32_t funcs);
+ * @tc.desc: Positive test: parameters correct
+ * @tc.type: FUNC
+ */
+BENCHMARK_F(UsbmgrBenchmarkDeviceTest, SetCurrentFunctions01)(benchmark::State &state)
+{
+    int32_t ret;
+    std::vector<int32_t> funcs {
+        0, (1 << 0), (1 << 1), (1 << 3), (1 << 4), (1 << 5), (1 << 8), (1 << 9), (1 << 2),
+    };
+    for (auto _ : state) {
+        for (auto func : funcs) {
+            ret = g_usbSrvClient.SetCurrentFunctions(func);
+        }
+    }
+    EXPECT_EQ(0, ret);
+}
+BENCHMARK_REGISTER_F(UsbmgrBenchmarkDeviceTest, SetCurrentFunctions01)->
     Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
 
 
