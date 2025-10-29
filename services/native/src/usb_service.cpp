@@ -1199,8 +1199,8 @@ int32_t UsbService::UsbSubmitTransfer(uint8_t busNum, uint8_t devAddr, const Usb
     const sptr<IRemoteObject> &cb, int32_t fd, int32_t memSize)
 {
     USB_HILOGI(MODULE_USBD, "UsbService UsbSubmitTransfer enter");
-    if (cb == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbService UsbSubmitTransfer cb is nullptr");
+    if (cb == nullptr || fd <= 0 || memSize <= 0) {
+        USB_HILOGE(MODULE_USB_SERVICE, "invalid param, fd=[%{public}d],memSize=[%{public}d]", fd, memSize);
         return UEC_SERVICE_INVALID_VALUE;
     }
     HDI::Usb::V1_2::USBTransferInfo info;
