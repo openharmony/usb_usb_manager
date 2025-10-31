@@ -36,8 +36,8 @@ namespace {
 UsbSrvClient &g_usbSrvClient = UsbSrvClient::GetInstance();
 std::vector<UsbDevice> g_devices;
 
-constexpr int32_t ITERATION_FREQUENCY = 100;
-constexpr int32_t REPETITION_FREQUENCY = 3;
+constexpr int32_t ITERATION_FREQUENCY = 10;
+constexpr int32_t REPETITION_FREQUENCY = 5;
 
 // benchmark test for functions of usb management (i.e., enterprise device management)
 class UsbmgrBenchmarkManageTest : public benchmark::Fixture {
