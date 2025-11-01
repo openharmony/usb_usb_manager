@@ -1110,7 +1110,10 @@ int32_t UsbHostManager::BulkCancel(const HDI::Usb::V1_0::UsbDev &devInfo, const 
 void UsbHostManager::GetDevices(MAP_STR_DEVICE &devices)
 {
     std::shared_lock lock(devicesMutex_);
-    devices = devices_;
+    for (auto it = devices_.begin(); it != devices_.end(); ++it) {
+        auto dev = *it;
+        devices.emplace_back(dev);
+    }
 }
 
 bool UsbHostManager::GetProductName(const std::string &deviceName, std::string &productName)
