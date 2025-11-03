@@ -236,6 +236,7 @@ void UsbConnectionNotifier::SetWantAgentHdc(OHOS::Notification::NotificationRequ
 void UsbConnectionNotifier::SendNotification(std::string func)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: func %{public}s", __func__, func.c_str());
+    std::lock_guard<std::mutex> guard(functionMutex);
 
     usbSupportedFunctions_ = GetSupportedFunctions();
     HITRACE_METER_FMT(HITRACE_TAG_HDF, "%s func %s usbSupportedFunctions_ %d", __func__, func.c_str(),
@@ -274,6 +275,7 @@ void UsbConnectionNotifier::CancelNotification()
 {
     USB_TRACE;
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
+    std::lock_guard<std::mutex> guard(functionMutex);
     int32_t notificationId = request_.GetNotificationId();
     int32_t result = OHOS::Notification::NotificationHelper::CancelNotification(notificationId);
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: notificationId %{public}d, result %{public}d", __func__,
@@ -303,6 +305,7 @@ void UsbConnectionNotifier::SendHdcNotification()
 {
     USB_TRACE;
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
+    std::lock_guard<std::mutex> guard(hdcMutex);
 
     GetHapString();
     std::shared_ptr<OHOS::Notification::NotificationNormalContent> normalContent =
@@ -339,6 +342,7 @@ void UsbConnectionNotifier::CancelHdcNotification()
 {
     USB_TRACE;
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
+    std::lock_guard<std::mutex> guard(hdcMutex);
     int32_t notificationId = requestHdc_.GetNotificationId();
     int32_t result = OHOS::Notification::NotificationHelper::CancelNotification(notificationId);
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: notificationId %{public}d, result %{public}d", __func__,
