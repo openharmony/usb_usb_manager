@@ -948,18 +948,20 @@ int32_t UsbService::BulkTransferRead(
     HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
-        MAP_STR_DEVICE devices;
-        usbHostManager_->GetDevices(devices);
-        UsbReportSysEvent::ReportTransferFaultSysEvent("BulkRead", devInfo, pipe,
-            UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed", devices);
+        UsbDevice usbDev;
+        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+            UsbReportSysEvent::ReportTransferFaultSysEvent("BulkRead", usbDev, pipe,
+                UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
+        }
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     int32_t ret = usbHostManager_->BulkTransferRead(devInfo, pipe, bufferData.data_, timeOut);
     if (ret != UEC_OK) {
-        MAP_STR_DEVICE devices;
-        usbHostManager_->GetDevices(devices);
-        UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkRead", devInfo, pipe, ep,
-            ret, "BulkTransferReadFail", devices);
+        UsbDevice usbDev;
+        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+            UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkRead", usbDev, pipe, ep,
+                ret, "BulkTransferReadFail");
+        }
         USB_HILOGE(MODULE_USB_SERVICE, "BulkTransferRead error ret:%{public}d", ret);
     }
     return ret;
@@ -978,18 +980,20 @@ int32_t UsbService::BulkTransferReadwithLength(uint8_t busNum, uint8_t devAddr, 
     HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
-        MAP_STR_DEVICE devices;
-        usbHostManager_->GetDevices(devices);
-        UsbReportSysEvent::ReportTransferFaultSysEvent("BulkRead", devInfo, pipe,
-            UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed", devices);
+        UsbDevice usbDev;
+        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+            UsbReportSysEvent::ReportTransferFaultSysEvent("BulkRead", usbDev, pipe,
+                UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
+        }
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     int32_t ret = usbHostManager_->BulkTransferReadwithLength(devInfo, pipe, length, bufferData.data_, timeOut);
     if (ret != UEC_OK) {
-        MAP_STR_DEVICE devices;
-        usbHostManager_->GetDevices(devices);
-        UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkRead", devInfo, pipe, ep,
-            ret, "BulkTransferReadFail", devices);
+        UsbDevice usbDev;
+        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+            UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkRead", usbDev, pipe, ep,
+                ret, "BulkTransferReadFail");
+        }
         USB_HILOGE(MODULE_USB_SERVICE, "BulkTransferReadWithLength error ret:%{public}d", ret);
     }
     return ret;
@@ -1007,18 +1011,20 @@ int32_t UsbService::BulkTransferWrite(
     HDI::Usb::V1_0::UsbDev dev = {busNum, devAddr};
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
-        MAP_STR_DEVICE devices;
-        usbHostManager_->GetDevices(devices);
-        UsbReportSysEvent::ReportTransferFaultSysEvent("BulkWrite", dev, pipe,
-            UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed", devices);
+        UsbDevice usbDev;
+        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+            UsbReportSysEvent::ReportTransferFaultSysEvent("BulkWrite", usbDev, pipe,
+                UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
+        }
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     int32_t ret = usbHostManager_->BulkTransferWrite(dev, pipe, bufferData.data_, timeOut);
     if (ret != UEC_OK) {
-        MAP_STR_DEVICE devices;
-        usbHostManager_->GetDevices(devices);
-        UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkWrite", dev, pipe, ep,
-            ret, "BulkTransferWriteFail", devices);
+        UsbDevice usbDev;
+        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+            UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkWrite", usbDev, pipe, ep,
+                ret, "BulkTransferWriteFail");
+        }
         USB_HILOGE(MODULE_USB_SERVICE, "BulkTransferWrite error ret:%{public}d", ret);
     }
     return ret;
@@ -1034,10 +1040,11 @@ int32_t UsbService::ControlTransfer(uint8_t busNum, uint8_t devAddr,
 
     HDI::Usb::V1_0::UsbDev dev = {busNum, devAddr};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
-        MAP_STR_DEVICE devices;
-        usbHostManager_->GetDevices(devices);
-        UsbReportSysEvent::ReportTransferFaultSysEvent("ControlTransfer", dev, {0, 0},
-            UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed", devices);
+        UsbDevice usbDev;
+        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+            UsbReportSysEvent::ReportTransferFaultSysEvent("ControlTransfer", usbDev, {0, 0},
+                UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
+        }
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     HDI::Usb::V1_0::UsbCtrlTransfer ctrl;
@@ -1263,19 +1270,21 @@ int32_t UsbService::BulkRead(uint8_t busNum, uint8_t devAddr, const USBEndpoint 
     HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
-        MAP_STR_DEVICE devices;
-        usbHostManager_->GetDevices(devices);
-        UsbReportSysEvent::ReportTransferFaultSysEvent("BulkRead", devInfo, pipe,
-            UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed", devices);
+        UsbDevice usbDev;
+        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+            UsbReportSysEvent::ReportTransferFaultSysEvent("BulkRead", usbDev, pipe,
+                UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
+        }
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     sptr<Ashmem> ashmem = new Ashmem(fd, memSize);
     int32_t ret = usbHostManager_->BulkRead(devInfo, pipe, ashmem);
     if (ret != UEC_OK) {
-        MAP_STR_DEVICE devices;
-        usbHostManager_->GetDevices(devices);
-        UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkRead", devInfo, pipe, ep,
-            ret, "BulkReadFail", devices);
+        UsbDevice usbDev;
+        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+            UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkRead", usbDev, pipe, ep,
+                ret, "BulkReadFail");
+        }
         USB_HILOGE(MODULE_USB_SERVICE, "BulkRead error ret:%{public}d", ret);
     }
     return ret;
@@ -1291,19 +1300,21 @@ int32_t UsbService::BulkWrite(uint8_t busNum, uint8_t devAddr, const USBEndpoint
     HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
-        MAP_STR_DEVICE devices;
-        usbHostManager_->GetDevices(devices);
-        UsbReportSysEvent::ReportTransferFaultSysEvent("BulkWrite", devInfo, pipe,
-            UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed", devices);
+        UsbDevice usbDev;
+        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+            UsbReportSysEvent::ReportTransferFaultSysEvent("BulkWrite", usbDev, pipe,
+                UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
+        }
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     sptr<Ashmem> ashmem = new Ashmem(fd, memSize);
     int32_t ret = usbHostManager_->BulkWrite(devInfo, pipe, ashmem);
     if (ret != UEC_OK) {
-        MAP_STR_DEVICE devices;
-        usbHostManager_->GetDevices(devices);
-        UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkWrite", devInfo, pipe, ep,
-            ret, "BulkWriteFail", devices);
+        UsbDevice usbDev;
+        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+            UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkWrite", usbDev, pipe, ep,
+                ret, "BulkWriteFail");
+        }
         USB_HILOGE(MODULE_USB_SERVICE, "BulkWrite error ret:%{public}d", ret);
     }
     return ret;

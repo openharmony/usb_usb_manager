@@ -34,20 +34,18 @@ namespace OHOS {
 namespace USB {
 constexpr int32_t ERR_CODE_TIMEOUT = -7;
 
-void UsbReportSysEvent::ReportTransferFaultSysEvent(const std::string transferType,
-    const HDI::Usb::V1_0::UsbDev &tmpDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe,
-    int32_t ret, const std::string description, MAP_STR_DEVICE &devices)
+void UsbReportSysEvent::ReportTransferFaultSysEvent(const std::string transferType, const UsbDevice &usbDev,
+    const HDI::Usb::V1_0::UsbPipe &tmpPipe, int32_t ret, const std::string description)
 {
     UsbInterface itIF;
-    UsbDevice dev;
     USB_HILOGI(MODULE_USBD, "report transfor fault sys event");
-    if (!GetUsbInterfaceId(tmpDev, tmpPipe, tmpPipe.intfId, devices, itIF, dev)) {
+    if (!GetUsbInterfaceId(usbDev, tmpPipe, tmpPipe.intfId, itIF)) {
         USB_HILOGE(MODULE_SERVICE, "GetUsbConfigs failed");
         return;
     }
     int32_t hiRet = HiSysEventWrite(HiSysEvent::Domain::USB, "TRANSFER_FAULT",
         HiSysEvent::EventType::FAULT, "TRANSFER_TYPE", transferType,
-        "VENDOR_ID", dev.GetVendorId(), "PRODUCT_ID", dev.GetProductId(),
+        "VENDOR_ID", usbDev.GetVendorId(), "PRODUCT_ID", usbDev.GetProductId(),
         "INTERFACE_CLASS", itIF.GetClass(), "INTERFACE_SUBCLASS", itIF.GetSubClass(),
         "INTERFACE_PROTOCOL", itIF.GetProtocol(),
         "INFT_ID", tmpPipe.intfId, "ENDPOINT_ID", tmpPipe.endpointId,
@@ -63,23 +61,22 @@ void UsbReportSysEvent::ReportTransferFaultSysEvent(const std::string transferTy
 }
 
 void UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent(const std::string transferType,
-    const HDI::Usb::V1_0::UsbDev &tmpDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe, const USBEndpoint &ep,
-    int32_t ret, const std::string description, MAP_STR_DEVICE &devices)
+    const UsbDevice &usbDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe, const USBEndpoint &ep,
+    int32_t ret, const std::string description)
 {
     UsbInterface itIF;
-    UsbDevice dev;
     USB_HILOGI(MODULE_USBD, "report transfor fault sys event");
     if (ep.GetAttributes() == 0x03 && ret == ERR_CODE_TIMEOUT) {
         USB_HILOGE(MODULE_SERVICE, "submitTransfer is timeout");
         return;
     }
-    if (!GetUsbInterfaceId(tmpDev, tmpPipe, tmpPipe.intfId, devices, itIF, dev)) {
+    if (!GetUsbInterfaceId(usbDev, tmpPipe, tmpPipe.intfId, itIF)) {
         USB_HILOGE(MODULE_SERVICE, "GetUsbConfigs failed");
         return;
     }
     int32_t hiRet = HiSysEventWrite(HiSysEvent::Domain::USB, "TRANSFER_FAULT",
         HiSysEvent::EventType::FAULT, "TRANSFER_TYPE", transferType,
-        "VENDOR_ID", dev.GetVendorId(), "PRODUCT_ID", dev.GetProductId(),
+        "VENDOR_ID", usbDev.GetVendorId(), "PRODUCT_ID", usbDev.GetProductId(),
         "INTERFACE_CLASS", itIF.GetClass(), "INTERFACE_SUBCLASS", itIF.GetSubClass(),
         "INTERFACE_PROTOCOL", itIF.GetProtocol(),
         "INFT_ID", tmpPipe.intfId, "ENDPOINT_ID", tmpPipe.endpointId,
@@ -94,30 +91,17 @@ void UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent(const std::str
 #endif
 }
 
-bool UsbReportSysEvent::GetUsbInterfaceId(const HDI::Usb::V1_0::UsbDev &tmpDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe,
-    int32_t interfaceId, MAP_STR_DEVICE &devices, UsbInterface &itIF, UsbDevice &dev)
+bool UsbReportSysEvent::GetUsbInterfaceId(const UsbDevice &usbDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe,
+    int32_t interfaceId, UsbInterface &itIF)
 {
-    std::string name = std::to_string(tmpDev.busNum) + "-" + std::to_string(tmpDev.devAddr);
-    MAP_STR_DEVICE::iterator iter = devices.find(name);
-    if (iter == devices.end()) {
-        USB_HILOGE(MODULE_SERVICE, "name:%{public}s bus:%{public}hhu dev:%{public}hhu not exist", name.c_str(),
-            tmpDev.busNum, tmpDev.devAddr);
-        return false;
-    }
-    if (iter->second == nullptr) {
-        USB_HILOGE(MODULE_SERVICE, "%{public}s: %{public}s device is nullptr.", __func__, name.c_str());
-        return false;
-    }
-    dev = *(iter->second);
-
     if (tmpPipe.intfId == 0 && tmpPipe.endpointId == 0) {
-        itIF.SetClass(dev.GetClass());
-        itIF.SetSubClass(dev.GetSubclass());
-        itIF.SetProtocol(dev.GetProtocol());
+        itIF.SetClass(usbDev.GetClass());
+        itIF.SetSubClass(usbDev.GetSubclass());
+        itIF.SetProtocol(usbDev.GetProtocol());
         return true;
     }
 
-    auto configs = dev.GetConfigs();
+    auto configs = usbDev.GetConfigs();
     for (auto &config : configs) {
         std::vector<UsbInterface> interfaces = config.GetInterfaces();
         for (auto &interface : interfaces) {

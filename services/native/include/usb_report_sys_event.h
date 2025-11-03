@@ -28,14 +28,13 @@ namespace USB {
 typedef std::map<std::string, UsbDevice *> MAP_STR_DEVICE;
 class UsbReportSysEvent {
 public:
-    static void ReportTransferFaultSysEvent(const std::string transferType,
-        const HDI::Usb::V1_0::UsbDev &tmpDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe,
-        int32_t ret, const std::string description, MAP_STR_DEVICE &devices);
+    static void ReportTransferFaultSysEvent(const std::string transferType, const UsbDevice &usbDev,
+        const HDI::Usb::V1_0::UsbPipe &tmpPipe, int32_t ret, const std::string description);
     static void CheckAttributeReportTransferFaultSysEvent(const std::string transferType,
-        const HDI::Usb::V1_0::UsbDev &tmpDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe, const USBEndpoint &ep,
-        int32_t ret, const std::string description, MAP_STR_DEVICE &devices);
-    static bool GetUsbInterfaceId(const HDI::Usb::V1_0::UsbDev &tmpDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe,
-        int32_t interfaceId, MAP_STR_DEVICE &devices, UsbInterface &itIF, UsbDevice &dev);
+        const UsbDevice &usbDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe, const USBEndpoint &ep,
+        int32_t ret, const std::string description);
+    static bool GetUsbInterfaceId(const UsbDevice &usbDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe,
+        int32_t interfaceId, UsbInterface &itIF);
 };
 
 } // namespace USB

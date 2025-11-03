@@ -1107,13 +1107,15 @@ int32_t UsbHostManager::BulkCancel(const HDI::Usb::V1_0::UsbDev &devInfo, const 
 #endif // USB_MANAGER_PASS_THROUGH
 }
 
-void UsbHostManager::GetDevices(MAP_STR_DEVICE &devices)
+bool UsbHostManager::GetTargetDevice(uint8_t busNum, uint8_t devAddr, UsbDevice &dev)
 {
     std::shared_lock lock(devicesMutex_);
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
-        auto dev = *it;
-        devices.emplace_back(dev);
+        if ((it->second->GetBusNum() == busNum) && (it->second->GetDevAddr() == devAddr)) {
+            dev = *it->second;
+        }
     }
+    return false;
 }
 
 bool UsbHostManager::GetProductName(const std::string &deviceName, std::string &productName)
