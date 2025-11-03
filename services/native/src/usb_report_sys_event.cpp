@@ -34,7 +34,7 @@ namespace OHOS {
 namespace USB {
 constexpr int32_t ERR_CODE_TIMEOUT = -7;
 
-void UsbReportSysEvent::ReportTransferFaultSysEvent(const std::string transferType, const UsbDevice &usbDev,
+void UsbReportSysEvent::ReportTransferFaultSysEvent(const std::string transferType, UsbDevice &usbDev,
     const HDI::Usb::V1_0::UsbPipe &tmpPipe, int32_t ret, const std::string description)
 {
     UsbInterface itIF;
@@ -61,7 +61,7 @@ void UsbReportSysEvent::ReportTransferFaultSysEvent(const std::string transferTy
 }
 
 void UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent(const std::string transferType,
-    const UsbDevice &usbDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe, const USBEndpoint &ep,
+    UsbDevice &usbDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe, const USBEndpoint &ep,
     int32_t ret, const std::string description)
 {
     UsbInterface itIF;
@@ -91,7 +91,7 @@ void UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent(const std::str
 #endif
 }
 
-bool UsbReportSysEvent::GetUsbInterfaceId(const UsbDevice &usbDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe,
+bool UsbReportSysEvent::GetUsbInterfaceId(UsbDevice &usbDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe,
     int32_t interfaceId, UsbInterface &itIF)
 {
     if (tmpPipe.intfId == 0 && tmpPipe.endpointId == 0) {

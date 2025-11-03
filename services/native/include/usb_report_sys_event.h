@@ -28,12 +28,12 @@ namespace USB {
 typedef std::map<std::string, UsbDevice *> MAP_STR_DEVICE;
 class UsbReportSysEvent {
 public:
-    static void ReportTransferFaultSysEvent(const std::string transferType, const UsbDevice &usbDev,
+    static void ReportTransferFaultSysEvent(const std::string transferType, UsbDevice &usbDev,
         const HDI::Usb::V1_0::UsbPipe &tmpPipe, int32_t ret, const std::string description);
     static void CheckAttributeReportTransferFaultSysEvent(const std::string transferType,
-        const UsbDevice &usbDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe, const USBEndpoint &ep,
+        UsbDevice &usbDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe, const USBEndpoint &ep,
         int32_t ret, const std::string description);
-    static bool GetUsbInterfaceId(const UsbDevice &usbDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe,
+    static bool GetUsbInterfaceId(UsbDevice &usbDev, const HDI::Usb::V1_0::UsbPipe &tmpPipe,
         int32_t interfaceId, UsbInterface &itIF);
 };
 
