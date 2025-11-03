@@ -949,7 +949,7 @@ int32_t UsbService::BulkTransferRead(
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         UsbDevice usbDev;
-        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev)) {
             UsbReportSysEvent::ReportTransferFaultSysEvent("BulkRead", usbDev, pipe,
                 UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
         }
@@ -958,7 +958,7 @@ int32_t UsbService::BulkTransferRead(
     int32_t ret = usbHostManager_->BulkTransferRead(devInfo, pipe, bufferData.data_, timeOut);
     if (ret != UEC_OK) {
         UsbDevice usbDev;
-        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev)) {
             UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkRead", usbDev, pipe, ep,
                 ret, "BulkTransferReadFail");
         }
@@ -981,7 +981,7 @@ int32_t UsbService::BulkTransferReadwithLength(uint8_t busNum, uint8_t devAddr, 
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         UsbDevice usbDev;
-        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev)) {
             UsbReportSysEvent::ReportTransferFaultSysEvent("BulkRead", usbDev, pipe,
                 UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
         }
@@ -990,7 +990,7 @@ int32_t UsbService::BulkTransferReadwithLength(uint8_t busNum, uint8_t devAddr, 
     int32_t ret = usbHostManager_->BulkTransferReadwithLength(devInfo, pipe, length, bufferData.data_, timeOut);
     if (ret != UEC_OK) {
         UsbDevice usbDev;
-        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev)) {
             UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkRead", usbDev, pipe, ep,
                 ret, "BulkTransferReadFail");
         }
@@ -1012,7 +1012,7 @@ int32_t UsbService::BulkTransferWrite(
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         UsbDevice usbDev;
-        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev)) {
             UsbReportSysEvent::ReportTransferFaultSysEvent("BulkWrite", usbDev, pipe,
                 UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
         }
@@ -1021,7 +1021,7 @@ int32_t UsbService::BulkTransferWrite(
     int32_t ret = usbHostManager_->BulkTransferWrite(dev, pipe, bufferData.data_, timeOut);
     if (ret != UEC_OK) {
         UsbDevice usbDev;
-        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev)) {
             UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkWrite", usbDev, pipe, ep,
                 ret, "BulkTransferWriteFail");
         }
@@ -1041,7 +1041,7 @@ int32_t UsbService::ControlTransfer(uint8_t busNum, uint8_t devAddr,
     HDI::Usb::V1_0::UsbDev dev = {busNum, devAddr};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         UsbDevice usbDev;
-        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev)) {
             UsbReportSysEvent::ReportTransferFaultSysEvent("ControlTransfer", usbDev, {0, 0},
                 UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
         }
@@ -1275,7 +1275,7 @@ int32_t UsbService::BulkRead(uint8_t busNum, uint8_t devAddr, const USBEndpoint 
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         ::close(fd);
         UsbDevice usbDev;
-        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev)) {
             UsbReportSysEvent::ReportTransferFaultSysEvent("BulkRead", usbDev, pipe,
                 UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
         }
@@ -1290,7 +1290,7 @@ int32_t UsbService::BulkRead(uint8_t busNum, uint8_t devAddr, const USBEndpoint 
     int32_t ret = usbHostManager_->BulkRead(devInfo, pipe, ashmem);
     if (ret != UEC_OK) {
         UsbDevice usbDev;
-        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev)) {
             UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkRead", usbDev, pipe, ep,
                 ret, "BulkReadFail");
         }
@@ -1312,7 +1312,7 @@ int32_t UsbService::BulkWrite(uint8_t busNum, uint8_t devAddr, const USBEndpoint
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         ::close(fd);
         UsbDevice usbDev;
-        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev)) {
             UsbReportSysEvent::ReportTransferFaultSysEvent("BulkWrite", usbDev, pipe,
                 UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
         }
@@ -1327,7 +1327,7 @@ int32_t UsbService::BulkWrite(uint8_t busNum, uint8_t devAddr, const USBEndpoint
     int32_t ret = usbHostManager_->BulkWrite(devInfo, pipe, ashmem);
     if (ret != UEC_OK) {
         UsbDevice usbDev;
-        if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev)) {
             UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent("BulkWrite", usbDev, pipe, ep,
                 ret, "BulkWriteFail");
         }
@@ -2381,8 +2381,8 @@ bool UsbService::IsNotNeedUnload()
     bool hasActiveDevices = false;
     bool isGadgetConnected = false;
 #ifdef USB_MANAGER_FEATURE_HOST
-    std::map<std::string, UsbDevice *> devices;
-    usbHostManager_->GetDevices(devices);
+    std::vector<UsbDevice> devices;
+    (void)usbHostManager_->GetDevices(devices);
     hasActiveDevices = !devices.empty();
 #endif // USB_MANAGER_FEATURE_HOST
 #ifdef USB_MANAGER_FEATURE_DEVICE
