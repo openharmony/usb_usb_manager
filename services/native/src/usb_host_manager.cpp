@@ -1113,6 +1113,7 @@ bool UsbHostManager::GetTargetDevice(uint8_t busNum, uint8_t devAddr, UsbDevice 
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
         if ((it->second->GetBusNum() == busNum) && (it->second->GetDevAddr() == devAddr)) {
             dev = *it->second;
+            return true;
         }
     }
     return false;
