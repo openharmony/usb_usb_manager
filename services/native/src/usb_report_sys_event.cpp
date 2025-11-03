@@ -58,7 +58,7 @@ void UsbReportSysEvent::ReportTransferFaultSysEvent(const std::string transferTy
 
 #ifdef USB_PERIPHERAL_FAULT_NOTIFY
     ExternalDeviceManager::DriverExtMgrClient::GetInstance().NotifyUsbPeripheralFault(
-        HiSysEvent::Domain::USB, "TRANSFER_FAULT");
+        HiSysEvent::Domain::USB, "TRANSFOR_FAULT"); // "TRANSFOR" in external_device code
 #endif
 }
 
@@ -90,7 +90,7 @@ void UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent(const std::str
 
 #ifdef USB_PERIPHERAL_FAULT_NOTIFY
     ExternalDeviceManager::DriverExtMgrClient::GetInstance().NotifyUsbPeripheralFault(
-        HiSysEvent::Domain::USB, "TRANSFER_FAULT");
+        HiSysEvent::Domain::USB, "TRANSFOR_FAULT"); // "TRANSFOR" in external_device code
 #endif
 }
 
