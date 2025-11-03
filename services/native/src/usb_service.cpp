@@ -1270,6 +1270,7 @@ int32_t UsbService::BulkRead(uint8_t busNum, uint8_t devAddr, const USBEndpoint 
     HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        ::close(fd);
         UsbDevice usbDev;
         if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
             UsbReportSysEvent::ReportTransferFaultSysEvent("BulkRead", usbDev, pipe,
@@ -1300,6 +1301,7 @@ int32_t UsbService::BulkWrite(uint8_t busNum, uint8_t devAddr, const USBEndpoint
     HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
     UsbPipe pipe = {ep.GetInterfaceId(), ep.GetAddress()};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        ::close(fd);
         UsbDevice usbDev;
         if (usbHostManager->GetTargetDevice(busNum, devAddr, usbDev)) {
             UsbReportSysEvent::ReportTransferFaultSysEvent("BulkWrite", usbDev, pipe,
