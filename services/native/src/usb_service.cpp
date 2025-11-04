@@ -1248,7 +1248,7 @@ void UsbService::GetTransferTypeString(const UsbTransInfo &transInfo, USBEndpoin
     }
     if (ep.GetDirection() == USB_ENDPOINT_DIR_IN) {
         transferType += "Read";
-    } else if (ep.GetDirection() == USB_ENDPOINT_DIR_OUT){
+    } else if (ep.GetDirection() == USB_ENDPOINT_DIR_OUT) {
         transferType += "Write";
     }
 }
