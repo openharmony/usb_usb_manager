@@ -1241,15 +1241,15 @@ void UsbService::UsbTransInfoChange(HDI::Usb::V1_2::USBTransferInfo &info, const
 void UsbService::GetTransferTypeString(const UsbTransInfo &transInfo, USBEndpoint &ep, std::string &transType)
 {
     switch (transInfo.type) {
-        case (ISO_TRANSFER_TYPE): transferType = "IsochronousTransfer"; break;
-        case (BULK_TRANSFER_TYPE): transferType = "BulkTransfer"; break;
-        case (INTP_TRANSFER_TYPE): transferType = "InterruptTransfer"; break;
-        default: transferType = "Unknown";
+        case (ISO_TRANSFER_TYPE): transType = "IsochronousTransfer"; break;
+        case (BULK_TRANSFER_TYPE): transType = "BulkTransfer"; break;
+        case (INTP_TRANSFER_TYPE): transType = "InterruptTransfer"; break;
+        default: transType = "Unknown";
     }
     if (ep.GetDirection() == USB_ENDPOINT_DIR_IN) {
-        transferType += "Read";
+        transType += "Read";
     } else if (ep.GetDirection() == USB_ENDPOINT_DIR_OUT) {
-        transferType += "Write";
+        transType += "Write";
     }
 }
 
@@ -1278,10 +1278,11 @@ int32_t UsbService::UsbSubmitTransfer(uint8_t busNum, uint8_t devAddr, const Usb
 
     HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
-        MAP_STR_DEVICE devices;
-        usbHostManager_->GetDevices(devices);
-        UsbReportSysEvent::ReportTransferFaultSysEvent("SubmitTransfer", devInfo, {0, 0},
-            UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed", devices);
+        UsbDevice usbDev;
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev)) {
+            UsbReportSysEvent::ReportTransferFaultSysEvent("SubmitTransfer", usbDev, {0, 0},
+                UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
+        }
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     int32_t ret = usbHostManager_->UsbSubmitTransfer(devInfo, info, cb, ashmem);
