@@ -1116,6 +1116,7 @@ bool UsbHostManager::GetTargetDevice(uint8_t busNum, uint8_t devAddr, UsbDevice 
             return true;
         }
     }
+    USB_HILOGE(MODULE_USB_SERVICE, "UsbHostManager: target device not found");
     return false;
 }
 
