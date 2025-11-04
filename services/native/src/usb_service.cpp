@@ -64,6 +64,11 @@ constexpr int32_t COMMEVENT_REGISTER_RETRY_TIMES = 10;
 constexpr int32_t COMMEVENT_REGISTER_WAIT_DELAY_US = 20000;
 constexpr int32_t SERVICE_STARTUP_MAX_TIME = 30;
 constexpr uint32_t UNLOAD_SA_TIMER_INTERVAL = 30 * 1000;
+#ifdef USB_MANAGER_FEATURE_HOST
+constexpr int32_t ISO_TRANSFER_TYPE = 1;
+constexpr int32_t BULK_TRANSFER_TYPE = 2;
+constexpr int32_t INTP_TRANSFER_TYPE = 3;
+#endif // USB_MANAGER_FEATURE_HOST
 #if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
 constexpr const char *USB_DEFAULT_TOKEN = "UsbServiceTokenId";
@@ -1049,7 +1054,16 @@ int32_t UsbService::ControlTransfer(uint8_t busNum, uint8_t devAddr,
     }
     HDI::Usb::V1_0::UsbCtrlTransfer ctrl;
     UsbCtrlTransferChange(ctrl, ctrlParams);
-    return usbHostManager_->ControlTransfer(dev, ctrl, bufferData);
+    int32_t ret = usbHostManager_->ControlTransfer(dev, ctrl, bufferData);
+    if (ret != UEC_OK) {
+        UsbDevice usbDev;
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev)) {
+            UsbReportSysEvent::ReportTransferFaultSysEvent("ControlTransfer", usbDev, {0, 0},
+                ret, "ControlTransferFail");
+        }
+        USB_HILOGE(MODULE_USB_SERVICE, "ControlTransfer error ret:%{public}d", ret);
+    }
+    return ret;
 }
 
 // LCOV_EXCL_START
@@ -1081,18 +1095,32 @@ void UsbService::UsbCtrlTransferChange(HDI::Usb::V1_2::UsbCtrlTransferParams &pa
 int32_t UsbService::UsbControlTransfer(
     uint8_t busNum, uint8_t devAddr, const UsbCtlSetUp& ctrlParams, std::vector<uint8_t> &bufferData)
 {
-    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
-        return UEC_SERVICE_PERMISSION_DENIED;
-    }
-
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
     HDI::Usb::V1_0::UsbDev dev = {busNum, devAddr};
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        UsbDevice usbDev;
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev)) {
+            UsbReportSysEvent::ReportTransferFaultSysEvent("ControlTransfer", usbDev, {0, 0},
+                UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
+        }
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     HDI::Usb::V1_2::UsbCtrlTransferParams ctlSetUp;
     UsbCtrlTransferChange(ctlSetUp, ctrlParams);
-    return usbHostManager_->UsbControlTransfer(dev, ctlSetUp, bufferData);
+    int32_t ret = usbHostManager_->UsbControlTransfer(dev, ctlSetUp, bufferData);
+    if (ret != UEC_OK) {
+        UsbDevice usbDev;
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev)) {
+            UsbReportSysEvent::ReportTransferFaultSysEvent("ControlTransfer", usbDev, {0, 0},
+                ret, "UsbControlTransferFail");
+        }
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbControlTransfer error ret:%{public}d", ret);
+    }
+    return ret;
 }
 // LCOV_EXCL_STOP
 
@@ -1210,6 +1238,21 @@ void UsbService::UsbTransInfoChange(HDI::Usb::V1_2::USBTransferInfo &info, const
 }
 // LCOV_EXCL_STOP
 
+void UsbService::GetTransferTypeString(const UsbTransInfo &transInfo, USBEndpoint &ep, std::string &transType)
+{
+    switch (transInfo.type) {
+        case (ISO_TRANSFER_TYPE): transferType = "IsochronousTransfer"; break;
+        case (BULK_TRANSFER_TYPE): transferType = "BulkTransfer"; break;
+        case (INTP_TRANSFER_TYPE): transferType = "InterruptTransfer"; break;
+        default: transferType = "Unknown";
+    }
+    if (ep.GetDirection() == USB_ENDPOINT_DIR_IN) {
+        transferType += "Read";
+    } else if (ep.GetDirection() == USB_ENDPOINT_DIR_OUT){
+        transferType += "Write";
+    }
+}
+
 // LCOV_EXCL_START
 int32_t UsbService::UsbSubmitTransfer(uint8_t busNum, uint8_t devAddr, const UsbTransInfo &param,
     const sptr<IRemoteObject> &cb, int32_t fd, int32_t memSize)
@@ -1228,15 +1271,32 @@ int32_t UsbService::UsbSubmitTransfer(uint8_t busNum, uint8_t devAddr, const Usb
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService UsbSubmitTransfer error ashmem");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
-        return UEC_SERVICE_PERMISSION_DENIED;
-    }
     if (usbHostManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbService::usbHostManager_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
+
     HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
+    if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
+        MAP_STR_DEVICE devices;
+        usbHostManager_->GetDevices(devices);
+        UsbReportSysEvent::ReportTransferFaultSysEvent("SubmitTransfer", devInfo, {0, 0},
+            UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed", devices);
+        return UEC_SERVICE_PERMISSION_DENIED;
+    }
     int32_t ret = usbHostManager_->UsbSubmitTransfer(devInfo, info, cb, ashmem);
+    if (ret != UEC_OK) {
+        UsbDevice usbDev;
+        USBEndpoint ep;
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev) &&
+            usbHostManager_->GetEndpointFromId(usbDev, param.endpoint, ep)) {
+            std::string transferType;
+            GetTransferTypeString(param, ep, transferType);
+            UsbReportSysEvent::ReportTransferFaultSysEvent(transferType.c_str(), usbDev,
+                {ep.GetInterfaceId(), param.endpoint}, ret, "UsbSubmitTransferFail");
+        }
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbSubmitTransfer error ret:%{public}d", ret);
+    }
     return ret;
 }
 // LCOV_EXCL_STOP

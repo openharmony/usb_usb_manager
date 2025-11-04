@@ -202,21 +202,9 @@ HWTEST_F(UsbDfxTest, GetCurrentFunctions003, TestSize.Level1)
 {
     int32_t ret = 0;
     USB_HILOGI(MODULE_USB_SERVICE, "Case Start : ReportSysEvent003.");
-    UsbCommonTest::GrantSysNoPermissionNative();
     auto &UsbSrvClient = UsbSrvClient::GetInstance();
-    int32_t funcs = static_cast<int32_t>(UsbSrvSupport::FUNCTION_NONE);
-    UsbSrvClient.GetCurrentFunctions(funcs);
-    UsbSrvClient.SetCurrentFunctions(funcs);
-
-    std::vector<UsbPort> usbports;
-    UsbSrvClient.GetPorts(usbports);
-
-    UsbSrvClient.SetPortRole(
-        UsbSrvSupport::PORT_MODE_DEVICE, UsbSrvSupport::POWER_ROLE_SOURCE, UsbSrvSupport::DATA_ROLE_HOST);
-    
     UsbCommonTest::GrantPermissionSysNative();
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDfxTest::ret=%{public}d", ret);
-    ASSERT_EQ(ret, 0);
+    
     std::vector<UsbDevice> devs;
     UsbSrvClient.GetDevices(devs);
     ASSERT_NE(devs.size(), 0);
@@ -230,9 +218,6 @@ HWTEST_F(UsbDfxTest, GetCurrentFunctions003, TestSize.Level1)
     USBEndpoint point = interface.GetEndpoints().front();
     UsbSrvClient.BulkTransfer(pipe, point, buffData, 100);
 
-    struct UsbCtrlTransfer ctrldata = {0b10000000, 8, 0, 0, 500};
-    UsbSrvClient.ControlTransfer(pipe, ctrldata, buffData);
-
     UsbSrvClient.GetRawDescriptors(pipe, buffData);
     UsbSrvClient.Close(pipe);
 
@@ -241,8 +226,23 @@ HWTEST_F(UsbDfxTest, GetCurrentFunctions003, TestSize.Level1)
     InitAshmemOne(ashmem, MEM_DATA, rflg);
     UsbSrvClient.BulkRead(pipe, point, ashmem);
     ret = UsbSrvClient.BulkWrite(pipe, point, ashmem);
+    // control transfer
+    struct UsbCtrlTransfer ctrldata = {0b10000000, 8, 0, 0, 500};
+    UsbSrvClient.ControlTransfer(pipe, ctrldata, buffData);
+    struct HDI::Usb::V1_2::UsbCtrlTransferParams ctrldataParams = {0b10000000, 8, 0, 0, 8, 500};
+    UsbSrvClient.UsbControlTransfer(pipe, ctrldataParams, buffData);
+    // bulk transfer
+    HDI::Usb::V1_2::USBTransferInfo info = {point.GetAddress(), 0, 2, 500, 8, 0b10000000, 0};
+    TransferCallback cb = [] (const TransferCallbackInfo &info,
+        const std::vector<HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo, uint64_t userData) -> void{};
+    UsbSrvClient.UsbSubmitTransfer(pipe, info, cb, ashmem);
+    // isochronous transfer
+    info = {point.GetAddress(), 0, 1, 500, 8, 0b10000000, 1};
+    UsbSrvClient.UsbSubmitTransfer(pipe, info, cb, ashmem);
+    // interrupt transfer
+    info = {point.GetAddress(), 0, 1, 500, 8, 0b10000000, 0};
+    UsbSrvClient.UsbSubmitTransfer(pipe, info, cb, ashmem);
 
-    UsbCommonTest::GrantPermissionSysNative();
     ASSERT_NE(ret, 0);
     USB_HILOGI(MODULE_USB_SERVICE, "Case End : ReportSysEvent003.");
 }

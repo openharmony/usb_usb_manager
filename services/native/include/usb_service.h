@@ -264,6 +264,7 @@ private:
     void FreeTokenId(int32_t portId, uint32_t tokenId);
     int32_t ValidateUsbSerialManagerAndPort(int32_t portId);
     int32_t CheckDbAbility(int32_t portId);
+    void GetTransferTypeString(const UsbTransInfo &transInfo, USBEndpoint &ep, std::string &transType);
     void ReportUsbOperationFaultSysEvent(const std::string &operationType, int32_t failReason,
         const std::string &failDescription);
     void ReportUsbSerialOperationSysEvent(int32_t portId, const std::string &operationType);

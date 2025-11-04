@@ -1120,6 +1120,24 @@ bool UsbHostManager::GetTargetDevice(uint8_t busNum, uint8_t devAddr, UsbDevice 
     return false;
 }
 
+bool UsbHostManager::GetEndpointFromId(UsbDevice dev, int32_t endpointId, USBEndpoint &endpoint)
+{
+    // get interface id based on endpoint address; return false if not found
+    for (auto &config : dev.GetConfigs()) {
+        for (auto &interface : config.GetInterfaces()) {
+            auto eps = interface.GetEndpoints();
+            auto it = std::find_if(eps.begin(), eps.end(),
+                [endpointId](auto ep){return ep.GetAddress() == endpointId});
+            if (it != eps.end()) {
+                endpoint = *it;
+                return true;
+            }
+        }
+    }
+    USB_HILOGE(MODULE_USB_SERVICE, "invalid endpoint id %{public}d", endpointId);
+    return false;
+}
+
 bool UsbHostManager::GetProductName(const std::string &deviceName, std::string &productName)
 {
     std::shared_lock lock(devicesMutex_);
