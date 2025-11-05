@@ -1279,9 +1279,13 @@ int32_t UsbService::UsbSubmitTransfer(uint8_t busNum, uint8_t devAddr, const Usb
     HDI::Usb::V1_0::UsbDev devInfo = {busNum, devAddr};
     if (!UsbService::CheckDevicePermission(busNum, devAddr)) {
         UsbDevice usbDev;
-        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev)) {
-            UsbReportSysEvent::ReportTransferFaultSysEvent("SubmitTransfer", usbDev, {0, 0},
-                UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
+        USBEndpoint ep;
+        if (usbHostManager_->GetTargetDevice(busNum, devAddr, usbDev) &&
+            usbHostManager_->GetEndpointFromId(usbDev, param.endpoint, ep)) {
+            std::string transferType;
+            GetTransferTypeString(param, ep, transferType);
+            UsbReportSysEvent::ReportTransferFaultSysEvent(transferType.c_str(), usbDev,
+                {ep.GetInterfaceId(), param.endpoint}, UEC_SERVICE_PERMISSION_DENIED, "CheckDevicePermission failed");
         }
         return UEC_SERVICE_PERMISSION_DENIED;
     }
