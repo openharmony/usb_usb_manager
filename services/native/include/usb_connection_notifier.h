@@ -65,8 +65,8 @@ private:
     void GetSetUid();
     int32_t GetSupportedFunctions();
     int32_t usbSupportedFunctions_ = 0;
-    std::mutex functionMutex;
-    std::mutex hdcMutex;
+    std::mutex functionMutex_;
+    std::mutex hdcMutex_;
     sptr<AppExecFwk::IBundleMgr> GetBundleMgr(void);
 
     static std::shared_ptr<UsbConnectionNotifier> instance_;
