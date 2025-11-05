@@ -240,7 +240,7 @@ HWTEST_F(UsbDfxTest, GetCurrentFunctions003, TestSize.Level1)
     info = {point.GetAddress(), 0, 1, 500, 8, 0b10000000, 1};
     UsbSrvClient.UsbSubmitTransfer(pipe, info, cb, ashmem);
     // interrupt transfer
-    info = {point.GetAddress(), 0, 1, 500, 8, 0b10000000, 0};
+    info = {point.GetAddress(), 0, 2, 500, 8, 0b10000000, 0};
     UsbSrvClient.UsbSubmitTransfer(pipe, info, cb, ashmem);
 
     ASSERT_NE(ret, 0);
