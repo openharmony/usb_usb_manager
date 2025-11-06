@@ -48,7 +48,7 @@ void UsbReportSysEvent::ReportTransferFaultSysEvent(const std::string transferTy
         "VENDOR_ID", usbDev.GetVendorId(), "PRODUCT_ID", usbDev.GetProductId(),
         "INTERFACE_CLASS", itIF.GetClass(), "INTERFACE_SUBCLASS", itIF.GetSubClass(),
         "INTERFACE_PROTOCOL", itIF.GetProtocol(),
-        "INFT_ID", tmpPipe.intfId, "ENDPOINT_ID", tmpPipe.endpointId,
+        "INTF_ID", tmpPipe.intfId, "ENDPOINTT_ID", tmpPipe.endpointId,
         "FAIL_REASON", ret, "FAIL_DESCRIPTION", description);
     if (hiRet != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "HiSysEventWrite ret: %{public}d", hiRet);
@@ -79,7 +79,7 @@ void UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent(const std::str
         "VENDOR_ID", usbDev.GetVendorId(), "PRODUCT_ID", usbDev.GetProductId(),
         "INTERFACE_CLASS", itIF.GetClass(), "INTERFACE_SUBCLASS", itIF.GetSubClass(),
         "INTERFACE_PROTOCOL", itIF.GetProtocol(),
-        "INFT_ID", tmpPipe.intfId, "ENDPOINT_ID", tmpPipe.endpointId,
+        "INTF_ID", tmpPipe.intfId, "ENDPOINTT_ID", tmpPipe.endpointId,
         "FAIL_REASON", ret, "FAIL_DESCRIPTION", description);
     if (hiRet != UEC_OK) {
         USB_HILOGE(MODULE_USBD, "HiSysEventWrite ret: %{public}d", hiRet);

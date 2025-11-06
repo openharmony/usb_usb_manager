@@ -59,6 +59,7 @@ public:
     int32_t UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSubscriber> &subscriber);
 #endif // USB_MANAGER_PASS_THROUGH
     bool GetTargetDevice(uint8_t busNum, uint8_t devAddr, UsbDevice &dev);
+    bool GetEndpointFromId(UsbDevice dev, int32_t endpointId, USBEndpoint &endpoint);
     bool GetProductName(const std::string &deviceName, std::string &productName);
     bool DelDevice(uint8_t busNum, uint8_t devNum);
     bool AddDevice(UsbDevice *dev);
