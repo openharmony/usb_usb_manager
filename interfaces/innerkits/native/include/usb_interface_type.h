@@ -221,6 +221,7 @@ const std::unordered_map<InterfaceType, std::vector<int32_t>> g_typeMap = {
     {InterfaceType::TYPE_APPLICATION_SPE_2,     {254, 2, 0}},
     {InterfaceType::TYPE_APPLICATION_SPE_3,     {254, 3, 0}},
     {InterfaceType::TYPE_APPLICATION_SPE_4,     {254, 3, 1}},
+    {InterfaceType::TYPE_VENDOR_SPECIFIC,       {255, -1, -1}}
 };
 } // namespace USB
 } // namespace OHOS
