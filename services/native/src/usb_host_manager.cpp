@@ -1122,12 +1122,12 @@ bool UsbHostManager::GetTargetDevice(uint8_t busNum, uint8_t devAddr, UsbDevice 
 
 bool UsbHostManager::GetEndpointFromId(UsbDevice dev, int32_t endpointId, USBEndpoint &endpoint)
 {
-    // get interface id based on endpoint address; return false if not found
+    // get USBEndpoint based on endpoint address(id); return false if not found
     for (auto &config : dev.GetConfigs()) {
         for (auto &interface : config.GetInterfaces()) {
             auto &eps = interface.GetEndpoints();
             auto it = std::find_if(eps.begin(), eps.end(),
-                [endpointId](auto ep) { return ep.GetAddress() == endpointId; });
+                [endpointId](auto &ep) { return ep.GetAddress() == endpointId; });
             if (it != eps.end()) {
                 endpoint = *it;
                 return true;
