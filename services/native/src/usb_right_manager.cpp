@@ -1115,6 +1115,7 @@ void UsbRightManager::UsbAbilityConn::OnAbilityConnectDone(const AppExecFwk::Ele
         USB_HILOGE(MODULE_USB_SERVICE, "show dialog failed: %{public}d", ret);
         return;
     }
+    std::lock_guard<std::mutex> guard(remoteMutex_);
     remoteObject_ = remoteObject;
 }
 
@@ -1123,11 +1124,13 @@ void UsbRightManager::UsbAbilityConn::OnAbilityDisconnectDone(const AppExecFwk::
 {
     USB_HILOGI(MODULE_USB_SERVICE, "disconnect done");
     sem_post(&waitDialogDisappear_);
+    std::lock_guard<std::mutex> guard(remoteMutex_);
     remoteObject_ = nullptr;
 }
 
 void UsbRightManager::UsbAbilityConn::CloseDialog()
 {
+    std::lock_guard<std::mutex> guard(remoteMutex_);
     if (remoteObject_ == nullptr) {
         USB_HILOGW(MODULE_USB_SERVICE, "CloseDialog: disconnected");
         return;

@@ -92,6 +92,8 @@ private:
             int32_t resultCode) override;
         void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode) override;
         sptr<IRemoteObject> remoteObject_ = nullptr;
+    private:
+        std::mutex remoteMutex_;
     public:
         UsbAbilityConn()
         {
