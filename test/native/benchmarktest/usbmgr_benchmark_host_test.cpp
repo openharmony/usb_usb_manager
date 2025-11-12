@@ -346,7 +346,6 @@ BENCHMARK_F(UsbmgrBenchmarkHostTest, GetRawDescriptors01)(benchmark::State &stat
     }
     EXPECT_EQ(0, ret);
     EXPECT_EQ(g_usbSrvClient.Close(pipe), true);
-    
 }
 BENCHMARK_REGISTER_F(UsbmgrBenchmarkHostTest, GetRawDescriptors01)->
     Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
@@ -370,7 +369,6 @@ BENCHMARK_F(UsbmgrBenchmarkHostTest, GetFileDescriptor01)(benchmark::State &stat
     }
     EXPECT_EQ(0, ret);
     EXPECT_EQ(g_usbSrvClient.Close(pipe), true);
-    
 }
 BENCHMARK_REGISTER_F(UsbmgrBenchmarkHostTest, GetFileDescriptor01)->
     Iterations(ITERATION_FREQUENCY)->Repetitions(REPETITION_FREQUENCY)->ReportAggregatesOnly();
