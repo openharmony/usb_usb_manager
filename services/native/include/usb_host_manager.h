@@ -64,7 +64,7 @@ public:
     bool DelDevice(uint8_t busNum, uint8_t devNum);
     bool AddDevice(UsbDevice *dev);
     bool Dump(int fd, const std::string &args);
-    void ExecuteStrategy(UsbDevice *devInfo);
+    void ExecuteStrategy();
 
     int32_t OpenDevice(uint8_t busNum, uint8_t devAddr);
     int32_t Close(uint8_t busNum, uint8_t devAddr);

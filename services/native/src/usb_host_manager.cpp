@@ -201,12 +201,9 @@ void UsbHostManager::UsbSubmitTransferDeathRecipient::OnRemoteDied(const wptr<IR
 }
 // LCOV_EXCL_STOP
 
-void UsbHostManager::ExecuteStrategy(UsbDevice *devInfo)
+void UsbHostManager::ExecuteStrategy()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbHostManager::ExecuteStrategy start");
-    if (devInfo == nullptr) {
-        return;
-    }
     if (!IsEdmEnabled()) {
         USB_HILOGE(MODULE_USB_SERVICE, "edm is not activate, skip");
         return;
@@ -1206,15 +1203,22 @@ bool UsbHostManager::AddDevice(UsbDevice *dev)
         devices_.erase(iter);
     }
     devices_.insert(std::pair<std::string, UsbDevice *>(name, dev));
+    dev->SetAuthorizeStatus(NEW_ARRIVED);   // will be updatedupdate in ExecuteStrategy
     USB_HILOGI(MODULE_SERVICE,
         "device:%{public}s bus:%{public}hhu dev:%{public}hhu insert, cur device size: %{public}zu",
         name.c_str(), busNum, devNum, devices_.size());
-    lock.unlock();  // ExecuteStratgy will get policy from MDM, which use the same lock with policy execution
+    lock.unlock();
 
-    // will update disable status in ExecuteStrategy
-    dev->SetAuthorizeStatus(NEW_ARRIVED);
-    ExecuteStrategy(dev);
+    // DONT hold unique_lock here: ExecuteStratgy quiries policy (requires the same lock with policy execution in MDM)
+    ExecuteStrategy();
 
+    std::shared_lock lock_shared(devicesMutex_);
+    iter = devices_.find(name);
+    if (iter == devices_.end()) {
+        USB_HILOGW(MODULE_SERVICE, "%{public}s: device removed before publish common event", __func__);
+        return false;
+    }
+    dev = iter.second;
     if (dev->GetAuthorizeStatus() == DISABLED) {
         USB_HILOGI(MODULE_SERVICE, "device is disallowed by EDM, skip common event broadcast");
     } else {
