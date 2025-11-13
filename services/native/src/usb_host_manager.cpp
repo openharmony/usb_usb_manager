@@ -1218,7 +1218,7 @@ bool UsbHostManager::AddDevice(UsbDevice *dev)
         USB_HILOGW(MODULE_SERVICE, "%{public}s: device removed before publish common event", __func__);
         return false;
     }
-    dev = iter.second;
+    dev = iter->second;
     if (dev->GetAuthorizeStatus() == DISABLED) {
         USB_HILOGI(MODULE_SERVICE, "device is disallowed by EDM, skip common event broadcast");
     } else {
