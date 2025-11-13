@@ -423,7 +423,7 @@ bool UsbFunctionSwitchWindow::ShowWindowIfConnected()
 {
     std::lock_guard<std::mutex> guard(opMutex_);
     if (windowAction_ == UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_SHOW) {
-        if(!ShowFunctionSwitchWindow()){
+        if (!ShowFunctionSwitchWindow()) {
             USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:ShowFunctionSwitchWindow is failed!", __func__);
             return false;
         }
