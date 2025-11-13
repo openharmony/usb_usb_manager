@@ -430,6 +430,7 @@ bool UsbFunctionSwitchWindow::ShowWindowIfConnected()
         return true;
     }
     USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: windowAction_ is not FUNCTION_SWITCH_WINDOW_ACTION_SHOW", __func__);
+    return false;
 }
 
 bool UsbFunctionSwitchWindow::ShouldRejectShowWindow()
