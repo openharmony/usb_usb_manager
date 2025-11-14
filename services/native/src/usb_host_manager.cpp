@@ -1212,7 +1212,7 @@ bool UsbHostManager::AddDevice(UsbDevice *dev)
     // DONT hold unique_lock here: ExecuteStratgy quiries policy (requires the same lock with policy execution in MDM)
     ExecuteStrategy();
 
-    std::shared_lock lock_shared(devicesMutex_);
+    std::shared_lock sharedLock(devicesMutex_);
     iter = devices_.find(name);
     if (iter == devices_.end()) {
         USB_HILOGW(MODULE_SERVICE, "%{public}s: device removed before publish common event", __func__);
