@@ -1203,7 +1203,7 @@ bool UsbHostManager::AddDevice(UsbDevice *dev)
         devices_.erase(iter);
     }
     devices_.insert(std::pair<std::string, UsbDevice *>(name, dev));
-    dev->SetAuthorizeStatus(NEW_ARRIVED);   // will be updatedupdate in ExecuteStrategy
+    dev->SetAuthorizeStatus(NEW_ARRIVED);   // will be updated in ExecuteStrategy
     USB_HILOGI(MODULE_SERVICE,
         "device:%{public}s bus:%{public}hhu dev:%{public}hhu insert, cur device size: %{public}zu",
         name.c_str(), busNum, devNum, devices_.size());
