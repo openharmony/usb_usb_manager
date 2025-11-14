@@ -413,10 +413,24 @@ void UsbFunctionSwitchWindow::BootCompletedEventCallback(const char *key, const 
     if (eventSwitchWindow->ShouldRejectShowWindow()) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: OOBE is not ready!", __func__);
     }
-    bool ret = eventSwitchWindow->ShowFunctionSwitchWindow();
+    bool ret = eventSwitchWindow->ShowWindowIfConnected();
     if (!ret) {
-        USB_HILOGE(MODULE_USB_SERVICE, "watchParameter to ShowFunctionSwitchWindow is failed!");
+        USB_HILOGE(MODULE_USB_SERVICE, "watchParameter to ShowWindowIfConnected is failed!");
     }
+}
+
+bool UsbFunctionSwitchWindow::ShowWindowIfConnected()
+{
+    std::lock_guard<std::mutex> guard(opMutex_);
+    if (windowAction_ == UsbFunctionSwitchWindowAction::FUNCTION_SWITCH_WINDOW_ACTION_SHOW) {
+        if (!ShowFunctionSwitchWindow()) {
+            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s:ShowFunctionSwitchWindow is failed!", __func__);
+            return false;
+        }
+        return true;
+    }
+    USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: windowAction_ is not FUNCTION_SWITCH_WINDOW_ACTION_SHOW", __func__);
+    return false;
 }
 
 bool UsbFunctionSwitchWindow::ShouldRejectShowWindow()
