@@ -13,7 +13,7 @@
 
 import("//build/ohos.gni")
 import("//build/test.gni")
-import("./../../../usbmgr.gni")
+import("./../../usbmgr.gni")
 
 module_output_path = "${usb_manager_part_name}/usb_benchmark_test"
 
@@ -30,7 +30,7 @@ ohos_benchmarktest("usbmgr_host_test") {
   module_out_path = module_output_path
 
   sources = [
-    "../service_unittest/src/usb_common_test.cpp",
+    "../native/service_unittest/src/usb_common_test.cpp",
     "usbmgr_benchmark_host_test.cpp",
   ]
 
@@ -73,7 +73,7 @@ ohos_benchmarktest("usbmgr_device_test") {
   module_out_path = module_output_path
 
   sources = [
-    "../service_unittest/src/usb_common_test.cpp",
+    "../native/service_unittest/src/usb_common_test.cpp",
     "usbmgr_benchmark_device_test.cpp",
   ]
 
@@ -116,7 +116,7 @@ ohos_benchmarktest("usbmgr_port_test") {
   module_out_path = module_output_path
 
   sources = [
-    "../service_unittest/src/usb_common_test.cpp",
+    "../native/service_unittest/src/usb_common_test.cpp",
     "usbmgr_benchmark_port_test.cpp",
   ]
 
@@ -159,7 +159,7 @@ ohos_benchmarktest("usbmgr_manage_test") {
   module_out_path = module_output_path
 
   sources = [
-    "../service_unittest/src/usb_common_test.cpp",
+    "../native/service_unittest/src/usb_common_test.cpp",
     "usbmgr_benchmark_manage_test.cpp",
   ]
 
