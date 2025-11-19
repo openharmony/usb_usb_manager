@@ -201,12 +201,9 @@ void UsbHostManager::UsbSubmitTransferDeathRecipient::OnRemoteDied(const wptr<IR
 }
 // LCOV_EXCL_STOP
 
-void UsbHostManager::ExecuteStrategy(UsbDevice *devInfo)
+void UsbHostManager::ExecuteStrategy()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UsbHostManager::ExecuteStrategy start");
-    if (devInfo == nullptr) {
-        return;
-    }
     if (!IsEdmEnabled()) {
         USB_HILOGE(MODULE_USB_SERVICE, "edm is not activate, skip");
         return;
@@ -383,7 +380,6 @@ int32_t UsbHostManager::SetActiveConfig(uint8_t busNum, uint8_t devAddr, uint8_t
 
 int32_t UsbHostManager::ManageGlobalInterface(bool disable)
 {
-    std::shared_lock lock(devicesMutex_);
     return ManageGlobalInterfaceImpl(disable);
 }
 
@@ -395,13 +391,11 @@ int32_t UsbHostManager::ManageDevice(int32_t vendorId, int32_t productId, bool d
 
 int32_t UsbHostManager::ManageDevicePolicy(std::vector<UsbDeviceId> &trustList)
 {
-    std::shared_lock lock(devicesMutex_);
     return ExecuteManageDevicePolicy(trustList);
 }
 
 int32_t UsbHostManager::ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
-    std::shared_lock lock(devicesMutex_);
     return ExecuteManageInterfaceType(disableType, disable);
 }
 
@@ -1209,15 +1203,22 @@ bool UsbHostManager::AddDevice(UsbDevice *dev)
         devices_.erase(iter);
     }
     devices_.insert(std::pair<std::string, UsbDevice *>(name, dev));
-
+    dev->SetAuthorizeStatus(NEW_ARRIVED);   // will be updated in ExecuteStrategy
     USB_HILOGI(MODULE_SERVICE,
         "device:%{public}s bus:%{public}hhu dev:%{public}hhu insert, cur device size: %{public}zu",
         name.c_str(), busNum, devNum, devices_.size());
+    lock.unlock();
 
-    // will update disable status in ExecuteStrategy
-    dev->SetAuthorizeStatus(NEW_ARRIVED);
-    ExecuteStrategy(dev);
+    // DONT hold unique_lock here: ExecuteStratgy quiries policy (requires the same lock with policy execution in MDM)
+    ExecuteStrategy();
 
+    std::shared_lock sharedLock(devicesMutex_);
+    iter = devices_.find(name);
+    if (iter == devices_.end()) {
+        USB_HILOGW(MODULE_SERVICE, "%{public}s: device removed before publish common event", __func__);
+        return false;
+    }
+    dev = iter->second;
     if (dev->GetAuthorizeStatus() == DISABLED) {
         USB_HILOGI(MODULE_SERVICE, "device is disallowed by EDM, skip common event broadcast");
     } else {
@@ -1573,6 +1574,7 @@ int32_t UsbHostManager::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &trus
 {
     int32_t ret = UEC_OK;
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
+    std::shared_lock lock(devicesMutex_);
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
         bool inTrustList = false;
         for (auto dev : trustList) {
@@ -1597,6 +1599,7 @@ int32_t UsbHostManager::ExecuteManageDevicePolicy(std::vector<UsbDeviceId> &trus
 
 int32_t UsbHostManager::ExecuteManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable)
 {
+    std::shared_lock lock(devicesMutex_);
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
         int32_t ret = OpenDevice(dev.busNum, dev.devAddr);
@@ -1898,6 +1901,7 @@ void UsbHostManager::FindMatchingTypes(const std::unordered_map<InterfaceType, s
 int32_t UsbHostManager::ManageGlobalInterfaceImpl(bool disable)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
+    std::shared_lock lock(devicesMutex_);
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
         if (disable && it->second->GetClass() != BASE_CLASS_HUB) {
             continue;
