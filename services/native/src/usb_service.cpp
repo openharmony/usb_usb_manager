@@ -2499,7 +2499,7 @@ void UsbService::UnLoadSelf(UnLoadSaType type)
 #endif // USB_MANAGER_FEATURE_DEVICE
     std::lock_guard<std::mutex>  guard(unloadSelfTimerMutex_);
     unloadSelfTimer_.Unregister(unloadSelfTimerId_);
-    unloadSelfTimer_.Shutdown();
+    unloadSelfTimer_.Shutdown(false);
 
     if (IsNotNeedUnload()) {  // delay unload conditions
         USB_HILOGW(MODULE_USB_SERVICE, "not need unload");
