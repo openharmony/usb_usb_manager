@@ -1254,7 +1254,7 @@ bool UsbHostManager::PublishCommonEvent(const std::string &event, UsbDevice &dev
         publishInfo.SetSubscriberType(SubscriberType::SYSTEM_SUBSCRIBER_TYPE);
     } else if (!IsAudioDevice(dev)) {
         if (event == CommonEventSupport::COMMON_EVENT_USB_DEVICE_DETACHED) {
-            UsbConnectionNotifier::GetInstance()->CancelNotification();
+            UsbConnectionNotifier::GetInstance()->CancelNotification(true);
         } else {
             UsbConnectionNotifier::GetInstance()->SendNotification(USB_FUNC_REVERSE_CHARGE);
         }

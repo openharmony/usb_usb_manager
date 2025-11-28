@@ -540,7 +540,7 @@ void UsbDeviceManager::ProcessFunctionNotifier(bool connected, int32_t func)
             hasHdcNotifier_ = false;
         }
     } else {
-        UsbConnectionNotifier::GetInstance()->CancelNotification();
+        UsbConnectionNotifier::GetInstance()->CancelNotification(false);
         if (hasHdcNotifier_) {
             UsbConnectionNotifier::GetInstance()->CancelHdcNotification();
             hasHdcNotifier_ = false;

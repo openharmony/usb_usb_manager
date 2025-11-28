@@ -246,6 +246,7 @@ void UsbConnectionNotifier::SendNotification(std::string func)
         return;
     }
 
+    lastFunc_ = func;
     GetHapString();
     std::shared_ptr<OHOS::Notification::NotificationNormalContent> normalContent =
         std::make_shared<OHOS::Notification::NotificationNormalContent>();
@@ -271,11 +272,18 @@ void UsbConnectionNotifier::SendNotification(std::string func)
     USB_HILOGI(MODULE_USB_SERVICE, "PublishNotification result : %{public}d", result);
 }
 
-void UsbConnectionNotifier::CancelNotification()
+void UsbConnectionNotifier::CancelNotification(bool isHost)
 {
     USB_TRACE;
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
     std::lock_guard<std::mutex> guard(functionMutex_);
+    if ((isHost && lastFunc_ != USB_FUNC_REVERSE_CHARGE) ||
+        (!isHost && lastFunc_ == USB_FUNC_REVERSE_CHARGE)) {
+        USB_HILOGW(MODULE_USB_SERVICE, "%{public}s: isHost cancel: %{public}d, lastFunc %{public}s", __func__,
+            isHost, lastFunc_.c_str());
+        return;
+    }
+    lastFunc_ = "";
     int32_t notificationId = request_.GetNotificationId();
     int32_t result = OHOS::Notification::NotificationHelper::CancelNotification(notificationId);
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: notificationId %{public}d, result %{public}d", __func__,
