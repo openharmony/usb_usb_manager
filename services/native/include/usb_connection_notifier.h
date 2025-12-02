@@ -41,7 +41,7 @@ public:
     static std::shared_ptr<UsbConnectionNotifier> GetInstance();
     ~UsbConnectionNotifier();
     void SendNotification(std::string func);
-    void CancelNotification();
+    void CancelNotification(bool isHost);
     void SendHdcNotification();
     void CancelHdcNotification();
 
@@ -73,6 +73,7 @@ private:
     OHOS::Notification::NotificationRequest request_;
     OHOS::Notification::NotificationRequest requestHdc_;
     OptionalPixelMap icon_;
+    std::string lastFunc_ = "";
 };
 } // namespace USB
 } // namespace OHOS
