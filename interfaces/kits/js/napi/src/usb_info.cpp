@@ -82,7 +82,7 @@ const int32_t NO_DEVICE = -4;
 const int32_t NOT_FOUND = -5;
 const int32_t ERROR_BUSY = -6;
 const int32_t NO_MEM = -11;
-
+const int32_t DEFAULT_SUBMIT_BUFFER_SIZE = 1024;
 enum UsbManagerFeature {
     FEATURE_HOST = 0,
     FEATURE_DEVICE = 1,
@@ -2032,7 +2032,7 @@ static bool GetDescriptorOnBulkTransferParam(napi_env env, napi_value data,
     uint8_t *buffer = nullptr;
     size_t offset = 0;
     size_t bufferSize = 0;
-    bool hasBuffer = NapiUtil::JsUint8ArrayParse(env, data, &buffer, bufferSize, offset);
+    bool hasBuffer = NapiUtil::JsUint8ArrayParseReserveZeroBuffer(env, data, &buffer, bufferSize, offset);
     if (!hasBuffer) {
         USB_HILOGE(MODULE_JS_NAPI, "BulkTransfer wrong argument, buffer is null");
         return false;
@@ -2040,7 +2040,7 @@ static bool GetDescriptorOnBulkTransferParam(napi_env env, napi_value data,
     asyncContext.env = env;
     asyncContext.endpoint = ep;
 
-    if (ep.GetDirection() == USB_ENDPOINT_DIR_OUT) {
+    if (ep.GetDirection() == USB_ENDPOINT_DIR_OUT && bufferSize > 0) {
         uint8_t *nativeArrayBuffer = new (std::nothrow) uint8_t[bufferSize];
         RETURN_IF_WITH_RET(nativeArrayBuffer == nullptr, false);
 
@@ -2181,7 +2181,7 @@ static bool ParseTransferParams(const napi_env &env, const napi_value &object,
     NapiUtil::JsObjectGetProperty(env, object, "buffer", valueUint8Array);
 
     size_t offset = 0;
-    bool hasBuffer = NapiUtil::JsUint8ArrayParse(env, valueUint8Array, &asyncContext->buffer,
+    bool hasBuffer = NapiUtil::JsUint8ArrayParseReserveZeroBuffer(env, valueUint8Array, &asyncContext->buffer,
         asyncContext->bufferLength, offset);
     if (!hasBuffer) {
         USB_HILOGE(MODULE_JS_NAPI, "Transfer wrong argument, buffer is null");
@@ -2340,14 +2340,15 @@ static void GetUSBTransferInfo(USBTransferInfo &obj, USBTransferAsyncContext *as
 static bool CreateAndWriteAshmem(USBTransferAsyncContext *asyncContext, HDI::Usb::V1_2::USBTransferInfo &obj)
 {
     StartTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB, "NAPI:Ashmem::CreateAshmem");
-    asyncContext->ashmem = Ashmem::CreateAshmem(asyncContext->name.c_str(), asyncContext->length);
+    int32_t bufLen = asyncContext->length <= 0 ? DEFAULT_SUBMIT_BUFFER_SIZE : asyncContext->length;
+    asyncContext->ashmem = Ashmem::CreateAshmem(asyncContext->name.c_str(), bufLen);
     FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB);
     if (asyncContext->ashmem == nullptr) {
         USB_HILOGE(MODULE_JS_NAPI, "Ashmem::CreateAshmem failed");
         return false;
     }
     uint8_t endpointId = static_cast<uint8_t>(asyncContext->endpoint) & USB_ENDPOINT_DIR_MASK;
-    if (endpointId == USB_ENDPOINT_DIR_OUT) {
+    if (endpointId == USB_ENDPOINT_DIR_OUT && asyncContext->length > 0) {
         std::vector<uint8_t> bufferData(asyncContext->buffer, asyncContext->buffer + asyncContext->bufferLength);
         obj.length = static_cast<int32_t>(bufferData.size());
         asyncContext->ashmem->MapReadAndWriteAshmem();

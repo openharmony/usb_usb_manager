@@ -32,7 +32,6 @@ namespace OHOS {
 namespace USB {
 constexpr uint32_t WAIT_SERVICE_LOAD = 500;
 #ifdef USB_MANAGER_FEATURE_HOST
-constexpr int32_t READ_BUF_SIZE = 8192;
 constexpr int32_t PARAM_ERROR = 401;
 #endif // USB_MANAGER_FEATURE_HOST
 [[ maybe_unused ]] constexpr int32_t CAPABILITY_NOT_SUPPORT = 801;
@@ -227,7 +226,7 @@ int32_t UsbSrvClient::BulkTransfer(
     RETURN_IF_WITH_RET(proxy_ == nullptr, UEC_INTERFACE_NO_INIT);
     int32_t ret = UEC_INTERFACE_INVALID_VALUE;
     if (USB_ENDPOINT_DIR_IN == endpoint.GetDirection()) {
-        int32_t length = bufferData.size() > 0 ? static_cast<int32_t>(bufferData.size()) : READ_BUF_SIZE;
+        int32_t length = static_cast<int32_t>(bufferData.size());
         bufferData.clear();
         UsbBulkTransData bulkData;
         ret = proxy_->BulkTransferReadwithLength(pipe.GetBusNum(), pipe.GetDevAddr(),
