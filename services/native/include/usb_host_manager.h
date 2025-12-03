@@ -23,6 +23,7 @@
 #include "system_ability.h"
 #include "usb_device.h"
 #include "usb_right_manager.h"
+#include "serial_manager.h"
 #include "usb_interface_type.h"
 #include "v1_2/iusb_interface.h"
 #include "iremote_object.h"
@@ -65,6 +66,7 @@ public:
     bool AddDevice(UsbDevice *dev);
     bool Dump(int fd, const std::string &args);
     void ExecuteStrategy();
+    void SetSerialManager(std::shared_ptr<SERIAL::SerialManager> serialManager);
 
     int32_t OpenDevice(uint8_t busNum, uint8_t devAddr);
     int32_t Close(uint8_t busNum, uint8_t devAddr);
@@ -77,6 +79,7 @@ public:
     int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable);
     int32_t ManageDevicePolicy(std::vector<UsbDeviceId> &trustList);
     int32_t ManageInterfaceType(const std::vector<UsbDeviceType> &disableType, bool disable);
+    int32_t ManageUsbSerialDevice(bool disable);
     int32_t UsbAttachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid);
     int32_t UsbDetachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid);
     int32_t ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t interfaceId, uint8_t endpointId);
@@ -151,6 +154,9 @@ private:
     int32_t ManageDeviceImpl(int32_t vendorId, int32_t productId, bool disable);
     int32_t ManageInterfaceTypeImpl(InterfaceType interfaceType, bool disable);
     int32_t ManageDeviceTypeImpl(InterfaceType interfaceType, bool disable);
+    void AddUsbSerialDevice(UsbDevice &dev);
+    bool IsUsbSerialDevice(UsbDevice &dev);
+    bool IsUsbSerialDisable();
     void ReportManageDeviceInfo(const std::string &operationType, UsbDevice* device,
         const UsbInterface* interface, bool isInterfaceType);
     int32_t CheckDevPathIsExist(uint8_t busNum, uint8_t devAddr);
@@ -159,6 +165,8 @@ private:
     std::mutex mutex_;
     std::shared_mutex devicesMutex_;
     std::shared_ptr<UsbRightManager> usbRightManager_;
+    std::shared_ptr<SERIAL::SerialManager> usbSerialManager_ = nullptr;
+    std::vector<HDI::Usb::V1_0::UsbDev> serialDevices_;
     sptr<HDI::Usb::V1_0::IUsbdBulkCallback> hdiCb_ = nullptr;
     std::mutex hdiCbMutex_;
     std::mutex transferMutex_;
