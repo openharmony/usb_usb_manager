@@ -104,6 +104,7 @@ public:
     int32_t ManageDevice(int32_t vendorId, int32_t productId, bool disable) override;
     int32_t ManageDevicePolicy(const std::vector<UsbDeviceIdInfo> &whilteList) override;
     int32_t ManageInterfaceType(const std::vector<UsbDeviceTypeInfo> &devTypeInfo, bool disable) override;
+    int32_t ManageUsbSerialDevice(bool disable);
     int32_t UsbAttachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid) override;
     int32_t UsbDetachKernelDriver(uint8_t busNum, uint8_t devAddr, uint8_t interfaceid) override;
     int32_t ClearHalt(uint8_t busNum, uint8_t devAddr, uint8_t interfaceId, uint8_t endpointId) override;
@@ -288,6 +289,7 @@ private:
     bool ready_ = false;
     int32_t commEventRetryTimes_ = 0;
     std::mutex mutex_;
+    std::mutex serialManagerMutex_;
     std::mutex serialPidVidMapMutex_;
     std::mutex unloadSelfTimerMutex_;
 #ifdef USB_MANAGER_FEATURE_HOST

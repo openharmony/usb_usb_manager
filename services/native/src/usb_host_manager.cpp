@@ -226,6 +226,13 @@ void UsbHostManager::ExecuteStrategy()
         return;
     }
 
+    if (IsUsbSerialDisable()) {
+        ret = ManageUsbSerialDevice(true);
+        if (ret != UEC_OK) {
+            USB_HILOGE(MODULE_USB_SERVICE, "ManageUsbSerialDevice failed");
+        }
+    }
+
     if (!disableType.empty()) {
         ret = ExecuteManageInterfaceType(disableType, true);
         if (ret != UEC_OK) {
@@ -1173,6 +1180,12 @@ bool UsbHostManager::DelDevice(uint8_t busNum, uint8_t devNum)
         }
     }
 
+    for (auto it = serialDevices_.begin(); it != serialDevices_.end(); ++it) {
+        if ((it->busNum == devOld->GetBusNum()) && (it->devAddr == devOld->GetDevAddr())) {
+            serialDevices_.erase(it);
+            break;
+        }
+    }
     delete devOld;
     devices_.erase(iter);
     USB_HILOGI(MODULE_SERVICE,
@@ -1207,6 +1220,7 @@ bool UsbHostManager::AddDevice(UsbDevice *dev)
     USB_HILOGI(MODULE_SERVICE,
         "device:%{public}s bus:%{public}hhu dev:%{public}hhu insert, cur device size: %{public}zu",
         name.c_str(), busNum, devNum, devices_.size());
+    AddUsbSerialDevice(*dev);
     lock.unlock();
 
     // DONT hold unique_lock here: ExecuteStratgy quiries policy (requires the same lock with policy execution in MDM)
@@ -1842,8 +1856,6 @@ void UsbHostManager::ExecuteManageDeviceType(const std::vector<UsbDeviceType> &d
     const std::unordered_map<InterfaceType, std::vector<int32_t>> &map, bool isDev)
 {
     std::vector<InterfaceType> interfaceTypes;
-    std::vector<InterfaceType> disableInterfaces;
-    std::vector<InterfaceType> enableInterfaces;
     FindMatchingTypes(map, isDev, interfaceTypes, disableType);
 
     for (auto& [interfaceTypeValues, typeValues] : map) {
@@ -1858,19 +1870,8 @@ void UsbHostManager::ExecuteManageDeviceType(const std::vector<UsbDeviceType> &d
         if (isDev) {
             ManageDeviceTypeImpl(interfaceTypeValues, execDisable);
         } else {
-            if (execDisable) {
-                disableInterfaces.emplace_back(interfaceTypeValues);
-            } else {
-                enableInterfaces.emplace_back(interfaceTypeValues);
-            }
+            ManageInterfaceTypeImpl(interfaceTypeValues, execDisable);
         }
-    }
-
-    for (auto &ifaceTypes : enableInterfaces) {
-        ManageInterfaceTypeImpl(ifaceTypes, false);
-    }
-    for (auto &ifaceTypes : disableInterfaces) {
-        ManageInterfaceTypeImpl(ifaceTypes, true);
     }
 }
 
@@ -1903,7 +1904,8 @@ int32_t UsbHostManager::ManageGlobalInterfaceImpl(bool disable)
     USB_HILOGI(MODULE_USB_SERVICE, "list size %{public}zu", devices_.size());
     std::shared_lock lock(devicesMutex_);
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
-        if (disable && it->second->GetClass() != BASE_CLASS_HUB) {
+        if ((disable && it->second->GetClass() != BASE_CLASS_HUB) ||
+            (IsUsbSerialDisable() && IsUsbSerialDevice(*it->second))) {
             continue;
         }
         UsbDev dev = {it->second->GetBusNum(), it->second->GetDevAddr()};
@@ -2021,6 +2023,9 @@ int32_t UsbHostManager::ManageDeviceTypeImpl(InterfaceType interfaceType, bool d
         return UEC_SERVICE_INVALID_VALUE;
     }
     for (auto it = devices_.begin(); it != devices_.end(); ++it) {
+        if (IsUsbSerialDisable() && IsUsbSerialDevice(*it->second)) {
+            continue;   // managed by usb serial policy
+        }
         if ((it->second->GetClass() == iterInterface->second[BASECLASS_INDEX]) &&
             (it->second->GetSubclass() == iterInterface->second[SUBCLASS_INDEX] ||
             iterInterface->second[SUBCLASS_INDEX] == RANDOM_VALUE_INDICATE) &&
@@ -2041,6 +2046,75 @@ int32_t UsbHostManager::ManageDeviceTypeImpl(InterfaceType interfaceType, bool d
         }
     }
     return UEC_OK;
+}
+
+void UsbHostManager::SetSerialManager(std::shared_ptr<SERIAL::SerialManager> serialManager)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: enter", __func__);
+    if (serialManager != nullptr) {
+        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: update serial manager", __func__);
+        usbSerialManager_ = serialManager;
+    }
+}
+
+void UsbHostManager::AddUsbSerialDevice(UsbDevice &dev)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: enter", __func__);
+    if (usbSerialManager_ == nullptr) {
+        USB_HILOGW(MODULE_USB_SERVICE, "%{public}s: serial not init", __func__);
+        return;
+    }
+    std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort> serialList;
+    if (usbSerialManager_->SerialGetPortList(serialList) != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: failed to get serial devices", __func__);
+        return;
+    }
+    for (auto &port : serialList) {
+        if (port.deviceInfo.busNum == dev.GetBusNum() && port.deviceInfo.devAddr == dev.GetDevAddr()) {
+            auto it = std::find_if(serialDevices_.begin(), serialDevices_.end(), [dev](auto &devIt) {
+                return dev.GetBusNum() == devIt.busNum && dev.GetDevAddr() == devIt.devAddr;
+            });
+            if (it == serialDevices_.end()) {
+                HDI::Usb::V1_0::UsbDev usbDev = {dev.GetBusNum(), dev.GetDevAddr()};
+                serialDevices_.emplace_back(usbDev);
+                USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: add usb serial device to vector", __func__);
+            } else {
+                USB_HILOGW(MODULE_USB_SERVICE, "%{public}s: usb serial device already added", __func__);
+            }
+            return; // {busNum, devAddr} already matched
+        }
+    }
+}
+
+bool UsbHostManager::IsUsbSerialDevice(UsbDevice &dev)
+{
+    for (auto it = serialDevices_.begin(); it != serialDevices_.end(); ++it) {
+        if ((it->busNum == dev.GetBusNum()) && (it->devAddr == dev.GetDevAddr())) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int32_t UsbHostManager::ManageUsbSerialDevice(bool disable)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: enter", __func__);
+    std::shared_lock lock(devicesMutex_);
+    for (auto &dev : serialDevices_) {
+        (void)UsbDeviceAuthorize(dev.busNum, dev.devAddr, !disable, "UsbSerialType");
+    }
+    if (!disable) {
+        lock.unlock();
+        ExecuteStrategy();
+    }
+    return UEC_OK;
+}
+
+bool UsbHostManager::IsUsbSerialDisable()
+{
+    // activate EDM && system parameter == "1"
+    std::string isSerialDisable = OHOS::system::GetParameter("persist.edm.usb_serial_disable", "0");
+    return IsEdmEnabled() && (isSerialDisable == "1");
 }
 
 void UsbHostManager::ReportManageDeviceInfo(const std::string &operationType, UsbDevice* device,

@@ -278,6 +278,26 @@ void UsbService::OnStart()
 
     WaitUsbdService();
 
+#ifdef USB_MANAGER_FEATURE_HOST
+    if (OHOS::system::GetBoolParameter("const.SystemCapability.USB.USBManager.Serial", false)) {
+        std::unique_lock lock(serialManagerMutex_);
+        usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
+        usbHostManager_->SetSerialManager(usbSerialManager_);
+    }
+    auto watchRet = WatchParameter("persist.edm.usb_serial_disable",
+        [](const char *key, const char *value, void *context) {
+            if (key == nullptr || value == nullptr) {
+                USB_HILOGE(MODULE_USB_SERVICE, "param null pointer");
+                return;
+            }
+            USB_HILOGI(MODULE_USB_SERVICE, "watch serial param: get %{public}s=%{public}s", key, value);
+            bool disable = (std::string(value) == "1");
+            g_serviceInstance->ManageUsbSerialDevice(disable);
+        }, this);
+    if (watchRet != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE, "failed to watch usb_serial_disable parameter");
+    }
+#endif // USB_MANAGER_FEATURE_HOST
 #ifdef USB_MANAGER_FEATURE_PORT
     if (usbPortManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbPortManager_");
@@ -673,6 +693,14 @@ int32_t UsbService::ManageInterfaceType(const std::vector<UsbDeviceTypeInfo> &de
     std::vector<UsbDeviceType> disableType;
     UsbDeviceTypeChange(disableType, devTypeInfo);
     return usbHostManager_->ManageInterfaceType(disableType, disable);
+}
+
+int32_t UsbService::ManageUsbSerialDevice(bool disable)
+{
+    if (usbSerialManager_ == nullptr) {
+        return UEC_SERVICE_INVALID_VALUE;
+    }
+    return usbHostManager_->ManageUsbSerialDevice(disable);
 }
 
 // LCOV_EXCL_START
@@ -2397,6 +2425,7 @@ int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
         return Str16ToStr8(arg);
     });
 
+    std::unique_lock lock(serialManagerMutex_);
     if (usbSerialManager_ == nullptr) {
         USB_HILOGI(MODULE_USB_SERVICE, "usbSerialManager_ is nullptr");
         usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
@@ -2404,7 +2433,11 @@ int UsbService::Dump(int fd, const std::vector<std::u16string> &args)
             USB_HILOGE(MODULE_USB_SERVICE, "usbSerialManager_ is still nullptr");
             return UEC_SERVICE_INVALID_VALUE;
         }
+#ifdef USB_MANAGER_FEATURE_HOST
+        usbHostManager_->SetSerialManager(usbSerialManager_);
+#endif // USB_MANAGER_FEATURE_HOST
     }
+    lock.unlock();
     if (argList.empty()) {
         USB_HILOGE(MODULE_USB_SERVICE, "argList is empty");
         DumpHelp(fd);
@@ -2599,9 +2632,13 @@ int32_t UsbService::DeviceEvent(const HDI::Usb::V1_0::USBDeviceInfo &info)
     g_serviceInstance->UnLoadSelf(UsbService::UnLoadSaType::UNLOAD_SA_DELAY);
 #endif // USB_MANAGER_FEATURE_HOST
     if (status == ACT_DEVUP) {
+        std::unique_lock lock(serialManagerMutex_);
         if (usbSerialManager_ == nullptr && CheckForTtyUSB()) {
             USB_HILOGI(MODULE_USB_SERVICE, "try to start serial");
             usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
+#ifdef USB_MANAGER_FEATURE_HOST
+            usbHostManager_->SetSerialManager(usbSerialManager_);
+#endif // USB_MANAGER_FEATURE_HOST
         }
     }
     return UEC_OK;
@@ -2859,15 +2896,20 @@ void UsbService::SerialPortChange(std::vector<UsbSerialPort> &serialInfoList,
 int32_t UsbService::SerialGetPortList(std::vector<UsbSerialPort>& serialInfoList)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
+    std::unique_lock lock(serialManagerMutex_);
     if (usbSerialManager_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: usbSerialManager_ is nullptr", __func__);
         if (CheckForTtyUSB()) {
             USB_HILOGI(MODULE_USB_SERVICE, "try to start serial");
             usbSerialManager_ = std::make_shared<SERIAL::SerialManager>();
+#ifdef USB_MANAGER_FEATURE_HOST
+            usbHostManager_->SetSerialManager(usbSerialManager_);
+#endif // USB_MANAGER_FEATURE_HOST
         } else {
             return UEC_OK;
         }
     }
+    lock.unlock();
     std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort> serialPortList;
     int32_t ret = usbSerialManager_->SerialGetPortList(serialPortList);
     if (ret != UEC_OK) {

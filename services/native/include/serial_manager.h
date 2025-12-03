@@ -21,12 +21,21 @@
 #include <mutex>
 #include <string>
 #include <vector>
+#include <unordered_set>
 #include "v1_0/iserial_interface.h"
 #include <ipc_skeleton.h>
 #include "usb_right_manager.h"
+#include "nlohmann/json.hpp"
 
 namespace OHOS {
 namespace SERIAL {
+constexpr int64_t USB_SERIAL_EVENT_ID = 0x030000100; // serial operation audit event id
+constexpr const char *SERIAL_VERSION = "1.0"; // serial operation audit event version
+constexpr const char *SERIAL_OPEN = "SerialOpen";
+constexpr const char *SERIAL_CLOSE = "SerialClose";
+constexpr const char *SERIAL_READ = "SerialRead";
+constexpr const char *SERIAL_WRITE = "SerialWrite";
+
 class SerialManager {
 public:
     SerialManager();
@@ -51,18 +60,29 @@ public:
         OHOS::HDI::Usb::Serial::V1_0::SerialAttribute attribute);
 private:
     bool IsPortStatus(int32_t portId);
+    bool QueryAndRecordFirstRead(int32_t portId);
+    bool QueryAndRecordFirstWrite(int32_t portId);
+    void ResetFirstRead(int32_t portId);
+    void ResetFirstWrite(int32_t portId);
     bool CheckTokenIdValidity(int32_t portId);
     void UpdateSerialPortMap(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList);
     int32_t CheckPortAndTokenId(int32_t portId);
     void ReportSerialOperateSysEvent(std::string interfaceName, int32_t portId, uint32_t tokenId);
     void ReportSerialOperateSetAttributeSysEvent(int32_t portId, uint32_t tokenId,
         const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute);
+    void ReportSerialOperationSecurityInfo(int32_t portId, std::string operationType);
+
     std::map<int32_t, uint32_t> portTokenMap_;
     std::map<int32_t, OHOS::HDI::Usb::Serial::V1_0::SerialPort> serialPortMap_;
     sptr<OHOS::HDI::Usb::Serial::V1_0::ISerialInterface> serial_ = nullptr;
     std::shared_ptr<USB::UsbRightManager> usbRightManager_;
+
     std::mutex serialPortMapMutex_;
     std::mutex portTokenMapMutex_;
+    std::unordered_set<int32_t> portsHasBeenRead_;
+    std::unordered_set<int32_t> portsHasBeenWritten_;
+    std::mutex readStatusMutex_;
+    std::mutex writeStatusMutex_;
 };
 } // namespace SERIAL
 } // namespace OHOS
