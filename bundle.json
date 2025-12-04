@@ -97,6 +97,7 @@
                     "name": "//base/usb/usb_manager/frameworks/ets/taihe/usb_manager:copy_usbManager"
             }],
             "test": [
+                "//base/usb/usb_manager/test/device:usb_device_test",
                 "//base/usb/usb_manager/test/native:usb_unittest_test"
             ]
         }
