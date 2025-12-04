@@ -51,7 +51,7 @@
         },
         {
             "name":"USB_func_ptp_notifier",
-            "value":"Búsqueda de fotos vía USB",
+            "value":"Exploración de fotos por USB",
             "attr":{
                 "priority":"LT"
             }
