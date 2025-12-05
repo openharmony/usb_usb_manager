@@ -6,20 +6,6 @@
             "attr":{
                 "priority":"LT"
             }
-        },
-        {
-            "name":"USB_func_mtp_tip2",
-            "value":"Elementos de “%s” en Archivos.",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"USB_func_mtp_tip",
-            "value":"Elementos de “Mi teléfono” en Archivos.",
-            "attr":{
-                "priority":"LT"
-            }
         }
     ]
 }
