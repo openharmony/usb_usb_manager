@@ -109,7 +109,6 @@ ohos_shared_library("usbservice") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "drivers_interface_usb:libserial_proxy_1.0",
-    "drivers_interface_usb:libserial_stub_1.0",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
