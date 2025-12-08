@@ -27,15 +27,15 @@ namespace USB {
     
 uint64_t UsbSecurityReport::GetCurrentTime()
 {
+    // get ms value since unix timestamp
     return static_cast<uint64_t>(
-        std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()
     );
 }
 
 void UsbSecurityReport::ReportSecurityInfo(int64_t eventId, std::string version, nlohmann::json &json, bool isAsync)
 {
 #ifdef SECURITY_GUARD_ENABLE
-    json["happenTime"] = GetCurrentTime();
     auto eventInfo = std::make_shared<Security::SecurityGuard::EventInfo>(eventId, version, json.dump());
     if (isAsync) {
         (void)Security::SecurityGuard::NativeDataCollectKit::ReportSecurityInfoAsync(eventInfo);
