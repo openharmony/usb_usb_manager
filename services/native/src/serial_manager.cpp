@@ -103,12 +103,13 @@ int32_t SerialManager::SerialOpen(int32_t portId)
         return OHOS::USB::UEC_SERIAL_PORT_REPEAT_OPEN;
     }
 
+    uint64_t timeMs = USB::UsbSecurityReport::GetCurrentTime();
     int32_t ret = serial_->SerialOpen(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialOpen failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
-    ReportSerialOperationSecurityInfo(portId, SERIAL_OPEN);
+    ReportSerialOperationSecurityInfo(portId, SERIAL_OPEN, timeMs);
 
     portTokenMap_[portId] = IPCSkeleton::GetCallingTokenID();
     return ret;
@@ -132,12 +133,13 @@ int32_t SerialManager::SerialClose(int32_t portId)
         return OHOS::USB::UEC_SERIAL_PORT_NOT_OPEN;
     }
 
+    uint64_t timeMs = USB::UsbSecurityReport::GetCurrentTime();
     int32_t ret = serial_->SerialClose(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialClose failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
-    ReportSerialOperationSecurityInfo(portId, SERIAL_CLOSE);
+    ReportSerialOperationSecurityInfo(portId, SERIAL_CLOSE, timeMs);
 
     ResetFirstRead(portId);
     ResetFirstWrite(portId);
@@ -156,13 +158,14 @@ int32_t SerialManager::SerialRead(int32_t portId, std::vector<uint8_t> &data, ui
         return ret;
     }
 
+    uint64_t timeMs = USB::UsbSecurityReport::GetCurrentTime();
     ret = serial_->SerialRead(portId, data, size, timeout);
     if (ret < UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialRead failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
     if (QueryAndRecordFirstRead(portId)) {
-        ReportSerialOperationSecurityInfo(portId, SERIAL_READ);
+        ReportSerialOperationSecurityInfo(portId, SERIAL_READ, timeMs);
     }
     actualSize = static_cast<uint32_t>(ret);
     return UEC_OK;
@@ -178,13 +181,14 @@ int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& d
         return ret;
     }
 
+    uint64_t timeMs = USB::UsbSecurityReport::GetCurrentTime();
     ret = serial_->SerialWrite(portId, data, size, timeout);
     if (ret < UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialWrite failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
     if (QueryAndRecordFirstWrite(portId)) {
-        ReportSerialOperationSecurityInfo(portId, SERIAL_WRITE);
+        ReportSerialOperationSecurityInfo(portId, SERIAL_WRITE, timeMs);
     }
     actualSize = static_cast<uint32_t>(ret);
     return UEC_OK;
@@ -431,10 +435,11 @@ void SerialManager::ResetFirstWrite(int32_t portId)
     portsHasBeenWritten_.erase(portId);
 }
 
-void SerialManager::ReportSerialOperationSecurityInfo(int32_t portId, std::string operationType)
+void SerialManager::ReportSerialOperationSecurityInfo(int32_t portId, std::string operationType, uint64_t time)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s enter: operation=%{public}s", __func__, operationType.c_str());
     nlohmann::json operationJson {
+        {"happenTime", time},
         {"portId", portId},
         {"operationType", operationType},
         {"uid", IPCSkeleton::GetCallingUid()},
