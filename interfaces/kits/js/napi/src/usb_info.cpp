@@ -2355,6 +2355,7 @@ static bool CreateAndWriteAshmem(USBTransferAsyncContext *asyncContext, HDI::Usb
         StartTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB, "NAPI:WriteToAshmem");
         if (!asyncContext->ashmem->WriteToAshmem(asyncContext->buffer, bufferData.size(), 0)) {
             FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB);
+            asyncContext->ashmem->UnmapAshmem();
             asyncContext->ashmem->CloseAshmem();
             USB_HILOGE(MODULE_JS_NAPI, "napi UsbSubmitTransfer Failed to UsbSubmitTransfer to ashmem.");
             return false;
@@ -2422,6 +2423,7 @@ static napi_value UsbSubmitTransfer(napi_env env, napi_callback_info info)
     int32_t ret = asyncContext->pipe.UsbSubmitTransfer(obj, func, asyncContext->ashmem);
     FinishTraceEx(HITRACE_LEVEL_INFO, HITRACE_TAG_USB);
     if (ret != napi_ok) {
+        asyncContext->ashmem->UnmapAshmem();
         asyncContext->ashmem->CloseAshmem();
         delete asyncContext;
         asyncContext = nullptr;
