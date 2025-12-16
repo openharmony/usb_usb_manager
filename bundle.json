@@ -21,7 +21,7 @@
             "usb_manager_feature_port"
         ],
         "syscap": [
-            "SystemCapability.USB.USBManager.Serial",            
+            "SystemCapability.USB.USBManager.Serial",
             "SystemCapability.USB.USBManager"
         ],
         "hisysevent_config": [
@@ -51,17 +51,17 @@
                 "access_token",
                 "memmgr",
                 "os_account",
+                "runtime_core",
                 "relational_store",
-                "resource_management",
                 "ability_runtime",
                 "hisysevent",
                 "cJSON",
                 "bounds_checking_function",
                 "hitrace",
                 "selinux_adapter",
-                "runtime_core",
-                "eventhandler",
-                "hdf_core"
+                "hdf_core",
+                "external_device_manager",
+                "eventhandler"
             ]
         },
         "build": {
@@ -93,7 +93,7 @@
                     "header_base": "//base/usb/usb_manager/interfaces/innerkits/native/include"
                 }
             }, {
-                "name": "//base/usb/usb_manager/frameworks/ets/taihe/usb_manager:copy_usbManager"
+                    "name": "//base/usb/usb_manager/frameworks/ets/taihe/usb_manager:copy_usbManager"
             }],
             "test": [
                 "//base/usb/usb_manager/test/native:usb_unittest_test"

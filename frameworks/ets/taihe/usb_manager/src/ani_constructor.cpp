@@ -16,6 +16,11 @@
 #include "ohos.usbManager.ani.hpp"
 #include "ohos.usbManager.serial.ani.hpp"
 #include "taihe/runtime.hpp"
+#include "hilog_wrapper.h"
+
+using OHOS::USB::MODULE_JS_NAPI;
+using OHOS::USB::USB_MGR_LABEL;
+
 ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
 {
     ani_env *env;
@@ -23,11 +28,11 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
         return ANI_ERROR;
     }
     if (ANI_OK != ohos::usbManager::ANIRegister(env)) {
-        std::cerr << "Error from ohos::usbManager::ANIRegister" << std::endl;
+        USB_HILOGE(MODULE_JS_NAPI, "Error from ohos::usbManager::ANIRegister");
         return ANI_ERROR;
     }
     if (ANI_OK != ohos::usbManager::serial::ANIRegister(env)) {
-        std::cerr << "Error from ohos::usbManager::serial::ANIRegister" << std::endl;
+        USB_HILOGE(MODULE_JS_NAPI, "Error from ohos::usbManager::serial::ANIRegister");
         return ANI_ERROR;
     }
     *result = ANI_VERSION_1;
