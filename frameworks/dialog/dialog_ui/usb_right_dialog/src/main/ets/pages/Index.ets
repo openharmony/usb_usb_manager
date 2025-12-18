@@ -23,6 +23,7 @@ import common from '@ohos.app.ability.common'
 import Want from '@ohos.app.ability.Want';
 import deviceInfo from '@ohos.deviceInfo';
 import { SelectDialog, SheetInfoEx } from '../components/dialog';
+import systemParameterEnhance from '@ohos.systemParameterEnhance';
 let TAG: string = 'UsbService';
 let USBSERVICESWITCH_ID_DEFAULT : number = -1;
 let USBSERVICESWITCH_ID_CHARGE_ONLY : number = -1;
@@ -91,14 +92,28 @@ struct IndexHapComponent {
       supportedFuncs = tmpFuncs;
     }
 
-    this.currentChoice = 0;
-    if (supportedFuncs & USBSERVICESWITCH_ID_XFER_FILE) {
-      this.currentChoice += 1;
-      this.radioContent.push(this.radioMtp);
+    let edmCtrl = 'false';
+    try {
+      edmCtrl = systemParameterEnhance.getSync('persist.edm.mtp_server_disable');
+    } catch (err) {
+      edmCtrl = 'false';
+      console.error(TAG + ', getSync persist.edm.mtp_server_disable failed, err.code: ' + err.code +
+                  ', err.message: ' + err.message);
     }
-    if (supportedFuncs & USBSERVICESWITCH_ID_XFER_PIC) {
-      this.currentChoice += 1;
-      this.radioContent.push(this.radioPtp);
+    console.log(TAG + ', edmCtrl: ' + edmCtrl);
+
+    this.currentChoice = 0;
+    if (edmCtrl != 'true') {
+      if (supportedFuncs & USBSERVICESWITCH_ID_XFER_FILE) {
+        this.currentChoice += 1;
+        this.radioContent.push(this.radioMtp);
+      }
+      if (supportedFuncs & USBSERVICESWITCH_ID_XFER_PIC) {
+        this.currentChoice += 1;
+        this.radioContent.push(this.radioPtp);
+      }
+    } else {
+      console.log(TAG + ', edmCtrl is true, only show charge radio');
     }
     this.radioContent.push(this.radioCharge);
 
