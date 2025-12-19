@@ -79,9 +79,9 @@
         },
         {
             "name":"USB_func_charge_notifier",
-            "value":"USB မှတဆင့် အားသွင်းခြင်း",
+            "value":"USB မှတစ်ဆင့် အားသွင်းခြင်း",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
