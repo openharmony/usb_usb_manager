@@ -27,6 +27,7 @@
 #include "usb_interface_type.h"
 #include "v1_2/iusb_interface.h"
 #include "iremote_object.h"
+#include "system_ability_load_callback_stub.h"
 #ifdef USB_MANAGER_PASS_THROUGH
 #include "mem_mgr_proxy.h"
 #include "mem_mgr_client.h"
@@ -160,6 +161,7 @@ private:
     void ReportManageDeviceInfo(const std::string &operationType, UsbDevice* device,
         const UsbInterface* interface, bool isInterfaceType);
     int32_t CheckDevPathIsExist(uint8_t busNum, uint8_t devAddr);
+    void LoadEdmService();
     MAP_STR_DEVICE devices_;
     SystemAbility *systemAbility_;
     std::mutex mutex_;
@@ -182,6 +184,15 @@ private:
         const int32_t endpoint_;
         UsbHostManager *service_;
         const sptr<IRemoteObject> cb_;
+    };
+    class UsbEdmLoadCallback : public SystemAbilityLoadCallbackStub {
+    public:
+        void OnLoadSystemAbilitySuccess(int32_t systemAbilityId, const sptr<IRemoteObject>& remoteObject) override;
+        void OnLoadSystemAbilityFail(int32_t systemAbilityId) override;
+        UsbEdmLoadCallback(UsbHostManager *usbHostManager) : usbHostManager_(usbHostManager) {};
+        ~UsbEdmLoadCallback() {};
+    private:
+        UsbHostManager *usbHostManager_;
     };
 
 #ifdef USB_MANAGER_PASS_THROUGH

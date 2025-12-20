@@ -199,6 +199,18 @@ void UsbHostManager::UsbSubmitTransferDeathRecipient::OnRemoteDied(const wptr<IR
         service_->Close(devInfo_.busNum, devInfo_.devAddr);
     }
 }
+
+void UsbHostManager::UsbEdmLoadCallback::OnLoadSystemAbilitySuccess(
+    int32_t systemAbilityId, const sptr<IRemoteObject>& remoteObject)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbHostManager Load SA success, systemAbilityId = [%{public}d]", systemAbilityId);
+    usbHostManager_ -> ExecuteStrategy();
+}
+
+void UsbHostManager::UsbEdmLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
+{
+    USB_HILOGI(MODULE_USB_SERVICE, "UsbHostManager Load SA failed, systemAbilityId = [%{public}d]", systemAbilityId);
+}
 // LCOV_EXCL_STOP
 
 void UsbHostManager::ExecuteStrategy()
@@ -1515,8 +1527,8 @@ std::string UsbHostManager::GetDevStringValFromIdx(uint8_t busNum, uint8_t devAd
 
 bool UsbHostManager::IsEdmEnabled()
 {
-    std::string edmParaValue = OHOS::system::GetParameter("persist.edm.edm_enable", "false");
-    USB_HILOGI(MODULE_USB_SERVICE, "edmParaValue is %{public}s", edmParaValue.c_str());
+    std::string edmParaValue = OHOS::system::GetParameter("persist.edm.enterprise_config_enable", "false");
+    USB_HILOGI(MODULE_USB_SERVICE, "edmParaValue enterprise_config_enable value is %{public}s", edmParaValue.c_str());
     return edmParaValue == "true";
 }
 
@@ -1643,6 +1655,7 @@ int32_t UsbHostManager::GetEdmPolicy(bool &IsGlobalDisabled, std::vector<UsbDevi
     }
     sptr<IRemoteObject> remote = sm->CheckSystemAbility(EDM_SYSTEM_ABILITY_ID);
     if (remote == nullptr) {
+        LoadEdmService();
         USB_HILOGE(MODULE_USB_SERVICE, "Get Edm SystemAbility failed.");
         return UEC_SERVICE_GET_EDM_SERVICE_FAILED;
     }
@@ -1667,6 +1680,24 @@ int32_t UsbHostManager::GetEdmPolicy(bool &IsGlobalDisabled, std::vector<UsbDevi
         return ret;
     }
     return UEC_OK;
+}
+
+void UsbHostManager::LoadEdmService()
+{
+    USB_HILOGI(MODULE_USB_SERVICE,
+        "%{public}s enter, systemAbilityId = [%{public}d] loading", __func__, EDM_SYSTEM_ABILITY_ID);
+    sptr<ISystemAbilityManager> sm = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (sm == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: get system ability manager failed", __func__);
+        return;
+    }
+    auto usbEdmLoadCallback = sptr<UsbEdmLoadCallback>(new UsbEdmLoadCallback(this));
+    int32_t ret = sm -> LoadSystemAbility(EDM_SYSTEM_ABILITY_ID, usbEdmLoadCallback);
+    if (ret != ERR_OK) {
+        USB_HILOGE(MODULE_USB_SERVICE,
+            "%{public}s: failed to load system ability , SA Id = [%{public}d], ret = [%{public}d]",
+            __func__, EDM_SYSTEM_ABILITY_ID, ret);
+    }
 }
 
 int32_t UsbHostManager::GetUsbPolicy(bool &IsGlobalDisabled, std::vector<UsbDeviceType> &disableType,
