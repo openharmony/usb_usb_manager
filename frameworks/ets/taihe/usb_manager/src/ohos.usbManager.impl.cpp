@@ -1069,7 +1069,7 @@ static void ReadDataToBuffer(USBTransferAsyncContext *asyncContext, const OHOS::
 
 static ani_object GetDefaultBusinessError(ani_env *env)
 {
-    static const char *businessErrorName = "L@ohos/base/BusinessError;";
+    static const char *businessErrorName = "@ohos.base.BusinessError";
     ani_class cls;
     auto status = env->FindClass(businessErrorName, &cls);
     if (ANI_OK != status) {
@@ -1077,7 +1077,7 @@ static ani_object GetDefaultBusinessError(ani_env *env)
         return nullptr;
     }
     ani_method ctor;
-    status = env->Class_FindMethod(cls, "<ctor>", ":V", &ctor);
+    status = env->Class_FindMethod(cls, "<ctor>", ":", &ctor);
     if (ANI_OK != status) {
         USB_HILOGE(MODULE_JS_NAPI, "Not found ctor of '%{public}s' errcode %{public}d.", businessErrorName, status);
         return nullptr;
@@ -1150,7 +1150,7 @@ static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::
         ani_ref ani_argv[] = {businessError, param};
         ani_ref ani_result;
         ani_class cls;
-        env->FindClass("Lstd/core/Function2;", &cls);
+        env->FindClass("std.core.Function2", &cls);
         ani_boolean ret;
         env->Object_InstanceOf(callbackFunc, cls, &ret);
         if (!ret) {
