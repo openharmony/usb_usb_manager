@@ -109,8 +109,8 @@ constexpr int32_t GET_EDM_STORAGE_DISABLE_TYPE = 2;
 constexpr int32_t RANDOM_VALUE_INDICATE = -1;
 constexpr int32_t BASE_CLASS_AUDIO = 0x01;
 constexpr int32_t BASE_CLASS_HUB = 0x09;
-constexpr int32_t RETRY_NUM = 6;
-constexpr uint32_t RETRY_INTERVAL = 50;
+constexpr int32_t RETRY_NUM = 10;
+constexpr uint32_t RETRY_INTERVAL = 100;
 constexpr uint32_t USB_PATH_LENGTH = 64;
 constexpr const char* USB_DEV_FS_PATH = "/dev/bus/usb";
 #ifdef USB_MANAGER_PASS_THROUGH
