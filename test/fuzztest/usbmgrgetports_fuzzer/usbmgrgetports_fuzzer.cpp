@@ -13,38 +13,37 @@
  * limitations under the License.
  */
 
+#include "usb_service.h"
 #include "accesstoken_kit.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
 #include "usbmgrgetports_fuzzer.h"
 #include "usb_srv_client.h"
 #include "usb_errors.h"
+const uint32_t code = 0X34;
+const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
 namespace OHOS {
     namespace USB {
-        bool UsbMgrGetPortsFuzzTest(const uint8_t* data, size_t size)
+        bool UsbMgrGetPortsFuzzTest(const uint8_t* rawData, size_t size)
         {
             unsigned seed = 0;
             if (size >= sizeof(unsigned)) {
-                errno_t ret = memcpy_s(&seed, sizeof(unsigned), data, sizeof(unsigned));
+                errno_t ret = memcpy_s(&seed, sizeof(unsigned), rawData, sizeof(unsigned));
                 if (ret != UEC_OK) {
                     return false;
                 }
                 srand(seed);
             }
-            auto &usbSrvClient = UsbSrvClient::GetInstance();
             std::vector<UsbPort> portlist;
             portlist.clear();
-            int32_t ret = usbSrvClient.GetPorts(portlist);
-            if (ret == UEC_OK) {
-                if (portlist.empty()) {
-                    USB_HILOGW(MODULE_USB_SERVICE, "GetPorts returned empty list");
-                }
-                return true;
-            }
-            if (!portlist.empty()) {
-                USB_HILOGE(MODULE_USB_SERVICE, "GetPorts failed but portlist not empty");
-            }
-            return false;
+            MessageParcel data;
+            data.WriteInterfaceToken(USB_INTERFACE_TOKEN);
+            data.WriteBuffer(rawData, size);
+            data.RewindRead(0);
+            MessageParcel reply;
+            MessageOption option;
+            UsbService::GetGlobalInstance()->OnRemoteRequest(code, data, reply, option);
+            return true;
         }
     }
 }

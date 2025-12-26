@@ -165,13 +165,17 @@ ohos_fuzztest("UsbMgrGetPortsFuzzTest") {
   ]
 
   external_deps = [
+    "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "c_utils:utils",
     "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
     "selinux_adapter:librestorecon",
   ]
 
@@ -217,10 +221,18 @@ ohos_fuzztest("UsbMgrUsbFunctionsFromStringFuzzTest") {
   ]
 
   external_deps = [
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "c_utils:utils",
     "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "selinux_adapter:librestorecon",
   ]
 
   sources = [ "usbmgrusbfunctionsfromstring_fuzzer/usbmgrusbfunctionsfromstring_fuzzer.cpp" ]
@@ -240,10 +252,18 @@ ohos_fuzztest("UsbMgrUsbFunctionsToStringFuzzTest") {
   ]
 
   external_deps = [
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "c_utils:utils",
     "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "selinux_adapter:librestorecon",
   ]
 
   sources = [
