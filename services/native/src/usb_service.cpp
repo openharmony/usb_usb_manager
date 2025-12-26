@@ -1581,7 +1581,6 @@ int32_t UsbService::AddRight(const std::string &bundleName, const std::string &d
         USB_HILOGE(MODULE_USB_SERVICE, "invalid usbRightManager_");
         return UEC_SERVICE_INVALID_VALUE;
     }
-    // LCOV_EXCL_START
     int32_t ret = CheckSysApiPermission();
     if (ret != UEC_OK) {
         return ret;
@@ -1606,7 +1605,6 @@ int32_t UsbService::AddRight(const std::string &bundleName, const std::string &d
     }
     USB_HILOGI(MODULE_USB_SERVICE, "AddRight done");
     return UEC_OK;
-    // LCOV_EXCL_STOP
 }
 
 // LCOV_EXCL_START
