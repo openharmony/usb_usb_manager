@@ -34,7 +34,7 @@ namespace USB {
         if (func <= MAX_FUNC_NUM) {
             func += MAX_FUNC_NUM;
         }
-        auto &usbSrvClient = UsbSrvClient::GetInstance();
+
         if (usbSrvClient.SetCurrentFunctions(func) == UEC_OK) {
             return false;
         }
