@@ -13,22 +13,32 @@
  * limitations under the License.
  */
 
+#include "usb_service.h"
+#include "accesstoken_kit.h"
+#include "nativetoken_kit.h"
+#include "token_setproc.h"
 #include "usbmgrusbfunctionsfromstring_fuzzer.h"
 
 #include "usb_srv_client.h"
 #include "usb_errors.h"
 
 namespace OHOS {
+const uint32_t code = 0X2B;
+const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
 namespace USB {
-    bool UsbMgrUsbFunctionsFromStringFuzzTest(const uint8_t* data, size_t size)
+    bool UsbMgrUsbFunctionsFromStringFuzzTest(const uint8_t* rawData, size_t size)
     {
-        if (data == nullptr || size == 0 || data[size-1] != 0) {
+        if (rawData == nullptr || size == 0 || rawData[size-1] != 0) {
             return false;
         }
-        auto &usbSrvClient = UsbSrvClient::GetInstance();
-        if (usbSrvClient.UsbFunctionsFromString(std::string_view(reinterpret_cast<const char*>(data))) == UEC_OK) {
-            return false;
-        }
+
+        MessageParcel data;
+        data.WriteInterfaceToken(USB_INTERFACE_TOKEN);
+        data.WriteBuffer(rawData, size);
+        data.RewindRead(0);
+        MessageParcel reply;
+        MessageOption option;
+        UsbService::GetGlobalInstance()->OnRemoteRequest(code, data, reply, option);
         return true;
     }
 } // USB
@@ -42,3 +52,24 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     return 0;
 }
 
+static const uint64_t SYSTEM_APP_MASK = (static_cast<uint64_t>(1) << 32);
+
+extern "C" int LLVMFuzzerInitialize(int *argc, char **argv)
+{
+    constexpr int permissionNum = 1;
+    const char *perms[permissionNum] = {"ohos.permission.MANAGE_USB_CONFIG"};
+    NativeTokenInfoParams info = {
+        .dcapsNum = 0,
+        .permsNum = permissionNum,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .processName = "usb_manager_fuzztest",
+        .aplStr = "system_basic",
+    };
+    uint64_t tokenId = GetAccessTokenId(&info);
+    SetSelfTokenID(tokenId | SYSTEM_APP_MASK);
+    OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+    return 0;
+}
