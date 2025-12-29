@@ -14,6 +14,7 @@
  */
 
 import { usbServiceSwitch } from '../util/UsbServiceSwitch';
+import { getUserAuth } from '../util/UserAuth';
 import deviceInfo from '@ohos.deviceInfo';
 import common from '@ohos.app.ability.common';
 import commonEventManager from '@ohos.commonEventManager';
@@ -286,14 +287,21 @@ struct SimpleContacts {
             .backgroundColor($r('sys.color.comp_background_list_card'))
             .width('100%')
             .onClick((e) => {
+              let lastSelectedIndex: number = this.index;
               this.index = item.usbFunction;
               console.log('this.index=' + this.index)
-              if (item.usbFunction == USBSERVICESWITCH_ID_REVERSE_CHARGE) {
-                this.ignoreDetachEvent = true;
-                this.setPortRoleToHost();
-                return;
-              }
-              this.setUsbFunction(item.usbFunction);
+              getUserAuth(item.name, 
+                () => {
+                  if (item.usbFunction == USBSERVICESWITCH_ID_REVERSE_CHARGE) {
+                    this.ignoreDetachEvent = true;
+                    this.setPortRoleToHost();
+                    return;
+                  }
+                  this.setUsbFunction(item.usbFunction);
+                },
+                () => {
+                  this.index = lastSelectedIndex;
+              });
             })
           }
           .margin({

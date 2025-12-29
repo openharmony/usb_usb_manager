@@ -46,6 +46,9 @@
       },
       {
         "name": "ohos.permission.SYSTEM_FLOAT_WINDOW"
+      },
+      {
+        "name": "ohos.permission.ACCESS_BIOMETRIC"
       }
     ],
     "extensionAbilities": [
