@@ -85,22 +85,7 @@ struct SimpleContacts {
     if (deviceInfo.deviceType === 'tablet') {
       this.mtpTip = $r('app.string.USB_func_mtp_tip2', $r('app.string.USB_my_tablet'));
     }
-    this.usbPortList = usbServiceSwitch.getPorts()
-    this.curFunc = usbServiceSwitch.getCurrentFunctions();
-    if (this.usbPortList?.length > 0 &&
-          this.usbPortList[0].status.currentPowerRole == usbManagerService.PortModeType.UFP) {
-      this.reverseChargeChecked = true;
-      this.index = USBSERVICESWITCH_ID_REVERSE_CHARGE;
-    } else if (this.curFunc & USBSERVICESWITCH_ID_XFER_FILE) {
-      this.mtpChecked = true;
-      this.index = USBSERVICESWITCH_ID_XFER_FILE;
-    } else if (this.curFunc & USBSERVICESWITCH_ID_XFER_PIC) {
-      this.ptpChecked = true;
-      this.index = USBSERVICESWITCH_ID_XFER_PIC;
-    } else {
-      this.chargeChecked = true;
-      this.index = USBSERVICESWITCH_ID_CHARGE_ONLY;
-    }
+    initSelectedOption();
 
     console.info('globalThis.want=' + JSON.stringify(globalThis.want));
     let usbSupportedFunctions = USBSERVICESWITCH_ID_XFER_FILE | USBSERVICESWITCH_ID_XFER_PIC;
@@ -187,6 +172,25 @@ struct SimpleContacts {
         }
       })
     });
+  }
+
+  private initSelectedOption() {
+    this.usbPortList = usbServiceSwitch.getPorts()
+    this.curFunc = usbServiceSwitch.getCurrentFunctions();
+    if (this.usbPortList?.length > 0 &&
+          this.usbPortList[0].status.currentPowerRole == usbManagerService.PortModeType.UFP) {
+      this.reverseChargeChecked = true;
+      this.index = USBSERVICESWITCH_ID_REVERSE_CHARGE;
+    } else if (this.curFunc & USBSERVICESWITCH_ID_XFER_FILE) {
+      this.mtpChecked = true;
+      this.index = USBSERVICESWITCH_ID_XFER_FILE;
+    } else if (this.curFunc & USBSERVICESWITCH_ID_XFER_PIC) {
+      this.ptpChecked = true;
+      this.index = USBSERVICESWITCH_ID_XFER_PIC;
+    } else {
+      this.chargeChecked = true;
+      this.index = USBSERVICESWITCH_ID_CHARGE_ONLY;
+    }
   }
 
   @Builder
@@ -287,9 +291,8 @@ struct SimpleContacts {
             .backgroundColor($r('sys.color.comp_background_list_card'))
             .width('100%')
             .onClick((e) => {
-              let lastSelectedIndex: number = this.index;
               this.index = item.usbFunction;
-              console.log('this.index=' + this.index)
+              console.log('choose=' + item.usbFunction);
               getUserAuth(item.name, 
                 () => {
                   if (item.usbFunction == USBSERVICESWITCH_ID_REVERSE_CHARGE) {
@@ -298,9 +301,10 @@ struct SimpleContacts {
                     return;
                   }
                   this.setUsbFunction(item.usbFunction);
+                  this.index = item.usbFunction;
                 },
                 () => {
-                  this.index = lastSelectedIndex;
+                  this.initSelectedOption();
               });
             })
           }
