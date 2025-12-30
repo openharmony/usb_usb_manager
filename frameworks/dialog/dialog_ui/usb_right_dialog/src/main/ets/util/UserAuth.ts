@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-import cryptoFramwork from '@ohos.security.cryptoFramework';
+import cryptoFramework from '@ohos.security.cryptoFramework';
 import userAuth from '@ohos.userIAM.userAuth';
 import { BusinessError } from '@ohos.base';
 
 export function getUserAuth(prompt: ResourceStr, onSuccess: () => void, onFailure?: () => void) {
   try {
-    const rand = cryptoFramwork.createRandom();
+    const rand = cryptoFramework.createRandom();
     const len: number = 16; // Generate a 16-byte random number
     let randData: Uint8Array | null = null;
     for (let retryCount = 0; retryCount < 3 && !randData; retryCount++) {
@@ -31,7 +31,7 @@ export function getUserAuth(prompt: ResourceStr, onSuccess: () => void, onFailur
       return;
     }
     const authParam: userAuth.AuthParam = {
-      challange: randData,
+      challenge: randData,
       authType: [userAuth.UserAuthType.PIN, userAuth.UserAuthType.FACE, userAuth.UserAuthType.FINGERPRINT],
       authTrustLevel: userAuth.AuthTrustLevel.ATL3,
     };
