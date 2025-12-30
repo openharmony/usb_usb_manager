@@ -136,7 +136,7 @@ UsbConnectionNotifier::~UsbConnectionNotifier() {}
 void UsbConnectionNotifier::GetHapIcon()
 {
     USB_TRACE;
-    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(false));
     if (resourceManager == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "resourceManager is null");
         return;
@@ -168,7 +168,7 @@ void UsbConnectionNotifier::GetHapString()
 {
     USB_TRACE;
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
-    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(false));
     if (resourceManager == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s resourceManager is null", __func__);
         return;
