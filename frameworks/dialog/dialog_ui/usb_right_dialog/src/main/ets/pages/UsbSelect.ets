@@ -85,7 +85,7 @@ struct SimpleContacts {
     if (deviceInfo.deviceType === 'tablet') {
       this.mtpTip = $r('app.string.USB_func_mtp_tip2', $r('app.string.USB_my_tablet'));
     }
-    initSelectedOption();
+    this.initSelectedOption();
 
     console.info('globalThis.want=' + JSON.stringify(globalThis.want));
     let usbSupportedFunctions = USBSERVICESWITCH_ID_XFER_FILE | USBSERVICESWITCH_ID_XFER_PIC;
