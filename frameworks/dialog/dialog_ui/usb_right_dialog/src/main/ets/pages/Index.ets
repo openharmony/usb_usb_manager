@@ -17,6 +17,7 @@ import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSessi
 import { usbServiceSwitch } from '../util/UsbServiceSwitch';
 import { terminateDialog } from '../util/DialogUtil';
 import {GlobalThisProxy} from '../util/GlobalThisProxy';
+import { getUserAuth } from '../util/UserAuth';
 import { BusinessError } from '@ohos.base';
 import window from '@ohos.window';
 import common from '@ohos.app.ability.common'
@@ -44,7 +45,13 @@ struct IndexHapComponent {
     subTitle: deviceInfo.deviceType === 'tablet' ? this.mtpTipTablet : this.mtpTipDefault,
     action: () => {
       let tmpChooseNumber: number = USBSERVICESWITCH_ID_XFER_FILE;
-      this.setUsbFunction(tmpChooseNumber);
+      getUserAuth($r('app.string.USB_func_mtp'),
+        () => {
+          this.setUsbFunction(tmpChooseNumber);
+        },
+        () => {
+          terminateDialog();
+      });
     }
   };
   private radioPtp: SheetInfoEx = {
@@ -52,7 +59,13 @@ struct IndexHapComponent {
     subTitle: $r('app.string.USB_func_ptp_tip'),
     action: () => {
       let tmpChooseNumber: number = USBSERVICESWITCH_ID_XFER_PIC;
-      this.setUsbFunction(tmpChooseNumber);
+      getUserAuth($r('app.string.USB_func_ptp'),
+        () => {
+          this.setUsbFunction(tmpChooseNumber);
+        },
+        () => {
+          terminateDialog();
+      });
     }
   };
   private radioCharge: SheetInfoEx = {

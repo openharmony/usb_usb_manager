@@ -14,6 +14,7 @@
  */
 
 import { usbServiceSwitch } from '../util/UsbServiceSwitch';
+import { getUserAuth } from '../util/UserAuth';
 import deviceInfo from '@ohos.deviceInfo';
 import common from '@ohos.app.ability.common';
 import commonEventManager from '@ohos.commonEventManager';
@@ -84,22 +85,7 @@ struct SimpleContacts {
     if (deviceInfo.deviceType === 'tablet') {
       this.mtpTip = $r('app.string.USB_func_mtp_tip2', $r('app.string.USB_my_tablet'));
     }
-    this.usbPortList = usbServiceSwitch.getPorts()
-    this.curFunc = usbServiceSwitch.getCurrentFunctions();
-    if (this.usbPortList?.length > 0 &&
-          this.usbPortList[0].status.currentPowerRole == usbManagerService.PortModeType.UFP) {
-      this.reverseChargeChecked = true;
-      this.index = USBSERVICESWITCH_ID_REVERSE_CHARGE;
-    } else if (this.curFunc & USBSERVICESWITCH_ID_XFER_FILE) {
-      this.mtpChecked = true;
-      this.index = USBSERVICESWITCH_ID_XFER_FILE;
-    } else if (this.curFunc & USBSERVICESWITCH_ID_XFER_PIC) {
-      this.ptpChecked = true;
-      this.index = USBSERVICESWITCH_ID_XFER_PIC;
-    } else {
-      this.chargeChecked = true;
-      this.index = USBSERVICESWITCH_ID_CHARGE_ONLY;
-    }
+    this.initSelectedOption();
 
     console.info('globalThis.want=' + JSON.stringify(globalThis.want));
     let usbSupportedFunctions = USBSERVICESWITCH_ID_XFER_FILE | USBSERVICESWITCH_ID_XFER_PIC;
@@ -186,6 +172,25 @@ struct SimpleContacts {
         }
       })
     });
+  }
+
+  private initSelectedOption() {
+    this.usbPortList = usbServiceSwitch.getPorts()
+    this.curFunc = usbServiceSwitch.getCurrentFunctions();
+    if (this.usbPortList?.length > 0 &&
+          this.usbPortList[0].status.currentPowerRole == usbManagerService.PortModeType.UFP) {
+      this.reverseChargeChecked = true;
+      this.index = USBSERVICESWITCH_ID_REVERSE_CHARGE;
+    } else if (this.curFunc & USBSERVICESWITCH_ID_XFER_FILE) {
+      this.mtpChecked = true;
+      this.index = USBSERVICESWITCH_ID_XFER_FILE;
+    } else if (this.curFunc & USBSERVICESWITCH_ID_XFER_PIC) {
+      this.ptpChecked = true;
+      this.index = USBSERVICESWITCH_ID_XFER_PIC;
+    } else {
+      this.chargeChecked = true;
+      this.index = USBSERVICESWITCH_ID_CHARGE_ONLY;
+    }
   }
 
   @Builder
@@ -287,13 +292,20 @@ struct SimpleContacts {
             .width('100%')
             .onClick((e) => {
               this.index = item.usbFunction;
-              console.log('this.index=' + this.index)
-              if (item.usbFunction == USBSERVICESWITCH_ID_REVERSE_CHARGE) {
-                this.ignoreDetachEvent = true;
-                this.setPortRoleToHost();
-                return;
-              }
-              this.setUsbFunction(item.usbFunction);
+              console.log('choose=' + item.usbFunction);
+              getUserAuth(item.name, 
+                () => {
+                  if (item.usbFunction == USBSERVICESWITCH_ID_REVERSE_CHARGE) {
+                    this.ignoreDetachEvent = true;
+                    this.setPortRoleToHost();
+                    return;
+                  }
+                  this.setUsbFunction(item.usbFunction);
+                  this.index = item.usbFunction;
+                },
+                () => {
+                  this.initSelectedOption();
+              });
             })
           }
           .margin({
