@@ -107,9 +107,8 @@ struct IndexHapComponent {
 
     let edmCtrl = 'false';
     try {
-      edmCtrl = systemParameterEnhance.getSync('persist.edm.mtp_server_disable');
+      edmCtrl = systemParameterEnhance.getSync('persist.edm.mtp_server_disable', 'false');
     } catch (err) {
-      edmCtrl = 'false';
       console.error(TAG + ', getSync persist.edm.mtp_server_disable failed, err.code: ' + err.code +
                   ', err.message: ' + err.message);
     }
