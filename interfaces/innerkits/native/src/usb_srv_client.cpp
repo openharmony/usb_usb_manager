@@ -31,6 +31,7 @@ using namespace OHOS::HDI::Usb::V1_2;
 namespace OHOS {
 namespace USB {
 constexpr uint32_t WAIT_SERVICE_LOAD = 500;
+constexpr uint32_t MAX_WAIT_LOAD_SA_SECONDS = 4;
 #ifdef USB_MANAGER_FEATURE_HOST
 constexpr int32_t PARAM_ERROR = 401;
 #endif // USB_MANAGER_FEATURE_HOST
@@ -51,25 +52,31 @@ UsbSrvClient& UsbSrvClient::GetInstance()
     return instance;
 }
 
-int32_t UsbSrvClient::Connect()
+int32_t UsbSrvClient::Connect(bool force)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ != nullptr) {
         return UEC_OK;
     }
-    return ConnectUnLocked();
+    return ConnectUnLocked(force);
 }
 
-int32_t UsbSrvClient::ConnectUnLocked()
+int32_t UsbSrvClient::ConnectUnLocked(bool force)
 {
     sptr<ISystemAbilityManager> sm = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sm == nullptr) {
         USB_HILOGE(MODULE_USB_INNERKIT, "fail to get SystemAbilityManager");
         return UEC_INTERFACE_GET_SYSTEM_ABILITY_MANAGER_FAILED;
     }
-    sptr<IRemoteObject> remoteObject = sm->CheckSystemAbility(USB_SYSTEM_ABILITY_ID);
+    sptr<IRemoteObject> remoteObject = nullptr;
+    if (force) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "force load start");
+        remoteObject = sm->LoadSystemAbility(USB_SYSTEM_ABILITY_ID, MAX_WAIT_LOAD_SA_SECONDS);
+    } else {
+        remoteObject = sm->CheckSystemAbility(USB_SYSTEM_ABILITY_ID);
+    }
     if (remoteObject == nullptr) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "GetSystemAbility failed.");
+        USB_HILOGE(MODULE_USB_INNERKIT, "GetSystemAbility failed. force:%{public}d", force);
         return UEC_INTERFACE_GET_USB_SERVICE_FAILED;
     }
     proxy_ = iface_cast<IUsbServer>(remoteObject);
@@ -841,13 +848,13 @@ int32_t UsbSrvClient::GetInterfaceActiveStatus(USBDevicePipe &pipe, const UsbInt
 #ifdef USB_MANAGER_FEATURE_DEVICE
 int32_t UsbSrvClient::GetCurrentFunctions(int32_t &funcs)
 {
-    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    USB_HILOGI(MODULE_USB_INNERKIT, "Calling GetCurrentFunctions!");
+    RETURN_IF_WITH_RET(Connect(true) != UEC_OK, UEC_INTERFACE_NO_INIT);
     int32_t ret = proxy_->GetCurrentFunctions(funcs);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
         return ret;
     }
-    USB_HILOGI(MODULE_USB_INNERKIT, " Calling GetCurrentFunctions Success!");
     USB_HILOGI(MODULE_USB_INNERKIT, "GetCurrentFunctions funcs = %{public}d!", funcs);
     return ret;
 }
@@ -855,7 +862,7 @@ int32_t UsbSrvClient::GetCurrentFunctions(int32_t &funcs)
 int32_t UsbSrvClient::SetCurrentFunctions(int32_t funcs)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "SetCurrentFunctions funcs = %{public}d!", funcs);
-    RETURN_IF_WITH_RET(Connect() != UEC_OK, false);
+    RETURN_IF_WITH_RET(Connect(true) != UEC_OK, false);
     int32_t ret = proxy_->SetCurrentFunctions(funcs);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "failed ret = %{public}d!", ret);
@@ -867,7 +874,7 @@ int32_t UsbSrvClient::SetCurrentFunctions(int32_t funcs)
 
 int32_t UsbSrvClient::UsbFunctionsFromString(std::string_view funcs)
 {
-    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    RETURN_IF_WITH_RET(Connect(true) != UEC_OK, UEC_INTERFACE_NO_INIT);
     int32_t funcResult = 0;
     std::string funcsStr(funcs);
     int32_t ret = proxy_->UsbFunctionsFromString(funcsStr, funcResult);
@@ -882,7 +889,7 @@ int32_t UsbSrvClient::UsbFunctionsFromString(std::string_view funcs)
 std::string UsbSrvClient::UsbFunctionsToString(int32_t funcs)
 {
     std::string result;
-    RETURN_IF_WITH_RET(Connect() != UEC_OK, result);
+    RETURN_IF_WITH_RET(Connect(true) != UEC_OK, result);
     int32_t ret = proxy_->UsbFunctionsToString(funcs, result);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_INNERKIT, "UsbFunctionsToString failed ret = %{public}d!", ret);
@@ -1030,7 +1037,7 @@ int32_t UsbSrvClient::CloseAccessory(const int32_t fd)
 #ifdef USB_MANAGER_FEATURE_PORT
 int32_t UsbSrvClient::GetPorts(std::vector<UsbPort> &usbports)
 {
-    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    RETURN_IF_WITH_RET(Connect(true) != UEC_OK, UEC_INTERFACE_NO_INIT);
     USB_HILOGI(MODULE_USB_INNERKIT, " Calling GetPorts");
     int32_t ret = proxy_->GetPorts(usbports);
     if (ret != UEC_OK) {
@@ -1041,7 +1048,7 @@ int32_t UsbSrvClient::GetPorts(std::vector<UsbPort> &usbports)
 
 int32_t UsbSrvClient::GetSupportedModes(int32_t portId, int32_t &result)
 {
-    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    RETURN_IF_WITH_RET(Connect(true) != UEC_OK, UEC_INTERFACE_NO_INIT);
     USB_HILOGI(MODULE_USB_INNERKIT, " Calling GetSupportedModes");
     int32_t ret = proxy_->GetSupportedModes(portId, result);
     if (ret != UEC_OK) {
@@ -1052,7 +1059,7 @@ int32_t UsbSrvClient::GetSupportedModes(int32_t portId, int32_t &result)
 
 int32_t UsbSrvClient::SetPortRole(int32_t portId, int32_t powerRole, int32_t dataRole)
 {
-    RETURN_IF_WITH_RET(Connect() != UEC_OK, UEC_INTERFACE_NO_INIT);
+    RETURN_IF_WITH_RET(Connect(true) != UEC_OK, UEC_INTERFACE_NO_INIT);
     USB_HILOGI(MODULE_USB_INNERKIT, "Calling SetPortRole");
     int32_t ret = proxy_->SetPortRole(portId, powerRole, dataRole);
     if (ret != UEC_OK) {

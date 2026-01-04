@@ -144,8 +144,8 @@ private:
         DISALLOW_COPY_AND_MOVE(UsbSrvDeathRecipient);
     };
 
-    int32_t Connect();
-    int32_t ConnectUnLocked();
+    int32_t Connect(bool force = false);
+    int32_t ConnectUnLocked(bool force = false);
     void ResetProxy(const wptr<IRemoteObject> &remote);
     sptr<IUsbServer> proxy_ = nullptr;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ = nullptr;

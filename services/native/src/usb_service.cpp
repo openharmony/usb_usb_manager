@@ -311,12 +311,8 @@ void UsbService::OnStart()
         return;
     }
     (void)usbDeviceManager_->Init();
-    if (!InitSettingsDataHdcStatus()) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::OnStart update HDC_STATUS failed!");
-    }
 #endif // USB_MANAGER_FEATURE_DEVICE
     (void)InitUsbRight();
-    ready_ = true;
     auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
 #ifdef USB_MANAGER_PASS_THROUGH
     sptr<ISystemAbilityStatusChange> status =
@@ -334,6 +330,17 @@ void UsbService::OnStart()
         return;
     }
     AddSystemAbilityListener(MEMORY_MANAGER_SA_ID);
+    if (!Publish(g_serviceInstance)) {
+        USB_HILOGE(MODULE_USB_SERVICE, "OnStart register to system ability manager failed.");
+        return;
+    }
+    ready_ = true;
+    UnLoadSelf(UsbService::UnLoadSaType::UNLOAD_SA_DELAY);
+#ifdef USB_MANAGER_FEATURE_DEVICE
+    if (!InitSettingsDataHdcStatus()) {
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbService::OnStart update HDC_STATUS failed!");
+    }
+#endif // USB_MANAGER_FEATURE_DEVICE
     USB_HILOGE(MODULE_USB_SERVICE, "OnStart and add system ability success");
 }
 // LCOV_EXCL_STOP
@@ -342,10 +349,6 @@ void UsbService::OnStart()
 bool UsbService::Init()
 {
     USB_HILOGI(MODULE_USB_SERVICE, "usb_service Init enter");
-    if (!Publish(g_serviceInstance)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "OnStart register to system ability manager failed.");
-        return false;
-    }
 
     while (commEventRetryTimes_ <= COMMEVENT_REGISTER_RETRY_TIMES) {
         if (!IsCommonEventServiceAbilityExist()) {
@@ -2495,10 +2498,6 @@ void UsbService::UnLoadSelf(UnLoadSaType type)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "UnLoadSelf enter,type=[%{public}d],unloadSelfTimerId_=[%{public}u]",
         type, unloadSelfTimerId_);
-    if (OHOS::system::GetBoolParameter("const.security.developermode.state", true)) {
-        USB_HILOGI(MODULE_USB_SERVICE, "no need to unload in dev mode");
-        return;
-    }
 
     auto task = []() {
         USB_HILOGI(MODULE_USB_SERVICE, "unload usb_service task start.");
