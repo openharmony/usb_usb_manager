@@ -711,7 +711,7 @@ ohos_fuzztest("UsbMgrPrivateGetTransferTypeStringFuzzTest") {
     "${usb_manager_path}/services:usbservice",
   ]
 
-  if (defines(defines)) {
+  if (defined(defines)) {
     defines += [ "private=public" ]
   } else {
     defines = [ "private=public" ]
@@ -748,7 +748,7 @@ ohos_fuzztest("UsbMgrPrivateSetPhyConnectFuzzTest") {
     "${usb_manager_path}/services:usbservice",
   ]
 
-  if (defines(defines)) {
+  if (defined(defines)) {
     defines += [ "private=public" ]
   } else {
     defines = [ "private=public" ]
