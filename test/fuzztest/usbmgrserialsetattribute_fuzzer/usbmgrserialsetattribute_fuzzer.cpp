@@ -13,10 +13,12 @@
  * limitations under the License.
  */
 
-#include "usbmgrserialsetattribute_fuzzer.h"
-
 #include "usb_service.h"
+#include "accesstoken_kit.h"
+#include "nativetoken_kit.h"
+#include "token_setproc.h"
 #include "usb_errors.h"
+#include "usbmgrserialsetattribute_fuzzer.h"
 
 namespace OHOS {
 const uint32_t OFFSET = 4;

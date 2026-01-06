@@ -13,27 +13,32 @@
  * limitations under the License.
  */
 
+#include "usb_service.h"
+#include "accesstoken_kit.h"
+#include "nativetoken_kit.h"
+#include "token_setproc.h"
 #include "usbmgrsetportrole_fuzzer.h"
-
-#include "usb_srv_client.h"
 #include "usb_errors.h"
 
 namespace OHOS {
 const uint32_t OFFSET = 4;
 const uint32_t OFFSET_BYTE = 8;
 constexpr size_t THRESHOLD = 10;
+const uint32_t code = 0x36;
+const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
 namespace USB {
-    bool UsbMgrSetPortRoleFuzzTest(const uint8_t* data, size_t size)
+    bool UsbMgrSetPortRoleFuzzTest(const uint8_t* rawData, size_t size)
     {
-        if (data == nullptr || size < OFFSET_BYTE + sizeof(int32_t)) {
+        if (rawData == nullptr || size < OFFSET_BYTE + sizeof(int32_t)) {
             return false;
         }
-        auto &usbSrvClient = UsbSrvClient::GetInstance();
-        if (usbSrvClient.SetPortRole(*reinterpret_cast<const int32_t *>(data),
-            *reinterpret_cast<const int32_t *>(data + OFFSET),
-            *reinterpret_cast<const int32_t *>(data + OFFSET_BYTE)) == UEC_OK) {
-            return false;
-        }
+        MessageParcel data;
+        data.WriteInterfaceToken(USB_INTERFACE_TOKEN);
+        data.WriteBuffer(rawData, size);
+        data.RewindRead(0);
+        MessageParcel reply;
+        MessageOption option;
+        UsbService::GetGlobalInstance()->OnRemoteRequest(code, data, reply, option);
         return true;
     }
 } // USB
