@@ -1505,7 +1505,6 @@ bool UsbService::HasRight(const std::string &deviceName)
     // LCOV_EXCL_STOP
 }
 
-// LCOV_EXCL_START
 int32_t UsbService::RequestRight(const std::string &deviceName)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "calling usbRightManager RequestRight");
@@ -1519,6 +1518,7 @@ int32_t UsbService::RequestRight(const std::string &deviceName)
         USB_HILOGE(MODULE_USB_SERVICE, "can not find deviceName.");
         return ret;
     }
+    // LCOV_EXCL_START
     if (usbRightManager_->IsSystemAppOrSa()) {
         USB_HILOGW(MODULE_USB_SERVICE, "system app, bypass: dev=%{public}s", deviceName.c_str());
         return UEC_OK;
@@ -1533,8 +1533,8 @@ int32_t UsbService::RequestRight(const std::string &deviceName)
 
     USB_HILOGI(MODULE_USB_SERVICE, "bundle=%{public}s, device=%{public}s", bundleName.c_str(), deviceName.c_str());
     return usbRightManager_->RequestRight(deviceName, deviceVidPidSerialNum, bundleName, tokenId, userId);
+    // LCOV_EXCL_STOP
 }
-// LCOV_EXCL_STOP
 
 int32_t UsbService::RemoveRight(const std::string &deviceName)
 {
@@ -1591,6 +1591,7 @@ int32_t UsbService::AddRight(const std::string &bundleName, const std::string &d
         USB_HILOGE(MODULE_USB_SERVICE, "can not find deviceName.");
         return ret;
     }
+    // LCOV_EXCL_START
     std::string tokenId;
     int32_t userId = USB_RIGHT_USERID_INVALID;
     if (!GetBundleInfo(tokenId, userId)) {
@@ -1605,6 +1606,7 @@ int32_t UsbService::AddRight(const std::string &bundleName, const std::string &d
     }
     USB_HILOGI(MODULE_USB_SERVICE, "AddRight done");
     return UEC_OK;
+    // LCOV_EXCL_STOP
 }
 
 // LCOV_EXCL_START
@@ -1651,7 +1653,6 @@ bool UsbService::GetBundleInfo(std::string &tokenId, int32_t &userId)
 }
 // LCOV_EXCL_STOP
 
-// LCOV_EXCL_START
 void UsbService::UsbDeviceTypeChange(std::vector<UsbDeviceType> &disableType,
     const std::vector<UsbDeviceTypeInfo> &deviceTypes)
 {
@@ -1665,7 +1666,6 @@ void UsbService::UsbDeviceTypeChange(std::vector<UsbDeviceType> &disableType,
     }
     return;
 }
-// LCOV_EXCL_STOP
 
 // LCOV_EXCL_START
 std::string UsbService::GetDeviceVidPidSerialNumber(const std::string &deviceName)
