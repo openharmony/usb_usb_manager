@@ -1638,7 +1638,6 @@ group("fuzztest") {
       ":UsbMgrCloseFuzzTest",
       ":UsbMgrControlTransferFuzzTest",
       ":UsbMgrDetachKernelDriverFuzzTest",
-      ":UsbMgrDataShareInsertFuzzTest",
       ":UsbMgrExFuzzTest",
       ":UsbMgrFuzzTest",
       ":UsbMgrGetDeviceSpeedFuzzTest",
