@@ -23,11 +23,6 @@ class SerialDeathMonitor : public OHOS::IPCObjectStub {
 public:
     explicit SerialDeathMonitor() : OHOS::IPCObjectStub() {}
     ~SerialDeathMonitor() override = default;
-    int32_t OnRemoteRequest(uint32_t code, OHOS::MessageParcel &data, OHOS::MessageParcel &reply,
-        OHOS::MessageOption &option)override
-        {
-            return 0;
-        }
 };
 } // namespace OHOS::USB
 #endif // SERIAL_DEATH_MONITOR_H
