@@ -40,6 +40,6 @@ namespace USB {
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
-    OHOS::USB::UsbMgrManageDeviceFuzzTest(data, size);
+    OHOS::USB::UsbMgrPrivateGetTransferTypeStringFuzzTest(data, size);
     return 0;
 }

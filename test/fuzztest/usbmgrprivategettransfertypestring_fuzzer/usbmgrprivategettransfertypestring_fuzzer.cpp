@@ -24,13 +24,13 @@ namespace OHOS {
 namespace USB {
     bool UsbMgrPrivateGetTransferTypeStringFuzzTest(const uint8_t* rawData, size_t size)
     {
-        if (rawData == nullptr || size < sizeof(UsbTransInfo) + sizeid(USBEndpoint)) {
+        if (rawData == nullptr || size < sizeof(UsbTransInfo) + sizeof(USBEndpoint)) {
             return false;
         }
 
         auto serviceInstance = UsbService::GetGlobalInstance();
         UsbTransInfo transInfo = reinterpret_cast<const UsbTransInfo &>(rawData);
-        USBEndpoint ep = reinterpret_cast<const USBEndpoint &>(std::move(rawData + sizeod(UsbTransInfo)));
+        USBEndpoint ep = reinterpret_cast<const USBEndpoint &>(std::move(rawData + sizeof(UsbTransInfo)));
         std::string transType;
         serviceInstance->GetTransferTypeString(transInfo, ep, transType);
         return true;
@@ -42,6 +42,6 @@ namespace USB {
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
-    OHOS::USB::UsbMgrManageDeviceFuzzTest(data, size);
+    OHOS::USB::UsbMgrPrivateGetTransferTypeStringFuzzTest(data, size);
     return 0;
 }
