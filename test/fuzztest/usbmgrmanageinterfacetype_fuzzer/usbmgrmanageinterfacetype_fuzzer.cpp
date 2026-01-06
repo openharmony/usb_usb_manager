@@ -13,31 +13,29 @@
  * limitations under the License.
  */
 
+#include "usb_service.h"
+#include "accesstoken_kit.h"
+#include "nativetoken_kit.h"
+#include "token_setproc.h"
 #include "usbmgrmanageinterfacetype_fuzzer.h"
-
-#include "usb_srv_client.h"
 #include "usb_errors.h"
 
-namespace {
-    const int32_t MAX_FUNC_NUM = 6;
-}
-
 namespace OHOS {
+const uint32_t code = 0X0C;
+const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
 namespace USB {
     bool UsbMgrManageDeviceFuzzTest(const uint8_t* data, size_t /* size */)
     {
-        std::vector<UsbDevice> devList;
-        auto &usbSrvClient = UsbSrvClient::GetInstance();
-        auto ret = usbSrvClient.GetDevices(devList);
-        if (ret != UEC_OK || devList.empty()) {
-            USB_HILOGE(MODULE_USB_SERVICE, "get devices failed ret=%{public}d", ret);
+        if (rawData == nullptr) {
             return false;
         }
-        std::vector<UsbDeviceType> disableType;
-        ret = usbSrvClient.ManageInterfaceType(disableType, true);
-        if (ret == UEC_OK) {
-            return false;
-        }
+        MessageParcel data;
+        data.WriteInterfaceToken(USB_INTERFACE_TOKEN);
+        data.WriteBuffer(rawData, size);
+        data.RewindRead(0);
+        MessageParcel reply;
+        MessageOption option;
+        UsbService::GetGlobalInstance()->OnRemoteRequest(code, data, reply, option);
         return true;
     }
 } // USB
