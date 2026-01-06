@@ -44,6 +44,7 @@ namespace USB {
         MessageParcel reply;
         MessageOption option;
         UsbService::GetGlobalInstance()->OnRemoteRequest(code, data, reply, option);
+        return true;
     }
 } // USB
 } // OHOS

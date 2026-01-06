@@ -22,7 +22,7 @@
 
 namespace OHOS {
 namespace USB {
-    bool UsbMgrPrivateGetTransferTypeStringFuzzTest(const uint8_t* data, size_t /* size */)
+    bool UsbMgrPrivateGetTransferTypeStringFuzzTest(const uint8_t* rawData, size_t size)
     {
         if (rawData == nullptr) {
             return false;
