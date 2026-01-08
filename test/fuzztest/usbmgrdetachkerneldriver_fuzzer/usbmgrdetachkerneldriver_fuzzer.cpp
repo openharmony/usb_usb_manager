@@ -76,7 +76,7 @@ enum class UsbInterfaceCode {
     USB_FUN_ATTACH_KERNEL_DRIVER,
     USB_FUN_DETACH_KERNEL_DRIVER,
 };
-const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
+const std::u16string USB_INTERFACE_TOKEN = u"OHOS.USB.IUsbServer";
 
 bool DoSomethingInterestingWithMyAPI(const uint8_t *rawData, size_t size)
     {

@@ -28,7 +28,7 @@ namespace OHOS {
 const uint32_t OFFSET = 4;
 constexpr size_t THRESHOLD = 10;
 const uint32_t code = 0x18;
-const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
+const std::u16string USB_INTERFACE_TOKEN = u"OHOS.USB.IUsbServer";
 namespace USB {
     bool UsbMgrControlTransferFuzzTest(const uint8_t* rawData, size_t size)
     {
