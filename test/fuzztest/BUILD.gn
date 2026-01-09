@@ -859,7 +859,7 @@ ohos_fuzztest("UsbMgrPrivateFuzzTest") {
     defines = [ "private=public" ]
   }
 
-  defines +=[ "USB_MANAGER_FEATURE_HOST" ]
+  defines += [ "USB_MANAGER_FEATURE_HOST" ]
 
   external_deps = [
     "ability_runtime:ability_manager",
