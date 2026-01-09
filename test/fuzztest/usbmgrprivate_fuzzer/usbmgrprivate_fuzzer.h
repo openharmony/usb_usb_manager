@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#ifndef USBMGRPRIVATEGETTRANSFERTYPESTRING_FUZZER_H
-#define USBMGRPRIVATEGETTRANSFERTYPESTRING_FUZZER_H
+#ifndef USBMGRPRIVATE_FUZZER_H
+#define USBMGRPRIVATE_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "usbmgrprivategettransfertypestring_fuzzer"
+#define FUZZ_PROJECT_NAME "usbmgrprivate_fuzzer"
 
-#endif // USBMGRPRIVATEGETTRANSFERTYPESTRING_FUZZER_H
+#endif // USBMGRPRIVATE_FUZZER_H

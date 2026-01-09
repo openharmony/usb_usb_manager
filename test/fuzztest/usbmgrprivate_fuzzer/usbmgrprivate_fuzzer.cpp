@@ -23,7 +23,6 @@
 namespace OHOS {
 const uint32_t OFFSET = 2;
 namespace USB {
-#ifdef USB_MANAGER_FEATURE_HOST
     void GetDeviceVidPidSerialNumberFuzzTest(const uint8_t* rawData, size_t size)
     {
         if (rawData == nullptr || size < OFFSET) {
@@ -45,16 +44,16 @@ namespace USB {
 
     void UsbDeviceTypeChangeFuzzTest(const uint8_t* rawData, size_t size)
     {
-        if (rawData == nullptr || size < sizeoof(UsbDeviceType) + sizeoof(UsbDeviceTypeInfo)) {
+        if (rawData == nullptr || size < sizeof(UsbDeviceType) + sizeof(UsbDeviceTypeInfo)) {
             return;
         }
+        auto serviceInstance = UsbService::GetGlobalInstance();
         UsbDeviceType info = reinterpret_cast<const UsbDeviceType &>(rawData);
         std::vector<UsbDeviceType> disableType,
         std::vector<UsbDeviceTypeInfo> deviceTypes;
-        deviceTypes.push_back(info);
-        UsbDeviceTypeChange(disableType, deviceTypes);
+        disableType.push_back(info);
+        serviceInstance->UsbDeviceTypeChange(disableType, deviceTypes);
     }
-#endif // USB_MANAGER_FEATURE_HOST
 
     bool UsbMgrPrivateFuzzTest(const uint8_t* rawData, size_t size)
     {
@@ -62,10 +61,8 @@ namespace USB {
             return false;
         }
 
-#ifdef USB_MANAGER_FEATURE_HOST
         GetDeviceVidPidSerialNumberFuzzTest(rawData, size);
         UsbDeviceTypeChangeFuzzTest(rawData, size);
-#endif // USB_MANAGER_FEATURE_HOST
 
         return true;
     }
