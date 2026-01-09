@@ -91,7 +91,7 @@ enum class UsbInterfaceCode {
     USB_FUN_CANCEL_SERIAL_RIGHT,
     USB_FUN_REQUEST_SERIAL_RIGHT
 };
-const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
+const std::u16string USB_INTERFACE_TOKEN = u"OHOS.USB.IUsbServer";
 static uint32_t g_usbInterfaceCode = 0;
 static constexpr uint32_t USB_INTERFACE_CODE_COUNT = 64;    // UsbInterfaceCode Count - 1
 

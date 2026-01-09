@@ -15,18 +15,163 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 import("./../../usbmgr.gni")
 
+config("usbsrv_private_config") {
+  include_dirs = [ "${usb_manager_path}/interfaces/innerkits/native/include" ]
+}
+
+config("usbsrv_public_config") {
+  include_dirs = [
+    "${usb_manager_path}/services/native/include",
+    "${usb_manager_path}/utils/native/include",
+  ]
+}
+
+ohos_source_set("usbservice_source_set") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
+  sources = [
+    "${utils_path}/native/src/usb_settings_datashare.cpp",
+    "${usb_manager_path}/services/native/src/usb_security_report.cpp",
+    "${usb_manager_path}/services/native/src/serial_manager.cpp",
+    "${usb_manager_path}/services/native/src/usb_connection_notifier.cpp",
+    "${usb_manager_path}/services/native/src/usb_report_sys_event.cpp",
+    "${usb_manager_path}/services/native/src/usb_right_database.cpp",
+    "${usb_manager_path}/services/native/src/usb_right_db_helper.cpp",
+    "${usb_manager_path}/services/native/src/usb_right_manager.cpp",
+    "${usb_manager_path}/services/native/src/usb_service.cpp",
+    "${usb_manager_path}/services/native/src/usb_service_subscriber.cpp",
+    "${usb_manager_path}/services/native/src/usb_timer_wraper.cpp",
+  ]
+
+  configs = [
+    "${utils_path}:utils_config",
+    ":usbsrv_private_config",
+  ]
+
+  public_configs = [ ":usbsrv_public_config" ]
+  deps = [ "${usb_manager_path}/interfaces/innerkits:usb_server_stub" ]
+  defines = []
+  if (usb_manager_pass_through) {
+    defines += [
+      "USB_MANAGER_PASS_THROUGH",
+      "USB_MANAGER_V2_0",
+    ]
+    sources += [ "${usb_manager_path}/services/native/src/usb_manager_subscriber.cpp" ]
+  }
+  if (usb_manager_feature_host) {
+    defines += [ "USB_MANAGER_FEATURE_HOST" ]
+    sources += [
+      "${utils_path}/native/src/struct_parcel.cpp",
+      "${usb_manager_path}/services/native/src/usb_descriptor_parser.cpp",
+      "${usb_manager_path}/services/native/src/usb_host_manager.cpp",
+      "${usb_manager_path}/services/native/src/usb_serial_reader.cpp",
+      "${usb_manager_path}/services/native/src/usbd_bulkcallback_impl.cpp",
+      "${usb_manager_path}/services/native/src/usbd_transfer_callback_impl.cpp",
+    ]
+    if (usb_manager_pass_through) {
+      sources += [
+        "${usb_manager_path}/services/native/src/usb_bulkcallback_impl.cpp",
+        "${usb_manager_path}/services/native/src/usb_transfer_callback_impl.cpp",
+      ]
+    }
+  }
+  if (usb_manager_feature_device) {
+    defines += [ "USB_MANAGER_FEATURE_DEVICE" ]
+    sources += [
+      "${usb_manager_path}/services/native/src/usb_accessory_manager.cpp",
+      "${usb_manager_path}/services/native/src/usb_device_manager.cpp",
+      "${usb_manager_path}/services/native/src/usb_function_switch_window.cpp",
+    ]
+  }
+  if (usb_manager_feature_port) {
+    defines += [ "USB_MANAGER_FEATURE_PORT" ]
+    sources += [ "${usb_manager_path}/services/native/src/usb_port_manager.cpp" ]
+  }
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_runtime:ability_connect_callback_stub",
+    "ability_runtime:ability_manager",
+    "ability_runtime:wantagent_innerkits",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "cJSON:cjson",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "distributed_notification_service:ans_innerkits",
+    "drivers_interface_usb:libserial_proxy_1.0",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "hitrace:hitrace_meter",
+    "i18n:intl_util",
+    "data_share:datashare_common",
+    "data_share:datashare_consumer",
+    "init:libbeget_proxy",
+    "init:libbegetutil",
+    "ipc:ipc_single",
+    "memmgr:memmgrclient",
+    "napi:ace_napi",
+    "os_account:os_account_innerkits",
+    "relational_store:native_rdb",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+    "hdf_core:libhdf_utils",
+  ]
+
+  if (usb_manager_peripheral_fault_notifier) {
+     external_deps += [ "external_device_manager:driver_ext_mgr_client" ]
+     defines += [ "USB_PERIPHERAL_FAULT_NOTIFY" ]
+  }
+
+  if (usb_manager_pass_through) {
+    external_deps += [ "drivers_interface_usb:libusb_proxy_2.0" ]
+  } else {
+    external_deps += [
+      "drivers_interface_usb:libusb_proxy_1.1",
+      "drivers_interface_usb:libusb_proxy_1.2",
+    ]
+  }
+  if (defined(global_parts_info) &&
+      defined(global_parts_info.security_security_guard)) {
+    external_deps += [ "security_guard:libsg_collect_sdk" ]
+    defines += [ "SECURITY_GUARD_ENABLE" ]
+  }
+
+  if (usb_manager_feature_pop_up_func_switch_model) {
+    defines += [ "USB_FUNC_SWITCH_MODE" ]
+  }
+  subsystem_name = "usb"
+  part_name = "usb_manager"
+}
+
 module_output_path = "usb_manager/usb_manager"
 
 config("module_private_config") {
   visibility = [ ":*" ]
 
-  configs = [ "${utils_path}:utils_config" ]
+  configs = [ 
+    "${utils_path}:utils_config",
+    ":usbsrv_public_config",
+  ]
 
   cflags = [
     "-g",
     "-O0",
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
+    "-Dprivate=public",
+    "-Dprotected=public",
   ]
   include_dirs = [
     "include",
@@ -493,6 +638,37 @@ ohos_fuzztest("UsbMgrBulkTransferFuzzTest") {
   sources = [ "usbmgrbulktransfer_fuzzer/usbmgrbulktransfer_fuzzer.cpp" ]
 }
 
+ohos_fuzztest("UsbMgrBulkTransferWriteFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrbulktransferwrite_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "selinux_adapter:librestorecon",
+  ]
+
+  sources = [ "usbmgrbulktransferwrite_fuzzer/usbmgrbulktransferwrite_fuzzer.cpp" ]
+}
+
 ohos_fuzztest("UsbMgrControlTransferFuzzTest") {
   module_out_path = module_output_path
 
@@ -662,6 +838,45 @@ ohos_fuzztest("UsbMgrPipeRequestWaitFuzzTest") {
   ]
 
   sources = [ "usbmgrpiperequestwait_fuzzer/usbmgrpiperequestwait_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrPrivateFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrprivate_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    ":usbservice_source_set",
+  ]
+
+  if (defined(defines)) {
+    defines += [ "private=public" ]
+  } else {
+    defines = [ "private=public" ]
+  }
+
+  defines += [ "USB_MANAGER_FEATURE_HOST" ]
+
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "selinux_adapter:librestorecon",
+  ]
+
+  sources = [ "usbmgrprivate_fuzzer/usbmgrprivate_fuzzer.cpp" ]
 }
 
 ohos_fuzztest("UsbMgrRequestInitializeFuzzTest") {
@@ -1520,6 +1735,7 @@ group("fuzztest") {
       ":UsbMgrBulkCancelFuzzTest",
       ":UsbMgrBulkReadFuzzTest",
       ":UsbMgrBulkTransferFuzzTest",
+      ":UsbMgrBulkTransferWriteFuzzTest",
       ":UsbMgrBulkWriteFuzzTest",
       ":UsbMgrCancelSerialRightFuzzTest",
       ":UsbMgrCancelTransferFuzzTest",
@@ -1541,6 +1757,7 @@ group("fuzztest") {
       ":UsbMgrManageGlobalInterfaceFuzzTest",
       ":UsbMgrManageManageInterfaceTypeFuzzTest",
       ":UsbMgrPipeRequestWaitFuzzTest",
+      ":UsbMgrPrivateFuzzTest",
       ":UsbMgrRegBulkCallbackFuzzTest",
       ":UsbMgrReleaseInterfaceFuzzTest",
       ":UsbMgrRemoveRightFuzzTest",

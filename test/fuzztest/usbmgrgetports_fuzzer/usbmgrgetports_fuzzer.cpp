@@ -21,7 +21,7 @@
 #include "usb_srv_client.h"
 #include "usb_errors.h"
 const uint32_t code = 0X34;
-const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
+const std::u16string USB_INTERFACE_TOKEN = u"OHOS.USB.IUsbServer";
 namespace OHOS {
     namespace USB {
         bool UsbMgrGetPortsFuzzTest(const uint8_t* rawData, size_t size)
@@ -34,8 +34,6 @@ namespace OHOS {
                 }
                 srand(seed);
             }
-            std::vector<UsbPort> portlist;
-            portlist.clear();
             MessageParcel data;
             data.WriteInterfaceToken(USB_INTERFACE_TOKEN);
             data.WriteBuffer(rawData, size);
@@ -47,6 +45,7 @@ namespace OHOS {
         }
     }
 }
+
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     OHOS::USB::UsbMgrGetPortsFuzzTest(data, size);

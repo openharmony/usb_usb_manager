@@ -27,7 +27,7 @@ namespace OHOS {
 constexpr int32_t OFFSET = 4;
 constexpr uint32_t CODECOUNTMAX = 100;
 constexpr size_t THRESHOLD = 10;
-const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
+const std::u16string USB_INTERFACE_TOKEN = u"OHOS.USB.IUsbServer";
 
 uint32_t Convert2Uint32(const uint8_t *ptr)
 {

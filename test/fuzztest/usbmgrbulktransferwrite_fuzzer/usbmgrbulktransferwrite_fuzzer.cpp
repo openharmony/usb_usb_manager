@@ -14,9 +14,7 @@
  */
 
 #include "usb_service.h"
-#include "usbmgrcontroltransfer_fuzzer.h"
-#include "usb_srv_client.h"
-
+#include "usbmgrbulktransferwrite_fuzzer.h"
 #include "accesstoken_kit.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
@@ -25,14 +23,14 @@
 using namespace OHOS::HDI::Usb::V1_0;
 using namespace OHOS::HDI::Usb::V1_2;
 namespace OHOS {
-const uint32_t OFFSET = 4;
+const uint32_t OFFSET = 6;
 constexpr size_t THRESHOLD = 10;
-const uint32_t code = 0x18;
+const uint32_t code = 0x17;
 const std::u16string USB_INTERFACE_TOKEN = u"OHOS.USB.IUsbServer";
 namespace USB {
-    bool UsbMgrControlTransferFuzzTest(const uint8_t* rawData, size_t size)
+    bool UsbMgrBulkTransferWriteFuzzTest(const uint8_t* rawData, size_t size)
     {
-        if (rawData == nullptr || size < sizeof(USBDevicePipe) || size < OFFSET + sizeof(UsbCtrlTransfer)) {
+        if (rawData == nullptr || size < sizeof(USBEndpoint) || size < OFFSET + sizeof(UsbBulkTransData)) {
             USB_HILOGE(MODULE_USB_SERVICE, "rawData size is insufficient!");
             return false;
         }
@@ -56,7 +54,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
     /* Run your code on data */
-    OHOS::USB::UsbMgrControlTransferFuzzTest(data, size);
+    OHOS::USB::UsbMgrBulkTransferWriteFuzzTest(data, size);
     return 0;
 }
 

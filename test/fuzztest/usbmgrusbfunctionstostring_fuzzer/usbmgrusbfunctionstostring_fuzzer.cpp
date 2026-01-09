@@ -28,7 +28,7 @@ namespace {
 
 namespace OHOS {
 const uint32_t code = 0X2C;
-const std::u16string USB_INTERFACE_TOKEN = u"ohos.usb.IUsbServer";
+const std::u16string USB_INTERFACE_TOKEN = u"OHOS.USB.IUsbServer";
 namespace USB {
     bool UsbMgrUsbFunctionsToStringFuzzTest(const uint8_t* rawData, size_t size)
     {
