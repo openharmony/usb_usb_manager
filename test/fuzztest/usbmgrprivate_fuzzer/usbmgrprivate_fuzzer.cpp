@@ -17,7 +17,7 @@
 #include "accesstoken_kit.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
-#include "usbmgrprivate.h"
+#include "usbmgrprivate_fuzzer.h"
 #include "usb_errors.h"
 
 namespace OHOS {
@@ -42,6 +42,18 @@ namespace USB {
             USB_HILOGE(MODULE_USB_SERVICE, "can not find deviceName.");
         }
     }
+
+    void UsbDeviceTypeChangeFuzzTest(const uint8_t* rawData, size_t size)
+    {
+        if (rawData == nullptr || size < sizeoof(UsbDeviceType) + sizeoof(UsbDeviceTypeInfo)) {
+            return;
+        }
+        UsbDeviceType info = reinterpret_cast<const UsbDeviceType &>(rawData);
+        std::vector<UsbDeviceType> disableType,
+        std::vector<UsbDeviceTypeInfo> deviceTypes;
+        deviceTypes.push_back(info);
+        UsbDeviceTypeChange(disableType, deviceTypes);
+    }
 #endif // USB_MANAGER_FEATURE_HOST
 
     bool UsbMgrPrivateFuzzTest(const uint8_t* rawData, size_t size)
@@ -52,6 +64,7 @@ namespace USB {
 
 #ifdef USB_MANAGER_FEATURE_HOST
         GetDeviceVidPidSerialNumberFuzzTest(rawData, size);
+        UsbDeviceTypeChangeFuzzTest(rawData, size);
 #endif // USB_MANAGER_FEATURE_HOST
 
         return true;
