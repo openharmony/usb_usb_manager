@@ -156,6 +156,7 @@ ohos_source_set("usbservice_source_set") {
 }
 
 module_output_path = "usb_manager/usb_manager"
+module_output_path_parallelize = "usb_manager/usb_manager/concurrent"
 
 config("module_private_config") {
   visibility = [ ":*" ]
@@ -818,7 +819,7 @@ ohos_fuzztest("UsbMgrCloseFuzzTest") {
 }
 
 ohos_fuzztest("UsbMgrParallelizeFuzzTest") {
-  module_out_path = module_output_path
+  module_out_path = module_output_path_parallelize
 
   fuzz_config_file =
       "${usb_manager_path}/test/fuzztest/usbmgrparallelize_fuzzer"
