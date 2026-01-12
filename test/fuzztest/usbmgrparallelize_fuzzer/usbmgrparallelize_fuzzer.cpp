@@ -47,7 +47,7 @@ bool UsbMgrParallelizeFuzzTest(const uint8_t *rawData, size_t size)
     if (rawData == nullptr || size < OFFSET) {
         return false;
     }
-    uint32_t code = Convert2Uint32(rawData);
+    uint32_t code = Convert2Uint32(rawData) % CODECOUNTMAX;
     rawData = rawData + OFFSET;
     size = size - OFFSET;
 
