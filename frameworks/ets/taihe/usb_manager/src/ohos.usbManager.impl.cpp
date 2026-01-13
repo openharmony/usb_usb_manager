@@ -383,7 +383,7 @@ array<ohos::usbManager::USBDevice> getDevices()
     std::vector<OHOS::USB::UsbDevice> deviceList;
     auto ret = g_usbClient.GetDevices(deviceList);
     if (ret != 0) {
-        ThrowBusinessError(UEC_COMMON_SERVICE_EXCEPTION, "");
+        USB_HILOGE(MODULE_JS_NAPI, "GetDevices failed, return code:%{public}d", ret);
         return array<ohos::usbManager::USBDevice>(res);
     }
     for (auto &usbDevice : deviceList) {
