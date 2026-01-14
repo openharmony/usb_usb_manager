@@ -56,7 +56,7 @@ template <typename T> sptr<T> DelayedSpSingleton<T>::GetInstance()
     if (instance_ == nullptr) {
         instance_ = new(std::nothrow) T();
         if (instance_ == nullptr) {
-            USB_HILOGI(MODULE_USB_SERVICE, "get instance failed\n");
+            USB_HILOGI(MODULE_USB_UTILS, "get instance failed\n");
         }
     }
 

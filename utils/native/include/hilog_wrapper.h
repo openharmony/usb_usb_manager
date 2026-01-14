@@ -50,43 +50,41 @@ struct UsbLable {
 
 // param of log interface, such as USB_HILOGF.
 enum UsbMgrSubModule {
-    MODULE_INNERKIT = 0,
-    MODULE_SERVICE,
-    MODULE_USB_INNERKIT, // below used by usb service
-    MODULE_USB_SERVICE,
-    MODULE_USBD,
-    MODULE_COMMON,
-    MODULE_JS_NAPI,
-    MODULE_JAVAKIT, // java kit used, define to avoid repeat used domain
-    MODULE_JNI,
-    USBMGR_MODULE_BUTT,
+    MODULE_USB_SERVICE = 0,
+    MODULE_USB_HOST,
+    MODULE_USB_DEVICE,
+    MODULE_USB_PORT,
+    MODULE_USB_SERIAL,
+    MODULE_USB_NAPI,
+    MODULE_USB_INNERKIT,
+    MODULE_USB_UTILS,
+    MODULE_USB_BUTTOM,
 };
 
 // 0xD002900: subsystem:Usb module:Usb, reserved 8 bit.
 constexpr unsigned int BASE_USB_DOMAIN_ID = 0xD002A00;
 
 enum UsbMgrDomainId {
-    USBMGR_INNERKIT_DOMAIN = BASE_USB_DOMAIN_ID + MODULE_INNERKIT + 1,
-    USBMGR_SERVICE_DOMAIN, //0xD002A02
-    USB_INNERKIT_DOMAIN,   //0xD002A03
-    USB_SERVICE_DOMAIN,    //0xD002A04
-    USBD_DOMAIN,           //0xD002A05
-    COMMON_DOMAIN,         //0xD002A06
-    USB_JS_NAPI,           //0xD002A07
-    USBMGR_JAVAKIT_DOMAIN,
-    USB_BUTT,
+    USB_SERVICE_SUBDOMAIN = BASE_USB_DOMAIN_ID + 1,
+    USB_HOST_MGR_SUBDOMAIN,     //0xD002A02
+    USB_DEVICE_MGR_SUBDOMAIN,   //0xD002A03
+    USB_PORT_MGR_SUBDOMAIN,     //0xD002A04
+    USB_SERIAL_SUBDOMAIN,       //0xD002A05
+    USB_NAPI_SUBDOMAIN,         //0xD002A06
+    USB_INNERKIT_SUBDOMAIN,     //0xD002A07
+    USB_UTILS_SUBDOMAIN,        //0xD002A08
+    USB_BUTTOM,
 };
 
-static const UsbLable USB_MGR_LABEL[USBMGR_MODULE_BUTT] = {
-    {USBMGR_INNERKIT_DOMAIN, "UsbMgrClient"},
-    {USBMGR_SERVICE_DOMAIN, "UsbMgrService"},
-    {USB_INNERKIT_DOMAIN, "UsbSrvClient"},
-    {USB_SERVICE_DOMAIN, "UsbService"},
-    {USBD_DOMAIN, "Usbd"},
-    {COMMON_DOMAIN, "UsbMgrCommon"},
-    {USB_JS_NAPI, "UsbMgrJSNAPI"},
-    {USBMGR_JAVAKIT_DOMAIN, "UsbMgrJavaService"},
-    {USBMGR_INNERKIT_DOMAIN, "UsbMgrJni"},
+static const UsbLable USB_MGR_LABEL[MODULE_USB_BUTTOM] = {
+    {USB_SERVICE_SUBDOMAIN, "USBService"},
+    {USB_HOST_MGR_SUBDOMAIN, "USBHostMgr"},
+    {USB_DEVICE_MGR_SUBDOMAIN, "USBDeviceMgr"},
+    {USB_PORT_MGR_SUBDOMAIN, "USBPortMgr"},
+    {USB_SERIAL_SUBDOMAIN, "USBSerial"},
+    {USB_NAPI_SUBDOMAIN, "USBNapi"},
+    {USB_INNERKIT_SUBDOMAIN, "USBInnerkit"},
+    {USB_UTILS_SUBDOMAIN, "USBUtils"},
 };
 
 // In order to improve performance, do not check the module range, module should less than USBMGR_MODULE_BUTT.

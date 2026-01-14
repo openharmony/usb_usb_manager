@@ -49,7 +49,7 @@ public:
     explicit UsbInterface(const cJSON *interface)
     {
         if (interface == nullptr) {
-            USB_HILOGE(MODULE_USB_SERVICE, "interface pointer is nullptr");
+            USB_HILOGE(MODULE_USB_INNERKIT, "interface pointer is nullptr");
         }
         id_ = GetIntValue(interface, "id");
         protocol_ = GetIntValue(interface, "protocol");
@@ -62,7 +62,7 @@ public:
         for (int i = 0; i < cJSON_GetArraySize(endpoints); i++) {
             cJSON *jsonEp = cJSON_GetArrayItem(endpoints, i);
             if (jsonEp == nullptr) {
-                USB_HILOGE(MODULE_USB_SERVICE, "get item nullptr");
+                USB_HILOGE(MODULE_USB_INNERKIT, "get item nullptr");
                 continue;
             }
             USBEndpoint ep(jsonEp);
@@ -123,7 +123,7 @@ public:
         if (item != nullptr && cJSON_IsNumber(item)) {
             return item->valueint;
         } else {
-            USB_HILOGE(MODULE_USB_SERVICE, "Invalid or missing %s field", key);
+            USB_HILOGE(MODULE_USB_INNERKIT, "Invalid or missing %s field", key);
             return 0;
         }
     }
@@ -134,7 +134,7 @@ public:
         if (item != nullptr && cJSON_IsString(item)) {
             return item->valuestring;
         } else {
-            USB_HILOGE(MODULE_USB_SERVICE, "Invalid or missing %s field", key);
+            USB_HILOGE(MODULE_USB_INNERKIT, "Invalid or missing %s field", key);
             return "";
         }
     }
@@ -269,7 +269,7 @@ public:
     {
         cJSON* interface = cJSON_CreateObject();
         if (!interface) {
-            USB_HILOGE(MODULE_USB_SERVICE, "Create interface error");
+            USB_HILOGE(MODULE_USB_INNERKIT, "Create interface error");
             return "";
         }
         cJSON_AddNumberToObject(interface, "id", static_cast<double>(id_));
@@ -280,7 +280,7 @@ public:
         cJSON_AddStringToObject(interface, "name", name_.c_str());
         cJSON* endpoints = cJSON_CreateArray();
         if (!endpoints) {
-            USB_HILOGE(MODULE_USB_SERVICE, "Create endpoints error");
+            USB_HILOGE(MODULE_USB_INNERKIT, "Create endpoints error");
             cJSON_Delete(interface);
             return "";
         }
@@ -293,7 +293,7 @@ public:
         char *pInterface = cJSON_PrintUnformatted(interface);
         cJSON_Delete(interface);
         if (!pInterface) {
-            USB_HILOGE(MODULE_USB_SERVICE, "Print interface error");
+            USB_HILOGE(MODULE_USB_INNERKIT, "Print interface error");
             return "";
         }
         std::string interfaceJsonStr(pInterface);

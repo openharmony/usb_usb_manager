@@ -46,11 +46,11 @@ std::shared_ptr<UsbRightDbHelper> UsbRightDbHelper::GetInstance()
 bool UsbRightDbHelper::IsRecordExpired(int32_t uid, const std::string &deviceName, const std::string &bundleName,
     const std::string &tokenId, uint64_t expiredTime)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "info: uid=%{public}d app=%{public}s", uid, bundleName.c_str());
+    USB_HILOGI(MODULE_USB_HOST, "info: uid=%{public}d app=%{public}s", uid, bundleName.c_str());
     std::vector<struct UsbRightAppInfo> infos;
     int32_t ret = QueryRightRecord(uid, deviceName, bundleName, tokenId, infos);
     if (ret <= 0) {
-        USB_HILOGI(MODULE_USB_SERVICE, "usb query no record/error: %{public}d", ret);
+        USB_HILOGI(MODULE_USB_HOST, "usb query no record/error: %{public}d", ret);
         return true;
     }
     size_t len = infos.size();
@@ -65,27 +65,27 @@ bool UsbRightDbHelper::IsRecordExpired(int32_t uid, const std::string &deviceNam
 bool UsbRightDbHelper::IsRecordExpired(const struct UsbRightAppInfo &info, uint64_t expiredTime)
 {
     if (expiredTime < info.requestTime) {
-        USB_HILOGW(MODULE_USB_SERVICE, "system time changed");
+        USB_HILOGW(MODULE_USB_HOST, "system time changed");
         return true;
     }
     if (info.validPeriod == USB_RIGHT_VALID_PERIOD_MIN) {
-        USB_HILOGD(MODULE_USB_SERVICE, "allow temporary");
+        USB_HILOGD(MODULE_USB_HOST, "allow temporary");
         return false;
     } else if (info.validPeriod == USB_RIGHT_VALID_PERIOD_MAX) {
-        USB_HILOGD(MODULE_USB_SERVICE, "allow forever");
+        USB_HILOGD(MODULE_USB_HOST, "allow forever");
         return false;
     } else if (expiredTime - info.requestTime < info.validPeriod) {
-        USB_HILOGD(MODULE_USB_SERVICE, "allow based on request time");
+        USB_HILOGD(MODULE_USB_HOST, "allow based on request time");
         return false;
     } else if ((info.installTime > info.updateTime) || (info.installTime > info.requestTime)) {
-        USB_HILOGW(MODULE_USB_SERVICE,
+        USB_HILOGW(MODULE_USB_HOST,
             "invalid: inst=%{public}" PRIu64 " updt=%{public}" PRIu64 " rqst=%{public}" PRIu64 "", info.installTime,
             info.updateTime, info.requestTime);
         /* ignore, return true to add right */
         return true;
     }
     /* unknown, return true to add right */
-    USB_HILOGW(MODULE_USB_SERVICE,
+    USB_HILOGW(MODULE_USB_HOST,
         "info: inst=%{public}" PRIu64 " updt=%{public}" PRIu64 " rqst=%{public}" PRIu64 " expr=%{public}" PRIu64
         " valid=%{public}" PRIu64 "",
         info.installTime, info.updateTime, info.requestTime, expiredTime, info.validPeriod);
@@ -96,7 +96,7 @@ int32_t UsbRightDbHelper::AddRightRecord(
     const std::string &deviceName, const std::string &bundleName, struct UsbRightAppInfo &info)
 {
     if (rightDatabase_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "rightDatabase_ is null");
+        USB_HILOGE(MODULE_USB_HOST, "rightDatabase_ is null");
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     std::lock_guard<std::mutex> guard(databaseMutex_);
@@ -111,22 +111,22 @@ int32_t UsbRightDbHelper::AddRightRecord(
     values.PutString("bundleName", bundleName);
     int32_t ret = rightDatabase_->BeginTransaction();
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "BeginTransaction error: %{public}d", ret);
         return ret;
     }
     ret = rightDatabase_->Insert(values);
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Insert error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "Insert error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
         return ret;
     }
     ret = rightDatabase_->Commit();
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
         return ret;
     }
-    USB_HILOGI(MODULE_USB_SERVICE,
+    USB_HILOGI(MODULE_USB_HOST,
         "add success: uid=%{public}d inst=%{public}" PRIu64 " updt=%{public}" PRIu64 " rqst=%{public}" PRIu64
         " vald=%{public}" PRIu64 " app=%{public}s",
         info.uid, info.installTime, info.updateTime, info.requestTime, info.validPeriod, bundleName.c_str());
@@ -137,23 +137,23 @@ int32_t UsbRightDbHelper::QueryAndGetResult(const RdbPredicates &rdbPredicates, 
     std::vector<struct UsbRightAppInfo> &infos)
 {
     if (rightDatabase_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "rightDatabase_ is null");
+        USB_HILOGE(MODULE_USB_HOST, "rightDatabase_ is null");
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     int32_t ret = rightDatabase_->BeginTransaction();
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "BeginTransaction error: %{public}d", ret);
         return ret;
     }
     auto resultSet = rightDatabase_->Query(rdbPredicates, columns);
     if (resultSet == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Query error");
+        USB_HILOGE(MODULE_USB_HOST, "Query error");
         (void)rightDatabase_->RollBack();
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     ret = rightDatabase_->Commit();
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
         return ret;
     }
@@ -164,7 +164,7 @@ int32_t UsbRightDbHelper::QueryRightRecord(int32_t uid, const std::string &devic
     const std::string &tokenId, std::vector<struct UsbRightAppInfo> &infos)
 {
     std::lock_guard<std::mutex> guard(databaseMutex_);
-    USB_HILOGI(MODULE_USB_SERVICE, "Query detail: uid=%{public}d app=%{public}s", uid, bundleName.c_str());
+    USB_HILOGI(MODULE_USB_HOST, "Query detail: uid=%{public}d app=%{public}s", uid, bundleName.c_str());
     std::vector<std::string> columns;
     RdbPredicates rdbPredicates(USB_RIGHT_TABLE_NAME);
     rdbPredicates.BeginWrap()
@@ -182,7 +182,7 @@ int32_t UsbRightDbHelper::QueryRightRecord(int32_t uid, const std::string &devic
 int32_t UsbRightDbHelper::QueryUserRightRecord(int32_t uid, std::vector<struct UsbRightAppInfo> &infos)
 {
     std::lock_guard<std::mutex> guard(databaseMutex_);
-    USB_HILOGD(MODULE_USB_SERVICE, "Query detail: uid=%{public}d", uid);
+    USB_HILOGD(MODULE_USB_HOST, "Query detail: uid=%{public}d", uid);
     std::vector<std::string> columns;
     RdbPredicates rdbPredicates(USB_RIGHT_TABLE_NAME);
     rdbPredicates.EqualTo("uid", std::to_string(uid));
@@ -193,7 +193,7 @@ int32_t UsbRightDbHelper::QueryDeviceRightRecord(
     int32_t uid, const std::string &deviceName, std::vector<struct UsbRightAppInfo> &infos)
 {
     std::lock_guard<std::mutex> guard(databaseMutex_);
-    USB_HILOGD(MODULE_USB_SERVICE, "Query detail: uid=%{public}d", uid);
+    USB_HILOGD(MODULE_USB_HOST, "Query detail: uid=%{public}d", uid);
     std::vector<std::string> columns;
     RdbPredicates rdbPredicates(USB_RIGHT_TABLE_NAME);
     rdbPredicates.BeginWrap()->EqualTo("uid", std::to_string(uid))->And()->EqualTo("deviceName", deviceName)->EndWrap();
@@ -204,7 +204,7 @@ int32_t UsbRightDbHelper::QueryAppRightRecord(
     int32_t uid, const std::string &bundleName, std::vector<struct UsbRightAppInfo> &infos)
 {
     std::lock_guard<std::mutex> guard(databaseMutex_);
-    USB_HILOGD(MODULE_USB_SERVICE, "Query detail: uid=%{public}d dev=%{public}s", uid, bundleName.c_str());
+    USB_HILOGD(MODULE_USB_HOST, "Query detail: uid=%{public}d dev=%{public}s", uid, bundleName.c_str());
     std::vector<std::string> columns;
     RdbPredicates rdbPredicates(USB_RIGHT_TABLE_NAME);
     rdbPredicates.BeginWrap()->EqualTo("uid", std::to_string(uid))->And()->EqualTo("bundleName", bundleName)->EndWrap();
@@ -233,36 +233,36 @@ int32_t UsbRightDbHelper::QueryAndGetResultColumnValues(const RdbPredicates &rdb
     const std::vector<std::string> &columns, const std::string &columnName, std::vector<std::string> &columnValues)
 {
     if (rightDatabase_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "rightDatabase_ is null");
+        USB_HILOGE(MODULE_USB_HOST, "rightDatabase_ is null");
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     int32_t ret = rightDatabase_->BeginTransaction();
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "BeginTransaction error: %{public}d", ret);
         return ret;
     }
     auto resultSet = rightDatabase_->Query(rdbPredicates, columns);
     if (resultSet == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Query error");
+        USB_HILOGE(MODULE_USB_HOST, "Query error");
         (void)rightDatabase_->RollBack();
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     ret = rightDatabase_->Commit();
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
         return ret;
     }
     int32_t rowCount = 0;
     int32_t columnIndex = 0;
     if (resultSet->GetRowCount(rowCount) != E_OK || resultSet->GetColumnIndex(columnName, columnIndex) != E_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "get table info failed");
+        USB_HILOGE(MODULE_USB_HOST, "get table info failed");
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     bool endFlag = false;
     for (int32_t i = 0; (i < rowCount) && !endFlag; i++) {
         if (resultSet->GoToRow(i) != E_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "GoToRow %{public}d", i);
+            USB_HILOGE(MODULE_USB_HOST, "GoToRow %{public}d", i);
             return USB_RIGHT_RDB_EXECUTE_FAILTURE;
         }
         std::string tempStr;
@@ -274,7 +274,7 @@ int32_t UsbRightDbHelper::QueryAndGetResultColumnValues(const RdbPredicates &rdb
     int32_t position = 0;
     resultSet->GetRowIndex(position);
     resultSet->IsEnded(endFlag);
-    USB_HILOGD(MODULE_USB_SERVICE, "idx=%{public}d rows=%{public}d pos=%{public}d ret=%{public}zu end=%{public}s",
+    USB_HILOGD(MODULE_USB_HOST, "idx=%{public}d rows=%{public}d pos=%{public}d ret=%{public}zu end=%{public}s",
         columnIndex, rowCount, position, columnValues.size(), (endFlag ? "yes" : "no"));
     return columnValues.size();
 }
@@ -283,7 +283,7 @@ int32_t UsbRightDbHelper::UpdateRightRecord(
     int32_t uid, const std::string &deviceName, const std::string &bundleName, struct UsbRightAppInfo &info)
 {
     if (rightDatabase_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "rightDatabase_ is null");
+        USB_HILOGE(MODULE_USB_HOST, "rightDatabase_ is null");
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     std::lock_guard<std::mutex> guard(databaseMutex_);
@@ -298,20 +298,20 @@ int32_t UsbRightDbHelper::UpdateRightRecord(
     values.PutString("bundleName", bundleName);
     int32_t ret = rightDatabase_->BeginTransaction();
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "BeginTransaction error: %{public}d", ret);
         return ret;
     }
     int32_t changedRows = 0;
     ret = rightDatabase_->Update(changedRows, values, "uid = ? AND deviceName = ? AND bundleName = ?",
         std::vector<std::string> {std::to_string(info.uid), deviceName, bundleName});
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Update error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "Update error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
         return ret;
     }
     ret = rightDatabase_->Commit();
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
     }
     return ret;
@@ -321,29 +321,29 @@ int32_t UsbRightDbHelper::DeleteAndNoOtherOperation(
     const std::string &whereClause, const std::vector<std::string> &whereArgs)
 {
     if (rightDatabase_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "rightDatabase_ is null");
+        USB_HILOGE(MODULE_USB_HOST, "rightDatabase_ is null");
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     int32_t ret = rightDatabase_->BeginTransaction();
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "BeginTransaction error: %{public}d", ret);
         return ret;
     }
     int32_t changedRows = 0;
     ret = rightDatabase_->Delete(changedRows, whereClause, whereArgs);
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Delete error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "Delete error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
         return ret;
     }
     ret = rightDatabase_->Commit();
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
     }
     
     if (changedRows <= 0) {
-        USB_HILOGI(MODULE_USB_SERVICE, "no row change: %{public}d", changedRows);
+        USB_HILOGI(MODULE_USB_HOST, "no row change: %{public}d", changedRows);
         return USB_RIGHT_RDB_EMPTY;
     }
     return ret;
@@ -352,23 +352,23 @@ int32_t UsbRightDbHelper::DeleteAndNoOtherOperation(
 int32_t UsbRightDbHelper::DeleteAndNoOtherOperation(const OHOS::NativeRdb::RdbPredicates &rdbPredicates)
 {
     if (rightDatabase_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "rightDatabase_ is null");
+        USB_HILOGE(MODULE_USB_HOST, "rightDatabase_ is null");
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     int32_t ret = rightDatabase_->BeginTransaction();
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "BeginTransaction error: %{public}d", ret);
         return ret;
     }
     ret = rightDatabase_->Delete(rdbPredicates);
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Delete error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "Delete error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
         return ret;
     }
     ret = rightDatabase_->Commit();
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
     }
     return ret;
@@ -382,7 +382,7 @@ int32_t UsbRightDbHelper::DeleteRightRecord(int32_t uid, const std::string &devi
     std::vector<std::string> whereArgs = {std::to_string(uid), deviceName, bundleName, tokenId};
     int32_t ret = DeleteAndNoOtherOperation(whereClause, whereArgs);
     if (ret != USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "failed: detale(uid, dev, app): %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "failed: detale(uid, dev, app): %{public}d", ret);
     }
     return ret;
 }
@@ -394,7 +394,7 @@ int32_t UsbRightDbHelper::DeleteDeviceRightRecord(int32_t uid, const std::string
     std::vector<std::string> whereArgs = {std::to_string(uid), deviceName};
     int32_t ret = DeleteAndNoOtherOperation(whereClause, whereArgs);
     if (ret != USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "failed: delete(uid, dev): %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "failed: delete(uid, dev): %{public}d", ret);
     }
     return ret;
 }
@@ -406,7 +406,7 @@ int32_t UsbRightDbHelper::DeleteAppRightRecord(int32_t uid, const std::string &b
     std::vector<std::string> whereArgs = {std::to_string(uid), bundleName};
     int32_t ret = DeleteAndNoOtherOperation(whereClause, whereArgs);
     if (ret != USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "failed: delete(uid, app): %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "failed: delete(uid, app): %{public}d", ret);
     }
     return ret;
 }
@@ -418,7 +418,7 @@ int32_t UsbRightDbHelper::DeleteAppsRightRecord(int32_t uid, const std::vector<s
     rdbPredicates.BeginWrap()->EqualTo("uid", std::to_string(uid))->And()->In("bundleName", bundleNames)->EndWrap();
     int32_t ret = DeleteAndNoOtherOperation(rdbPredicates);
     if (ret != USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "failed: delete(uid, devs): %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "failed: delete(uid, devs): %{public}d", ret);
     }
     return ret;
 }
@@ -430,7 +430,7 @@ int32_t UsbRightDbHelper::DeleteUidRightRecord(int32_t uid)
     std::vector<std::string> whereArgs = {std::to_string(uid)};
     int32_t ret = DeleteAndNoOtherOperation(whereClause, whereArgs);
     if (ret != USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "failed: delete(uid): %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "failed: delete(uid): %{public}d", ret);
     }
     return ret;
 }
@@ -446,7 +446,7 @@ int32_t UsbRightDbHelper::DeleteNormalExpiredRightRecord(int32_t uid, uint64_t e
         std::to_string(USB_RIGHT_VALID_PERIOD_MIN), std::to_string(USB_RIGHT_VALID_PERIOD_MAX)};
     int32_t ret = DeleteAndNoOtherOperation(whereClause, whereArgs);
     if (ret != USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE,
+        USB_HILOGE(MODULE_USB_HOST,
         "failed: delete(uid=%{public}d, expr<%{public}" PRIu64 "): %{public}d", uid, expiredTime, ret);
     }
     return ret;
@@ -459,7 +459,7 @@ int32_t UsbRightDbHelper::DeleteValidPeriodRightRecord(long validPeriod, const s
     std::vector<std::string> whereArgs = {std::to_string(validPeriod), deviceName};
     int32_t ret = DeleteAndNoOtherOperation(whereClause, whereArgs);
     if (ret != USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "failed: delete(dev, valid): %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "failed: delete(dev, valid): %{public}d", ret);
     }
     return ret;
 }
@@ -468,7 +468,7 @@ int32_t UsbRightDbHelper::GetResultSetTableInfo(
     const std::shared_ptr<OHOS::NativeRdb::ResultSet> &resultSet, struct UsbRightTableInfo &table)
 {
     if (resultSet == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "resultSet is null");
+        USB_HILOGE(MODULE_USB_HOST, "resultSet is null");
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     int32_t rowCount = 0;
@@ -476,7 +476,7 @@ int32_t UsbRightDbHelper::GetResultSetTableInfo(
     std::vector<std::string> columnNames;
     if (resultSet->GetRowCount(rowCount) != E_OK || resultSet->GetColumnCount(columnCount) != E_OK ||
         resultSet->GetAllColumnNames(columnNames) != E_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "get table info failed");
+        USB_HILOGE(MODULE_USB_HOST, "get table info failed");
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     int32_t columnNamesCount = static_cast<int32_t>(columnNames.size());
@@ -509,7 +509,7 @@ int32_t UsbRightDbHelper::GetResultSetTableInfo(
     }
     table.rowCount = rowCount;
     table.columnCount = columnCount;
-    USB_HILOGD(MODULE_USB_SERVICE,
+    USB_HILOGD(MODULE_USB_HOST,
         "info[%{public}d/%{public}d]: "
         "%{public}d/%{public}d/%{public}d/%{public}d/%{public}d/%{public}d/%{public}d/%{public}d",
         rowCount, columnCount, table.primaryKeyIndex, table.uidIndex, table.installTimeIndex, table.updateTimeIndex,
@@ -523,7 +523,7 @@ int32_t UsbRightDbHelper::GetResultRightRecordEx(
     struct UsbRightTableInfo table;
     int32_t ret = GetResultSetTableInfo(resultSet, table);
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetResultSetTableInfo failed");
+        USB_HILOGE(MODULE_USB_HOST, "GetResultSetTableInfo failed");
         return ret;
     }
     bool endFlag = false;
@@ -534,7 +534,7 @@ int32_t UsbRightDbHelper::GetResultRightRecordEx(
     int64_t validPeriod = 0;
     for (int32_t i = 0; (i < table.rowCount) && !endFlag; i++) {
         if (resultSet->GoToRow(i) != E_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "GoToRow %{public}d", i);
+            USB_HILOGE(MODULE_USB_HOST, "GoToRow %{public}d", i);
             break;
         }
         struct UsbRightAppInfo info;
@@ -556,7 +556,7 @@ int32_t UsbRightDbHelper::GetResultRightRecordEx(
     int32_t position = 0;
     resultSet->GetRowIndex(position);
     resultSet->IsEnded(endFlag);
-    USB_HILOGD(MODULE_USB_SERVICE, "row=%{public}d col=%{public}d pos=%{public}d ret=%{public}zu end=%{public}s",
+    USB_HILOGD(MODULE_USB_HOST, "row=%{public}d col=%{public}d pos=%{public}d ret=%{public}zu end=%{public}s",
         table.rowCount, table.columnCount, position, infos.size(), (endFlag ? "yes" : "no"));
     return infos.size();
 }
@@ -565,29 +565,29 @@ int32_t UsbRightDbHelper::AddOrUpdateRightRecord(int32_t uid, const std::string 
     const std::string &bundleName, const std::string &tokenId, struct UsbRightAppInfo &info)
 {
     if (rightDatabase_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "rightDatabase_ is null");
+        USB_HILOGE(MODULE_USB_HOST, "rightDatabase_ is null");
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     std::lock_guard<std::mutex> guard(databaseMutex_);
     int32_t ret = rightDatabase_->BeginTransaction();
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "BeginTransaction error: %{public}d", ret);
         return ret;
     }
     bool isUpdate = false;
     ret = CheckIfNeedUpdateEx(isUpdate, uid, deviceName, bundleName, tokenId);
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "check if need update error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "check if need update error: %{public}d", ret);
         return ret;
     }
     ret = AddOrUpdateRightRecordEx(isUpdate, uid, deviceName, bundleName, tokenId, info);
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "add or update error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "add or update error: %{public}d", ret);
         return ret;
     }
     ret = rightDatabase_->Commit();
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
     }
     return ret;
@@ -597,7 +597,7 @@ int32_t UsbRightDbHelper::CheckIfNeedUpdateEx(bool &isUpdate, int32_t uid, const
     const std::string &bundleName, const std::string &tokenId)
 {
     if (rightDatabase_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "rightDatabase_ is null");
+        USB_HILOGE(MODULE_USB_HOST, "rightDatabase_ is null");
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     std::vector<std::string> columns;
@@ -613,13 +613,13 @@ int32_t UsbRightDbHelper::CheckIfNeedUpdateEx(bool &isUpdate, int32_t uid, const
         ->EndWrap();
     auto resultSet = rightDatabase_->Query(rdbPredicates, columns);
     if (resultSet == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Query error");
+        USB_HILOGE(MODULE_USB_HOST, "Query error");
         (void)rightDatabase_->RollBack();
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     int32_t rowCount = 0;
     if (resultSet->GetRowCount(rowCount) != E_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetRowCount error");
+        USB_HILOGE(MODULE_USB_HOST, "GetRowCount error");
         (void)rightDatabase_->RollBack();
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
@@ -631,7 +631,7 @@ int32_t UsbRightDbHelper::AddOrUpdateRightRecordEx(bool isUpdate, int32_t uid, c
     const std::string &bundleName, const std::string &tokenId, struct UsbRightAppInfo &info)
 {
     if (rightDatabase_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "rightDatabase_ is null");
+        USB_HILOGE(MODULE_USB_HOST, "rightDatabase_ is null");
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     int32_t ret = 0;
@@ -655,7 +655,7 @@ int32_t UsbRightDbHelper::AddOrUpdateRightRecordEx(bool isUpdate, int32_t uid, c
         ret = rightDatabase_->Insert(values);
     }
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Insert or Update error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "Insert or Update error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
     }
     return ret;
@@ -664,31 +664,31 @@ int32_t UsbRightDbHelper::AddOrUpdateRightRecordEx(bool isUpdate, int32_t uid, c
 int32_t UsbRightDbHelper::QueryRightRecordCount()
 {
     if (rightDatabase_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "rightDatabase_ is null");
+        USB_HILOGE(MODULE_USB_HOST, "rightDatabase_ is null");
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     int32_t ret = rightDatabase_->BeginTransaction();
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "BeginTransaction error :%{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "BeginTransaction error :%{public}d", ret);
         return ret;
     }
     std::vector<std::string> columns;
     RdbPredicates rdbPredicates(USB_RIGHT_TABLE_NAME);
     auto resultSet = rightDatabase_->Query(rdbPredicates, columns);
     if (resultSet == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Query error");
+        USB_HILOGE(MODULE_USB_HOST, "Query error");
         (void)rightDatabase_->RollBack();
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     ret = rightDatabase_->Commit();
     if (ret < USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Commit error: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "Commit error: %{public}d", ret);
         (void)rightDatabase_->RollBack();
         return ret;
     }
     int32_t rowCount = 0;
     if (resultSet->GetRowCount(rowCount) != E_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetRowCount error");
+        USB_HILOGE(MODULE_USB_HOST, "GetRowCount error");
         return USB_RIGHT_RDB_EXECUTE_FAILTURE;
     }
     return rowCount;

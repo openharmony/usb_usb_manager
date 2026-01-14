@@ -28,7 +28,7 @@ std::optional<std::string_view> GetErrMsgByErrCode(int32_t errCode)
 {
     auto obj = ERRCODE_MSG_MAP.find(errCode);
     if (obj == ERRCODE_MSG_MAP.end()) {
-        USB_HILOGE(MODULE_JS_NAPI, "invalid errCode %{public}d", errCode);
+        USB_HILOGE(MODULE_USB_UTILS, "invalid errCode %{public}d", errCode);
         return std::nullopt;
     }
     return obj->second;
@@ -40,7 +40,7 @@ napi_value CreateBusinessError(const napi_env &env, int32_t errCode, const std::
     napi_value result;
     if (!commMsg.has_value()) {
         napi_get_undefined(env, &result);
-        USB_HILOGE(MODULE_JS_NAPI, "get error code failed");
+        USB_HILOGE(MODULE_USB_UTILS, "get error code failed");
         return result;
     }
     std::string cMsg(std::string(commMsg.value()) + errMsg);

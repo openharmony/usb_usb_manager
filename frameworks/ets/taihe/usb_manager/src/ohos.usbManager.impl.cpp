@@ -29,7 +29,7 @@ using namespace taihe;
 using namespace ohos::usbManager;
 using OHOS::Ashmem;
 using OHOS::sptr;
-using OHOS::USB::MODULE_JS_NAPI;
+using OHOS::USB::MODULE_USB_NAPI;
 using OHOS::USB::USB_MGR_LABEL;
 
 static int32_t g_accFd = 0;
@@ -349,7 +349,7 @@ USBDevicePipe connectDevice(USBDevice const &device)
     int32_t ret = g_usbClient.OpenDevice(usbDev, pipe);
     if (ret == OHOS::USB::UEC_SERVICE_PERMISSION_DENIED || ret == OHOS::USB::UEC_INTERFACE_PERMISSION_DENIED) {
         ThrowBusinessError(UEC_COMMON_HAS_NO_RIGHT, "need call requestRight to get the permission");
-        USB_HILOGE(MODULE_JS_NAPI, "Connect Device failed, return code:%{public}d", ret);
+        USB_HILOGE(MODULE_USB_NAPI, "Connect Device failed, return code:%{public}d", ret);
         return {};
     }
     if (ret == HDF_DEV_ERR_NO_DEVICE) {
@@ -357,7 +357,7 @@ USBDevicePipe connectDevice(USBDevice const &device)
         return {};
     }
     if (ret != OHOS::USB::UEC_OK) {
-        USB_HILOGE(MODULE_JS_NAPI, "Connect Device failed, return code:%{public}d", ret);
+        USB_HILOGE(MODULE_USB_NAPI, "Connect Device failed, return code:%{public}d", ret);
         ThrowBusinessError(UEC_COMMON_SERVICE_EXCEPTION, "");
         return {};
     }
@@ -383,7 +383,7 @@ array<ohos::usbManager::USBDevice> getDevices()
     std::vector<OHOS::USB::UsbDevice> deviceList;
     auto ret = g_usbClient.GetDevices(deviceList);
     if (ret != 0) {
-        USB_HILOGE(MODULE_JS_NAPI, "GetDevices failed, return code:%{public}d", ret);
+        USB_HILOGE(MODULE_USB_NAPI, "GetDevices failed, return code:%{public}d", ret);
         return array<ohos::usbManager::USBDevice>(res);
     }
     for (auto &usbDevice : deviceList) {
@@ -447,7 +447,7 @@ bool addDeviceAccessRight(string_view tokenId, string_view deviceName)
         ThrowBusinessError(OHEC_COMMON_PERMISSION_NOT_ALLOWED, "Permission not allowed");
         return bResult;
     } else {
-        USB_HILOGE(MODULE_JS_NAPI, "AddAccessRight ret = %{public}d", ret);
+        USB_HILOGE(MODULE_USB_NAPI, "AddAccessRight ret = %{public}d", ret);
     }
     return bResult;
 }
@@ -507,7 +507,7 @@ void setDeviceFunctionsSync(int32_t funcs)
         ThrowBusinessError(UEC_COMMON_HDC_NOT_ALLOWED, "");
         return;
     } else {
-        USB_HILOGE(MODULE_JS_NAPI, "setDeviceFunctionsSync failed, return code:%{public}d", ret);
+        USB_HILOGE(MODULE_USB_NAPI, "setDeviceFunctionsSync failed, return code:%{public}d", ret);
         ThrowBusinessError(UEC_COMMON_FUNCTION_NOT_SUPPORT, "");
         return;
     }
@@ -530,7 +530,7 @@ int32_t getDeviceFunctions()
         return cfuncs;
     }
     if (ret != OHOS::USB::UEC_OK) {
-        USB_HILOGE(MODULE_JS_NAPI, "GetCurrentFunctions ret = %{public}d", ret);
+        USB_HILOGE(MODULE_USB_NAPI, "GetCurrentFunctions ret = %{public}d", ret);
         ThrowBusinessError(UEC_COMMON_SERVICE_EXCEPTION, "");
     }
     return cfuncs;
@@ -553,12 +553,12 @@ array<USBPort> getPortList()
         return {};
     }
     if (ret != OHOS::USB::UEC_OK) {
-        USB_HILOGE(MODULE_JS_NAPI, "GetPorts ret = %{public}d", ret);
+        USB_HILOGE(MODULE_USB_NAPI, "GetPorts ret = %{public}d", ret);
         ThrowBusinessError(UEC_COMMON_SERVICE_EXCEPTION, "");
         return {};
     }
     if (ports.empty()) {
-        USB_HILOGE(MODULE_JS_NAPI, "ports empty");
+        USB_HILOGE(MODULE_USB_NAPI, "ports empty");
         return {};
     }
     std::vector<::ohos::usbManager::USBPort> convertedPorts;
@@ -591,7 +591,7 @@ PortModeType getPortSupportModes(int32_t portId)
         return {PortModeType::key_t(result)};
     }
     if (ret != OHOS::USB::UEC_OK) {
-        USB_HILOGE(MODULE_JS_NAPI, "GetSupportedModes ret = %{public}d", ret);
+        USB_HILOGE(MODULE_USB_NAPI, "GetSupportedModes ret = %{public}d", ret);
     }
     return {PortModeType::key_t(result)};
 }
@@ -616,7 +616,7 @@ void setPortRoleTypesSync(int32_t portId, PowerRoleType powerRole, DataRoleType 
         return;
     }
     if (ret != OHOS::USB::UEC_OK) {
-        USB_HILOGD(MODULE_JS_NAPI, "SetPortRole ret: %{public}d", ret);
+        USB_HILOGD(MODULE_USB_NAPI, "SetPortRole ret: %{public}d", ret);
         ThrowBusinessError(UEC_COMMON_PORTROLE_SWITCH_NOT_ALLOWED, "");
         return;
     }
@@ -652,7 +652,7 @@ void addAccessoryRight(int32_t tokenId, ohos::usbManager::USBAccessory const &ac
             ThrowBusinessError(UEC_COMMON_SERVICE_EXCEPTION, "Service exception");
             break;
     }
-    USB_HILOGD(MODULE_JS_NAPI, "Device call AddAccessoryRight ret: %{public}d", ret);
+    USB_HILOGD(MODULE_USB_NAPI, "Device call AddAccessoryRight ret: %{public}d", ret);
 }
 
 int32_t claimInterface(USBDevicePipe const &pipe, USBInterface const &iface, optional_view<bool> force)
@@ -664,7 +664,7 @@ int32_t claimInterface(USBDevicePipe const &pipe, USBInterface const &iface, opt
     OHOS::USB::USBDevicePipe internalPipe = ConvertUSBDevicePipe(pipe);
     bool forceClaim = force.has_value() ? *force : false;
     int ret = internalPipe.ClaimInterface(ConvertToUsbInterface(iface), forceClaim);
-    USB_HILOGD(MODULE_JS_NAPI, "pipe call claimInterface ret: %{public}d", ret);
+    USB_HILOGD(MODULE_USB_NAPI, "pipe call claimInterface ret: %{public}d", ret);
     return ret;
 }
 
@@ -676,7 +676,7 @@ int32_t releaseInterface(USBDevicePipe const &pipe, USBInterface const &iface)
     }
     OHOS::USB::USBDevicePipe internalPipe = ConvertUSBDevicePipe(pipe);
     int ret = internalPipe.ReleaseInterface(ConvertToUsbInterface(iface));
-    USB_HILOGD(MODULE_JS_NAPI, "pipe call releaseInterface ret: %{public}d", ret);
+    USB_HILOGD(MODULE_USB_NAPI, "pipe call releaseInterface ret: %{public}d", ret);
     return ret;
 }
 
@@ -711,11 +711,11 @@ array<uint8_t> getRawDescriptor(USBDevicePipe const &pipe)
     int ret = g_usbClient.GetRawDescriptors(internalPipe, bufferData);
     if (ret == OHOS::USB::UEC_SERVICE_PERMISSION_DENIED) {
         ThrowBusinessError(UEC_COMMON_HAS_NO_RIGHT, "need call requestRight to get the permission");
-        USB_HILOGE(MODULE_JS_NAPI, "Connect Device failed, return code:%{public}d", ret);
+        USB_HILOGE(MODULE_USB_NAPI, "Connect Device failed, return code:%{public}d", ret);
         return {};
     }
     if (ret != OHOS::USB::UEC_OK) {
-        USB_HILOGE(MODULE_JS_NAPI, "getRawDescriptor failed:%{public}d", ret);
+        USB_HILOGE(MODULE_USB_NAPI, "getRawDescriptor failed:%{public}d", ret);
         ThrowBusinessError(UEC_COMMON_SERVICE_EXCEPTION, "");
         return {};
     }
@@ -732,7 +732,7 @@ int32_t getFileDescriptor(USBDevicePipe const &pipe)
     OHOS::USB::USBDevicePipe internalPipe = ConvertUSBDevicePipe(pipe);
     int32_t ret = g_usbClient.GetFileDescriptor(internalPipe, fd);
     if (ret != OHOS::USB::UEC_OK) {
-        USB_HILOGE(MODULE_JS_NAPI, "getFileDescriptor failed:%{public}d", ret);
+        USB_HILOGE(MODULE_USB_NAPI, "getFileDescriptor failed:%{public}d", ret);
     }
     return static_cast<int32_t>(fd);
 }
@@ -758,13 +758,13 @@ int32_t usbControlTransferSync(
     ani_env *env = ::taihe::get_env();
     ani_object array_obj = reinterpret_cast<ani_object>(requestparam.data);
     if (ANI_OK != env->Object_GetFieldByName_Ref(array_obj, "buffer", &bufferRef)) {
-        USB_HILOGE(MODULE_JS_NAPI, "Object_GetFieldByName_Ref failed.");
+        USB_HILOGE(MODULE_USB_NAPI, "Object_GetFieldByName_Ref failed.");
         return ERROR;
     }
     void *data;
     size_t size;
     if (ANI_OK != env->ArrayBuffer_GetInfo(static_cast<ani_arraybuffer>(bufferRef), &data, &size)) {
-        USB_HILOGE(MODULE_JS_NAPI,  "ArrayBuffer_GetInfo failed.");
+        USB_HILOGE(MODULE_USB_NAPI,  "ArrayBuffer_GetInfo failed.");
         return ERROR;
     }
     int32_t ret;
@@ -790,13 +790,13 @@ int32_t bulkTransferSync(::ohos::usbManager::USBDevicePipe const &pipe, ::ohos::
     ani_env *env = ::taihe::get_env();
     ani_object array_obj = reinterpret_cast<ani_object>(buffer);
     if (ANI_OK != env->Object_GetFieldByName_Ref(array_obj, "buffer", &bufferRef)) {
-        USB_HILOGE(MODULE_JS_NAPI,   "Object_GetFieldByName_Ref failed.");
+        USB_HILOGE(MODULE_USB_NAPI,   "Object_GetFieldByName_Ref failed.");
         return ERROR;
     }
     void *data;
     size_t size;
     if (ANI_OK != env->ArrayBuffer_GetInfo(static_cast<ani_arraybuffer>(bufferRef), &data, &size)) {
-        USB_HILOGE(MODULE_JS_NAPI,   "ArrayBuffer_GetInfo failed.");
+        USB_HILOGE(MODULE_USB_NAPI,   "ArrayBuffer_GetInfo failed.");
         return ERROR;
     }
     OHOS::USB::USBEndpoint ep;
@@ -812,7 +812,7 @@ int32_t bulkTransferSync(::ohos::usbManager::USBDevicePipe const &pipe, ::ohos::
     int32_t ret = nativePipe.BulkTransfer(ep, bufferData, timeOut);
     if (ep.GetDirection() == OHOS::USB::USB_ENDPOINT_DIR_IN) {
         if (bufferData.size() > size) {
-            USB_HILOGE(MODULE_JS_NAPI, "src buffer size larger than dst.");
+            USB_HILOGE(MODULE_USB_NAPI, "src buffer size larger than dst.");
             return ERROR;
         }
         ret = memcpy_s(data, size, bufferData.data(), bufferData.size());
@@ -1060,7 +1060,7 @@ static void ReadDataToBuffer(USBTransferAsyncContext *asyncContext, const OHOS::
         }
         int32_t ret = memcpy_s(asyncContext->buffer, asyncContext->bufferLength, ashmemBuffer, info.actualLength);
         if (ret != EOK) {
-            USB_HILOGE(MODULE_JS_NAPI, "memcpy_s fatal failed error: %{public}d", ret);
+            USB_HILOGE(MODULE_USB_NAPI, "memcpy_s fatal failed error: %{public}d", ret);
         }
     }
     asyncContext->ashmem->UnmapAshmem();
@@ -1073,19 +1073,19 @@ static ani_object GetDefaultBusinessError(ani_env *env)
     ani_class cls;
     auto status = env->FindClass(businessErrorName, &cls);
     if (ANI_OK != status) {
-        USB_HILOGE(MODULE_JS_NAPI, "Not found class '%{public}s' errcode %{public}d.", businessErrorName, status);
+        USB_HILOGE(MODULE_USB_NAPI, "Not found class '%{public}s' errcode %{public}d.", businessErrorName, status);
         return nullptr;
     }
     ani_method ctor;
     status = env->Class_FindMethod(cls, "<ctor>", ":", &ctor);
     if (ANI_OK != status) {
-        USB_HILOGE(MODULE_JS_NAPI, "Not found ctor of '%{public}s' errcode %{public}d.", businessErrorName, status);
+        USB_HILOGE(MODULE_USB_NAPI, "Not found ctor of '%{public}s' errcode %{public}d.", businessErrorName, status);
         return nullptr;
     }
     ani_object businessErrorObject;
     status = env->Object_New(cls, ctor, &businessErrorObject);
     if (ANI_OK != status) {
-        USB_HILOGE(MODULE_JS_NAPI, "Can not create business error errcode %{public}d.", status);
+        USB_HILOGE(MODULE_USB_NAPI, "Can not create business error errcode %{public}d.", status);
         return nullptr;
     }
     return businessErrorObject;
@@ -1096,14 +1096,14 @@ static thread_local std::shared_ptr<OHOS::AppExecFwk::EventHandler> mainHandler 
 static bool SendEventToMainThread(const std::function<void()> func)
 {
     if (func == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "func is nullptr!");
+        USB_HILOGE(MODULE_USB_NAPI, "func is nullptr!");
         return false;
     }
 
     if (!mainHandler) {
         auto runner = OHOS::AppExecFwk::EventRunner::GetMainEventRunner();
         if (!runner) {
-            USB_HILOGE(MODULE_JS_NAPI, "get main event runner failed!");
+            USB_HILOGE(MODULE_USB_NAPI, "get main event runner failed!");
             return false;
         }
         mainHandler = std::make_shared<OHOS::AppExecFwk::EventHandler>(runner);
@@ -1116,14 +1116,14 @@ static constexpr int32_t LOCAL_SCOPE_SIZE = 16;
 static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::TransferCallbackInfo &info,
     const std::vector<OHOS::HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "AniCallBack enter.");
+    USB_HILOGI(MODULE_USB_NAPI, "AniCallBack enter.");
     using ::ohos::usbManager::UsbTransferStatus;
     ReadDataToBuffer(asyncContext, info);
     int32_t actualLength = info.actualLength;
     UsbTransferStatus status((UsbTransferStatus::key_t)info.status);
     std::vector<UsbIsoPacketDescriptor> isoPacketDesc;
     for (const auto &isoInfoItem : isoInfo) {
-        USB_HILOGE(MODULE_JS_NAPI, "AniCallBack has iso info.");
+        USB_HILOGE(MODULE_USB_NAPI, "AniCallBack has iso info.");
         UsbIsoPacketDescriptor descriptor = {
             isoInfoItem.isoActualLength, isoInfoItem.isoLength, {(UsbTransferStatus::key_t)isoInfoItem.isoStatus}};
         isoPacketDesc.push_back(descriptor);
@@ -1136,12 +1136,12 @@ static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::
         ani_options aniArgs {0, nullptr};
         if (ANI_ERROR == asyncContext->vm->AttachCurrentThread(&aniArgs, ANI_VERSION_1, &env)) {
             if (ANI_OK != asyncContext->vm->GetEnv(ANI_VERSION_1, &env)) {
-                USB_HILOGI(MODULE_JS_NAPI, "GetEnv failed.");
+                USB_HILOGI(MODULE_USB_NAPI, "GetEnv failed.");
                 return;
             }
         }
         if (ANI_OK != env->CreateLocalScope(LOCAL_SCOPE_SIZE)) {
-            USB_HILOGI(MODULE_JS_NAPI, "CreateLocalScope failed.");
+            USB_HILOGI(MODULE_USB_NAPI, "CreateLocalScope failed.");
             return;
         }
         auto businessError = GetDefaultBusinessError(env);
@@ -1154,14 +1154,14 @@ static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::
         ani_boolean ret;
         env->Object_InstanceOf(callbackFunc, cls, &ret);
         if (!ret) {
-            USB_HILOGI(MODULE_JS_NAPI, "%{public}s: callbackFunc is not instance Of Function2.", __func__);
+            USB_HILOGI(MODULE_USB_NAPI, "%{public}s: callbackFunc is not instance Of Function2.", __func__);
         }
         auto errCode = env->FunctionalObject_Call(static_cast<ani_fn_object>(callbackFunc), 2, ani_argv, &ani_result);
-        USB_HILOGE(MODULE_JS_NAPI, "AniCallBack FunctionalObject_Call returned %{public}d.", errCode);
+        USB_HILOGE(MODULE_USB_NAPI, "AniCallBack FunctionalObject_Call returned %{public}d.", errCode);
         env->DestroyLocalScope();
     };
     if (!SendEventToMainThread(task)) {
-        USB_HILOGI(MODULE_JS_NAPI, "SendEventToMainThread failed.");
+        USB_HILOGI(MODULE_USB_NAPI, "SendEventToMainThread failed.");
     }
 }
 
@@ -1243,7 +1243,7 @@ void usbSubmitTransfer(UsbDataTransferParams const &transfer)
         ThrowBusinessError(CAPABILITY_NOT_SUPPORT, "");
         return;
     }
-    USB_HILOGD(MODULE_JS_NAPI, "SubmitTransfer enter");
+    USB_HILOGD(MODULE_USB_NAPI, "SubmitTransfer enter");
     auto context = CreateTransferContext(transfer);
     if (!context) {
         return;
@@ -1258,15 +1258,15 @@ void usbSubmitTransfer(UsbDataTransferParams const &transfer)
         delete context;
         return;
     }
-    USB_HILOGD(MODULE_JS_NAPI, "CreateAndWriteAshmem OK.");
+    USB_HILOGD(MODULE_USB_NAPI, "CreateAndWriteAshmem OK.");
     int32_t ret = context->pipe.UsbSubmitTransfer(transferInfo, TransferCompleteCallback, context->ashmem);
-    USB_HILOGD(MODULE_JS_NAPI, "usbSubmitTransfer ret: %{public}d", ret);
+    USB_HILOGD(MODULE_USB_NAPI, "usbSubmitTransfer ret: %{public}d", ret);
     if (ret != OHOS::USB::UEC_OK) {
         context->ashmem->CloseAshmem();
         delete context;
         ThrowBusinessError(UsbSubmitTransferErrorCode(ret), "");
     }
-    USB_HILOGD(MODULE_JS_NAPI, "usbSubmitTransfer fin.");
+    USB_HILOGD(MODULE_USB_NAPI, "usbSubmitTransfer fin.");
 }
 
 void usbCancelTransfer(UsbDataTransferParams const &transfer)

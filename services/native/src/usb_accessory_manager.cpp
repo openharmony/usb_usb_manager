@@ -87,13 +87,13 @@ void UsbAccessoryManager::GetAccessoryInfo(std::vector<std::string> &accessorys)
 {
 #ifdef USB_MANAGER_V2_0
     if (usbDeviceInterface_ == nullptr) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
         return;
     }
     usbDeviceInterface_->GetAccessoryInfo(accessorys);
 #else
     if (usbdImpl_ == nullptr) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbdImpl_ is nullptr.");
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager usbdImpl_ is nullptr.");
         return;
     }
     usbdImpl_->GetAccessoryInfo(accessorys);
@@ -104,13 +104,13 @@ int32_t UsbAccessoryManager::SetCurrentFunctions(int32_t funcs)
 {
 #ifdef USB_MANAGER_V2_0
     if (usbDeviceInterface_ == nullptr) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
         return UEC_SERVICE_INVALID_VALUE;
     }
     return usbDeviceInterface_->SetCurrentFunctions(funcs);
 #else
     if (usbdImpl_ == nullptr) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbdImpl_ is nullptr.");
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager usbdImpl_ is nullptr.");
         return UEC_SERVICE_INVALID_VALUE;
     }
     return usbdImpl_->SetCurrentFunctions(funcs);
@@ -121,13 +121,13 @@ int32_t UsbAccessoryManager::GetCurrentFunctions(int32_t &funcs)
 {
 #ifdef USB_MANAGER_V2_0
     if (usbDeviceInterface_ == nullptr) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
         return UEC_SERVICE_INVALID_VALUE;
     }
     return usbDeviceInterface_->GetCurrentFunctions(funcs);
 #else
     if (usbdImpl_ == nullptr) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbdImpl_ is nullptr.");
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager usbdImpl_ is nullptr.");
         return UEC_SERVICE_INVALID_VALUE;
     }
     return usbdImpl_->GetCurrentFunctions(funcs);
@@ -161,13 +161,13 @@ int32_t UsbAccessoryManager::OpenAccessory(int32_t &fd)
     int32_t ret = UEC_INTERFACE_INVALID_VALUE;
 #ifdef USB_MANAGER_V2_0
     if (usbDeviceInterface_ == nullptr) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
         return UEC_SERVICE_INVALID_VALUE;
     }
     ret = usbDeviceInterface_->OpenAccessory(fd);
 #else
     if (usbdImpl_ == nullptr) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbdImpl_ is nullptr.");
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager usbdImpl_ is nullptr.");
         return UEC_SERVICE_INVALID_VALUE;
     }
     ret = usbdImpl_->OpenAccessory(fd);
@@ -186,7 +186,7 @@ int32_t UsbAccessoryManager::CloseAccessory(int32_t fd)
     int32_t ret = UEC_INTERFACE_INVALID_VALUE;
 #ifdef USB_MANAGER_V2_0
     if (usbDeviceInterface_ == nullptr) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager usbDeviceInterface_ is nullptr.");
         return UEC_SERVICE_INVALID_VALUE;
     }
     int32_t newFd = open(ACCESSORY_DRIVER_PATH, O_RDWR);
@@ -194,13 +194,13 @@ int32_t UsbAccessoryManager::CloseAccessory(int32_t fd)
     close(newFd);
 #else
     if (usbdImpl_ == nullptr) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "UsbAccessoryManager usbdImpl_ is nullptr.");
+        USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager usbdImpl_ is nullptr.");
         return UEC_SERVICE_INVALID_VALUE;
     }
     ret = usbdImpl_->CloseAccessory(accFd_);
 #endif // USB_MANAGER_V2_0
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_INNERKIT, "%{public}s, close ret: %{public}d, fd: %{public}d.", __func__, ret, fd);
+        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s, close ret: %{public}d, fd: %{public}d.", __func__, ret, fd);
         return ret;
     }
     accFd_ = 0;
@@ -222,13 +222,13 @@ int32_t UsbAccessoryManager::ProcessAccessoryStart(int32_t curFunc, int32_t curA
         CommonEventData data(want);
         data.SetData(this->accessory.GetJsonString().c_str());
         CommonEventPublishInfo publishInfo;
-        USB_HILOGI(MODULE_SERVICE, "send accessory attached broadcast device:%{public}s",
+        USB_HILOGI(MODULE_USB_SERVICE, "send accessory attached broadcast device:%{public}s",
             this->accessory.GetJsonString().c_str());
         return CommonEventManager::PublishCommonEvent(data, publishInfo);
     } else if ((curFuncUint & FUN_ACCESSORY) == 0 && curAccStatus == ACC_CONFIGURING) {
         int32_t ret = SetCurrentFunctions(FUN_ACCESSORY);
         if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_SERVICE, "curFunc %{public}d curAccStatus:%{public}u, set func ret: %{public}d",
+            USB_HILOGE(MODULE_USB_SERVICE, "curFunc %{public}d curAccStatus:%{public}u, set func ret: %{public}d",
                 curFuncUint, curAccStatus, ret);
             return ret;
         }
@@ -237,14 +237,14 @@ int32_t UsbAccessoryManager::ProcessAccessoryStart(int32_t curFunc, int32_t curA
             this->accStatus_ = ACC_STOP;
             int32_t ret = SetCurrentFunctions(this->lastDeviceFunc_);
             if (ret != UEC_OK) {
-                USB_HILOGW(MODULE_SERVICE, "set old func: %{public}d ret: %{public}d", this->lastDeviceFunc_, ret);
+                USB_HILOGW(MODULE_USB_SERVICE, "set old func: %{public}d ret: %{public}d", this->lastDeviceFunc_, ret);
             }
             return;
         };
         accDelayTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, DELAY_ACC_INTERVAL, true);
         this->accStatus_ = ACC_CONFIGURING;
     } else {
-        USB_HILOGD(MODULE_SERVICE, "curFunc %{public}u curAccStatus:%{public}d not necessary",
+        USB_HILOGD(MODULE_USB_SERVICE, "curFunc %{public}u curAccStatus:%{public}d not necessary",
             curFuncUint, curAccStatus);
     }
     return UEC_OK;
@@ -257,7 +257,7 @@ int32_t UsbAccessoryManager::ProcessAccessoryStop(int32_t curFunc, int32_t curAc
         accStatus_ = ACC_STOP;
         int32_t ret = SetCurrentFunctions(lastDeviceFunc_);
         if (ret != UEC_OK) {
-            USB_HILOGW(MODULE_SERVICE, "setFunc %{public}d curAccStatus:%{public}d, set func ret: %{public}d",
+            USB_HILOGW(MODULE_USB_SERVICE, "setFunc %{public}d curAccStatus:%{public}d, set func ret: %{public}d",
                 lastDeviceFunc_, curAccStatus, ret);
         }
         curDeviceFunc_ = lastDeviceFunc_;
@@ -266,11 +266,11 @@ int32_t UsbAccessoryManager::ProcessAccessoryStop(int32_t curFunc, int32_t curAc
         CommonEventData data(want);
         data.SetData(this->accessory.GetJsonString().c_str());
         CommonEventPublishInfo publishInfo;
-        USB_HILOGI(MODULE_SERVICE, "send accessory detached broadcast device:%{public}s",
+        USB_HILOGI(MODULE_USB_SERVICE, "send accessory detached broadcast device:%{public}s",
             this->accessory.GetJsonString().c_str());
         return CommonEventManager::PublishCommonEvent(data, publishInfo);
     } else {
-        USB_HILOGD(MODULE_SERVICE, "curFunc %{public}u curAccStatus:%{public}d not necessary",
+        USB_HILOGD(MODULE_USB_SERVICE, "curFunc %{public}u curAccStatus:%{public}d not necessary",
             curFuncUint, curAccStatus);
     }
     return UEC_OK;
@@ -314,7 +314,7 @@ int32_t UsbAccessoryManager::ProcessAccessorySend()
     CommonEventData data(want);
     data.SetData(extraAcces.GetJsonString().c_str());
     CommonEventPublishInfo publishInfo;
-    USB_HILOGI(MODULE_SERVICE, "send accessory attached broadcast device:%{public}s",
+    USB_HILOGI(MODULE_USB_SERVICE, "send accessory attached broadcast device:%{public}s",
         extraAcces.GetJsonString().c_str());
     CommonEventManager::PublishCommonEvent(data, publishInfo);
     return UEC_OK;
