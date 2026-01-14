@@ -360,7 +360,7 @@ bool UsbFunctionSwitchWindow::UnShowFunctionSwitchWindow()
 
     auto ret = abmc->DisconnectAbility(usbFuncAbilityConn);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_SERVICE, "DisconnectAbility failed %{public}d", ret);
+        USB_HILOGE(MODULE_USB_DEVICE, "DisconnectAbility failed %{public}d", ret);
         return false;
     }
     USB_HILOGD(MODULE_USB_DEVICE, "unshow function switch window success");
