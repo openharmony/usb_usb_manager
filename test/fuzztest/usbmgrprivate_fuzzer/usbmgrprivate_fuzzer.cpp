@@ -48,7 +48,7 @@ namespace USB {
             return;
         }
         auto serviceInstance = UsbService::GetGlobalInstance();
-        UsbDeviceType info = reinterpret_cast<const UsbDeviceType &>(rawData);
+        UsbDeviceType info = *reinterpret_cast<const UsbDeviceType *>(rawData);
         std::vector<UsbDeviceType> disableType;
         std::vector<UsbDeviceTypeInfo> deviceTypes;
         disableType.push_back(info);
