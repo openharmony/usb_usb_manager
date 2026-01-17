@@ -896,7 +896,12 @@ ohos_fuzztest("UsbMgrPrivateFuzzTest") {
     defines = [ "private=public" ]
   }
 
-  defines += [ "USB_MANAGER_FEATURE_HOST" ]
+  defines += [
+    "USB_MANAGER_FEATURE_HOST",
+    "USB_MANAGER_FEATURE_DEVICE",
+    "USB_MANAGER_FEATURE_PORT",
+    "USB_MANAGER_PASS_THROUGH",
+  ]
 
   external_deps = [
     "ability_runtime:ability_manager",
@@ -909,6 +914,7 @@ ohos_fuzztest("UsbMgrPrivateFuzzTest") {
     "drivers_interface_usb:usb_idl_headers_1.2",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "memmgr:memmgrclient",
     "safwk:system_ability_fwk",
     "selinux_adapter:librestorecon",
   ]
