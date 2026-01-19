@@ -40,7 +40,6 @@ namespace OHOS {
 namespace USB {
 namespace UsbControlTransfer {
 constexpr uint32_t USB_DEVICE_CLASS_HUB = 0x09;
-constexpr uint8_t SET_ADDRESS_TARGET = 0x11;    // randomly picked from 1~127
 std::vector<UsbDevice> g_devices;
 
 void UsbControlTransferTest::SetUpTestCase(void)
