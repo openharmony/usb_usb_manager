@@ -2,7 +2,7 @@
     "string":[
         {
             "name":"USB_hdc_notifier_title",
-            "value":"USB ပြစ်ချက်ရှာဖွေ ဖယ်ရှားမှု စတင်ပြီး",
+            "value":"USB ချို့ယွင်းချက် ရှာဖွေမှု စတင်ပြီး",
             "attr":{
                 "priority":"LT"
             }
@@ -11,70 +11,70 @@
             "name":"USB_func_mtp",
             "value":"ဖိုင်များ လွှဲပြောင်းရန်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_hint_cancel",
             "value":"အိုကေ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"usb_right_title",
             "value":"USB ဝင်ရောက်သုံးစွဲမှု ခွင့်ပြုချက်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_my_tablet",
             "value":"ကျွန်ုပ်၏ တက်ဘလက်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_more_notifier",
             "value":"နောက်ထပ်ရွေးစရာများအတွက် နှိပ်ပါ။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_charge_connected_device",
-            "value":"ချိတ်ဆက်ထားသော စက်အား ပါဝါ ပံ့ပိုးပေးရန်",
+            "value":"ချိတ်ဆက်ထားသော စက်ကို ပါဝါ ပံ့ပိုးပေးရန်။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp",
             "value":"ပုံများ လွှဲပြောင်းရန်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp_notifier",
-            "value":"USB မှတဆင့် ဓါတ်ပုံများ ကြည့်ပါ",
+            "value":"USB မှတစ်ဆင့် ဓာတ်ပုံများ ကြည့်ခြင်း",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_charge",
             "value":"အားသွင်းရန် အတွက်သာ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"usb_right_content",
             "value":"%1$s အား %2$s သုံးခွင့်ပြုမည်လား။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -88,70 +88,70 @@
             "name":"USB_func_ptp_tip",
             "value":"ပုံပြခန်းရှိ ပုံများနှင့် ဗီဒီယိုများအတွက်။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_hint",
             "value":"USB သုံးစွဲမှု အကြောင်းအရင်း",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_tip2",
-            "value":"Files ရှိ \"%s\" အောက်မှ အရာများအတွက်။",
+            "value":"Files ရှိ \"%s\" အောက်မှ ဖိုင်များအတွက်။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_reverse_charge",
             "value":"ပါဝါ ပံ့ပိုးမှု",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_charge_connected_notifier",
             "value":"USB မှတစ်ဆင့် ချိတ်ဆက်ထားသော စက်အတွက် ပါဝါ ပံ့ပိုးပေးမှု",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"notAllowButton",
-            "value":"ပိတ်ပင်ရန်",
+            "value":"ငြင်းပယ်ရန်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_tip",
-            "value":"Files ရှိ \"ကျွန်ုပ်၏ ဖုန်း\" အောက်မှ အရာများအတွက်။",
+            "value":"Files ရှိ \"ကျွန်ုပ်၏ ဖုန်း\" အောက်မှ ဖိုင်များအတွက်။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_hdc_notifier_content",
-            "value":"USB debugging ကို ဖြုတ်ပစ်ရန် ထိပါ။",
+            "value":"USB ချို့ယွင်းချက် ရှာဖွေမှုကို ပိတ်ရန် နှိပ်ပါ။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"allowButton",
             "value":"ခွင့်ပြုရန်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_notifier",
-            "value":"USB မှတစ်ဆင့် ဖိုင်လွှဲပြောင်းပေးပို့မှု",
+            "value":"USB မှတစ်ဆင့် ဖိုင်လွှဲပြောင်းမှု",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]
