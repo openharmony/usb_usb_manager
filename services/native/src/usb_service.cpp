@@ -64,6 +64,8 @@ constexpr int32_t COMMEVENT_REGISTER_RETRY_TIMES = 10;
 constexpr int32_t COMMEVENT_REGISTER_WAIT_DELAY_US = 20000;
 constexpr int32_t SERVICE_STARTUP_MAX_TIME = 30;
 constexpr uint32_t UNLOAD_SA_TIMER_INTERVAL = 30 * 1000;
+constexpr uint32_t MEMSIZE_MAX = 512 * 1024 * 1024;
+constexpr uint32_t ARGLIST_SIZE_MIN = 2;
 #ifdef USB_MANAGER_FEATURE_HOST
 constexpr int32_t ISO_TRANSFER_TYPE = 1;
 constexpr int32_t BULK_TRANSFER_TYPE = 2;
@@ -700,7 +702,7 @@ int32_t UsbService::ManageInterfaceType(const std::vector<UsbDeviceTypeInfo> &de
 
 int32_t UsbService::ManageUsbSerialDevice(bool disable)
 {
-    if (usbSerialManager_ == nullptr) {
+    if (usbSerialManager_ == nullptr || usbHostManager_ == nullptr) {
         return UEC_SERVICE_INVALID_VALUE;
     }
     return usbHostManager_->ManageUsbSerialDevice(disable);
@@ -1289,7 +1291,7 @@ int32_t UsbService::UsbSubmitTransfer(uint8_t busNum, uint8_t devAddr, const Usb
     const sptr<IRemoteObject> &cb, int32_t fd, int32_t memSize)
 {
     USB_HILOGI(MODULE_USBD, "UsbService UsbSubmitTransfer enter");
-    if (cb == nullptr || fd <= 0 || memSize <= 0) {
+    if (cb == nullptr || fd <= 0 || memSize <= 0 || memSize >= MEMSIZE_MAX) {
         ::close(fd);
         USB_HILOGE(MODULE_USB_SERVICE, "invalid param, fd=[%{public}d],memSize=[%{public}d]", fd, memSize);
         return UEC_SERVICE_INVALID_VALUE;
@@ -2371,6 +2373,10 @@ int UsbService::DoDump(int fd, const std::vector<std::string> &argList)
     if (argList[0] == USB_HOST) {
         if (usbHostManager_ == nullptr) {
             USB_HILOGE(MODULE_USB_SERVICE, "usbHostManager_ is nullptr");
+            return UEC_SERVICE_INVALID_VALUE;
+        }
+        if (argList.size() < ARGLIST_SIZE_MIN) {
+            USB_HILOGE(MODULE_USB_SERVICE, "argList size is less than 2");
             return UEC_SERVICE_INVALID_VALUE;
         }
         usbHostManager_->Dump(fd, argList[1]);
