@@ -50,6 +50,11 @@ int32_t UsbServiceSubscriber::PortChangedEvent(const PortInfo &info)
     cJSON_AddNumberToObject(portJson, "dataRole", static_cast<double>(info.dataRole));
     cJSON_AddNumberToObject(portJson, "mode", static_cast<double>(info.mode));
     auto jsonString = cJSON_PrintUnformatted(portJson);
+    if (jsonString == nullptr) {
+        USB_HILOGE(MODULE_USB_SERVICE, "jsonString is nullptr");
+        cJSON_Delete(portJson);
+        return UEC_SERVICE_OBJECT_CREATE_FAILED;
+    }
     Want want;
     want.SetAction(CommonEventSupport::COMMON_EVENT_USB_PORT_CHANGED);
     pms->UpdateUsbPort(info.portId, info.powerRole, info.dataRole, info.mode);
