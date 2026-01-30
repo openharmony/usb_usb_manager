@@ -64,12 +64,14 @@ constexpr int32_t COMMEVENT_REGISTER_RETRY_TIMES = 10;
 constexpr int32_t COMMEVENT_REGISTER_WAIT_DELAY_US = 20000;
 constexpr int32_t SERVICE_STARTUP_MAX_TIME = 30;
 constexpr uint32_t UNLOAD_SA_TIMER_INTERVAL = 30 * 1000;
-constexpr uint32_t MEMSIZE_MAX = 512 * 1024 * 1024;
-constexpr uint32_t ARGLIST_SIZE_MIN = 2;
+constexpr uint32_t SERIALREAD_SIZE_MAX = 64 * 1024;
+constexpr uint32_t SERIALWRITE_SIZE_MAX = 200 * 1024;
 #ifdef USB_MANAGER_FEATURE_HOST
 constexpr int32_t ISO_TRANSFER_TYPE = 1;
 constexpr int32_t BULK_TRANSFER_TYPE = 2;
 constexpr int32_t INTP_TRANSFER_TYPE = 3;
+constexpr uint32_t MEMSIZE_MAX = 512 * 1024 * 1024;
+constexpr uint32_t ARGLIST_SIZE_MIN = 2;
 #endif // USB_MANAGER_FEATURE_HOST
 #if defined(USB_MANAGER_FEATURE_HOST) || defined(USB_MANAGER_FEATURE_DEVICE)
 constexpr int32_t USB_RIGHT_USERID_INVALID = -1;
@@ -2767,6 +2769,10 @@ int32_t UsbService::SerialRead(int32_t portId, std::vector<uint8_t>& data, uint3
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
     HITRACE_METER_NAME(HITRACE_TAG_USB, "SerialRead");
+    if (size > SERIALREAD_SIZE_MAX || data.size() > SERIALREAD_SIZE_MAX) {
+        USB_HILOGE(MODULE_USB_SERVICE, "size is more than 64kb");
+        return UEC_SERIAL_IO_EXCEPTION;
+    }
     int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
@@ -2789,6 +2795,10 @@ int32_t UsbService::SerialWrite(int32_t portId, const std::vector<uint8_t>& data
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: Start", __func__);
     HITRACE_METER_NAME(HITRACE_TAG_USB, "SerialWrite");
+    if (size > SERIALWRITE_SIZE_MAX || data.size() > SERIALWRITE_SIZE_MAX) {
+        USB_HILOGE(MODULE_USB_SERVICE, "size is more than 200kb");
+        return UEC_SERIAL_IO_EXCEPTION;
+    }
     int32_t ret = ValidateUsbSerialManagerAndPort(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: ValidateUsbSerialManagerAndPort failed", __func__);
