@@ -4,154 +4,154 @@
             "name":"USB_my_tablet",
             "value":"Tablet saya",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_charge_connected_device",
-            "value":"Berikan kuasa kepada peranti yang disambungkan",
+            "value":"Berikan kuasa kepada peranti yang disambungkan.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp_notifier",
             "value":"Pelayaran foto melalui USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_charge_notifier",
             "value":"Mengecas melalui USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_hdc_notifier_title",
             "value":"Penyahpepijatan USB dimulakan",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_reverse_charge",
             "value":"Pengecasan berbalik",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_charge_connected_notifier",
             "value":"Membekalkan kuasa kepada peranti yang disambungkan melalui USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_notifier",
             "value":"Pemindahan fail melalui USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp",
             "value":"Pindahkan fail",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_hint_cancel",
             "value":"OK",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"usb_right_title",
             "value":"Pemberian kuasa akses USB",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_more_notifier",
             "value":"Ketik untuk lebih banyak pilihan.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp",
             "value":"Pindahkan imej",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_charge",
             "value":"Cas sahaja",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"usb_right_content",
             "value":"Benarkan %1$s menggunakan %2$s?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_ptp_tip",
             "value":"Untuk imej dan video dalam Galeri.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_hint",
             "value":"Gunakan USB untuk",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_tip2",
             "value":"Untuk item di bawah \"%s\" dalam Fail.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"notAllowButton",
             "value":"Tolak",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_func_mtp_tip",
             "value":"Untuk item di bawah \"Telefon saya\" dalam Fail.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"USB_hdc_notifier_content",
             "value":"Ketik untuk menyahdayakan penyahpepijatan USB.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"allowButton",
             "value":"Benarkan",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]

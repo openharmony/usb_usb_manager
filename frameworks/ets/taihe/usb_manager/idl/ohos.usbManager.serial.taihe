@@ -36,7 +36,7 @@ function getAttribute(portId: i32): SerialAttribute;
 function setAttribute(portId: i32, attribute: SerialAttribute): void;
 
 @gen_promise("read")
-function readSync(portId: i32, buffer: @typedarray Array<u8>, timeout: Optional<i32>): i32;
+function readSync(portId: i32, buffer: @sts_type("Uint8Array") Opaque, timeout: Optional<i32>): i32;
 
 @gen_promise("write")
 function writeSync(portId: i32, buffer: @typedarray Array<u8>, timeout: Optional<i32>): i32;

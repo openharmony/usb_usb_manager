@@ -20,6 +20,9 @@
 #include "usbmgrprivate_fuzzer.h"
 #include "usb_errors.h"
 
+using namespace OHOS::HDI::Usb::Serial::V1_0;
+using namespace OHOS::HDI::Usb::V1_0;
+using namespace OHOS::HDI::Usb::V1_2;
 namespace OHOS {
 const uint32_t OFFSET = 2;
 namespace USB {
@@ -30,8 +33,8 @@ namespace USB {
         }
 
         auto serviceInstance = UsbService::GetGlobalInstance();
-        uint8_t busNum = reinterpret_cast<const uint8_t &>(rawData);
-        uint8_t devAddr = reinterpret_cast<const uint8_t &>(std::move(rawData + sizeof(uint8_t)));
+        uint8_t busNum = *reinterpret_cast<const uint8_t *>(rawData);
+        uint8_t devAddr = *reinterpret_cast<const uint8_t *>(rawData + sizeof(uint8_t));
         std::string name = std::to_string(busNum) + "-" + std::to_string(devAddr);
         std::string uniqueName = std::to_string(busNum) + "+" + std::to_string(devAddr);
         std::string deviceName = name;
@@ -48,11 +51,95 @@ namespace USB {
             return;
         }
         auto serviceInstance = UsbService::GetGlobalInstance();
-        UsbDeviceType info = reinterpret_cast<const UsbDeviceType &>(rawData);
+        UsbDeviceType info = *reinterpret_cast<const UsbDeviceType *>(rawData);
         std::vector<UsbDeviceType> disableType;
         std::vector<UsbDeviceTypeInfo> deviceTypes;
         disableType.push_back(info);
         serviceInstance->UsbDeviceTypeChange(disableType, deviceTypes);
+    }
+
+    void UpdateDeviceVidPidMapFuzzTest(const uint8_t* rawData, size_t size)
+    {
+        if (rawData == nullptr || size < sizeof(SerialPort)) {
+            return;
+        }
+        size_t offsetInfo = sizeof(int32_t);
+        auto serviceInstance = UsbService::GetGlobalInstance();
+
+        SerialPort info;
+        info.portId = *reinterpret_cast<const int32_t *>(rawData);
+        info.deviceInfo.busNum = *reinterpret_cast<const unsigned char *>(rawData + offsetInfo);
+        offsetInfo += sizeof(unsigned char);
+        info.deviceInfo.devAddr = *reinterpret_cast<const unsigned char *>(rawData + offsetInfo);
+        offsetInfo += sizeof(unsigned char);
+        info.deviceInfo.vid = *reinterpret_cast<const int32_t *>(rawData + offsetInfo);
+        offsetInfo += sizeof(int32_t);
+        info.deviceInfo.pid = *reinterpret_cast<const int32_t *>(rawData + offsetInfo);
+        info.deviceInfo.serialNum = "fuzz_test_serialNum";
+
+        std::vector<SerialPort> serialPortList;
+        serialPortList.push_back(info);
+        serviceInstance->UpdateDeviceVidPidMap(serialPortList);
+    }
+
+    void SerialPortChangeFuzzTest(const uint8_t* rawData, size_t size)
+    {
+        if (rawData == nullptr || size < sizeof(SerialPort)) {
+            return;
+        }
+        size_t offsetInfo = sizeof(int32_t);
+        auto serviceInstance = UsbService::GetGlobalInstance();
+
+        SerialPort info;
+        info.portId = *reinterpret_cast<const int32_t *>(rawData);
+        info.deviceInfo.busNum = *reinterpret_cast<const unsigned char *>(rawData + offsetInfo);
+        offsetInfo += sizeof(unsigned char);
+        info.deviceInfo.devAddr = *reinterpret_cast<const unsigned char *>(rawData + offsetInfo);
+        offsetInfo += sizeof(unsigned char);
+        info.deviceInfo.vid = *reinterpret_cast<const int32_t *>(rawData + offsetInfo);
+        offsetInfo += sizeof(int32_t);
+        info.deviceInfo.pid = *reinterpret_cast<const int32_t *>(rawData + offsetInfo);
+        info.deviceInfo.serialNum = "fuzz_test_serialNum";
+
+        std::vector<UsbSerialPort> serialInfoList;
+        std::vector<SerialPort> serialPortList;
+        serialPortList.push_back(info);
+        serviceInstance->SerialPortChange(serialInfoList, serialPortList);
+    }
+
+    void FreeTokenIdFuzzTest(const uint8_t* rawData, size_t size)
+    {
+        if (rawData == nullptr || size < (sizeof(int32_t) * OFFSET)) {
+            return;
+        }
+        auto serviceInstance = UsbService::GetGlobalInstance();
+        int32_t portId = *reinterpret_cast<const int32_t *>(rawData);
+        uint32_t tokenId = *reinterpret_cast<const uint32_t *>(rawData + sizeof(int32_t));
+        serviceInstance->FreeTokenId(portId, tokenId);
+    }
+
+    void UsbTransInfoChangeFuzzTest(const uint8_t* rawData, size_t size)
+    {
+        if (rawData == nullptr || size < sizeof(SerialPort)) {
+            return;
+        }
+        auto serviceInstance = UsbService::GetGlobalInstance();
+        USBTransferInfo info;
+        UsbTransInfo param = *reinterpret_cast<const UsbTransInfo *>(rawData);
+        serviceInstance->UsbTransInfoChange(info, param);
+    }
+
+    void UsbCtrlTransferChangeFuzzTest(const uint8_t* rawData, size_t size)
+    {
+        if (rawData == nullptr || size < sizeof(UsbCtlSetUp)) {
+            return;
+        }
+        auto serviceInstance = UsbService::GetGlobalInstance();
+        UsbCtrlTransfer param;
+        UsbCtrlTransferParams transferParams;
+        UsbCtlSetUp ctlSetup = *reinterpret_cast<const UsbCtlSetUp *>(rawData);
+        serviceInstance->UsbCtrlTransferChange(param, ctlSetup);
+        serviceInstance->UsbCtrlTransferChange(transferParams, ctlSetup);
     }
 
     bool UsbMgrPrivateFuzzTest(const uint8_t* rawData, size_t size)
@@ -63,6 +150,10 @@ namespace USB {
 
         GetDeviceVidPidSerialNumberFuzzTest(rawData, size);
         UsbDeviceTypeChangeFuzzTest(rawData, size);
+        UpdateDeviceVidPidMapFuzzTest(rawData, size);
+        SerialPortChangeFuzzTest(rawData, size);
+        UsbTransInfoChangeFuzzTest(rawData, size);
+        UsbCtrlTransferChangeFuzzTest(rawData, size);
 
         return true;
     }

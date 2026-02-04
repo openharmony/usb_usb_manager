@@ -270,7 +270,7 @@ void SetAttribute(int32_t portId, ::ohos::usbManager::serial::SerialAttribute co
     USB_HILOGI(MODULE_USB_INNERKIT, "setAttribute finish, status: %{public}d", ret);
 }
 
-int32_t ReadSync(int32_t portId, ::taihe::array_view<uint8_t> buffer, ::taihe::optional_view<int32_t> timeout)
+int32_t ReadSync(int32_t portId, uintptr_t buffer, ::taihe::optional_view<int32_t> timeout)
 {
     USB_HILOGI(MODULE_USB_INNERKIT, "readSync start. portId: %{public}d", portId);
     if (portId < 0) {
@@ -278,14 +278,29 @@ int32_t ReadSync(int32_t portId, ::taihe::array_view<uint8_t> buffer, ::taihe::o
         set_business_error(SYSPARAM_INVALID_INPUT, "portId is invalid!");
         return ERROR;
     }
+    ani_ref bufferRef;
+    ani_env *env = ::taihe::get_env();
+    ani_object array_obj = reinterpret_cast<ani_object>(buffer);
+    if (ANI_OK != env->Object_GetFieldByName_Ref(array_obj, "buffer", &bufferRef)) {
+        USB_HILOGE(MODULE_JS_NAPI,   "Object_GetFieldByName_Ref failed.");
+        set_business_error(SYSPARAM_INVALID_INPUT, "buffer is invalid!");
+        return ERROR;
+    }
+    void *data = nullptr;
+    size_t dataSize = 0;
+    if (ANI_OK != env->ArrayBuffer_GetInfo(static_cast<ani_arraybuffer>(bufferRef), &data, &dataSize)) {
+        USB_HILOGE(MODULE_JS_NAPI,   "ArrayBuffer_GetInfo failed.");
+        set_business_error(SYSPARAM_INVALID_INPUT, "buffer is invalid!");
+        return ERROR;
+    }
 
-    if (buffer.size() > MAX_READ_BUF_SIZE) {
+    if (data == nullptr || dataSize > MAX_READ_BUF_SIZE) {
         USB_HILOGE(MODULE_USB_INNERKIT, "buffer size > 8192 byte!");
         set_business_error(SYSPARAM_INVALID_INPUT, "buffer size > 8192 byte!");
         return ERROR;
     }
 
-    std::vector<uint8_t> bufferData(buffer.size(), 0);
+    std::vector<uint8_t> bufferData;
     uint32_t actualSize = 0;
     uint32_t utimeout = 0;
     if (timeout.has_value()) {
@@ -295,15 +310,29 @@ int32_t ReadSync(int32_t portId, ::taihe::array_view<uint8_t> buffer, ::taihe::o
         set_business_error(SYSPARAM_INVALID_INPUT, "timeout is invalid!");
         return ERROR;
     }
-    int32_t ret = g_usbClient.SerialRead(portId, bufferData, buffer.size(), actualSize, utimeout);
+    int32_t ret = g_usbClient.SerialRead(portId, bufferData, dataSize, actualSize, utimeout);
     if (ret != 0) {
         USB_HILOGE(MODULE_USB_INNERKIT, "readSync Failed. errorCode: %{public}d", ErrorCodeConversion(ret));
         set_business_error(ErrorCodeConversion(ret), "readSync Failed!");
         return ERROR;
     }
-    buffer = bufferData;
+    if (bufferData.size() != actualSize) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "buffer size: %{public}zu, actualSize: %{public}u",
+            bufferData.size(), actualSize);
+        actualSize = bufferData.size();
+    }
+
+    if (dataSize < actualSize) {
+        USB_HILOGE(MODULE_USB_INNERKIT, "actuallen bigger than expect length.");
+        actualSize = dataSize;
+    }
+
+    if (actualSize > 0) {
+        ret = memcpy_s(data, dataSize, bufferData.data(), actualSize);
+    }
+
     USB_HILOGI(MODULE_USB_INNERKIT, "readSync finish, status: %{public}d", ret);
-    return actualSize;
+    return ret == OHOS::USB::UEC_OK ? actualSize : ERROR;
 }
 
 int32_t WriteSync(int32_t portId, ::taihe::array_view<uint8_t> buffer, ::taihe::optional_view<int32_t> timeout)

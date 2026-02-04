@@ -190,8 +190,9 @@ int32_t UsbAccessoryManager::CloseAccessory(int32_t fd)
         return UEC_SERVICE_INVALID_VALUE;
     }
     int32_t newFd = open(ACCESSORY_DRIVER_PATH, O_RDWR);
+    fdsan_exchange_owner_tag(newFd, 0, fdsan_create_owner_tag(FDSAN_OWNER_TYPE_FILE, LOG_DOMAIN));
     ret = usbDeviceInterface_->CloseAccessory(newFd);
-    close(newFd);
+    fdsan_close_with_tag(newFd, fdsan_create_owner_tag(FDSAN_OWNER_TYPE_FILE, LOG_DOMAIN));
 #else
     if (usbdImpl_ == nullptr) {
         USB_HILOGE(MODULE_USB_SERVICE, "UsbAccessoryManager usbdImpl_ is nullptr.");
