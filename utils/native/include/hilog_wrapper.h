@@ -58,7 +58,7 @@ enum UsbMgrSubModule {
     MODULE_USB_NAPI,
     MODULE_USB_INNERKIT,
     MODULE_USB_UTILS,
-    MODULE_USB_BUTTOM,
+    MODULE_USB_BOTTOM,
 };
 
 // 0xD002900: subsystem:Usb module:Usb, reserved 8 bit.
@@ -73,7 +73,7 @@ enum UsbMgrDomainId {
     USB_NAPI_SUBDOMAIN,         //0xD002A06
     USB_INNERKIT_SUBDOMAIN,     //0xD002A07
     USB_UTILS_SUBDOMAIN,        //0xD002A08
-    USB_BUTTOM,
+    USB_BOTTOM,
 };
 
 static const UsbLable USB_MGR_LABEL[MODULE_USB_BUTTOM] = {
