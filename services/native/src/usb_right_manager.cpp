@@ -190,7 +190,7 @@ bool UsbRightManager::HasRight(const std::string &deviceName, const std::string 
     return !helper->IsRecordExpired(userId, deviceName, bundleName, tokenId, nowTime);
 }
 
-int32_t UsbRightManager::ConnectAbility()
+int32_t UsbRightManager::ConnectAbility(const int32_t &userId)
 {
     if (usbAbilityConn_ == nullptr) {
         USB_HILOGI(MODULE_SERVICE, "new UsbAbilityConn");
@@ -205,10 +205,10 @@ int32_t UsbRightManager::ConnectAbility()
 
     AAFwk::Want want;
     want.SetElementName("com.ohos.sceneboard", "com.ohos.sceneboard.systemdialog");
-    int32_t ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
+    int32_t ret = abmc->ConnectAbility(want, usbAbilityConn_, userId);
     if (ret != ERR_OK) {
         want.SetElementName("com.ohos.systemui", "com.ohos.systemui.dialog");
-        int32_t ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
+        int32_t ret = abmc->ConnectAbility(want, usbAbilityConn_, userId);
         if (ret != ERR_OK) {
             USB_HILOGE(MODULE_USB_SERVICE, "ConnectServiceExtensionAbility systemui failed, ret: %{public}d", ret);
             usbAbilityConn_ = nullptr;
@@ -243,7 +243,7 @@ bool UsbRightManager::GetUserAgreementByDiag(const std::string &busDev, const st
 #endif
     /* There can only be one dialog at a time */
     std::lock_guard<std::mutex> guard(dialogRunning_);
-    if (!ShowUsbDialog(busDev, deviceName, bundleName, tokenId)) {
+    if (!ShowUsbDialog(busDev, deviceName, bundleName, tokenId, userId)) {
         USB_HILOGE(MODULE_USB_SERVICE, "ShowUsbDialog failed");
         return false;
     }
@@ -252,7 +252,8 @@ bool UsbRightManager::GetUserAgreementByDiag(const std::string &busDev, const st
 }
 
 bool UsbRightManager::ShowUsbDialog(
-    const std::string &busDev, const std::string &deviceName, const std::string &bundleName, const std::string &tokenId)
+    const std::string &busDev, const std::string &deviceName, const std::string &bundleName,
+    const std::string &tokenId, const int32_t &userId)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s deviceName %{public}s bundleName %{public}s tokenId %{public}s",
                __func__, deviceName.c_str(), bundleName.c_str(), tokenId.c_str());
@@ -278,7 +279,7 @@ bool UsbRightManager::ShowUsbDialog(
     }
 
     sem_init(&waitDialogDisappear_, 1, 0);
-    int32_t ret = ConnectAbility();
+    int32_t ret = ConnectAbility(userId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
         return false;
@@ -518,7 +519,7 @@ bool UsbRightManager::ShowUsbDialog(const USBAccessory &access, const std::strin
     }
     
     sem_init(&waitDialogDisappear_, 1, 0);
-    int32_t ret = ConnectAbility();
+    int32_t ret = ConnectAbility(-1);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
         return false;
@@ -559,7 +560,7 @@ bool UsbRightManager::ShowSerialDialog(const int32_t portId, const uint32_t toke
     }
 
     sem_init(&waitDialogDisappear_, 1, 0);
-    int32_t ret = ConnectAbility();
+    int32_t ret = ConnectAbility(-1);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
         return false;
