@@ -519,7 +519,7 @@ bool UsbRightManager::ShowUsbDialog(const USBAccessory &access, const std::strin
     }
     
     sem_init(&waitDialogDisappear_, 1, 0);
-    int32_t ret = ConnectAbility(-1);
+    int32_t ret = ConnectAbility(USB_RIGHT_USERID_INVALID);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
         return false;
@@ -560,7 +560,7 @@ bool UsbRightManager::ShowSerialDialog(const int32_t portId, const uint32_t toke
     }
 
     sem_init(&waitDialogDisappear_, 1, 0);
-    int32_t ret = ConnectAbility(-1);
+    int32_t ret = ConnectAbility(USB_RIGHT_USERID_INVALID);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
         return false;
