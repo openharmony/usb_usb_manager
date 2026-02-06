@@ -190,7 +190,7 @@ bool UsbRightManager::HasRight(const std::string &deviceName, const std::string 
     return !helper->IsRecordExpired(userId, deviceName, bundleName, tokenId, nowTime);
 }
 
-int32_t UsbRightManager::ConnectAbility(const int32_t &userId)
+int32_t UsbRightManager::ConnectAbility(const int32_t userId)
 {
     if (usbAbilityConn_ == nullptr) {
         USB_HILOGI(MODULE_SERVICE, "new UsbAbilityConn");
@@ -253,7 +253,7 @@ bool UsbRightManager::GetUserAgreementByDiag(const std::string &busDev, const st
 
 bool UsbRightManager::ShowUsbDialog(
     const std::string &busDev, const std::string &deviceName, const std::string &bundleName,
-    const std::string &tokenId, const int32_t &userId)
+    const std::string &tokenId, const int32_t userId)
 {
     USB_HILOGI(MODULE_USB_SERVICE, "%{public}s deviceName %{public}s bundleName %{public}s tokenId %{public}s",
                __func__, deviceName.c_str(), bundleName.c_str(), tokenId.c_str());
