@@ -76,7 +76,7 @@ enum UsbMgrDomainId {
     USB_BOTTOM,
 };
 
-static const UsbLable USB_MGR_LABEL[MODULE_USB_BUTTOM] = {
+static const UsbLable USB_MGR_LABEL[MODULE_USB_BOTTOM] = {
     {USB_SERVICE_SUBDOMAIN, "USBService"},
     {USB_HOST_MGR_SUBDOMAIN, "USBHostMgr"},
     {USB_DEVICE_MGR_SUBDOMAIN, "USBDeviceMgr"},
