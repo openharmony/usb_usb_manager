@@ -65,7 +65,7 @@ const std::map<int32_t, std::string_view> ERRCODE_MSG_MAP = {
 inline bool CheckAndThrowOnError(napi_env env, bool assertion, int errCode, const std::string& errMsg)
 {
     if (!assertion) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s", errMsg.c_str());
+        USB_HILOGE(MODULE_USB_UTILS, "%{public}s", errMsg.c_str());
         OHOS::USB::ThrowBusinessError(env, errCode, errMsg.c_str());
         return false;
     }
@@ -75,7 +75,7 @@ inline bool CheckAndThrowOnError(napi_env env, bool assertion, int errCode, cons
 inline bool CheckNapiResult(napi_env env, napi_status theCall, const std::string& loginfo)
 {
     if (theCall != napi_ok) {
-        USB_HILOGE(MODULE_JS_NAPI, "%{public}s:  %{public}s", __func__, loginfo.c_str());
+        USB_HILOGE(MODULE_USB_UTILS, "%{public}s:  %{public}s", __func__, loginfo.c_str());
         return false;
     }
     return true;

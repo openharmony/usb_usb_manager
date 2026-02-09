@@ -41,7 +41,7 @@ void UsbSecurityReport::ReportSecurityInfo(int64_t eventId, std::string version,
     } else {
         int32_t ret = Security::SecurityGuard::NativeDataCollectKit::ReportSecurityInfo(eventInfo);
         if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: failed to report security with ret = %{public}d",
+            USB_HILOGE(MODULE_USB_UTILS, "%{public}s: failed to report security with ret = %{public}d",
                 __func__, ret);
         }
     }

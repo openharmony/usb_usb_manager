@@ -40,12 +40,12 @@ extern "C" __attribute__((constructor)) void RegisterModule(void)
 {
     g_libHandle = dlopen("libusbmanager.z.so", RTLD_LAZY);
     if (g_libHandle == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "open libusbmanager.z.so failed, %{public}s", dlerror());
+        USB_HILOGE(MODULE_USB_NAPI, "open libusbmanager.z.so failed, %{public}s", dlerror());
         return;
     }
     void *funcPtr = dlsym(g_libHandle, "UsbInit");
     if (funcPtr == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "UsbInit not found, %{public}s", dlerror());
+        USB_HILOGE(MODULE_USB_NAPI, "UsbInit not found, %{public}s", dlerror());
         return;
     }
     g_module.nm_register_func = reinterpret_cast<napi_addon_register_func>(funcPtr);
@@ -58,6 +58,6 @@ extern "C" __attribute__((destructor)) void ReleaseModule(void)
         return;
     }
     int ret = dlclose(g_libHandle);
-    USB_HILOGI(MODULE_JS_NAPI, "release module: %{public}d", ret);
+    USB_HILOGI(MODULE_USB_NAPI, "release module: %{public}d", ret);
     g_libHandle = nullptr;
 }
