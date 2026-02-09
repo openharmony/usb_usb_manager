@@ -1115,7 +1115,7 @@ static bool SendEventToMainThread(const std::function<void()> func)
 static void DeleteCallback(USBTransferAsyncContext* context) {
     ani_env* env = ::taihe::get_env();
     if (env == nullptr || context == nullptr || context->callbackRef == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPE, "%{public}s: env/context/callbackRef is nullptr", __func__);
+        USB_HILOGE(MODULE_USB_NAPI, "%{public}s: env/context/callbackRef is nullptr", __func__);
         return;
     }
     env->GlobalReference_Delete(context->callbackRef);
