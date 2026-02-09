@@ -1112,6 +1112,16 @@ static bool SendEventToMainThread(const std::function<void()> func)
     return true;
 }
 
+static void DeleteCallback(USBTransferAsyncContext* context) {
+    ani_env* env = ::taihe::get_env();
+    if (env == nullptr || context == nullptr || context->callbackRef == nullptr) {
+        USB_HILOGE(MODULE_JS_NAPE, "%{public}s: env/context/callbackRef is nullptr", __func__);
+        return;
+    }
+    env->GlobalReference_Delete(context->callbackRef);
+    delete context;
+}
+
 static constexpr int32_t LOCAL_SCOPE_SIZE = 16;
 static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::TransferCallbackInfo &info,
     const std::vector<OHOS::HDI::Usb::V1_2::UsbIsoPacketDescriptor> &isoInfo)
@@ -1137,11 +1147,13 @@ static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::
         if (ANI_ERROR == asyncContext->vm->AttachCurrentThread(&aniArgs, ANI_VERSION_1, &env)) {
             if (ANI_OK != asyncContext->vm->GetEnv(ANI_VERSION_1, &env)) {
                 USB_HILOGI(MODULE_JS_NAPI, "GetEnv failed.");
+                DeleteCallback(asyncContext);
                 return;
             }
         }
         if (ANI_OK != env->CreateLocalScope(LOCAL_SCOPE_SIZE)) {
             USB_HILOGI(MODULE_JS_NAPI, "CreateLocalScope failed.");
+            DeleteCallback(asyncContext);
             return;
         }
         auto businessError = GetDefaultBusinessError(env);
@@ -1151,13 +1163,14 @@ static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::
         ani_ref ani_result;
         ani_class cls;
         if (ANI_OK != env->FindClass("std.core.Function2", &cls)) {
-            USB_HILOGI(MODULE_JS_NAPI, "%{public}s: FindClass failed.", __func__);
+            USB_HILOGE(MODULE_JS_NAPI, "%{public}s: FindClass failed.", __func__);
             return;
         }
         ani_boolean ret;
         env->Object_InstanceOf(callbackFunc, cls, &ret);
         if (!ret) {
-            USB_HILOGI(MODULE_JS_NAPI, "%{public}s: callbackFunc is not instance Of Function2.", __func__);
+            USB_HILOGE(MODULE_JS_NAPI, "%{public}s: callbackFunc is not instance Of Function2.", __func__);
+            DeleteCallback(asyncContext);
         }
         auto errCode = env->FunctionalObject_Call(static_cast<ani_fn_object>(callbackFunc), 2, ani_argv, &ani_result);
         USB_HILOGE(MODULE_JS_NAPI, "AniCallBack FunctionalObject_Call returned %{public}d.", errCode);
