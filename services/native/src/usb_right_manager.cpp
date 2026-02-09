@@ -83,14 +83,14 @@ public:
         auto &want = data.GetWant();
         std::string wantAction = want.GetAction();
 
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s wantAction %{public}s", __func__, wantAction.c_str());
+        USB_HILOGI(MODULE_USB_HOST, "%{public}s wantAction %{public}s", __func__, wantAction.c_str());
         if (wantAction == CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED ||
             wantAction == CommonEventSupport::COMMON_EVENT_BUNDLE_REMOVED ||
             wantAction == CommonEventSupport::COMMON_EVENT_PACKAGE_FULLY_REMOVED) {
             int32_t uid = want.GetParams().GetIntParam("userId", USB_RIGHT_USERID_DEFAULT);
             std::string bundleName = want.GetBundle();
             int32_t ret = UsbRightManager::CleanUpRightAppUninstalled(uid, bundleName);
-            USB_HILOGD(MODULE_USB_SERVICE,
+            USB_HILOGD(MODULE_USB_HOST,
                 "recv event uninstall: event=%{public}s bunndleName=%{public}s uid=%{public}d, delete_ret=%{public}d",
                 wantAction.c_str(), bundleName.c_str(), uid, ret);
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_UID_REMOVED ||
@@ -98,23 +98,23 @@ public:
             int32_t totalUsers = 0;
             int32_t deleteUsers = 0;
             int32_t ret = UsbRightManager::CleanUpRightUserDeleted(totalUsers, deleteUsers);
-            USB_HILOGD(MODULE_USB_SERVICE,
+            USB_HILOGD(MODULE_USB_HOST,
                 "recv event user delete: event=%{public}s, delete detail[%{public}d/%{public}d]: %{public}d",
                 wantAction.c_str(), deleteUsers, totalUsers, ret);
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_USER_STOPPED) {
             int32_t uid = data.GetCode();
             int32_t ret = UsbRightManager::CleanUpRightUserStopped(uid);
-            USB_HILOGD(MODULE_USB_SERVICE, "on user %{public}d stopped, ret=%{public}d", uid, ret);
+            USB_HILOGD(MODULE_USB_HOST, "on user %{public}d stopped, ret=%{public}d", uid, ret);
 #ifdef USB_MANAGER_FEATURE_DEVICE
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_DATA_SHARE_READY) {
-            USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: COMMON_EVENT_DATA_SHARE_READY action is start!", __func__);
+            USB_HILOGI(MODULE_USB_HOST, "%{public}s: COMMON_EVENT_DATA_SHARE_READY action is start!", __func__);
             auto usbService = UsbService::GetGlobalInstance();
             if (!usbService->InitSettingsDataHdcStatus()) {
-                USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: function is get failed!", __func__);
+                USB_HILOGE(MODULE_USB_HOST, "%{public}s: function is get failed!", __func__);
             }
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_POWER_CONNECTED ||
                    wantAction == CommonEventSupport::COMMON_EVENT_POWER_DISCONNECTED) {
-            USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: COMMON_EVENT_POWER_CONNECTED action is start!", __func__);
+            USB_HILOGI(MODULE_USB_HOST, "%{public}s: COMMON_EVENT_POWER_CONNECTED action is start!", __func__);
             auto usbService = UsbService::GetGlobalInstance();
             if (usbService != nullptr) {
                 usbService->SetPhyConnect(wantAction == CommonEventSupport::COMMON_EVENT_POWER_CONNECTED);
@@ -122,7 +122,7 @@ public:
 #endif // USB_MANAGER_FEATURE_DEVICE
         } else if (wantAction == CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
 #ifdef USB_MANAGER_FEATURE_DEVICE
-            USB_HILOGI(MODULE_USB_SERVICE, "recv user switched.");
+            USB_HILOGI(MODULE_USB_HOST, "recv user switched.");
             auto usbService = UsbService::GetGlobalInstance();
             if (usbService != nullptr) {
                 usbService->UserChangeProcess();
@@ -134,7 +134,7 @@ public:
 
 int32_t UsbRightManager::Init()
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "subscriber app/bundle remove event and uid/user remove event");
+    USB_HILOGI(MODULE_USB_HOST, "subscriber app/bundle remove event and uid/user remove event");
     MatchingSkills matchingSkills;
     /* subscribe app/bundle remove event, need permission: ohos.permission.LISTEN_BUNDLE_CHANGE */
     matchingSkills.AddEvent(CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED);
@@ -160,7 +160,7 @@ int32_t UsbRightManager::Init()
         retryTimes++;
         bool ret = CommonEventManager::SubscribeCommonEvent(subscriber);
         if (!ret) {
-            USB_HILOGW(MODULE_USB_SERVICE, "subscriber event for right manager failed: %{public}d", ret);
+            USB_HILOGW(MODULE_USB_HOST, "subscriber event for right manager failed: %{public}d", ret);
             sleep(RETRY_INTERVAL_SECONDS);
             continue;
         }
@@ -172,10 +172,10 @@ int32_t UsbRightManager::Init()
 bool UsbRightManager::HasRight(const std::string &deviceName, const std::string &bundleName,
     const std::string &tokenId, const int32_t &userId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "HasRight: uid=%{public}d app=%{public}s",
+    USB_HILOGI(MODULE_USB_HOST, "HasRight: uid=%{public}d app=%{public}s",
         userId, bundleName.c_str());
     if (userId == USB_RIGHT_USERID_CONSOLE) {
-        USB_HILOGW(MODULE_USB_SERVICE, "console called, bypass");
+        USB_HILOGW(MODULE_USB_HOST, "console called, bypass");
         return true;
     }
     uint64_t nowTime = GetCurrentTimestamp();
@@ -184,7 +184,7 @@ bool UsbRightManager::HasRight(const std::string &deviceName, const std::string 
     // no record or expired record: expired true, has right false, add right next time
     // valid record: expired false, has right true, no need add right
     if (helper == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "helper is nullptr, false");
+        USB_HILOGE(MODULE_USB_HOST, "helper is nullptr, false");
         return false;
     }
     return !helper->IsRecordExpired(userId, deviceName, bundleName, tokenId, nowTime);
@@ -193,13 +193,13 @@ bool UsbRightManager::HasRight(const std::string &deviceName, const std::string 
 int32_t UsbRightManager::ConnectAbility()
 {
     if (usbAbilityConn_ == nullptr) {
-        USB_HILOGI(MODULE_SERVICE, "new UsbAbilityConn");
+        USB_HILOGI(MODULE_USB_HOST, "new UsbAbilityConn");
         usbAbilityConn_ = sptr<UsbAbilityConn>(new (std::nothrow) UsbAbilityConn());
     }
 
     auto abmc = AAFwk::AbilityManagerClient::GetInstance();
     if (abmc == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetInstance failed");
+        USB_HILOGE(MODULE_USB_HOST, "GetInstance failed");
         return USB_RIGHT_FAILURE;
     }
 
@@ -210,7 +210,7 @@ int32_t UsbRightManager::ConnectAbility()
         want.SetElementName("com.ohos.systemui", "com.ohos.systemui.dialog");
         int32_t ret = abmc->ConnectAbility(want, usbAbilityConn_, -1);
         if (ret != ERR_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "ConnectServiceExtensionAbility systemui failed, ret: %{public}d", ret);
+            USB_HILOGE(MODULE_USB_HOST, "ConnectServiceExtensionAbility systemui failed, ret: %{public}d", ret);
             usbAbilityConn_ = nullptr;
             return ret;
         }
@@ -222,14 +222,14 @@ int32_t UsbRightManager::ConnectAbility()
 int32_t UsbRightManager::RequestRight(const std::string &busDev, const std::string &deviceName,
     const std::string &bundleName, const std::string &tokenId, const int32_t &userId)
 {
-    USB_HILOGD(MODULE_USB_SERVICE, "RequestRight: busdev=%{private}s app=%{public}s", busDev.c_str(),
+    USB_HILOGD(MODULE_USB_HOST, "RequestRight: busdev=%{private}s app=%{public}s", busDev.c_str(),
         bundleName.c_str());
     if (HasRight(deviceName, bundleName, tokenId, userId)) {
-        USB_HILOGW(MODULE_USB_SERVICE, "device has Right ");
+        USB_HILOGW(MODULE_USB_HOST, "device has Right ");
         return UEC_OK;
     }
     if (!GetUserAgreementByDiag(busDev, deviceName, bundleName, tokenId, userId)) {
-        USB_HILOGW(MODULE_USB_SERVICE, "user don't agree");
+        USB_HILOGW(MODULE_USB_HOST, "user don't agree");
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     return UEC_OK;
@@ -244,7 +244,7 @@ bool UsbRightManager::GetUserAgreementByDiag(const std::string &busDev, const st
     /* There can only be one dialog at a time */
     std::lock_guard<std::mutex> guard(dialogRunning_);
     if (!ShowUsbDialog(busDev, deviceName, bundleName, tokenId)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "ShowUsbDialog failed");
+        USB_HILOGE(MODULE_USB_HOST, "ShowUsbDialog failed");
         return false;
     }
 
@@ -254,7 +254,7 @@ bool UsbRightManager::GetUserAgreementByDiag(const std::string &busDev, const st
 bool UsbRightManager::ShowUsbDialog(
     const std::string &busDev, const std::string &deviceName, const std::string &bundleName, const std::string &tokenId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s deviceName %{public}s bundleName %{public}s tokenId %{public}s",
+    USB_HILOGI(MODULE_USB_HOST, "%{public}s deviceName %{public}s bundleName %{public}s tokenId %{public}s",
                __func__, deviceName.c_str(), bundleName.c_str(), tokenId.c_str());
 
     std::string appName;
@@ -280,12 +280,12 @@ bool UsbRightManager::ShowUsbDialog(
     sem_init(&waitDialogDisappear_, 1, 0);
     int32_t ret = ConnectAbility();
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "connectAbility failed %{public}d", ret);
         return false;
     }
     /* Waiting for the user to click */
     sem_wait(&waitDialogDisappear_);
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s success", __func__);
+    USB_HILOGI(MODULE_USB_HOST, "%{public}s success", __func__);
     return true;
 }
 
@@ -302,15 +302,15 @@ bool UsbRightManager::GetProductName(const std::string &devName, std::string &pr
 int32_t UsbRightManager::RequestRight(const USBAccessory &access, const std::string &seriaValue,
     const std::string &bundleName, const std::string &tokenId, const int32_t &userId, bool &result)
 {
-    USB_HILOGD(MODULE_USB_SERVICE, "RequestAccessoryRight:  seriaValue=%{public}s app=%{public}s",
+    USB_HILOGD(MODULE_USB_HOST, "RequestAccessoryRight:  seriaValue=%{public}s app=%{public}s",
         seriaValue.c_str(), bundleName.c_str());
     if (HasRight(seriaValue, bundleName, tokenId, userId)) {
-        USB_HILOGW(MODULE_USB_SERVICE, "device has Right ");
+        USB_HILOGW(MODULE_USB_HOST, "device has Right ");
         result = true;
         return UEC_OK;
     }
     if (!GetUserAgreementByDiag(access, seriaValue, bundleName, tokenId, userId)) {
-        USB_HILOGW(MODULE_USB_SERVICE, "user don't agree");
+        USB_HILOGW(MODULE_USB_HOST, "user don't agree");
         result = false;
         return UEC_OK;
     }
@@ -321,14 +321,14 @@ int32_t UsbRightManager::RequestRight(const USBAccessory &access, const std::str
 bool IsWithinUint64Range(const std::string &numberStr)
 {
     if (numberStr.empty()) {
-        USB_HILOGE(MODULE_USB_SERVICE, "numberStr is empty");
+        USB_HILOGE(MODULE_USB_HOST, "numberStr is empty");
         return false;
     }
     errno = 0;
     uint64_t number = 0;
     number = std::strtoull(numberStr.c_str(), nullptr, DECIMAL_BASE);
     if (errno == ERANGE) {
-        USB_HILOGE(MODULE_USB_SERVICE, "number is out of uint64_t range");
+        USB_HILOGE(MODULE_USB_HOST, "number is out of uint64_t range");
         return false;
     }
     return true;
@@ -337,14 +337,14 @@ bool IsWithinUint64Range(const std::string &numberStr)
 int32_t UsbRightManager::RequestRight(const int32_t portId, const SerialDeviceIdentity &serialDeviceIdentity,
     const std::string &bundleName, const std::string &tokenId, const int32_t &userId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "RequestSerialRight: serialValue=%{public}s app=%{public}s",
+    USB_HILOGI(MODULE_USB_HOST, "RequestSerialRight: serialValue=%{public}s app=%{public}s",
         serialDeviceIdentity.deviceName.c_str(), bundleName.c_str());
     if (HasRight(serialDeviceIdentity.deviceName, bundleName, tokenId, userId)) {
-        USB_HILOGW(MODULE_USB_SERVICE, "device has Right ");
+        USB_HILOGW(MODULE_USB_HOST, "device has Right ");
         return UEC_OK;
     }
     if (!GetUserAgreementByDiag(portId, serialDeviceIdentity, bundleName, tokenId, userId)) {
-        USB_HILOGW(MODULE_USB_SERVICE, "user don't agree");
+        USB_HILOGW(MODULE_USB_HOST, "user don't agree");
         return UEC_SERVICE_PERMISSION_DENIED;
     }
     return UEC_OK;
@@ -353,29 +353,29 @@ int32_t UsbRightManager::RequestRight(const int32_t portId, const SerialDeviceId
 bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::string &tokenIdStr)
 {
     if (!IsAllDigits(tokenIdStr)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr invalid");
+        USB_HILOGE(MODULE_USB_HOST, "tokenIdStr invalid");
         return false;
     }
     /* already checked system app/hap when call */
     if (!IsWithinUint64Range(tokenIdStr)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "tokenIdStr is out of uint64_t range");
+        USB_HILOGE(MODULE_USB_HOST, "tokenIdStr is out of uint64_t range");
         return false;
     }
     HapTokenInfo hapTokenInfoRes;
     int32_t ret = AccessTokenKit::GetHapTokenInfo((AccessTokenID) std::stoul(tokenIdStr), hapTokenInfoRes);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetHapTokenInfo failed:ret:%{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "GetHapTokenInfo failed:ret:%{public}d", ret);
         return false;
     }
     int32_t uid = hapTokenInfoRes.userID;
     if (uid == USB_RIGHT_USERID_CONSOLE) {
-        USB_HILOGE(MODULE_USB_SERVICE, "console called, bypass");
+        USB_HILOGE(MODULE_USB_HOST, "console called, bypass");
         return true;
     }
     uint64_t installTime = GetCurrentTimestamp();
     uint64_t updateTime = GetCurrentTimestamp();
     if (!GetBundleInstallAndUpdateTime(uid, hapTokenInfoRes.bundleName, installTime, updateTime)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "get app install time and update time failed: %{public}d", uid);
+        USB_HILOGE(MODULE_USB_HOST, "get app install time and update time failed: %{public}d", uid);
     }
     struct UsbRightAppInfo info;
     info.uid = uid;
@@ -386,12 +386,12 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
 
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     if (helper == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "helper is nullptr, false");
+        USB_HILOGE(MODULE_USB_HOST, "helper is nullptr, false");
         return false;
     }
     ret = helper->AddOrUpdateRightRecord(uid, deviceName, hapTokenInfoRes.bundleName, tokenIdStr, info);
     if (ret < 0) {
-        USB_HILOGE(MODULE_USB_SERVICE, "add or update failed: %{public}s/%{public}d, ret=%{public}d",
+        USB_HILOGE(MODULE_USB_HOST, "add or update failed: %{public}s/%{public}d, ret=%{public}d",
             deviceName.c_str(), uid, ret);
         return false;
     }
@@ -403,13 +403,13 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
 {
     /* already checked system app/hap when call */
     if (userId == USB_RIGHT_USERID_CONSOLE) {
-        USB_HILOGE(MODULE_USB_SERVICE, "console called, bypass");
+        USB_HILOGE(MODULE_USB_HOST, "console called, bypass");
         return true;
     }
     uint64_t installTime = GetCurrentTimestamp();
     uint64_t updateTime = GetCurrentTimestamp();
     if (!GetBundleInstallAndUpdateTime(userId, bundleName, installTime, updateTime)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "get app install time and update time failed: %{public}s/%{public}d",
+        USB_HILOGE(MODULE_USB_HOST, "get app install time and update time failed: %{public}s/%{public}d",
             bundleName.c_str(), userId);
     }
     struct UsbRightAppInfo info;
@@ -421,12 +421,12 @@ bool UsbRightManager::AddDeviceRight(const std::string &deviceName, const std::s
 
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     if (helper == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "helper is nullptr, false");
+        USB_HILOGE(MODULE_USB_HOST, "helper is nullptr, false");
         return false;
     }
     int32_t ret = helper->AddOrUpdateRightRecord(userId, deviceName, bundleName, tokenId, info);
     if (ret < 0) {
-        USB_HILOGE(MODULE_USB_SERVICE, "add or update failed: %{public}s/%{public}s/%{public}d, ret=%{public}d",
+        USB_HILOGE(MODULE_USB_HOST, "add or update failed: %{public}s/%{public}s/%{public}d, ret=%{public}d",
             deviceName.c_str(), bundleName.c_str(), userId, ret);
         return false;
     }
@@ -437,17 +437,17 @@ bool UsbRightManager::RemoveDeviceRight(const std::string &deviceName, const std
     const std::string &tokenId, const int32_t &userId)
 {
     if (userId == USB_RIGHT_USERID_CONSOLE) {
-        USB_HILOGW(MODULE_USB_SERVICE, "console called, bypass");
+        USB_HILOGW(MODULE_USB_HOST, "console called, bypass");
         return true;
     }
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     if (helper == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "helper is nullptr, false");
+        USB_HILOGE(MODULE_USB_HOST, "helper is nullptr, false");
         return false;
     }
     int32_t ret = helper->DeleteRightRecord(userId, deviceName, bundleName, tokenId);
     if (ret < 0) {
-        USB_HILOGE(MODULE_USB_SERVICE, "delete failed: %{public}s/%{public}s/%{public}d", deviceName.c_str(),
+        USB_HILOGE(MODULE_USB_HOST, "delete failed: %{public}s/%{public}s/%{public}d", deviceName.c_str(),
             bundleName.c_str(), userId);
         return false;
     }
@@ -458,17 +458,17 @@ int32_t UsbRightManager::CancelDeviceRight(const std::string &deviceName, const 
     const std::string &tokenId, const int32_t &userId)
 {
     if (userId == USB_RIGHT_USERID_CONSOLE) {
-        USB_HILOGW(MODULE_USB_SERVICE, "console called, bypass");
+        USB_HILOGW(MODULE_USB_HOST, "console called, bypass");
         return UEC_SERVICE_INVALID_VALUE;
     }
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     if (helper == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "helper is nullptr, false");
+        USB_HILOGE(MODULE_USB_HOST, "helper is nullptr, false");
         return UEC_SERVICE_INNER_ERR;
     }
     int32_t ret = helper->DeleteRightRecord(userId, deviceName, bundleName, tokenId);
     if (ret < 0) {
-        USB_HILOGW(MODULE_USB_SERVICE, "delete failed: %{public}s/%{public}s/%{public}d", deviceName.c_str(),
+        USB_HILOGW(MODULE_USB_HOST, "delete failed: %{public}s/%{public}s/%{public}d", deviceName.c_str(),
             bundleName.c_str(), userId);
         return UEC_OK;
     }
@@ -477,7 +477,7 @@ int32_t UsbRightManager::CancelDeviceRight(const std::string &deviceName, const 
 
 bool UsbRightManager::RemoveDeviceAllRight(const std::string &deviceName)
 {
-    USB_HILOGD(MODULE_USB_SERVICE, "device %{private}s detached, process right", deviceName.c_str());
+    USB_HILOGD(MODULE_USB_HOST, "device %{private}s detached, process right", deviceName.c_str());
     CleanUpRightTemporaryExpired(deviceName);
     TidyUpRight(TIGHT_UP_USB_RIGHT_RECORD_ALL);
     UnShowUsbDialog();
@@ -493,7 +493,7 @@ bool UsbRightManager::GetAccessoryName(const USBAccessory &access, std::string &
 bool UsbRightManager::ShowUsbDialog(const USBAccessory &access, const std::string &seriaValue,
     const std::string &bundleName, const std::string &tokenId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s seriaValue %{public}s bundleName %{public}s tokenId %{public}s",
+    USB_HILOGI(MODULE_USB_HOST, "%{public}s seriaValue %{public}s bundleName %{public}s tokenId %{public}s",
                __func__, seriaValue.c_str(), bundleName.c_str(), tokenId.c_str());
 
     std::string appName;
@@ -520,19 +520,19 @@ bool UsbRightManager::ShowUsbDialog(const USBAccessory &access, const std::strin
     sem_init(&waitDialogDisappear_, 1, 0);
     int32_t ret = ConnectAbility();
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "connectAbility failed %{public}d", ret);
         return false;
     }
     /* Waiting for the user to click */
     sem_wait(&waitDialogDisappear_);
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s success", __func__);
+    USB_HILOGI(MODULE_USB_HOST, "%{public}s success", __func__);
     return true;
 }
 
 bool UsbRightManager::ShowSerialDialog(const int32_t portId, const uint32_t tokenId, const std::string &bundleName,
     const std::string &busDev)
 {
-    USB_HILOGI(MODULE_USB_SERVICE,
+    USB_HILOGI(MODULE_USB_HOST,
                "%{public}s portId %{public}d tokenId %{public}d bundleName %{public}s busDev %{public}s",
                __func__, portId, tokenId, bundleName.c_str(), busDev.c_str());
 
@@ -543,7 +543,7 @@ bool UsbRightManager::ShowSerialDialog(const int32_t portId, const uint32_t toke
 
     int32_t castId = static_cast<int32_t>(tokenId);
     if (castId < 0) {
-        USB_HILOGE(MODULE_SERVICE, "tokenId cast failed %{public}d", castId);
+        USB_HILOGE(MODULE_USB_HOST, "tokenId cast failed %{public}d", castId);
         return false;
     }
 
@@ -561,12 +561,12 @@ bool UsbRightManager::ShowSerialDialog(const int32_t portId, const uint32_t toke
     sem_init(&waitDialogDisappear_, 1, 0);
     int32_t ret = ConnectAbility();
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_SERVICE, "connectAbility failed %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "connectAbility failed %{public}d", ret);
         return false;
     }
     /* Waiting for the user to click */
     sem_wait(&waitDialogDisappear_);
-    USB_HILOGI(MODULE_USB_SERVICE, "sem_wait done");
+    USB_HILOGI(MODULE_USB_HOST, "sem_wait done");
     return true;
 }
 
@@ -576,7 +576,7 @@ bool UsbRightManager::GetUserAgreementByDiag(const USBAccessory &access, const s
     /* There can only be one dialog at a time */
     std::lock_guard<std::mutex> guard(dialogRunning_);
     if (!ShowUsbDialog(access, seriaValue, bundleName, tokenId)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "ShowUsbDialog failed");
+        USB_HILOGE(MODULE_USB_HOST, "ShowUsbDialog failed");
         return false;
     }
 
@@ -586,16 +586,16 @@ bool UsbRightManager::GetUserAgreementByDiag(const USBAccessory &access, const s
 bool UsbRightManager::GetUserAgreementByDiag(const int32_t portId, const SerialDeviceIdentity &serialDeviceIdentity,
     const std::string &bundleName, const std::string &tokenId, const int32_t &userId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "GetUserAgreementByDiag start");
+    USB_HILOGI(MODULE_USB_HOST, "GetUserAgreementByDiag start");
     /* There can only be one dialog at a time */
     std::lock_guard<std::mutex> guard(dialogRunning_);
     if (!std::regex_match(tokenId, std::regex("^[0-9]+$"))) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Invalid tokenId");
+        USB_HILOGE(MODULE_USB_HOST, "Invalid tokenId");
         return false;
     }
     uint32_t mTokenId = static_cast<uint32_t>(std::stoul(tokenId));
     if (!ShowSerialDialog(portId, mTokenId, bundleName, serialDeviceIdentity.busDev)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "ShowSerialDialog failed");
+        USB_HILOGE(MODULE_USB_HOST, "ShowSerialDialog failed");
         return false;
     }
 
@@ -606,17 +606,17 @@ sptr<IBundleMgr> UsbRightManager::GetBundleMgr()
 {
     auto sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sam == nullptr) {
-        USB_HILOGW(MODULE_USB_SERVICE, "GetSystemAbilityManager return nullptr");
+        USB_HILOGW(MODULE_USB_HOST, "GetSystemAbilityManager return nullptr");
         return nullptr;
     }
     auto bundleMgrSa = sam->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     if (bundleMgrSa == nullptr) {
-        USB_HILOGW(MODULE_USB_SERVICE, "GetSystemAbility return nullptr");
+        USB_HILOGW(MODULE_USB_HOST, "GetSystemAbility return nullptr");
         return nullptr;
     }
     auto bundleMgr = iface_cast<IBundleMgr>(bundleMgrSa);
     if (bundleMgr == nullptr) {
-        USB_HILOGW(MODULE_USB_SERVICE, "iface_cast return nullptr");
+        USB_HILOGW(MODULE_USB_HOST, "iface_cast return nullptr");
     }
     return bundleMgr;
 }
@@ -634,14 +634,14 @@ bool UsbRightManager::GetAppName(const std::string &bundleName, std::string &app
 {
     auto resMgr = GetBundleResMgr();
     if (resMgr == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetAppName: get res mgr failed");
+        USB_HILOGE(MODULE_USB_HOST, "GetAppName: get res mgr failed");
         return false;
     }
 
     BundleResourceInfo info;
     int32_t ret = resMgr->GetBundleResourceInfo(bundleName, (uint32_t)ResourceFlag::GET_RESOURCE_INFO_WITH_LABEL, info);
     if (ret != ERR_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetAppName: get res info failed: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "GetAppName: get res info failed: %{public}d", ret);
         return false;
     }
     appName = info.label;
@@ -662,7 +662,7 @@ bool UsbRightManager::IsSystemAppOrSa()
         return true;
     }
 
-    USB_HILOGW(MODULE_USB_SERVICE, "neither system app nor sa");
+    USB_HILOGW(MODULE_USB_HOST, "neither system app nor sa");
     return false;
 }
 
@@ -671,7 +671,7 @@ bool UsbRightManager::VerifyPermission()
     AccessTokenID tokenId = IPCSkeleton::GetCallingTokenID();
     int32_t ret = AccessTokenKit::VerifyAccessToken(tokenId, USB_MANAGE_ACCESS_USB_DEVICE);
     if (ret == PermissionState::PERMISSION_DENIED) {
-        USB_HILOGW(MODULE_USB_SERVICE, "no permission");
+        USB_HILOGW(MODULE_USB_HOST, "no permission");
         return false;
     }
     return true;
@@ -681,12 +681,12 @@ bool UsbRightManager::IsAppInstalled(int32_t uid, const std::string &bundleName)
 {
     auto bundleMgr = GetBundleMgr();
     if (bundleMgr == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "BundleMgr is nullptr, return false");
+        USB_HILOGE(MODULE_USB_HOST, "BundleMgr is nullptr, return false");
         return false;
     }
     ApplicationInfo appInfo;
     if (!bundleMgr->GetApplicationInfo(bundleName, GET_BASIC_APPLICATION_INFO, uid, appInfo)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "BundleMgr GetApplicationInfo failed");
+        USB_HILOGE(MODULE_USB_HOST, "BundleMgr GetApplicationInfo failed");
         return false;
     }
     return true;
@@ -698,11 +698,11 @@ bool UsbRightManager::GetBundleInstallAndUpdateTime(
     BundleInfo bundleInfo;
     auto bundleMgr = GetBundleMgr();
     if (bundleMgr == nullptr) {
-        USB_HILOGW(MODULE_USB_SERVICE, "BundleMgr is nullptr, return false");
+        USB_HILOGW(MODULE_USB_HOST, "BundleMgr is nullptr, return false");
         return false;
     }
     if (!bundleMgr->GetBundleInfo(bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, uid)) {
-        USB_HILOGW(MODULE_USB_SERVICE, "BundleMgr GetBundleInfo(uid) failed");
+        USB_HILOGW(MODULE_USB_HOST, "BundleMgr GetBundleInfo(uid) failed");
         return false;
     }
     installTime = static_cast<uint64_t>(bundleInfo.installTime);
@@ -721,17 +721,17 @@ void UsbRightManager::GetCurrentUserId(int32_t &uid)
 {
     int32_t ret = AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(IPCSkeleton::GetCallingUid(), uid);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetOsAccountLocalIdFromUid failed: %{public}d, set to defult", ret);
+        USB_HILOGE(MODULE_USB_HOST, "GetOsAccountLocalIdFromUid failed: %{public}d, set to defult", ret);
         uid = USB_RIGHT_USERID_DEFAULT; /* default user id */
     }
-    USB_HILOGD(MODULE_USB_SERVICE, "usb get userid success: %{public}d, uid: %{public}d", ret, uid);
+    USB_HILOGD(MODULE_USB_HOST, "usb get userid success: %{public}d, uid: %{public}d", ret, uid);
 }
 
 int32_t UsbRightManager::IsOsAccountExists(int32_t id, bool &isAccountExists)
 {
     int32_t ret = AccountSA::OsAccountManager::IsOsAccountExists(id, isAccountExists);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, " api IsOsAccountExists failed: ret=%{public}d id=%{public}d", ret, id);
+        USB_HILOGE(MODULE_USB_HOST, " api IsOsAccountExists failed: ret=%{public}d id=%{public}d", ret, id);
         return USB_RIGHT_FAILURE;
     }
     return USB_RIGHT_OK;
@@ -742,19 +742,19 @@ int32_t UsbRightManager::HasSetFuncRight(int32_t functions)
     if (!(static_cast<uint32_t>(functions) & UsbSrvSupport::FUNCTION_HDC)) {
         return UEC_OK;
     }
-    USB_HILOGI(MODULE_USB_SERVICE, "Set up function permission validation");
+    USB_HILOGI(MODULE_USB_HOST, "Set up function permission validation");
     char paramValue[PARAM_BUF_LEN] = { 0 };
     int32_t ret = GetParameter("persist.hdc.control", "true", paramValue, sizeof(paramValue));
     if (ret < 0) {
-        USB_HILOGW(MODULE_USB_SERVICE, "GetParameter fail");
+        USB_HILOGW(MODULE_USB_HOST, "GetParameter fail");
     }
     ret = strcmp(paramValue, "true");
     if (ret != 0) {
-        USB_HILOGE(MODULE_USB_SERVICE, "HDC setup failed");
+        USB_HILOGE(MODULE_USB_HOST, "HDC setup failed");
         return UEC_SERVICE_PERMISSION_CHECK_HDC;
     }
     if (!OHOS::system::GetBoolParameter(DEVELOPERMODE_STATE, false)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Developer mode unabled, FUNCTION_HDC cannot be set");
+        USB_HILOGE(MODULE_USB_HOST, "Developer mode unabled, FUNCTION_HDC cannot be set");
         return UEC_SERVICE_PERMISSION_CHECK_HDC;
     }
     return UEC_OK;
@@ -762,14 +762,14 @@ int32_t UsbRightManager::HasSetFuncRight(int32_t functions)
 
 int32_t UsbRightManager::CleanUpRightExpired(std::vector<std::string> &devices)
 {
-    USB_HILOGD(MODULE_USB_SERVICE, "clean up expired right: size=%{public}zu", devices.size());
+    USB_HILOGD(MODULE_USB_HOST, "clean up expired right: size=%{public}zu", devices.size());
     size_t len = devices.size();
     int32_t ret = USB_RIGHT_OK;
     for (size_t i = 0; i < len; i++) {
         std::string dev = devices.at(i);
         ret = CleanUpRightTemporaryExpired(dev);
         if (ret != USB_RIGHT_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE,
+            USB_HILOGE(MODULE_USB_HOST,
                 "failed(%{public}zu/%{public}zu): delete temporary expiried record, dev=%{private}s", i, len,
                 dev.c_str());
             continue;
@@ -779,7 +779,7 @@ int32_t UsbRightManager::CleanUpRightExpired(std::vector<std::string> &devices)
     GetCurrentUserId(uid);
     ret = CleanUpRightNormalExpired(uid);
     if (ret != USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "delete expired record with uid(%{public}d) failed: %{public}d", uid, ret);
+        USB_HILOGE(MODULE_USB_HOST, "delete expired record with uid(%{public}d) failed: %{public}d", uid, ret);
     }
     return ret;
 }
@@ -789,7 +789,7 @@ int32_t UsbRightManager::CleanUpRightAppUninstalled(int32_t uid, int32_t &totalA
     std::vector<std::string> apps;
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     if (helper == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "helper is nullptr, false");
+        USB_HILOGE(MODULE_USB_HOST, "helper is nullptr, false");
         return false;
     }
     int32_t ret = helper->QueryRightRecordApps(uid, apps);
@@ -804,13 +804,13 @@ int32_t UsbRightManager::CleanUpRightAppUninstalled(int32_t uid, int32_t &totalA
         if (!IsAppInstalled(uid, app)) {
             ret = helper->DeleteAppRightRecord(uid, app);
             if (ret != USB_RIGHT_OK) {
-                USB_HILOGW(MODULE_USB_SERVICE, "clean failed: app=%{public}s, ret=%{public}d", app.c_str(), ret);
+                USB_HILOGW(MODULE_USB_HOST, "clean failed: app=%{public}s, ret=%{public}d", app.c_str(), ret);
                 continue;
             }
             deleteApps++;
         }
     }
-    USB_HILOGD(MODULE_USB_SERVICE, "clean uninstall app record[%{public}d/%{public}d]: uid=%{public}d", deleteApps,
+    USB_HILOGD(MODULE_USB_HOST, "clean uninstall app record[%{public}d/%{public}d]: uid=%{public}d", deleteApps,
         totalApps, uid);
     return ret;
 }
@@ -820,7 +820,7 @@ int32_t UsbRightManager::CleanUpRightAppUninstalled(int32_t uid, const std::stri
     std::vector<std::string> apps;
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     if (helper == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "helper is nullptr, false");
+        USB_HILOGE(MODULE_USB_HOST, "helper is nullptr, false");
         return false;
     }
     int32_t ret = helper->QueryRightRecordApps(uid, apps);
@@ -834,7 +834,7 @@ int32_t UsbRightManager::CleanUpRightAppUninstalled(int32_t uid, const std::stri
         return USB_RIGHT_NOP;
     }
     ret = helper->DeleteAppRightRecord(uid, apps.at(index));
-    USB_HILOGD(MODULE_USB_SERVICE, "clean[%{public}d/%{public}zu]: uid=%{public}d, app=%{public}s, ret=%{public}d",
+    USB_HILOGD(MODULE_USB_HOST, "clean[%{public}d/%{public}zu]: uid=%{public}d, app=%{public}s, ret=%{public}d",
         index, apps.size(), uid, bundleName.c_str(), ret);
     return ret;
 }
@@ -864,12 +864,12 @@ int32_t UsbRightManager::CleanUpRightAppReinstalled(int32_t uid, uint32_t &total
     std::vector<std::string> apps;
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     if (helper == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "helper is nullptr, false");
+        USB_HILOGE(MODULE_USB_HOST, "helper is nullptr, false");
         return false;
     }
     int32_t ret = helper->QueryRightRecordApps(uid, apps);
     if (ret <= 0) {
-        USB_HILOGE(MODULE_USB_SERVICE, "query apps failed or empty: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "query apps failed or empty: %{public}d", ret);
         return USB_RIGHT_NOP;
     }
     StringVectorSortAndUniq(apps);
@@ -881,13 +881,13 @@ int32_t UsbRightManager::CleanUpRightAppReinstalled(int32_t uid, uint32_t &total
         std::vector<struct UsbRightAppInfo> infos;
         ret = helper->QueryAppRightRecord(uid, bundleName, infos);
         if (ret < 0) {
-            USB_HILOGE(MODULE_USB_SERVICE, "query app info %{public}s failed: %{public}d", bundleName.c_str(), ret);
+            USB_HILOGE(MODULE_USB_HOST, "query app info %{public}s failed: %{public}d", bundleName.c_str(), ret);
             return USB_RIGHT_FAILURE;
         }
         uint64_t installTime = 0;
         uint64_t updateTime = 0;
         if (!GetBundleInstallAndUpdateTime(uid, bundleName, installTime, updateTime)) {
-            USB_HILOGE(MODULE_USB_SERVICE, "get app install time and update time failed: app=%{public}s uid=%{public}d",
+            USB_HILOGE(MODULE_USB_HOST, "get app install time and update time failed: app=%{public}s uid=%{public}d",
                 bundleName.c_str(), uid);
             return USB_RIGHT_FAILURE;
         }
@@ -902,7 +902,7 @@ int32_t UsbRightManager::CleanUpRightAppReinstalled(int32_t uid, uint32_t &total
     StringVectorSortAndUniq(deleteBundleNames);
     ret = helper->DeleteAppsRightRecord(uid, deleteBundleNames);
     if (ret != USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "delete apps failed: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "delete apps failed: %{public}d", ret);
     } else {
         deleteApps = deleteBundleNames.size();
     }
@@ -915,12 +915,12 @@ int32_t UsbRightManager::CleanUpRightUserDeleted(int32_t &totalUsers, int32_t &d
     bool isAccountExists = false;
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     if (helper == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "helper is nullptr, false");
+        USB_HILOGE(MODULE_USB_HOST, "helper is nullptr, false");
         return false;
     }
     int32_t ret = helper->QueryRightRecordUids(rightRecordUids);
     if (ret <= 0) {
-        USB_HILOGE(MODULE_USB_SERVICE, "query apps failed or empty: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "query apps failed or empty: %{public}d", ret);
         return USB_RIGHT_NOP;
     }
     size_t len = rightRecordUids.size();
@@ -928,20 +928,20 @@ int32_t UsbRightManager::CleanUpRightUserDeleted(int32_t &totalUsers, int32_t &d
     for (size_t i = 0; i < len; i++) {
         int32_t uid = 0;
         if (!StrToInt(rightRecordUids.at(i), uid)) {
-            USB_HILOGE(MODULE_USB_SERVICE, "convert failed: %{public}s", rightRecordUids.at(i).c_str());
+            USB_HILOGE(MODULE_USB_HOST, "convert failed: %{public}s", rightRecordUids.at(i).c_str());
             continue;
         }
         ret = IsOsAccountExists(uid, isAccountExists);
         if (ret != USB_RIGHT_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "call IsOsAccountExists failed: %{public}d", ret);
+            USB_HILOGE(MODULE_USB_HOST, "call IsOsAccountExists failed: %{public}d", ret);
             continue;
         }
         if (!isAccountExists) {
             ret = helper->DeleteUidRightRecord(uid);
-            USB_HILOGE(MODULE_USB_SERVICE, "detecte delete uid=%{public}d: %{public}d", uid, ret);
+            USB_HILOGE(MODULE_USB_HOST, "detecte delete uid=%{public}d: %{public}d", uid, ret);
             deleteUsers++;
         }
-        USB_HILOGD(MODULE_USB_SERVICE, "uid exist, ignore: %{public}d", uid);
+        USB_HILOGD(MODULE_USB_HOST, "uid exist, ignore: %{public}d", uid);
     }
     totalUsers = static_cast<int32_t>(rightRecordUids.size());
     return USB_RIGHT_OK;
@@ -951,7 +951,7 @@ int32_t UsbRightManager::CleanUpRightUserStopped(int32_t uid)
 {
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     if (helper == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "CleanUpRightUserStopped %{public}d: helper is null", uid);
+        USB_HILOGE(MODULE_USB_HOST, "CleanUpRightUserStopped %{public}d: helper is null", uid);
         return false;
     }
 
@@ -962,12 +962,12 @@ int32_t UsbRightManager::CleanUpRightTemporaryExpired(const std::string &deviceN
 {
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     if (helper == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "helper is nullptr, false");
+        USB_HILOGE(MODULE_USB_HOST, "helper is nullptr, false");
         return false;
     }
     int32_t ret = helper->DeleteValidPeriodRightRecord(USB_RIGHT_VALID_PERIOD_MIN, deviceName);
     if (ret != USB_RIGHT_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "failed: delete temporary expiried record: dev=%{private}s", deviceName.c_str());
+        USB_HILOGE(MODULE_USB_HOST, "failed: delete temporary expiried record: dev=%{private}s", deviceName.c_str());
     }
     return ret;
 }
@@ -978,7 +978,7 @@ int32_t UsbRightManager::CleanUpRightNormalExpired(int32_t uid)
     std::shared_ptr<UsbRightDbHelper> helper = UsbRightDbHelper::GetInstance();
     int32_t ret = helper->DeleteNormalExpiredRightRecord(uid, nowTime);
     if (ret != USB_RIGHT_OK) {
-        USB_HILOGD(MODULE_USB_SERVICE, "failed: clean up expired record at %{public}" PRIu64 "", nowTime);
+        USB_HILOGD(MODULE_USB_HOST, "failed: clean up expired record at %{public}" PRIu64 "", nowTime);
     }
     return ret;
 }
@@ -990,13 +990,13 @@ int32_t UsbRightManager::TidyUpRight(uint32_t choose)
         return USB_RIGHT_NOP;
     }
     if ((choose | TIGHT_UP_USB_RIGHT_RECORD_ALL) != TIGHT_UP_USB_RIGHT_RECORD_ALL) {
-        USB_HILOGE(MODULE_USB_SERVICE, "choose invalid");
+        USB_HILOGE(MODULE_USB_HOST, "choose invalid");
         return UEC_SERVICE_INVALID_VALUE;
     }
     int32_t uid = USB_RIGHT_USERID_INVALID;
     GetCurrentUserId(uid);
     if (uid == USB_RIGHT_USERID_CONSOLE) {
-        USB_HILOGE(MODULE_USB_SERVICE, "console called, bypass");
+        USB_HILOGE(MODULE_USB_HOST, "console called, bypass");
         return true;
     }
     int32_t ret = 0;
@@ -1004,25 +1004,25 @@ int32_t UsbRightManager::TidyUpRight(uint32_t choose)
         int32_t totalUninstalledApps = 0;
         int32_t deleteUninstalledApps = 0;
         ret = CleanUpRightAppUninstalled(uid, totalUninstalledApps, deleteUninstalledApps);
-        USB_HILOGD(MODULE_USB_SERVICE, "delete app uninstalled record[%{public}d/%{public}d]: %{public}d",
+        USB_HILOGD(MODULE_USB_HOST, "delete app uninstalled record[%{public}d/%{public}d]: %{public}d",
             deleteUninstalledApps, totalUninstalledApps, ret);
     }
     if ((choose & TIGHT_UP_USB_RIGHT_RECORD_USER_DELETED) != 0) {
         int32_t totalUsers = 0;
         int32_t deleteUsers = 0;
         ret = CleanUpRightUserDeleted(totalUsers, deleteUsers);
-        USB_HILOGD(MODULE_USB_SERVICE, "delete user deleted record[%{public}d/%{public}d]: %{public}d", deleteUsers,
+        USB_HILOGD(MODULE_USB_HOST, "delete user deleted record[%{public}d/%{public}d]: %{public}d", deleteUsers,
             totalUsers, ret);
     }
     if ((choose & TIGHT_UP_USB_RIGHT_RECORD_EXPIRED) != 0) {
         ret = CleanUpRightNormalExpired(uid);
-        USB_HILOGD(MODULE_USB_SERVICE, "delete expired record: %{public}d", ret);
+        USB_HILOGD(MODULE_USB_HOST, "delete expired record: %{public}d", ret);
     }
     if ((choose & TIGHT_UP_USB_RIGHT_RECORD_APP_REINSTALLED) != 0) {
         uint32_t totalReinstalledApps = 0;
         uint32_t deleteReinstalledApps = 0;
         ret = CleanUpRightAppReinstalled(uid, totalReinstalledApps, deleteReinstalledApps);
-        USB_HILOGD(MODULE_USB_SERVICE, "delete app reinstalled record[%{public}u/%{public}u]: %{public}d",
+        USB_HILOGD(MODULE_USB_HOST, "delete app reinstalled record[%{public}u/%{public}u]: %{public}d",
             deleteReinstalledApps, totalReinstalledApps, ret);
     }
     return ret;
@@ -1047,27 +1047,27 @@ bool UsbRightManager::UnShowUsbDialog()
 
     auto abmc = AAFwk::AbilityManagerClient::GetInstance();
     if (abmc == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "GetInstance failed");
+        USB_HILOGE(MODULE_USB_HOST, "GetInstance failed");
         return false;
     }
-    USB_HILOGI(MODULE_USB_SERVICE, "unshow usb dialog window");
+    USB_HILOGI(MODULE_USB_HOST, "unshow usb dialog window");
     usbAbilityConn_->CloseDialog();
 
     int32_t ret = abmc->DisconnectAbility(usbAbilityConn_);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_SERVICE, "DisconnectAbility failed %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "DisconnectAbility failed %{public}d", ret);
         return false;
     }
-    USB_HILOGD(MODULE_USB_SERVICE, "unshow usb dialog window success");
+    USB_HILOGD(MODULE_USB_HOST, "unshow usb dialog window success");
     return true;
 }
 
 void UsbRightManager::UsbAbilityConn::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
                                                            const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s UsbAbilityConn", __func__);
+    USB_HILOGI(MODULE_USB_HOST, "%{public}s UsbAbilityConn", __func__);
     if (remoteObject == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "remoteObject is nullptr");
+        USB_HILOGE(MODULE_USB_HOST, "remoteObject is nullptr");
         return;
     }
 
@@ -1096,7 +1096,7 @@ void UsbRightManager::UsbAbilityConn::OnAbilityConnectDone(const AppExecFwk::Ele
     cJSON_Delete(paramJson);
     paramJson = nullptr;
     if (!pParamJson) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Print paramJson error");
+        USB_HILOGE(MODULE_USB_HOST, "Print paramJson error");
         return;
     }
     std::string paramStr(pParamJson);
@@ -1106,13 +1106,13 @@ void UsbRightManager::UsbAbilityConn::OnAbilityConnectDone(const AppExecFwk::Ele
 
     const uint32_t cmdCode = 1;
     int32_t ret = remoteObject->SendRequest(cmdCode, data, reply, option);
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s ret %{public}d", __func__, ret);
+    USB_HILOGI(MODULE_USB_HOST, "%{public}s ret %{public}d", __func__, ret);
     if (ret != ERR_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "send request failed: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "send request failed: %{public}d", ret);
         return;
     }
     if (!reply.ReadInt32(ret) || ret != ERR_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "show dialog failed: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_HOST, "show dialog failed: %{public}d", ret);
         return;
     }
     std::lock_guard<std::mutex> guard(remoteMutex_);
@@ -1122,7 +1122,7 @@ void UsbRightManager::UsbAbilityConn::OnAbilityConnectDone(const AppExecFwk::Ele
 void UsbRightManager::UsbAbilityConn::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
                                                               int32_t resultCode)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "disconnect done");
+    USB_HILOGI(MODULE_USB_HOST, "disconnect done");
     sem_post(&waitDialogDisappear_);
     std::lock_guard<std::mutex> guard(remoteMutex_);
     remoteObject_ = nullptr;
@@ -1132,7 +1132,7 @@ void UsbRightManager::UsbAbilityConn::CloseDialog()
 {
     std::lock_guard<std::mutex> guard(remoteMutex_);
     if (remoteObject_ == nullptr) {
-        USB_HILOGW(MODULE_USB_SERVICE, "CloseDialog: disconnected");
+        USB_HILOGW(MODULE_USB_HOST, "CloseDialog: disconnected");
         return;
     }
 
@@ -1146,7 +1146,7 @@ void UsbRightManager::UsbAbilityConn::CloseDialog()
     if (ret == ERR_OK) {
         success = reply.ReadInt32(replyCode);
     }
-    USB_HILOGI(MODULE_USB_SERVICE, "CloseDialog: ret=%{public}d, %{public}d, %{public}d", ret, success, replyCode);
+    USB_HILOGI(MODULE_USB_HOST, "CloseDialog: ret=%{public}d, %{public}d, %{public}d", ret, success, replyCode);
 }
 } // namespace USB
 } // namespace OHOS

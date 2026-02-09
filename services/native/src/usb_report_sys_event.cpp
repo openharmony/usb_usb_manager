@@ -38,9 +38,9 @@ void UsbReportSysEvent::ReportTransferFaultSysEvent(const std::string transferTy
     const HDI::Usb::V1_0::UsbPipe &tmpPipe, int32_t ret, const std::string description)
 {
     UsbInterface itIF;
-    USB_HILOGI(MODULE_USBD, "report transfor fault sys event");
+    USB_HILOGI(MODULE_USB_UTILS, "report transfor fault sys event");
     if (!GetUsbInterfaceId(usbDev, tmpPipe, tmpPipe.intfId, itIF)) {
-        USB_HILOGE(MODULE_SERVICE, "GetUsbConfigs failed");
+        USB_HILOGE(MODULE_USB_UTILS, "GetUsbConfigs failed");
         return;
     }
     int32_t hiRet = HiSysEventWrite(HiSysEvent::Domain::USB, "TRANSFER_FAULT",
@@ -51,7 +51,7 @@ void UsbReportSysEvent::ReportTransferFaultSysEvent(const std::string transferTy
         "INTF_ID", tmpPipe.intfId, "ENDPOINTT_ID", tmpPipe.endpointId,
         "FAIL_REASON", ret, "FAIL_DESCRIPTION", description);
     if (hiRet != UEC_OK) {
-        USB_HILOGE(MODULE_USBD, "HiSysEventWrite ret: %{public}d", hiRet);
+        USB_HILOGE(MODULE_USB_UTILS, "HiSysEventWrite ret: %{public}d", hiRet);
     }
 
 #ifdef USB_PERIPHERAL_FAULT_NOTIFY
@@ -65,13 +65,13 @@ void UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent(const std::str
     int32_t ret, const std::string description)
 {
     UsbInterface itIF;
-    USB_HILOGI(MODULE_USBD, "report transfor fault sys event");
+    USB_HILOGI(MODULE_USB_UTILS, "report transfor fault sys event");
     if (ep.GetAttributes() == 0x03 && ret == ERR_CODE_TIMEOUT) {
-        USB_HILOGE(MODULE_SERVICE, "submitTransfer is timeout");
+        USB_HILOGE(MODULE_USB_UTILS, "submitTransfer is timeout");
         return;
     }
     if (!GetUsbInterfaceId(usbDev, tmpPipe, tmpPipe.intfId, itIF)) {
-        USB_HILOGE(MODULE_SERVICE, "GetUsbConfigs failed");
+        USB_HILOGE(MODULE_USB_UTILS, "GetUsbConfigs failed");
         return;
     }
     int32_t hiRet = HiSysEventWrite(HiSysEvent::Domain::USB, "TRANSFER_FAULT",
@@ -82,7 +82,7 @@ void UsbReportSysEvent::CheckAttributeReportTransferFaultSysEvent(const std::str
         "INTF_ID", tmpPipe.intfId, "ENDPOINTT_ID", tmpPipe.endpointId,
         "FAIL_REASON", ret, "FAIL_DESCRIPTION", description);
     if (hiRet != UEC_OK) {
-        USB_HILOGE(MODULE_USBD, "HiSysEventWrite ret: %{public}d", hiRet);
+        USB_HILOGE(MODULE_USB_UTILS, "HiSysEventWrite ret: %{public}d", hiRet);
     }
 
 #ifdef USB_PERIPHERAL_FAULT_NOTIFY

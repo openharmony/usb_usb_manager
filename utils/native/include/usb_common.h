@@ -94,7 +94,7 @@ constexpr uint32_t USB_CFG_REMOTE_WAKEUP = 0x20;
 #define RETURN_IF_WITH_LOG(cond, loginfo)                                    \
     do {                                                                     \
         if (cond) {                                                          \
-            USB_HILOGE(MODULE_COMMON, "%{public}s " #loginfo " ", __func__); \
+            USB_HILOGE(MODULE_USB_UTILS, "%{public}s " #loginfo " ", __func__); \
             return;                                                          \
         }                                                                    \
     } while (0)
@@ -102,7 +102,7 @@ constexpr uint32_t USB_CFG_REMOTE_WAKEUP = 0x20;
 #define READ_PARCEL_NO_RET(parcel, type, out)                                       \
     do {                                                                            \
         if (!(parcel).Read##type(out)) {                                            \
-            USB_HILOGE(MODULE_COMMON, "%{public}s read " #out " failed", __func__); \
+            USB_HILOGE(MODULE_USB_UTILS, "%{public}s read " #out " failed", __func__); \
             return;                                                                 \
         }                                                                           \
     } while (0)
@@ -110,7 +110,7 @@ constexpr uint32_t USB_CFG_REMOTE_WAKEUP = 0x20;
 #define WRITE_PARCEL_NO_RET(parcel, type, data)                                       \
     do {                                                                              \
         if (!(parcel).Write##type(data)) {                                            \
-            USB_HILOGE(MODULE_COMMON, "%{public}s write " #data " failed", __func__); \
+            USB_HILOGE(MODULE_USB_UTILS, "%{public}s write " #data " failed", __func__); \
             return;                                                                   \
         }                                                                             \
     } while (0)
@@ -118,7 +118,7 @@ constexpr uint32_t USB_CFG_REMOTE_WAKEUP = 0x20;
 #define WRITE_PARCEL_AND_RETURN_FALSE_WHEN_FAIL(type, parcel, data)        \
     do {                                                                 \
         if (!(parcel).Write##type(data)) {                               \
-            USB_HILOGE(MODULE_COMMON, "%{public}s write " #data " failed", __func__); \
+            USB_HILOGE(MODULE_USB_UTILS, "%{public}s write " #data " failed", __func__); \
             return false;                                                \
         }                                                                \
     } while (0)
@@ -126,7 +126,7 @@ constexpr uint32_t USB_CFG_REMOTE_WAKEUP = 0x20;
 #define READ_PARCEL_WITH_RET(parcel, type, out, retval)                             \
     do {                                                                            \
         if (!(parcel).Read##type(out)) {                                            \
-            USB_HILOGE(MODULE_COMMON, "%{public}s read " #out " failed", __func__); \
+            USB_HILOGE(MODULE_USB_UTILS, "%{public}s read " #out " failed", __func__); \
             return (retval);                                                        \
         }                                                                           \
     } while (0)
@@ -134,7 +134,7 @@ constexpr uint32_t USB_CFG_REMOTE_WAKEUP = 0x20;
 #define WRITE_PARCEL_WITH_RET(parcel, type, data, retval)                             \
     do {                                                                              \
         if (!(parcel).Write##type(data)) {                                            \
-            USB_HILOGE(MODULE_COMMON, "%{public}s write " #data " failed", __func__); \
+            USB_HILOGE(MODULE_USB_UTILS, "%{public}s write " #data " failed", __func__); \
             return (retval);                                                          \
         }                                                                             \
     } while (0)

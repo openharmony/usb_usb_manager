@@ -126,7 +126,7 @@ public:
     explicit UsbDevice(const cJSON *device)
     {
         if (device == nullptr) {
-            USB_HILOGE(MODULE_USB_SERVICE, "device pointer is nullptr");
+            USB_HILOGE(MODULE_USB_INNERKIT, "device pointer is nullptr");
         }
         busNum_ = GetIntValue(device, "busNum");
         devAddr_ = GetIntValue(device, "devAddress");
@@ -144,7 +144,7 @@ public:
         for (int i = 0; i < cJSON_GetArraySize(configs); i++) {
             cJSON* jsonConfig =  cJSON_GetArrayItem(configs, i);
             if (jsonConfig == nullptr) {
-                USB_HILOGE(MODULE_USB_SERVICE, "get item nullptr");
+                USB_HILOGE(MODULE_USB_INNERKIT, "get item nullptr");
                 continue;
             }
             USBConfig config (jsonConfig);
@@ -161,7 +161,7 @@ public:
         if (item != nullptr && cJSON_IsNumber(item)) {
             return item->valueint;
         } else {
-            USB_HILOGE(MODULE_USB_SERVICE, "Invalid or missing %s field", key);
+            USB_HILOGE(MODULE_USB_INNERKIT, "Invalid or missing %s field", key);
             return 0;
         }
     }
@@ -172,7 +172,7 @@ public:
         if (item != nullptr && cJSON_IsString(item)) {
             return item->valuestring;
         } else {
-            USB_HILOGE(MODULE_USB_SERVICE, "Invalid or missing %s field", key);
+            USB_HILOGE(MODULE_USB_INNERKIT, "Invalid or missing %s field", key);
             return "";
         }
     }
@@ -431,7 +431,7 @@ public:
     {
         cJSON* device = cJSON_CreateObject();
         if (!device) {
-            USB_HILOGE(MODULE_USB_SERVICE, "Create device error");
+            USB_HILOGE(MODULE_USB_INNERKIT, "Create device error");
             return "";
         }
         cJSON_AddNumberToObject(device, "busNum", static_cast<double>(busNum_));
@@ -448,7 +448,7 @@ public:
         cJSON_AddNumberToObject(device, "protocol", static_cast<double>(protocol_));
         cJSON* configs = cJSON_CreateArray();
         if (!configs) {
-            USB_HILOGE(MODULE_USB_SERVICE, "Create configs error");
+            USB_HILOGE(MODULE_USB_INNERKIT, "Create configs error");
             cJSON_Delete(device);
             return "";
         }
@@ -460,7 +460,7 @@ public:
         char *pDevice = cJSON_PrintUnformatted(device);
         cJSON_Delete(device);
         if (!pDevice) {
-            USB_HILOGE(MODULE_USB_SERVICE, "Print device error");
+            USB_HILOGE(MODULE_USB_INNERKIT, "Print device error");
             return "";
         }
         std::string deviceStr(pDevice);

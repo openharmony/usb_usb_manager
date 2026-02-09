@@ -28,7 +28,7 @@
 
 using namespace OHOS::HiviewDFX;
 using OHOS::USB::USB_MGR_LABEL;
-using OHOS::USB::MODULE_USB_SERVICE;
+using OHOS::USB::MODULE_USB_SERIAL;
 using OHOS::USB::UEC_OK;
 
 namespace OHOS {
@@ -44,7 +44,7 @@ SerialManager::SerialManager()
     if (serial_ == nullptr) {
         serial_ = OHOS::HDI::Usb::Serial::V1_0::ISerialInterface::Get("serial_interface_service", true);
         if (serial_ == nullptr) {
-            USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: serial_ is nullptr", __func__);
+            USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: serial_ is nullptr", __func__);
         }
     }
 
@@ -53,7 +53,7 @@ SerialManager::SerialManager()
 
 SerialManager::~SerialManager()
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: start", __func__);
+    USB_HILOGI(MODULE_USB_SERIAL, "%{public}s: start", __func__);
 }
 
 inline int32_t ErrorCodeWrap(int32_t errorCode)
@@ -72,17 +72,17 @@ inline int32_t ErrorCodeWrap(int32_t errorCode)
 int32_t SerialManager::CheckPortAndTokenId(int32_t portId)
 {
     if (serial_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: serial_ is nullptr", __func__);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: serial_ is nullptr", __func__);
         return OHOS::USB::UEC_SERVICE_INVALID_VALUE;
     }
 
     if (!IsPortStatus(portId)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: The port is not open", __func__);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: The port is not open", __func__);
         return OHOS::USB::UEC_SERIAL_PORT_NOT_OPEN;
     }
 
     if (!CheckTokenIdValidity(portId)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: Application ID mismatch", __func__);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: Application ID mismatch", __func__);
         return OHOS::USB::UEC_SERIAL_PORT_NOT_OPEN;
     }
 
@@ -91,22 +91,22 @@ int32_t SerialManager::CheckPortAndTokenId(int32_t portId)
 
 int32_t SerialManager::SerialOpen(int32_t portId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: start", __func__);
+    USB_HILOGI(MODULE_USB_SERIAL, "%{public}s: start", __func__);
     if (serial_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: serial_ is nullptr", __func__);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: serial_ is nullptr", __func__);
         return OHOS::USB::UEC_SERVICE_INVALID_VALUE;
     }
 
     std::lock_guard<std::mutex> guard(portTokenMapMutex_);
     if (portTokenMap_.find(portId) != portTokenMap_.end()) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: The port has been opened", __func__);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: The port has been opened", __func__);
         return OHOS::USB::UEC_SERIAL_PORT_REPEAT_OPEN;
     }
 
     uint64_t timeMs = USB::UsbSecurityReport::GetCurrentTime();
     int32_t ret = serial_->SerialOpen(portId);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialOpen failed ret = %{public}d", __func__, ret);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: SerialOpen failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
     ReportSerialOperationSecurityInfo(portId, SERIAL_OPEN, timeMs);
@@ -117,26 +117,26 @@ int32_t SerialManager::SerialOpen(int32_t portId)
 
 int32_t SerialManager::SerialClose(int32_t portId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: start", __func__);
+    USB_HILOGI(MODULE_USB_SERIAL, "%{public}s: start", __func__);
     if (serial_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: serial_ is nullptr", __func__);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: serial_ is nullptr", __func__);
         return OHOS::USB::UEC_SERVICE_INVALID_VALUE;
     }
 
     if (!IsPortStatus(portId)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: The port not open", __func__);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: The port not open", __func__);
         return OHOS::USB::UEC_SERIAL_PORT_NOT_OPEN;
     }
 
     if (!CheckTokenIdValidity(portId)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: The port not open", __func__);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: The port not open", __func__);
         return OHOS::USB::UEC_SERIAL_PORT_NOT_OPEN;
     }
 
     uint64_t timeMs = USB::UsbSecurityReport::GetCurrentTime();
     int32_t ret = serial_->SerialClose(portId);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialClose failed ret = %{public}d", __func__, ret);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: SerialClose failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
     ReportSerialOperationSecurityInfo(portId, SERIAL_CLOSE, timeMs);
@@ -151,17 +151,17 @@ int32_t SerialManager::SerialClose(int32_t portId)
 int32_t SerialManager::SerialRead(int32_t portId, std::vector<uint8_t> &data, uint32_t size,
     uint32_t &actualSize, uint32_t timeout)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: start", __func__);
+    USB_HILOGI(MODULE_USB_SERIAL, "%{public}s: start", __func__);
     int32_t ret = CheckPortAndTokenId(portId);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckPortAndTokenId failed", __func__);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: CheckPortAndTokenId failed", __func__);
         return ret;
     }
 
     uint64_t timeMs = USB::UsbSecurityReport::GetCurrentTime();
     ret = serial_->SerialRead(portId, data, size, timeout);
     if (ret < UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialRead failed ret = %{public}d", __func__, ret);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: SerialRead failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
     if (QueryAndRecordFirstRead(portId)) {
@@ -174,17 +174,17 @@ int32_t SerialManager::SerialRead(int32_t portId, std::vector<uint8_t> &data, ui
 int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& data, uint32_t size,
     uint32_t &actualSize, uint32_t timeout)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: start", __func__);
+    USB_HILOGI(MODULE_USB_SERIAL, "%{public}s: start", __func__);
     int32_t ret = CheckPortAndTokenId(portId);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckPortAndTokenId failed", __func__);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: CheckPortAndTokenId failed", __func__);
         return ret;
     }
 
     uint64_t timeMs = USB::UsbSecurityReport::GetCurrentTime();
     ret = serial_->SerialWrite(portId, data, size, timeout);
     if (ret < UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialWrite failed ret = %{public}d", __func__, ret);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: SerialWrite failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
     if (QueryAndRecordFirstWrite(portId)) {
@@ -196,16 +196,16 @@ int32_t SerialManager::SerialWrite(int32_t portId, const std::vector<uint8_t>& d
 
 int32_t SerialManager::SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: start", __func__);
+    USB_HILOGI(MODULE_USB_SERIAL, "%{public}s: start", __func__);
     int32_t ret = CheckPortAndTokenId(portId);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckPortAndTokenId failed", __func__);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: CheckPortAndTokenId failed", __func__);
         return ret;
     }
 
     ret = serial_->SerialGetAttribute(portId, attribute);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialGetAttribute failed ret = %{public}d", __func__, ret);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: SerialGetAttribute failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
 
@@ -215,16 +215,16 @@ int32_t SerialManager::SerialGetAttribute(int32_t portId, OHOS::HDI::Usb::Serial
 int32_t SerialManager::SerialSetAttribute(int32_t portId,
     const OHOS::HDI::Usb::Serial::V1_0::SerialAttribute& attribute)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: start", __func__);
+    USB_HILOGI(MODULE_USB_SERIAL, "%{public}s: start", __func__);
     int32_t ret = CheckPortAndTokenId(portId);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: CheckPortAndTokenId failed", __func__);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: CheckPortAndTokenId failed", __func__);
         return ret;
     }
 
     ret = serial_->SerialSetAttribute(portId, attribute);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialSetAttribute failed ret = %{public}d", __func__, ret);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: SerialSetAttribute failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
     }
 
@@ -233,16 +233,16 @@ int32_t SerialManager::SerialSetAttribute(int32_t portId,
 
 int32_t SerialManager::SerialGetPortList(std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort>& serialPortList)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: start", __func__);
+    USB_HILOGI(MODULE_USB_SERIAL, "%{public}s: start", __func__);
 
     if (serial_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: serial_ is nullptr", __func__);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: serial_ is nullptr", __func__);
         return OHOS::USB::UEC_SERVICE_INVALID_VALUE;
     }
 
     int32_t ret = serial_->SerialGetPortList(serialPortList);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: SerialGetPortList failed ret = %{public}d", __func__, ret);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: SerialGetPortList failed ret = %{public}d", __func__, ret);
         return ret;
     }
     
@@ -262,7 +262,7 @@ bool SerialManager::IsPortIdExist(int32_t portId)
 {
     std::lock_guard<std::mutex> guard(serialPortMapMutex_);
     if (serialPortMap_.find(portId) == serialPortMap_.end()) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: port %{public}d not exist", __func__, portId);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: port %{public}d not exist", __func__, portId);
         return false;
     }
 
@@ -279,7 +279,7 @@ bool SerialManager::CheckTokenIdValidity(int32_t portId)
 {
     std::lock_guard<std::mutex> guard(portTokenMapMutex_);
     if (IPCSkeleton::GetCallingTokenID() != portTokenMap_[portId]) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: The tokenId corresponding to the port is incorrect", __func__);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: The tokenId corresponding to the port is incorrect", __func__);
         return false;
     }
 
@@ -288,10 +288,10 @@ bool SerialManager::CheckTokenIdValidity(int32_t portId)
 
 void SerialManager::FreeTokenId(int32_t portId, uint32_t tokenId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: start", __func__);
+    USB_HILOGI(MODULE_USB_SERIAL, "%{public}s: start", __func__);
     std::lock_guard<std::mutex> guard(portTokenMapMutex_);
     if ((portTokenMap_.find(portId) == portTokenMap_.end()) || (portTokenMap_[portId] != tokenId)) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: portid not exist or tokenId failed", __func__);
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: portid not exist or tokenId failed", __func__);
         return;
     }
 
@@ -338,13 +338,13 @@ bool SerialManager::CheckDataAndProcessPortId(int32_t fd, const std::vector<std:
     if (ret != UEC_OK) {
         ret = SerialOpen(portId);
         if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "SerialOpen failed");
+            USB_HILOGE(MODULE_USB_SERIAL, "SerialOpen failed");
             dprintf(fd, "Port %zu: port does not exist\n", portId);
             return false;
         }
         ret = SerialGetAttribute(portId, attribute);
         if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "SerialGetAttribute failed");
+            USB_HILOGE(MODULE_USB_SERIAL, "SerialGetAttribute failed");
         }
         SerialClose(portId);
     }
@@ -361,13 +361,13 @@ void SerialManager::SerialGetAttributeDump(int32_t fd, const std::vector<std::st
         std::vector<OHOS::HDI::Usb::Serial::V1_0::SerialPort> serialPortList;
         int32_t ret = SerialGetPortList(serialPortList);
         if (ret != UEC_OK) {
-            USB_HILOGE(MODULE_USB_SERVICE, "SerialGetPortList failed");
+            USB_HILOGE(MODULE_USB_SERIAL, "SerialGetPortList failed");
             return;
         }
         size_t portCount = serialPortList.size();
         for (size_t i = 0; i < portCount; ++i) {
             if (i > INT32_MAX) {
-                USB_HILOGE(MODULE_USB_SERVICE, "SerialGetPortList port index out of range");
+                USB_HILOGE(MODULE_USB_SERIAL, "SerialGetPortList port index out of range");
                 break;
             }
             int32_t portId = static_cast<int32_t>(serialPortList[i].portId);
@@ -382,7 +382,7 @@ void SerialManager::SerialGetAttributeDump(int32_t fd, const std::vector<std::st
         }
     } else if (size == DUMP_PARAMS_NUM_2) {
         if (!CheckDataAndProcessPortId(fd, args, attribute)) {
-            USB_HILOGE(MODULE_USB_SERVICE, "CheckDataAndProcessPortId failed");
+            USB_HILOGE(MODULE_USB_SERIAL, "CheckDataAndProcessPortId failed");
             return;
         }
     } else {
@@ -403,7 +403,7 @@ void SerialManager::ListGetDumpHelp(int32_t fd)
 bool SerialManager::GetSerialPort(int32_t portId, OHOS::HDI::Usb::Serial::V1_0::SerialPort& serialPort)
 {
     if (serialPortMap_.find(portId) == serialPortMap_.end()) {
-        USB_HILOGI(MODULE_USB_SERVICE, "serialPort not found");
+        USB_HILOGI(MODULE_USB_SERIAL, "serialPort not found");
         return false;
     }
 
@@ -437,7 +437,7 @@ void SerialManager::ResetFirstWrite(int32_t portId)
 
 void SerialManager::ReportSerialOperationSecurityInfo(int32_t portId, std::string operationType, uint64_t time)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s enter: operation=%{public}s", __func__, operationType.c_str());
+    USB_HILOGI(MODULE_USB_SERIAL, "%{public}s enter: operation=%{public}s", __func__, operationType.c_str());
     nlohmann::json operationJson {
         {"happenTime", time},
         {"portId", portId},

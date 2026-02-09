@@ -38,7 +38,7 @@ public:
     explicit USBEndpoint(const cJSON *endpoint)
     {
         if (endpoint == nullptr) {
-            USB_HILOGE(MODULE_USB_SERVICE, "endpoint pointer is nullptr");
+            USB_HILOGE(MODULE_USB_INNERKIT, "endpoint pointer is nullptr");
         }
         address_ = static_cast<uint32_t>(GetIntValue(endpoint, "address"));
         attributes_ = static_cast<uint32_t>(GetIntValue(endpoint, "attributes"));
@@ -78,7 +78,7 @@ public:
         if (item != nullptr && cJSON_IsNumber(item)) {
             return item->valueint;
         } else {
-            USB_HILOGE(MODULE_USB_SERVICE, "Invalid or missing %s field", key);
+            USB_HILOGE(MODULE_USB_INNERKIT, "Invalid or missing %s field", key);
             return 0;
         }
     }
@@ -89,7 +89,7 @@ public:
         if (item != nullptr && cJSON_IsString(item)) {
             return item->valuestring;
         } else {
-            USB_HILOGE(MODULE_USB_SERVICE, "Invalid or missing %s field", key);
+            USB_HILOGE(MODULE_USB_INNERKIT, "Invalid or missing %s field", key);
             return "";
         }
     }
@@ -188,7 +188,7 @@ public:
     {
         cJSON *endPointJson = cJSON_CreateObject();
         if (!endPointJson) {
-            USB_HILOGE(MODULE_USB_SERVICE, "Create endPointJson error");
+            USB_HILOGE(MODULE_USB_INNERKIT, "Create endPointJson error");
             return "";
         }
         cJSON_AddNumberToObject(endPointJson, "address", static_cast<double>(address_));
@@ -202,7 +202,7 @@ public:
         char *pEndPointJson = cJSON_PrintUnformatted(endPointJson);
         cJSON_Delete(endPointJson);
         if (!pEndPointJson) {
-            USB_HILOGE(MODULE_USB_SERVICE, "Print endPointJson error");
+            USB_HILOGE(MODULE_USB_INNERKIT, "Print endPointJson error");
             return "";
         }
         std::string endPointJsonStr(pEndPointJson);
