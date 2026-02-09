@@ -1168,7 +1168,7 @@ static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::
         ani_class cls;
         if (ANI_OK != env->FindClass("std.core.Function2", &cls)) {
             USB_HILOGE(MODULE_USB_NAPI, "%{public}s: FindClass failed.", __func__);
-            DeleteCallback(conasyncContexttext);
+            DeleteCallback(asyncContext);
             return;
         }
         ani_boolean ret;
