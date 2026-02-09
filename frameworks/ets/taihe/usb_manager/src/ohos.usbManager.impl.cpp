@@ -1150,7 +1150,10 @@ static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::
         ani_ref ani_argv[] = {businessError, param};
         ani_ref ani_result;
         ani_class cls;
-        env->FindClass("std.core.Function2", &cls);
+        if (ANI_OK != env->FindClass("std.core.Function2", &cls)) {
+            USB_HILOGI(MODULE_JS_NAPI, "%{public}s: FindClass failed.", __func__);
+            return;
+        }
         ani_boolean ret;
         env->Object_InstanceOf(callbackFunc, cls, &ret);
         if (!ret) {
