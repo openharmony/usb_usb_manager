@@ -1113,13 +1113,17 @@ static bool SendEventToMainThread(const std::function<void()> func)
 }
 
 static void DeleteCallback(USBTransferAsyncContext* context) {
+    if (context == nullptr) {
+        USB_HILOGE(MODULE_USB_NAPI, "%{public}s: context is nullptr", __func__);
+        return;
+    }
     ani_env* env = ::taihe::get_env();
-    if (env == nullptr || context == nullptr || context->callbackRef == nullptr) {
-        USB_HILOGE(MODULE_USB_NAPI, "%{public}s: env/context/callbackRef is nullptr", __func__);
+    if (env == nullptr || context->callbackRef == nullptr) {
+        USB_HILOGE(MODULE_USB_NAPI, "%{public}s: env/callbackRef is nullptr", __func__);
+        delete context;
         return;
     }
     env->GlobalReference_Delete(context->callbackRef);
-    delete context;
 }
 
 static constexpr int32_t LOCAL_SCOPE_SIZE = 16;
@@ -1164,6 +1168,7 @@ static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::
         ani_class cls;
         if (ANI_OK != env->FindClass("std.core.Function2", &cls)) {
             USB_HILOGE(MODULE_USB_NAPI, "%{public}s: FindClass failed.", __func__);
+            DeleteCallback(conasyncContexttext);
             return;
         }
         ani_boolean ret;
@@ -1271,7 +1276,7 @@ void usbSubmitTransfer(UsbDataTransferParams const &transfer)
     }
     auto transferInfo = PrepareTransferInfo(transfer, context);
     if (!CreateAndWriteAshmem(context, transferInfo)) {
-        delete context;
+        DeleteCallback(context);
         return;
     }
     USB_HILOGD(MODULE_USB_NAPI, "CreateAndWriteAshmem OK.");
@@ -1279,7 +1284,7 @@ void usbSubmitTransfer(UsbDataTransferParams const &transfer)
     USB_HILOGD(MODULE_USB_NAPI, "usbSubmitTransfer ret: %{public}d", ret);
     if (ret != OHOS::USB::UEC_OK) {
         context->ashmem->CloseAshmem();
-        delete context;
+        DeleteCallback(context);
         ThrowBusinessError(UsbSubmitTransferErrorCode(ret), "");
     }
     USB_HILOGD(MODULE_USB_NAPI, "usbSubmitTransfer fin.");
