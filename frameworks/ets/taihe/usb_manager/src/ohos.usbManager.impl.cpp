@@ -1124,6 +1124,7 @@ static void DeleteCallback(USBTransferAsyncContext* context) {
         return;
     }
     env->GlobalReference_Delete(context->callbackRef);
+    delete context;
 }
 
 static constexpr int32_t LOCAL_SCOPE_SIZE = 16;
