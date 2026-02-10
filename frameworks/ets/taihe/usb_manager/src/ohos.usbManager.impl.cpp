@@ -1126,7 +1126,6 @@ static void DeleteCallback(USBTransferAsyncContext* context)
     }
     env->GlobalReference_Delete(context->callbackRef);
     delete context;
-    env->DestroyLocalScope();
 }
 
 static constexpr int32_t LOCAL_SCOPE_SIZE = 16;
@@ -1172,6 +1171,7 @@ static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::
         if (ANI_OK != env->FindClass("std.core.Function2", &cls)) {
             USB_HILOGE(MODULE_USB_NAPI, "%{public}s: FindClass failed.", __func__);
             DeleteCallback(asyncContext);
+            env->DestroyLocalScope();
             return;
         }
         ani_boolean ret;
@@ -1179,11 +1179,13 @@ static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::
         if (!ret) {
             USB_HILOGE(MODULE_USB_NAPI, "%{public}s: callbackFunc is not instance Of Function2.", __func__);
             DeleteCallback(asyncContext);
+            env->DestroyLocalScope();
             return;
         }
         auto errCode = env->FunctionalObject_Call(static_cast<ani_fn_object>(callbackFunc), 2, ani_argv, &ani_result);
         USB_HILOGE(MODULE_USB_NAPI, "AniCallBack FunctionalObject_Call returned %{public}d.", errCode);
         DeleteCallback(asyncContext);
+        env->DestroyLocalScope();
     };
     if (!SendEventToMainThread(task)) {
         USB_HILOGI(MODULE_USB_NAPI, "SendEventToMainThread failed.");
