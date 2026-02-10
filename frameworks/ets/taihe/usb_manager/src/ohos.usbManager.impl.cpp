@@ -1176,6 +1176,7 @@ static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::
         if (!ret) {
             USB_HILOGE(MODULE_USB_NAPI, "%{public}s: callbackFunc is not instance Of Function2.", __func__);
             DeleteCallback(asyncContext);
+            return;
         }
         auto errCode = env->FunctionalObject_Call(static_cast<ani_fn_object>(callbackFunc), 2, ani_argv, &ani_result);
         USB_HILOGE(MODULE_USB_NAPI, "AniCallBack FunctionalObject_Call returned %{public}d.", errCode);
