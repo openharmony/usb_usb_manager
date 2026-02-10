@@ -1112,7 +1112,8 @@ static bool SendEventToMainThread(const std::function<void()> func)
     return true;
 }
 
-static void DeleteCallback(USBTransferAsyncContext* context) {
+static void DeleteCallback(USBTransferAsyncContext* context)
+{
     if (context == nullptr) {
         USB_HILOGE(MODULE_USB_NAPI, "%{public}s: context is nullptr", __func__);
         return;
