@@ -1768,6 +1768,37 @@ ohos_fuzztest("UsbMgrSerialWriteFuzzTest") {
   sources = [ "usbmgrserialwrite_fuzzer/usbmgrserialwrite_fuzzer.cpp" ]
 }
 
+ohos_fuzztest("UsbMgrOpenDeviceFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgropendevice_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "selinux_adapter:librestorecon",
+  ]
+
+  sources = [ "usbmgropendevice_fuzzer/usbmgropendevice_fuzzer.cpp" ]
+}
+
 group("fuzztest") {
   testonly = true
   deps = []
@@ -1799,6 +1830,7 @@ group("fuzztest") {
       ":UsbMgrManageDevicePolicyFuzzTest",
       ":UsbMgrManageGlobalInterfaceFuzzTest",
       ":UsbMgrManageManageInterfaceTypeFuzzTest",
+      ":UsbMgrOpenDeviceFuzzTest",
       ":UsbMgrParallelizeFuzzTest",
       ":UsbMgrPipeRequestWaitFuzzTest",
       ":UsbMgrPrivateFuzzTest",
