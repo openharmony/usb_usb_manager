@@ -1459,6 +1459,38 @@ ohos_fuzztest("UsbMgrGetDeviceSpeedFuzzTest") {
 
   sources = [ "usbmgrgetdevicespeed_fuzzer/usbmgrgetdevicespeed_fuzzer.cpp" ]
 }
+
+ohos_fuzztest("UsbMgrGetCurrentFunctionsFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrgetcurrentfunctions_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "selinux_adapter:librestorecon",
+  ]
+
+  sources = [ "usbmgrgetcurrentfunctions_fuzzer/usbmgrgetcurrentfunctions_fuzzer.cpp" ]
+}
+
 ohos_fuzztest("UsbMgrGetInterfaceStatusFuzzTest") {
   module_out_path = module_output_path
 
@@ -1859,6 +1891,11 @@ ohos_fuzztest("UsbMgrOpenDeviceFuzzTest") {
     "${usb_manager_path}/services:usbservice",
   ]
 
+  defines = [
+    "USB_MANAGER_FEATURE_HOST",
+    "USB_MANAGER_FEATURE_DEVICE",
+    "USB_MANAGER_FEATURE_PORT",
+  ]
   external_deps = [
     "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
@@ -1899,6 +1936,7 @@ group("fuzztest") {
       ":UsbMgrExFuzzTest",
       ":UsbMgrFuzzTest",
       ":UsbMgrGetDeviceSpeedFuzzTest",
+      ":UsbMgrGetCurrentFunctionsFuzzTest",
       ":UsbMgrGetFileDescriptorFuzzTest",
       ":UsbMgrGetInterfaceStatusFuzzTest",
       ":UsbMgrGetRawDescriptorsFuzzTest",
