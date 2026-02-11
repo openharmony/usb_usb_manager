@@ -1912,6 +1912,7 @@ group("fuzztest") {
       ":UsbMgrParallelizeFuzzTest",
       ":UsbMgrPipeRequestWaitFuzzTest",
       ":UsbMgrPrivateFuzzTest",
+      ":UsbMgrPrivateGetTransferTypeStringFuzzTest",
       ":UsbMgrRegBulkCallbackFuzzTest",
       ":UsbMgrReleaseInterfaceFuzzTest",
       ":UsbMgrRemoveRightFuzzTest",
@@ -1937,6 +1938,7 @@ group("fuzztest") {
   }
   if (usb_manager_feature_device) {
     deps += [
+      ":UsbMgrPrivateSetPhyConnectFuzzTest",
       ":UsbMgrSetCurrentFunctionsFuzzTest",
       ":UsbMgrUsbFunctionsFromStringFuzzTest",
       ":UsbMgrUsbFunctionsToStringFuzzTest",
