@@ -39,15 +39,15 @@ public:
         }
 
         if (!parcel.WriteUint32(length)) {
-            USB_HILOGE(MODULE_USBD, "write bulktransfer length failed:%{public}u", length);
+            USB_HILOGE(MODULE_USB_INNERKIT, "write bulktransfer length failed:%{public}u", length);
             return false;
         }
         if ((ptr) && (length > 0) && !parcel.WriteBuffer(reinterpret_cast<const void *>(ptr), length)) {
-            USB_HILOGE(MODULE_USBD, "write bulktransfer buffer failed length:%{public}u", length);
+            USB_HILOGE(MODULE_USB_INNERKIT, "write bulktransfer buffer failed length:%{public}u", length);
             return false;
         }
 
-        USB_HILOGI(MODULE_USBD, "success bulktransfer length:%{public}u", length);
+        USB_HILOGI(MODULE_USB_INNERKIT, "success bulktransfer length:%{public}u", length);
         return true;
     }
 
@@ -60,16 +60,16 @@ public:
 
         uint32_t dataSize = 0;
         if (!parcel.ReadUint32(dataSize)) {
-            USB_HILOGE(MODULE_USBD, "read bulktransfer dataSize failed");
+            USB_HILOGE(MODULE_USB_INNERKIT, "read bulktransfer dataSize failed");
             return pBufferData;
         }
         if (dataSize == 0) {
-            USB_HILOGI(MODULE_USBD, "bulktransfer invalid size:%{public}u", dataSize);
+            USB_HILOGI(MODULE_USB_INNERKIT, "bulktransfer invalid size:%{public}u", dataSize);
             return pBufferData;
         }
         const uint8_t *readData = parcel.ReadUnpadBuffer(dataSize);
         if (readData == nullptr) {
-            USB_HILOGE(MODULE_USBD, "bulktransfer failed size:%{public}u", dataSize);
+            USB_HILOGE(MODULE_USB_INNERKIT, "bulktransfer failed size:%{public}u", dataSize);
             return pBufferData;
         }
         std::vector<uint8_t> tdata(readData, readData + dataSize);

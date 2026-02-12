@@ -47,7 +47,7 @@ public:
     explicit USBAccessory(const cJSON *accesory)
     {
         if (accesory == nullptr) {
-            USB_HILOGE(MODULE_USB_SERVICE, "accesory pointer is nullptr");
+            USB_HILOGE(MODULE_USB_INNERKIT, "accesory pointer is nullptr");
             return;
         }
         manufacturer_ = GetStringValue(accesory, "manufacturer");
@@ -87,7 +87,7 @@ public:
         if (item != nullptr && cJSON_IsString(item)) {
             return item->valuestring;
         } else {
-            USB_HILOGE(MODULE_USB_SERVICE, "Invalid or missing %s field", key);
+            USB_HILOGE(MODULE_USB_INNERKIT, "Invalid or missing %s field", key);
             return "";
         }
     }
@@ -96,7 +96,7 @@ public:
     {
         cJSON *accJson = cJSON_CreateObject();
         if (!accJson) {
-            USB_HILOGE(MODULE_USB_SERVICE, "Create accessory error");
+            USB_HILOGE(MODULE_USB_INNERKIT, "Create accessory error");
             return "";
         }
         cJSON_AddStringToObject(accJson, "manufacturer", manufacturer_.c_str());
@@ -107,7 +107,7 @@ public:
         char *pAccJson = cJSON_PrintUnformatted(accJson);
         cJSON_Delete(accJson);
         if (!pAccJson) {
-            USB_HILOGE(MODULE_USB_SERVICE, "Print accJson error");
+            USB_HILOGE(MODULE_USB_INNERKIT, "Print accJson error");
             return "";
         }
         std::string accJsonStr(pAccJson);
@@ -131,7 +131,7 @@ public:
     void SetAccessory(std::vector<std::string> &accessorys)
     {
         if (accessorys.size() < ACC_SIZE) {
-            USB_HILOGE(MODULE_USB_SERVICE, "accessorys param invalid");
+            USB_HILOGE(MODULE_USB_INNERKIT, "accessorys param invalid");
             return;
         }
 

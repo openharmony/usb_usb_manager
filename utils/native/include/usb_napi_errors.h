@@ -91,7 +91,7 @@ napi_value CreateBusinessError(const napi_env &env, int32_t errCode, const std::
 #define USB_ASSERT_BASE(env, assertion, errCode, errMsg, retVal) \
     do {                                                         \
         if (!(assertion)) {                                      \
-            USB_HILOGE(MODULE_JS_NAPI, #errMsg);                 \
+            USB_HILOGE(MODULE_USB_UTILS, #errMsg);                 \
             ThrowBusinessError((env), errCode, errMsg);          \
             return retVal;                                       \
         }                                                        \
@@ -112,7 +112,7 @@ napi_value CreateBusinessError(const napi_env &env, int32_t errCode, const std::
 #define NAPI_CHECK(env, theCall, loginfo)                                     \
     do {                                                                      \
         if ((theCall) != napi_ok) {                                           \
-            USB_HILOGE(MODULE_JS_NAPI, "%{public}s " #loginfo " ", __func__); \
+            USB_HILOGE(MODULE_USB_UTILS, "%{public}s " #loginfo " ", __func__); \
             napi_value obj = nullptr;                                         \
             napi_get_undefined(env, &obj);                                    \
             return obj;                                                       \
@@ -122,7 +122,7 @@ napi_value CreateBusinessError(const napi_env &env, int32_t errCode, const std::
 #define NAPI_CHECK_BASE(theCall, loginfo, retVal)                             \
     do {                                                                      \
         if ((theCall) != napi_ok) {                                           \
-            USB_HILOGE(MODULE_JS_NAPI, "%{public}s " #loginfo " ", __func__); \
+            USB_HILOGE(MODULE_USB_UTILS, "%{public}s " #loginfo " ", __func__); \
             return retVal;                                                    \
         }                                                                     \
     } while (0)

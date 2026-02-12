@@ -54,17 +54,17 @@ const std::map<std::string_view, uint32_t> UsbDeviceManager::FUNCTION_MAPPING_N2
 
 UsbDeviceManager::UsbDeviceManager()
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceManager::Init start");
+    USB_HILOGI(MODULE_USB_DEVICE, "UsbDeviceManager::Init start");
 #ifndef USB_MANAGER_V2_0
     if (usbd_ == nullptr) {
         usbd_ = IUsbInterface::Get();
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s:%{public}d usbd_ == nullptr: %{public}d",
+        USB_HILOGI(MODULE_USB_DEVICE, "%{public}s:%{public}d usbd_ == nullptr: %{public}d",
             __func__, __LINE__, usbd_ == nullptr);
     } else {
-        USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
+        USB_HILOGW(MODULE_USB_DEVICE, "%{public}s:usbd_ != nullptr", __func__);
     }
     if (usbd_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::Get inteface failed");
+        USB_HILOGE(MODULE_USB_DEVICE, "UsbDeviceManager::Get inteface failed");
     }
 #endif // USB_MANAGER_V2_0
 }
@@ -72,28 +72,28 @@ UsbDeviceManager::UsbDeviceManager()
 #ifdef USB_MANAGER_V2_0
 bool UsbDeviceManager::InitUsbDeviceInterface()
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "InitUsbDeviceInterface in");
+    USB_HILOGI(MODULE_USB_DEVICE, "InitUsbDeviceInterface in");
     usbDeviceInterface_ = HDI::Usb::V2_0::IUsbDeviceInterface::Get();
     if (usbDeviceInterface_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "InitUsbDeviceInterface get usbDeviceInterface_ is nullptr");
+        USB_HILOGE(MODULE_USB_DEVICE, "InitUsbDeviceInterface get usbDeviceInterface_ is nullptr");
         return false;
     }
 
     usbManagerSubscriber_ = new (std::nothrow) UsbManagerSubscriber();
     if (usbManagerSubscriber_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Init failed");
+        USB_HILOGE(MODULE_USB_DEVICE, "Init failed");
         return false;
     }
 
     ErrCode ret = usbDeviceInterface_->BindUsbdDeviceSubscriber(usbManagerSubscriber_);
-    USB_HILOGI(MODULE_USB_SERVICE, "entry InitUsbDeviceInterface ret: %{public}d", ret);
+    USB_HILOGI(MODULE_USB_DEVICE, "entry InitUsbDeviceInterface ret: %{public}d", ret);
     return SUCCEEDED(ret);
 }
 
 void UsbDeviceManager::Stop()
 {
     if (usbDeviceInterface_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::usbDeviceInterface_ is nullptr");
+        USB_HILOGE(MODULE_USB_DEVICE, "UsbDeviceManager::usbDeviceInterface_ is nullptr");
         return;
     }
     usbDeviceInterface_->UnbindUsbdDeviceSubscriber(usbManagerSubscriber_);
@@ -103,7 +103,7 @@ void UsbDeviceManager::Stop()
 int32_t UsbDeviceManager::BindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSubscriber> &subscriber)
 {
     if (usbDeviceInterface_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::BulkCancel usbDeviceInterface_ is nullptr");
+        USB_HILOGE(MODULE_USB_DEVICE, "UsbDeviceManager::BulkCancel usbDeviceInterface_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
     return usbDeviceInterface_->BindUsbdDeviceSubscriber(subscriber);
@@ -112,7 +112,7 @@ int32_t UsbDeviceManager::BindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSub
 int32_t UsbDeviceManager::UnbindUsbdSubscriber(const sptr<HDI::Usb::V2_0::IUsbdSubscriber> &subscriber)
 {
     if (usbDeviceInterface_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::BulkCancel usbDeviceInterface_ is nullptr");
+        USB_HILOGE(MODULE_USB_DEVICE, "UsbDeviceManager::BulkCancel usbDeviceInterface_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
     return usbDeviceInterface_->UnbindUsbdDeviceSubscriber(subscriber);
@@ -123,14 +123,14 @@ int32_t UsbDeviceManager::GetCurrentFunctions(int32_t& funcs)
 {
 #ifdef USB_MANAGER_V2_0
     if (usbDeviceInterface_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::usbDeviceInterface_ is nullptr");
+        USB_HILOGE(MODULE_USB_DEVICE, "UsbDeviceManager::usbDeviceInterface_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
     std::lock_guard<std::mutex> guard(functionMutex_);
     return usbDeviceInterface_->GetCurrentFunctions(funcs);
 #else
     if (usbd_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::usbd_ is nullptr");
+        USB_HILOGE(MODULE_USB_DEVICE, "UsbDeviceManager::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
     std::lock_guard<std::mutex> guard(functionMutex_);
@@ -142,23 +142,23 @@ int32_t UsbDeviceManager::GetCurrentFunctions(int32_t& funcs)
 int32_t UsbDeviceManager::SetCurrentFunctions(int32_t funcs)
 {
     if (usbDeviceInterface_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::usbDeviceInterface_ is nullptr");
+        USB_HILOGE(MODULE_USB_DEVICE, "UsbDeviceManager::usbDeviceInterface_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
     int32_t lastFunc;
     std::lock_guard<std::mutex> guard(functionMutex_);
     if (usbDeviceInterface_->GetCurrentFunctions(lastFunc) != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::get current functions fail");
+        USB_HILOGE(MODULE_USB_DEVICE, "UsbDeviceManager::get current functions fail");
         ReportUsbOperationFaultSysEvent("FUNCTION_CHANGED", UEC_SERVICE_INVALID_VALUE, "DevIntfGetFunc is failed");
         return UEC_SERVICE_INVALID_VALUE;
     }
     if (lastFunc == funcs) {
-        USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceManager::no change in functionality");
+        USB_HILOGI(MODULE_USB_DEVICE, "UsbDeviceManager::no change in functionality");
         return UEC_OK;
     }
     int32_t ret = usbDeviceInterface_->SetCurrentFunctions(funcs);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::usbDeviceInterface_ set function error");
+        USB_HILOGE(MODULE_USB_DEVICE, "UsbDeviceManager::usbDeviceInterface_ set function error");
         ReportUsbOperationFaultSysEvent("FUNCTION_CHANGED", ret, "DevIntfSetFunc is failed");
         if (ret == HDF_ERR_NOT_SUPPORT) {
             return UEC_SERVICE_FUNCTION_NOT_SUPPORT;
@@ -172,23 +172,23 @@ int32_t UsbDeviceManager::SetCurrentFunctions(int32_t funcs)
 int32_t UsbDeviceManager::SetCurrentFunctions(int32_t funcs)
 {
     if (usbd_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::usbd_ is nullptr");
+        USB_HILOGE(MODULE_USB_DEVICE, "UsbDeviceManager::usbd_ is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
     int32_t lastFunc;
     std::lock_guard<std::mutex> guard(functionMutex_);
     if (usbd_->GetCurrentFunctions(lastFunc) != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::get current functions fail");
+        USB_HILOGE(MODULE_USB_DEVICE, "UsbDeviceManager::get current functions fail");
         ReportUsbOperationFaultSysEvent("FUNCTION_CHANGED", UEC_SERVICE_INVALID_VALUE, "UsbdfGetFunc is failed");
         return UEC_SERVICE_INVALID_VALUE;
     }
     if (lastFunc == funcs) {
-        USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceManager::no change in functionality");
+        USB_HILOGI(MODULE_USB_DEVICE, "UsbDeviceManager::no change in functionality");
         return UEC_OK;
     }
     int32_t ret = usbd_->SetCurrentFunctions(funcs);
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::usbd_ set function error");
+        USB_HILOGE(MODULE_USB_DEVICE, "UsbDeviceManager::usbd_ set function error");
         ReportUsbOperationFaultSysEvent("FUNCTION_CHANGED", UEC_SERVICE_INVALID_VALUE, "UsbdSetFunc is failed");
         if (ret == HDF_ERR_NOT_SUPPORT) {
             return UEC_SERVICE_FUNCTION_NOT_SUPPORT;
@@ -204,13 +204,13 @@ int32_t UsbDeviceManager::Init()
 {
     std::shared_ptr<UsbFunctionSwitchWindow> window_ = UsbFunctionSwitchWindow::GetInstance();
     if (window_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "get usb function switch window failed");
+        USB_HILOGE(MODULE_USB_DEVICE, "get usb function switch window failed");
         return UEC_SERVICE_INNER_ERR;
     }
 
     int32_t ret = window_->Init();
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "Init usb function switch window failed");
+        USB_HILOGE(MODULE_USB_DEVICE, "Init usb function switch window failed");
     }
     return ret;
 }
@@ -218,13 +218,13 @@ int32_t UsbDeviceManager::Init()
 int32_t UsbDeviceManager::SetUsbd(const sptr<IUsbInterface> &usbd)
 {
     if (usbd == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager usbd is nullptr");
+        USB_HILOGE(MODULE_USB_DEVICE, "UsbDeviceManager usbd is nullptr");
         return UEC_SERVICE_INVALID_VALUE;
     }
     if (usbd_ == nullptr) {
         usbd_ = usbd;
     } else {
-        USB_HILOGW(MODULE_USB_SERVICE, "%{public}s:usbd_ != nullptr", __func__);
+        USB_HILOGW(MODULE_USB_DEVICE, "%{public}s:usbd_ != nullptr", __func__);
     }
     return UEC_OK;
 }
@@ -264,7 +264,7 @@ uint32_t UsbDeviceManager::ConvertFromString(std::string_view strFun)
         if (it != FUNCTION_MAPPING_N2C.end()) {
             ret |= it->second;
         } else {
-            USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::ConvertFromString Invalid argument of usb function");
+            USB_HILOGE(MODULE_USB_DEVICE, "UsbDeviceManager::ConvertFromString Invalid argument of usb function");
             return UEC_SERVICE_INVALID_VALUE;
         }
     }
@@ -288,13 +288,13 @@ std::string UsbDeviceManager::ConvertToString(uint32_t function)
             flag = true;
         }
     }
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbDeviceManager::ConvertToString success");
+    USB_HILOGI(MODULE_USB_DEVICE, "UsbDeviceManager::ConvertToString success");
     return stream;
 }
 
 void UsbDeviceManager::UpdateFunctions(int32_t func)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: func %{public}d, currentFunctions_ %{public}d", __func__, func,
+    USB_HILOGI(MODULE_USB_DEVICE, "%{public}s: func %{public}d, currentFunctions_ %{public}d", __func__, func,
         currentFunctions_);
     if (func == currentFunctions_) {
         return;
@@ -302,7 +302,7 @@ void UsbDeviceManager::UpdateFunctions(int32_t func)
     ReportFuncChangeSysEvent(currentFunctions_, func);
     currentFunctions_ = func;
     if (!connected_ && gadgetConnected_) {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: connect %{public}d, gadget connect %{public}d",
+        USB_HILOGI(MODULE_USB_DEVICE, "%{public}s: connect %{public}d, gadget connect %{public}d",
             __func__, connected_, gadgetConnected_);
     } else {
         BroadcastFuncChange(connected_, currentFunctions_);
@@ -330,12 +330,12 @@ void UsbDeviceManager::ProcessStatus(int32_t status, bool &curConnect)
         case ACT_ACCESSORYDOWN:
         case ACT_ACCESSORYSEND: {
             isDisableDialog_ = true;
-            USB_HILOGI(MODULE_USB_SERVICE, "disable dialog success");
+            USB_HILOGI(MODULE_USB_DEVICE, "disable dialog success");
             ProcessFunctionSwitchWindow(false);
             return;
         }
         default:
-            USB_HILOGE(MODULE_USB_SERVICE, "invalid status %{public}d", status);
+            USB_HILOGE(MODULE_USB_DEVICE, "invalid status %{public}d", status);
             return;
     }
 }
@@ -356,23 +356,23 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     UsbTimerWrapper::GetInstance()->Unregister(delayDisconnTimerId_);
     if (curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
-            USB_HILOGI(MODULE_USB_SERVICE, "execute connect task:%{public}d", currentFunctions_);
+            USB_HILOGI(MODULE_USB_DEVICE, "execute connect task:%{public}d", currentFunctions_);
             connected_ = true;
             GetCurrentFunctions(currentFunctions_);
             ProcessFuncChange(connected_, currentFunctions_);
         };
         delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, DELAY_CONNECT_INTERVAL, true);
-        USB_HILOGI(MODULE_USB_SERVICE, "register a connect task, id %{public}u", delayDisconnTimerId_);
+        USB_HILOGI(MODULE_USB_DEVICE, "register a connect task, id %{public}u", delayDisconnTimerId_);
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
-            USB_HILOGI(MODULE_USB_SERVICE, "execute disconnect task:%{public}d", currentFunctions_);
+            USB_HILOGI(MODULE_USB_DEVICE, "execute disconnect task:%{public}d", currentFunctions_);
             connected_ = false;
             isDisableDialog_ = false;
             if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_MTP) != 0 ||
                 (static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_PTP) != 0) {
                 currentFunctions_ = static_cast<uint32_t>(currentFunctions_) &
                     (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
-                USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
+                USB_HILOGI(MODULE_USB_DEVICE, "usb function reset %{public}d", currentFunctions_);
                 currentFunctions_ = currentFunctions_ == 0 ? USB_FUNCTION_STORAGE : currentFunctions_;
                 usbDeviceInterface_->SetCurrentFunctions(currentFunctions_);
             } else if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_DEVMODE_AUTH) != 0) {
@@ -385,13 +385,13 @@ void UsbDeviceManager::HandleEvent(int32_t status)
         int32_t delayTime = DELAY_DISCONN_INTERVAL;
         if (phyConnect_) {
             delayTime += DELAY_DISCONN_INTERVAL;
-            USB_HILOGI(MODULE_USB_SERVICE, "Physical is plug");
+            USB_HILOGI(MODULE_USB_DEVICE, "Physical is plug");
         }
         delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, delayTime, true);
-        USB_HILOGI(MODULE_USB_SERVICE, "register a disconnect task, id %{public}u, delaytime: %{public}d",
+        USB_HILOGI(MODULE_USB_DEVICE, "register a disconnect task, id %{public}u, delaytime: %{public}d",
             delayDisconnTimerId_, delayTime);
     } else {
-        USB_HILOGI(MODULE_USB_SERVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
+        USB_HILOGI(MODULE_USB_DEVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
     }
 }
 #else
@@ -405,23 +405,23 @@ void UsbDeviceManager::HandleEvent(int32_t status)
     UsbTimerWrapper::GetInstance()->Unregister(delayDisconnTimerId_);
     if (curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
-            USB_HILOGI(MODULE_USB_SERVICE, "execute connect task:%{public}d", currentFunctions_);
+            USB_HILOGI(MODULE_USB_DEVICE, "execute connect task:%{public}d", currentFunctions_);
             connected_ = true;
             GetCurrentFunctions(currentFunctions_);
             ProcessFuncChange(connected_, currentFunctions_);
         };
         delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, DELAY_CONNECT_INTERVAL, true);
-        USB_HILOGI(MODULE_USB_SERVICE, "register a connect task, id %{public}u", delayDisconnTimerId_,);
+        USB_HILOGI(MODULE_USB_DEVICE, "register a connect task, id %{public}u", delayDisconnTimerId_,);
     } else if (!curConnect && (connected_ != curConnect)) {
         auto task = [&]() {
-            USB_HILOGI(MODULE_USB_SERVICE, "execute disconnect task:%{public}d", currentFunctions_);
+            USB_HILOGI(MODULE_USB_DEVICE, "execute disconnect task:%{public}d", currentFunctions_);
             connected_ = false;
             isDisableDialog_ = false;
             if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_MTP) != 0 ||
                 (static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_PTP) != 0) {
                 currentFunctions_ = static_cast<uint32_t>(currentFunctions_) &
                     (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
-                USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", currentFunctions_);
+                USB_HILOGI(MODULE_USB_DEVICE, "usb function reset %{public}d", currentFunctions_);
                 currentFunctions_ = currentFunctions_ == 0 ? USB_FUNCTION_STORAGE : currentFunctions_;
                 usbd_->SetCurrentFunctions(currentFunctions_);
             } else if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_DEVMODE_AUTH) != 0) {
@@ -434,26 +434,26 @@ void UsbDeviceManager::HandleEvent(int32_t status)
         int32_t delayTime = DELAY_DISCONN_INTERVAL;
         if (phyConnect_) {
             delayTime += DELAY_DISCONN_INTERVAL;
-            USB_HILOGI(MODULE_USB_SERVICE, "Physical is plug");
+            USB_HILOGI(MODULE_USB_DEVICE, "Physical is plug");
         }
         delayDisconnTimerId_ = UsbTimerWrapper::GetInstance()->Register(task, delayTime, true);
-        USB_HILOGI(MODULE_USB_SERVICE, "register a disconnect task, id %{public}u, delaytime: %{public}d",
+        USB_HILOGI(MODULE_USB_DEVICE, "register a disconnect task, id %{public}u, delaytime: %{public}d",
             delayDisconnTimerId_, delayTime);
     } else {
-        USB_HILOGI(MODULE_USB_SERVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
+        USB_HILOGI(MODULE_USB_DEVICE, "else info cur status %{public}d, bconnected: %{public}d", status, connected_);
     }
 }
 #endif // USB_MANAGER_V2_0
 
 int32_t UsbDeviceManager::UserChangeProcess()
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: in", __func__);
+    USB_HILOGI(MODULE_USB_DEVICE, "%{public}s: in", __func__);
     int32_t ret = HDF_FAILURE;
     if ((static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_MTP) != 0 ||
         (static_cast<uint32_t>(currentFunctions_) & USB_FUNCTION_PTP) != 0) {
         uint32_t func = static_cast<uint32_t>(currentFunctions_) & (~USB_FUNCTION_MTP) & (~USB_FUNCTION_PTP);
         func = func == 0 ? USB_FUNCTION_STORAGE : func;
-        USB_HILOGI(MODULE_USB_SERVICE, "usb function reset %{public}d", func);
+        USB_HILOGI(MODULE_USB_DEVICE, "usb function reset %{public}d", func);
         int32_t funcs = static_cast<int32_t>(func);
 #ifdef USB_MANAGER_V2_0
         ret = usbDeviceInterface_->SetCurrentFunctions(funcs);
@@ -472,7 +472,7 @@ int32_t UsbDeviceManager::UserChangeProcess()
 
 void UsbDeviceManager::BroadcastFuncChange(bool connected, int32_t currentFunc)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "Current Connect %{public}d,bconnected: %{public}d", connected, currentFunc);
+    USB_HILOGI(MODULE_USB_DEVICE, "Current Connect %{public}d,bconnected: %{public}d", connected, currentFunc);
     CommonEventManager::RemoveStickyCommonEvent(CommonEventSupport::COMMON_EVENT_USB_STATE);
     Want want;
     want.SetAction(CommonEventSupport::COMMON_EVENT_USB_STATE);
@@ -493,7 +493,7 @@ void UsbDeviceManager::BroadcastFuncChange(bool connected, int32_t currentFunc)
     CommonEventData data(want);
     CommonEventPublishInfo publishInfo;
     publishInfo.SetSticky(true);
-    USB_HILOGI(MODULE_SERVICE, "send COMMON_EVENT_USB_STATE broadcast connected:%{public}d, "
+    USB_HILOGI(MODULE_USB_DEVICE, "send COMMON_EVENT_USB_STATE broadcast connected:%{public}d, "
         "currentFunctions:%{public}d", connected, currentFunc);
     CommonEventManager::PublishCommonEvent(data, publishInfo);
     ReportDevicePlugSysEvent(currentFunc, connected);
@@ -501,7 +501,7 @@ void UsbDeviceManager::BroadcastFuncChange(bool connected, int32_t currentFunc)
 
 void UsbDeviceManager::ProcessFuncChange(bool connected, int32_t currentFunc)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: connected %{public}d, currentFunc %{public}d, isDisableDialog "
+    USB_HILOGI(MODULE_USB_DEVICE, "%{public}s: connected %{public}d, currentFunc %{public}d, isDisableDialog "
                                    "%{public}d", __func__, connected, currentFunc, isDisableDialog_);
     BroadcastFuncChange(connected, currentFunc);
     if (!isDisableDialog_) {
@@ -517,7 +517,7 @@ void UsbDeviceManager::SetChargeFlag(bool isReverseCharge)
 
 void UsbDeviceManager::ProcessFunctionNotifier(bool connected, int32_t func)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: connected %{public}d, func %{public}d, hasHdcNotifier_ %{public}d",
+    USB_HILOGI(MODULE_USB_DEVICE, "%{public}s: connected %{public}d, func %{public}d, hasHdcNotifier_ %{public}d",
                __func__, connected, func, hasHdcNotifier_);
     uint32_t func_uint = static_cast<uint32_t>(func);
     if (connected) {
@@ -550,22 +550,22 @@ void UsbDeviceManager::ProcessFunctionNotifier(bool connected, int32_t func)
 
 void UsbDeviceManager::ProcessFunctionSwitchWindow(bool connected)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: connected %{public}d", __func__, connected);
+    USB_HILOGI(MODULE_USB_DEVICE, "%{public}s: connected %{public}d", __func__, connected);
     std::shared_ptr<UsbFunctionSwitchWindow> window_ = UsbFunctionSwitchWindow::GetInstance();
     if (window_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "show window: get usb function switch window failed");
+        USB_HILOGE(MODULE_USB_DEVICE, "show window: get usb function switch window failed");
         return;
     }
 
     if (connected) {
-        USB_HILOGD(MODULE_USB_SERVICE, "start pop up usb service switch window");
+        USB_HILOGD(MODULE_USB_DEVICE, "start pop up usb service switch window");
         if (!window_->PopUpFunctionSwitchWindow()) {
-            USB_HILOGE(MODULE_USB_SERVICE, "start pop up usb service switch window failed");
+            USB_HILOGE(MODULE_USB_DEVICE, "start pop up usb service switch window failed");
         }
     } else {
-        USB_HILOGD(MODULE_USB_SERVICE, "start dismiss usb service switch window");
+        USB_HILOGD(MODULE_USB_DEVICE, "start dismiss usb service switch window");
         if (!window_->DismissFunctionSwitchWindow()) {
-            USB_HILOGE(MODULE_USB_SERVICE, "start dismiss usb service switch window failed");
+            USB_HILOGE(MODULE_USB_DEVICE, "start dismiss usb service switch window failed");
         }
     }
 }
@@ -604,11 +604,11 @@ bool StringToInteger(const std::string &str, int32_t &result)
     errno = 0;
     int64_t number = std::strtol(str.c_str(), &endptr, DECIMAL_BASE);
     if (errno != 0 || number < INT32_MIN || number > INT32_MAX) {
-        USB_HILOGE(MODULE_USB_SERVICE, "number is out of range");
+        USB_HILOGE(MODULE_USB_DEVICE, "number is out of range");
         return false;
     }
     if (endptr == nullptr || endptr == str.c_str() || *endptr != '\0') {
-        USB_HILOGE(MODULE_USB_SERVICE, "conversion failed");
+        USB_HILOGE(MODULE_USB_DEVICE, "conversion failed");
         return false;
     }
     result = static_cast<int32_t>(number);
@@ -621,7 +621,7 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
     int32_t currentFunction;
     int32_t ret;
     if (usbDeviceInterface_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::DumpSetFunc usbDeviceInterface_ is nullptr");
+        USB_HILOGE(MODULE_USB_DEVICE, "UsbDeviceManager::DumpSetFunc usbDeviceInterface_ is nullptr");
         return;
     }
     if (args.compare("Q") == 0) {
@@ -668,7 +668,7 @@ void UsbDeviceManager::DumpSetFunc(int32_t fd, const std::string &args)
     int32_t currentFunction;
     int32_t ret;
     if (usbd_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "UsbDeviceManager::DumpSetFunc usbd_ is nullptr");
+        USB_HILOGE(MODULE_USB_DEVICE, "UsbDeviceManager::DumpSetFunc usbd_ is nullptr");
         return;
     }
     if (args.compare("Q") == 0) {
@@ -738,7 +738,7 @@ void UsbDeviceManager::ReportUsbOperationFaultSysEvent(const std::string &operat
 
 void UsbDeviceManager::ReportFuncChangeSysEvent(int32_t currentFunctions, int32_t updateFunctions)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "Device function Indicates the switch point information:");
+    USB_HILOGI(MODULE_USB_DEVICE, "Device function Indicates the switch point information:");
     HiSysEventWrite(HiSysEvent::Domain::USB, "FUNCTION_CHANGED",
         HiSysEvent::EventType::BEHAVIOR, "CURRENT_FUNCTION",
         currentFunctions_, "UPDATE_FUNCTION", updateFunctions);
@@ -746,7 +746,7 @@ void UsbDeviceManager::ReportFuncChangeSysEvent(int32_t currentFunctions, int32_
 
 void UsbDeviceManager::ReportDevicePlugSysEvent(int32_t currentFunctions, bool connected)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "Device mode Indicates the insertion and removal information:");
+    USB_HILOGI(MODULE_USB_DEVICE, "Device mode Indicates the insertion and removal information:");
     HiSysEventWrite(HiSysEvent::Domain::USB, "PLUG_IN_OUT_DEVICE_MODE",
         HiSysEvent::EventType::BEHAVIOR, "CURRENT_FUNCTIONS",
         currentFunctions, "CONNECTED", connected);

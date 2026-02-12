@@ -97,11 +97,11 @@ private:
     public:
         UsbAbilityConn()
         {
-            USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
+            USB_HILOGI(MODULE_USB_HOST, "%{public}s", __func__);
         }
         ~UsbAbilityConn()
         {
-            USB_HILOGI(MODULE_USB_SERVICE, "%{public}s", __func__);
+            USB_HILOGI(MODULE_USB_HOST, "%{public}s", __func__);
         }
         void CloseDialog();
     };

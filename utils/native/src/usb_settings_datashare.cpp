@@ -40,42 +40,42 @@ UsbSettingDataShare::UsbSettingDataShare()
 UsbSettingDataShare::~UsbSettingDataShare()
 {
     if (datashareHelper_ != nullptr) {
-        USB_HILOGI(MODULE_USB_SERVICE, "datashareHelper_ is here Release!");
+        USB_HILOGI(MODULE_USB_UTILS, "datashareHelper_ is here Release!");
         datashareHelper_->Release();
     }
 }
 
 std::shared_ptr<DataShare::DataShareHelper> UsbSettingDataShare::CreateDataShareHelper(int systemAbilityId)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "CreateDataShareHelper start!");
+    USB_HILOGI(MODULE_USB_UTILS, "CreateDataShareHelper start!");
     sptr<ISystemAbilityManager> saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (saManager == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: GetSystemAbilityManager failed!", __func__);
+        USB_HILOGE(MODULE_USB_UTILS, "%{public}s: GetSystemAbilityManager failed!", __func__);
         return nullptr;
     }
     sptr<IRemoteObject> remote = saManager->GetSystemAbility(systemAbilityId);
     if (remote == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: GetSystemAbility Service Failed!", __func__);
+        USB_HILOGE(MODULE_USB_UTILS, "%{public}s: GetSystemAbility Service Failed!", __func__);
         return nullptr;
     }
-    USB_HILOGI(MODULE_USB_SERVICE, "%{public}s: systemAbilityId = %{public}d", __func__, systemAbilityId);
+    USB_HILOGI(MODULE_USB_UTILS, "%{public}s: systemAbilityId = %{public}d", __func__, systemAbilityId);
     auto [ret, helper] = DataShare::DataShareHelper::Create(remote, SETTINGS_DATASHARE_URI, SETTINGS_DATASHARE_EXT_URI);
     if (ret == DataShare::E_OK) {
         return helper;
     } else if (ret == DataShare::E_DATA_SHARE_NOT_READY) {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: data is not ready!", __func__);
+        USB_HILOGE(MODULE_USB_UTILS, "%{public}s: data is not ready!", __func__);
         return nullptr;
     } else {
-        USB_HILOGE(MODULE_USB_SERVICE, "%{public}s: create datashare failed, ret = %{public}d.", __func__, ret);
+        USB_HILOGE(MODULE_USB_UTILS, "%{public}s: create datashare failed, ret = %{public}d.", __func__, ret);
         return nullptr;
     }
 }
  
 bool UsbSettingDataShare::Query(Uri &uri, const std::string &key, std::string &value)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "start Query key = %{public}s", key.c_str());
+    USB_HILOGI(MODULE_USB_UTILS, "start Query key = %{public}s", key.c_str());
     if (datashareHelper_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "query error, datashareHelper_ is nullptr");
+        USB_HILOGE(MODULE_USB_UTILS, "query error, datashareHelper_ is nullptr");
         return false;
     }
  
@@ -84,12 +84,12 @@ bool UsbSettingDataShare::Query(Uri &uri, const std::string &key, std::string &v
     predicates.EqualTo(SETTINGS_DATA_COLUMN_KEYWORD, key);
     auto result = datashareHelper_->Query(uri, predicates, columns);
     if (result == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "query error, result is nullptr");
+        USB_HILOGE(MODULE_USB_UTILS, "query error, result is nullptr");
         return false;
     }
  
     if (result->GoToFirstRow() != DataShare::E_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "query error, go to first row error");
+        USB_HILOGE(MODULE_USB_UTILS, "query error, go to first row error");
         result->Close();
         return false;
     }
@@ -98,15 +98,15 @@ bool UsbSettingDataShare::Query(Uri &uri, const std::string &key, std::string &v
     result->GetColumnIndex(SETTINGS_DATA_COLUMN_VALUE, columnIndex);
     result->GetString(columnIndex, value);
     result->Close();
-    USB_HILOGI(MODULE_USB_SERVICE, "SettingUtils: query success");
+    USB_HILOGI(MODULE_USB_UTILS, "SettingUtils: query success");
     return true;
 }
 
 bool UsbSettingDataShare::Insert(Uri uri, const std::string &key, std::string &value)
 {
-    USB_HILOGI(MODULE_USB_SERVICE, "start Insert key = %{public}s", key.c_str());
+    USB_HILOGI(MODULE_USB_UTILS, "start Insert key = %{public}s", key.c_str());
     if (datashareHelper_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "query error, datashareHelper_ is nullptr");
+        USB_HILOGE(MODULE_USB_UTILS, "query error, datashareHelper_ is nullptr");
         return false;
     }
     DataShare::DataShareValuesBucket valuesBucket;
@@ -119,7 +119,7 @@ bool UsbSettingDataShare::Insert(Uri uri, const std::string &key, std::string &v
         datashareHelper_->Release();
         return false;
     }
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbSettingDataShare: insert success");
+    USB_HILOGI(MODULE_USB_UTILS, "UsbSettingDataShare: insert success");
     datashareHelper_->NotifyChange(uri);
     datashareHelper_->Release();
     return true;
@@ -128,13 +128,13 @@ bool UsbSettingDataShare::Insert(Uri uri, const std::string &key, std::string &v
 bool UsbSettingDataShare::Update(Uri uri, const std::string &key, std::string &value)
 {
     if (datashareHelper_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERVICE, "query error, datashareHelper_ is nullptr");
+        USB_HILOGE(MODULE_USB_UTILS, "query error, datashareHelper_ is nullptr");
         return false;
     }
-    USB_HILOGI(MODULE_USB_SERVICE, "start Update key = %{public}s", key.c_str());
+    USB_HILOGI(MODULE_USB_UTILS, "start Update key = %{public}s", key.c_str());
     std::string queryValue = "";
     if (!Query(uri, key, queryValue)) {
-        USB_HILOGI(MODULE_USB_SERVICE, "%{public}s is cannot Query!", key.c_str());
+        USB_HILOGI(MODULE_USB_UTILS, "%{public}s is cannot Query!", key.c_str());
         return Insert(uri, key, value);
     }
     DataShare::DataShareValuesBucket valuesBucket;
@@ -144,11 +144,11 @@ bool UsbSettingDataShare::Update(Uri uri, const std::string &key, std::string &v
     predicates.EqualTo(SETTINGS_DATA_COLUMN_KEYWORD, key);
     int32_t result = datashareHelper_->Update(uri, predicates, valuesBucket);
     if (result == RDB_INVALID_VALUE) {
-        USB_HILOGE(MODULE_USB_SERVICE, "fail to update %{public}s !", key.c_str());
+        USB_HILOGE(MODULE_USB_UTILS, "fail to update %{public}s !", key.c_str());
         datashareHelper_->Release();
         return false;
     }
-    USB_HILOGI(MODULE_USB_SERVICE, "UsbSettingDataShare: update success");
+    USB_HILOGI(MODULE_USB_UTILS, "UsbSettingDataShare: update success");
     datashareHelper_->NotifyChange(uri);
     datashareHelper_->Release();
     return true;

@@ -72,13 +72,13 @@ static int32_t ErrorCodeConversion(int32_t value)
 
 static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "SerialGetPortListNapi start");
+    USB_HILOGI(MODULE_USB_NAPI, "SerialGetPortListNapi start");
     std::vector<OHOS::USB::UsbSerialPort> portIds;
     int32_t ret = g_usbClient.SerialGetPortList(portIds);
     napi_value result = nullptr;
     napi_create_array(env, &result);
     if (ret < 0) {
-        USB_HILOGE(MODULE_JS_NAPI, "SerialGetPortList failed");
+        USB_HILOGE(MODULE_USB_NAPI, "SerialGetPortList failed");
         return result;
     }
     for (uint32_t i = 0; i < portIds.size(); ++i) {
@@ -88,8 +88,8 @@ static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
         std::string deviceName = std::to_string(portIds[i].busNum_) + "-" +
             std::to_string(portIds[i].devAddr_);
         NapiUtil::SetValueUtf8String(env, "deviceName", deviceName, portObj);
-        USB_HILOGI(MODULE_JS_NAPI, "portId: %{public}d", portIds[i].portId_);
-        USB_HILOGI(MODULE_JS_NAPI, "deviceName: %{public}s", deviceName.c_str());
+        USB_HILOGI(MODULE_USB_NAPI, "portId: %{public}d", portIds[i].portId_);
+        USB_HILOGI(MODULE_USB_NAPI, "deviceName: %{public}s", deviceName.c_str());
         napi_set_element(env, result, i, portObj);
     }
     return result;
@@ -97,7 +97,7 @@ static napi_value SerialGetPortListNapi(napi_env env, napi_callback_info info)
 
 static napi_value SerialGetAttributeNapi(napi_env env, napi_callback_info info)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "SerialGetAttributeNapi start");
+    USB_HILOGI(MODULE_USB_NAPI, "SerialGetAttributeNapi start");
     size_t argc = ARGC_1;
     napi_value argv[ARGC_1] = {nullptr};
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
@@ -136,7 +136,7 @@ static napi_value SerialGetAttributeNapi(napi_env env, napi_callback_info info)
 static bool ParseSetAttributeInterfaceParams(napi_env env, napi_callback_info info,
     int32_t& portIdValue, UsbSerialAttr& serialAttribute)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "ParseSetAttributeInterfaceParams start");
+    USB_HILOGI(MODULE_USB_NAPI, "ParseSetAttributeInterfaceParams start");
     size_t argc = ARGC_2;
     napi_value argv[ARGC_2] = { nullptr };
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
@@ -176,13 +176,13 @@ static bool ParseSetAttributeInterfaceParams(napi_env env, napi_callback_info in
 
 static napi_value SerialSetAttributeNapi(napi_env env, napi_callback_info info)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "SerialSetAttributeNapi start");
+    USB_HILOGI(MODULE_USB_NAPI, "SerialSetAttributeNapi start");
     UsbSerialAttr serialAttribute;
     int32_t portIdValue = -1;
     if (!ParseSetAttributeInterfaceParams(env, info, portIdValue, serialAttribute)) {
         return nullptr;
     }
-    USB_HILOGI(MODULE_JS_NAPI, "SetAttributeNapi portIdValue: %{public}d", portIdValue);
+    USB_HILOGI(MODULE_USB_NAPI, "SetAttributeNapi portIdValue: %{public}d", portIdValue);
     int ret = g_usbClient.SerialSetAttribute(portIdValue, serialAttribute);
     if (!CheckAndThrowOnError(env, (ret == 0), ErrorCodeConversion(ret), "Failed to set attribute.")) {
         return nullptr;
@@ -193,7 +193,7 @@ static napi_value SerialSetAttributeNapi(napi_env env, napi_callback_info info)
 static bool ParseWriteInterfaceParams(napi_env env, napi_callback_info info,
     int32_t& portIdValue, napi_value* buffer, uint32_t& timeoutValue)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "ParseWriteInterfaceParams start");
+    USB_HILOGI(MODULE_USB_NAPI, "ParseWriteInterfaceParams start");
     size_t argc = ARGC_3;
     napi_value argv[ARGC_3] = {nullptr};
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
@@ -231,7 +231,7 @@ static bool ParseWriteInterfaceParams(napi_env env, napi_callback_info info,
 
 static napi_value SerialWriteSyncNapi(napi_env env, napi_callback_info info)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "SerialWriteSyncNapi start");
+    USB_HILOGI(MODULE_USB_NAPI, "SerialWriteSyncNapi start");
     int32_t portIdValue = -1;
     napi_value buffer;
     uint32_t timeoutValue = 0;
@@ -263,13 +263,13 @@ static napi_value SerialWriteSyncNapi(napi_env env, napi_callback_info info)
 static auto g_serialWriteExecute = [](napi_env env, void* data) {
     SerialWriteAsyncContext *context = static_cast<SerialWriteAsyncContext *>(data);
     if (context->contextErrno) {
-        USB_HILOGE(MODULE_JS_NAPI, "ExecuteCallback failed, reason: napi_get_reference_value");
+        USB_HILOGE(MODULE_USB_NAPI, "ExecuteCallback failed, reason: napi_get_reference_value");
         return;
     }
 
     void* bufferValue = context->pData;
     if (context->size == 0) {
-        USB_HILOGE(MODULE_JS_NAPI, "no valid data to write");
+        USB_HILOGE(MODULE_USB_NAPI, "no valid data to write");
         return;
     }
 
@@ -301,7 +301,7 @@ static auto g_serialWriteComplete = [](napi_env env, napi_status status, void *d
 
 static napi_value SerialWriteNapi(napi_env env, napi_callback_info info)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "start write Napi");
+    USB_HILOGI(MODULE_USB_NAPI, "start write Napi");
     int32_t portIdValue = -1;
     napi_value buffer;
     uint32_t timeoutValue = 0;
@@ -318,13 +318,13 @@ static napi_value SerialWriteNapi(napi_env env, napi_callback_info info)
     }
     SerialWriteAsyncContext *asyncContext = new (std::nothrow) SerialWriteAsyncContext;
     if (asyncContext == nullptr) {
-        USB_HILOGE(MODULE_JS_NAPI, "new SerialWriteAsyncContext failed!");
+        USB_HILOGE(MODULE_USB_NAPI, "new SerialWriteAsyncContext failed!");
         CheckAndThrowOnError(env, false, SYSPARAM_INVALID_INPUT, "asyncContext is null");
         return nullptr;
     }
     napi_value promise;
     if (napi_create_promise(env, &asyncContext->deferred, &promise)) {
-        USB_HILOGE(MODULE_JS_NAPI, "create promise failed!");
+        USB_HILOGE(MODULE_USB_NAPI, "create promise failed!");
         CheckAndThrowOnError(env, false, SERIAL_SERVICE_ABNORMAL, "promise is null");
         delete asyncContext;
         asyncContext = nullptr;
@@ -383,7 +383,7 @@ static bool ParseReadInterfaceParams(napi_env env, napi_callback_info info, int3
 
 static napi_value SerialReadSyncNapi(napi_env env, napi_callback_info info)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "SerialReadSyncNapi start");
+    USB_HILOGI(MODULE_USB_NAPI, "SerialReadSyncNapi start");
     int32_t portIdValue = -1;
     napi_value buffer;
     uint32_t timeoutValue = 0;
@@ -408,7 +408,7 @@ static napi_value SerialReadSyncNapi(napi_env env, napi_callback_info info)
     }
     ret = memcpy_s(bufferValue, bufferLength, bufferData.data(), bufferData.size());
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_JS_NAPI,
+        USB_HILOGE(MODULE_USB_NAPI,
             "serial read sync, memcpy_s failed ret: %{public}d", ret);
     }
     napi_value result = nullptr;
@@ -427,7 +427,7 @@ static auto g_serialReadExecute = [](napi_env env, void* data) {
     }
     ret = memcpy_s(context->pData, context->size, bufferData.data(), bufferData.size());
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_JS_NAPI, "memcpy_s failed ret: %{public}d", ret);
+        USB_HILOGE(MODULE_USB_NAPI, "memcpy_s failed ret: %{public}d", ret);
     }
     context->ret = actualSize;
 };
@@ -448,7 +448,7 @@ static auto g_serialReadComplete = [](napi_env env, napi_status status, void* da
 
 static napi_value SerialReadNapi(napi_env env, napi_callback_info info)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "SerialReadNapi start");
+    USB_HILOGI(MODULE_USB_NAPI, "SerialReadNapi start");
     int32_t portIdValue = -1;
     napi_value buffer;
     uint32_t timeoutValue = 0;
@@ -469,7 +469,7 @@ static napi_value SerialReadNapi(napi_env env, napi_callback_info info)
     }
     napi_value promise;
     if (napi_create_promise(env, &asyncContext->deferred, &promise)) {
-        USB_HILOGE(MODULE_JS_NAPI, "create promise failed!");
+        USB_HILOGE(MODULE_USB_NAPI, "create promise failed!");
         CheckAndThrowOnError(env, false, SERIAL_SERVICE_ABNORMAL, "promise is null");
         delete asyncContext;
         asyncContext = nullptr;
@@ -490,7 +490,7 @@ static napi_value SerialReadNapi(napi_env env, napi_callback_info info)
 
 static napi_value SerialOpenNapi(napi_env env, napi_callback_info info)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "serialOpenNapi start");
+    USB_HILOGI(MODULE_USB_NAPI, "serialOpenNapi start");
     size_t argc = ARGC_1;
     napi_value argv[ARGC_1] = {nullptr};
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
@@ -513,7 +513,7 @@ static napi_value SerialOpenNapi(napi_env env, napi_callback_info info)
     if (!CheckAndThrowOnError(env, (portIdValue != -1), SYSPARAM_INVALID_INPUT, "Failed to get portId.")) {
         return nullptr;
     }
-    USB_HILOGE(MODULE_JS_NAPI, "portIdValue: %{public}d", portIdValue);
+    USB_HILOGE(MODULE_USB_NAPI, "portIdValue: %{public}d", portIdValue);
     int ret = g_usbClient.SerialOpen(portIdValue);
     if (!CheckAndThrowOnError(env, ret == 0, ErrorCodeConversion(ret), "SerialOpen failed.")) {
         return nullptr;
@@ -524,7 +524,7 @@ static napi_value SerialOpenNapi(napi_env env, napi_callback_info info)
 
 static napi_value SerialCloseNapi(napi_env env, napi_callback_info info)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "SerialCloseNapi start");
+    USB_HILOGI(MODULE_USB_NAPI, "SerialCloseNapi start");
     size_t argc = ARGC_1;
     napi_value argv[ARGC_1] = {nullptr};
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
@@ -557,7 +557,7 @@ static napi_value SerialCloseNapi(napi_env env, napi_callback_info info)
 
 static napi_value SerialHasRightNapi(napi_env env, napi_callback_info info)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "SerialHasRightNapi start");
+    USB_HILOGI(MODULE_USB_NAPI, "SerialHasRightNapi start");
     size_t argc = ARGC_1;
     napi_value argv[ARGC_1] = {nullptr};
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
@@ -592,7 +592,7 @@ static napi_value SerialHasRightNapi(napi_env env, napi_callback_info info)
 
 static napi_value CancelSerialRightNapi(napi_env env, napi_callback_info info)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "CancelSerialRightNapi start");
+    USB_HILOGI(MODULE_USB_NAPI, "CancelSerialRightNapi start");
     size_t argc = ARGC_1;
     napi_value argv[ARGC_1] = {nullptr};
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
@@ -624,7 +624,7 @@ static napi_value CancelSerialRightNapi(napi_env env, napi_callback_info info)
 
 static napi_value SerialAddRightNapi(napi_env env, napi_callback_info info)
 {
-    USB_HILOGI(MODULE_JS_NAPI, "SerialAddRightNapi start");
+    USB_HILOGI(MODULE_USB_NAPI, "SerialAddRightNapi start");
     size_t argc = ARGC_2;
     napi_value argv[ARGC_2] = {nullptr};
     if (!CheckNapiResult(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr),
@@ -670,7 +670,7 @@ static auto g_serialRequestRightExecute = [](napi_env env, void* data) {
     int32_t ret = g_usbClient.RequestSerialRight(asyncContext->portIdValue, asyncContext->hasRight);
     asyncContext->contextErrno = 0;
     if (ret != 0) {
-        USB_HILOGE(MODULE_JS_NAPI, "request right has error");
+        USB_HILOGE(MODULE_USB_NAPI, "request right has error");
         asyncContext->contextErrno = ErrorCodeConversion(ret);
     }
 };
@@ -679,7 +679,7 @@ static auto g_serialRequestRightComplete = [](napi_env env, napi_status status, 
     SerialRequestRightAsyncContext *asyncContext = static_cast<SerialRequestRightAsyncContext *>(data);
     napi_value result = nullptr;
     if (asyncContext->contextErrno) {
-        USB_HILOGE(MODULE_JS_NAPI, "Failed to request serial right");
+        USB_HILOGE(MODULE_USB_NAPI, "Failed to request serial right");
         napi_create_int32(env, asyncContext->contextErrno, &result);
         napi_reject_deferred(env, asyncContext->deferred, result);
     } else {
@@ -723,7 +723,7 @@ static napi_value SerialRequestRightNapi(napi_env env, napi_callback_info info)
     asyncContext->hasRight = false;
     napi_value result = nullptr;
     if (napi_create_promise(env, &asyncContext->deferred, &result)) {
-        USB_HILOGE(MODULE_JS_NAPI, "create promise failed!");
+        USB_HILOGE(MODULE_USB_NAPI, "create promise failed!");
         CheckAndThrowOnError(env, false, SERIAL_SERVICE_ABNORMAL, "promise is null");
         delete asyncContext;
         asyncContext = nullptr;
@@ -740,19 +740,19 @@ static napi_value SerialRequestRightNapi(napi_env env, napi_callback_info info)
 static void SetEnumProperty(napi_env env, napi_value object, const std::string &name, int32_t value)
 {
     if (name.empty()) {
-        USB_HILOGE(MODULE_JS_NAPI, "Property name cannot be an empty string");
+        USB_HILOGE(MODULE_USB_NAPI, "Property name cannot be an empty string");
         return;
     }
 
     napi_value tempValue = nullptr;
     napi_status status = napi_create_int32(env, value, &tempValue);
     if (status != napi_ok) {
-        USB_HILOGE(MODULE_JS_NAPI, "Failed to create int32 value for enum %{public}s", name.c_str());
+        USB_HILOGE(MODULE_USB_NAPI, "Failed to create int32 value for enum %{public}s", name.c_str());
         return;
     }
     status = napi_set_named_property(env, object, name.c_str(), tempValue);
     if (status != napi_ok) {
-        USB_HILOGE(MODULE_JS_NAPI, "Failed to set property %{public}s", name.c_str());
+        USB_HILOGE(MODULE_USB_NAPI, "Failed to set property %{public}s", name.c_str());
         return;
     }
 }
@@ -762,7 +762,7 @@ static napi_value NapiCreateStopBitsTypeEnum(napi_env env)
     napi_value object = nullptr;
     napi_status status = napi_create_object(env, &object);
     if (status != napi_ok) {
-        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        USB_HILOGE(MODULE_USB_NAPI, "Failed to create object");
         return nullptr;
     }
     SetEnumProperty(env, object, "STOPBIT_1", STOPBIT_1);
@@ -775,7 +775,7 @@ static napi_value NapiCreateParityTypeEnum(napi_env env)
     napi_value object = nullptr;
     napi_status status = napi_create_object(env, &object);
     if (status != napi_ok) {
-        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        USB_HILOGE(MODULE_USB_NAPI, "Failed to create object");
         return nullptr;
     }
     SetEnumProperty(env, object, "PARITY_NONE", PARITY_NONE);
@@ -791,7 +791,7 @@ static napi_value NapiCreateDataBitsTypeEnum(napi_env env)
     napi_value object = nullptr;
     napi_status status = napi_create_object(env, &object);
     if (status != napi_ok) {
-        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        USB_HILOGE(MODULE_USB_NAPI, "Failed to create object");
         return nullptr;
     }
     SetEnumProperty(env, object, "DATABIT_8", DATABIT_8);
@@ -806,7 +806,7 @@ static napi_value NapiCreateBaudRatesTypeEnum(napi_env env)
     napi_value object = nullptr;
     napi_status status = napi_create_object(env, &object);
     if (status != napi_ok) {
-        USB_HILOGE(MODULE_JS_NAPI, "Failed to create object");
+        USB_HILOGE(MODULE_USB_NAPI, "Failed to create object");
         return nullptr;
     }
     SetEnumProperty(env, object, "BAUDRATE_50", BAUDRATE_50);
@@ -860,7 +860,7 @@ EXTERN_C_START
  */
 napi_value SerialInit(napi_env env, napi_value exports)
 {
-    USB_HILOGD(MODULE_JS_NAPI, "enter");
+    USB_HILOGD(MODULE_USB_NAPI, "enter");
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("getPortList", SerialGetPortListNapi),
         DECLARE_NAPI_FUNCTION("open", SerialOpenNapi),
@@ -878,7 +878,7 @@ napi_value SerialInit(napi_env env, napi_value exports)
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     DeclareEnum(env, exports);
-    USB_HILOGD(MODULE_JS_NAPI, "return");
+    USB_HILOGD(MODULE_USB_NAPI, "return");
     return exports;
 }
 EXTERN_C_END

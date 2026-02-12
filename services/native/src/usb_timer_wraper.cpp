@@ -26,7 +26,7 @@ std::shared_ptr<UsbTimerWrapper> UsbTimerWrapper::GetInstance()
 {
     std::lock_guard<std::mutex> guard(insMutex_);
     if (instance_ == nullptr) {
-        USB_HILOGI(MODULE_USB_SERVICE, "reset to new instance");
+        USB_HILOGI(MODULE_USB_UTILS, "reset to new instance");
         instance_.reset(new UsbTimerWrapper());
     }
     return instance_;
@@ -36,7 +36,7 @@ UsbTimerWrapper::UsbTimerWrapper()
 {
     int32_t ret = static_cast<int32_t>(usbDelayTimer_.Setup());
     if (ret != UEC_OK) {
-        USB_HILOGE(MODULE_USB_SERVICE, "set up usbDelayTimer_ failed %{public}u", ret);
+        USB_HILOGE(MODULE_USB_UTILS, "set up usbDelayTimer_ failed %{public}u", ret);
         return;
     }
 }
