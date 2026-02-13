@@ -70,7 +70,7 @@ private:
     bool GetUserAgreementByDiag(const std::string &busDev, const std::string &deviceName, const std::string &bundleName,
         const std::string &tokenId, const int32_t &userId);
     bool ShowUsbDialog(const std::string &busDev, const std::string &deviceName,
-        const std::string &bundleName, const std::string &tokenId);
+        const std::string &bundleName, const std::string &tokenId, const int32_t userId);
     bool GetProductName(const std::string &devName, std::string &productName);
 #endif // USB_MANAGER_FEATURE_HOST
     bool GetUserAgreementByDiag(const USBAccessory &access, const std::string &seriaValue,
@@ -124,7 +124,7 @@ private:
     int32_t CleanUpRightAppReinstalled(int32_t uid, uint32_t &totalApps, uint32_t &deleteApps);
     int32_t TidyUpRight(uint32_t choose);
     bool UnShowUsbDialog();
-    int32_t ConnectAbility();
+    int32_t ConnectAbility(const int32_t userId);
 };
 
 } // namespace USB
