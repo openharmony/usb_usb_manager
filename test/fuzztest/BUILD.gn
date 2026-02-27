@@ -1914,11 +1914,336 @@ ohos_fuzztest("UsbMgrOpenDeviceFuzzTest") {
   sources = [ "usbmgropendevice_fuzzer/usbmgropendevice_fuzzer.cpp" ]
 }
 
+ohos_fuzztest("UsbMgrAddRightFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgraddright_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  defines = [
+    "USB_MANAGER_FEATURE_HOST",
+    "USB_MANAGER_FEATURE_DEVICE",
+    "USB_MANAGER_FEATURE_PORT",
+  ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "selinux_adapter:librestorecon",
+  ]
+
+  sources = [ "usbmgraddright_fuzzer/usbmgraddright_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrAddAccessoryRightFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgraddaccessoryright_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  defines = [
+    "USB_MANAGER_FEATURE_HOST",
+    "USB_MANAGER_FEATURE_DEVICE",
+    "USB_MANAGER_FEATURE_PORT",
+  ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  defines = [
+    "USB_MANAGER_FEATURE_DEVICE",
+  ]
+
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "selinux_adapter:librestorecon",
+  ]
+
+  sources = [ "usbmgraddaccessoryright_fuzzer/usbmgraddaccessoryright_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrHasAccessoryRightFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrhasaccessoryright_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  defines = [
+    "USB_MANAGER_FEATURE_HOST",
+    "USB_MANAGER_FEATURE_DEVICE",
+    "USB_MANAGER_FEATURE_PORT",
+  ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  defines = [
+    "USB_MANAGER_FEATURE_DEVICE",
+  ]
+
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "selinux_adapter:librestorecon",
+  ]
+
+  sources = [ "usbmgrhasaccessoryright_fuzzer/usbmgrhasaccessoryright_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrRequestAccessoryRightFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrrequestaccessoryright_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  defines = [
+    "USB_MANAGER_FEATURE_HOST",
+    "USB_MANAGER_FEATURE_DEVICE",
+    "USB_MANAGER_FEATURE_PORT",
+  ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  defines = [
+    "USB_MANAGER_FEATURE_DEVICE",
+  ]
+
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "selinux_adapter:librestorecon",
+  ]
+
+  sources = [ "usbmgrrequestaccessoryright_fuzzer/usbmgrrequestaccessoryright_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrCancelAccessoryRightFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrcancelaccessoryright_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  defines = [
+    "USB_MANAGER_FEATURE_HOST",
+    "USB_MANAGER_FEATURE_DEVICE",
+    "USB_MANAGER_FEATURE_PORT",
+  ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  defines = [
+    "USB_MANAGER_FEATURE_DEVICE",
+  ]
+
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "selinux_adapter:librestorecon",
+  ]
+
+  sources = [ "usbmgrcancelaccessoryright_fuzzer/usbmgrcancelaccessoryright_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrGetAccessoryListFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrgetaccessorylist_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  defines = [
+    "USB_MANAGER_FEATURE_HOST",
+    "USB_MANAGER_FEATURE_DEVICE",
+    "USB_MANAGER_FEATURE_PORT",
+  ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  defines = [
+    "USB_MANAGER_FEATURE_DEVICE",
+  ]
+
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "selinux_adapter:librestorecon",
+  ]
+
+  sources = [ "usbmgrgetaccessorylist_fuzzer/usbmgrgetaccessorylist_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrOpenAccessoryFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgropenaccessory_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  defines = [
+    "USB_MANAGER_FEATURE_HOST",
+    "USB_MANAGER_FEATURE_DEVICE",
+    "USB_MANAGER_FEATURE_PORT",
+  ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  defines = [
+    "USB_MANAGER_FEATURE_DEVICE",
+  ]
+
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "selinux_adapter:librestorecon",
+  ]
+
+  sources = [ "usbmgropenaccessory_fuzzer/usbmgropenaccessory_fuzzer.cpp" ]
+}
+
+ohos_fuzztest("UsbMgrCloseAccessoryFuzzTest") {
+  module_out_path = module_output_path
+
+  fuzz_config_file =
+      "${usb_manager_path}/test/fuzztest/usbmgrcloseaccessory_fuzzer"
+
+  configs = [ ":module_private_config" ]
+
+  defines = [
+    "USB_MANAGER_FEATURE_HOST",
+    "USB_MANAGER_FEATURE_DEVICE",
+    "USB_MANAGER_FEATURE_PORT",
+  ]
+
+  deps = [
+    "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
+    "${usb_manager_path}/services:usbservice",
+  ]
+
+  defines = [
+    "USB_MANAGER_FEATURE_DEVICE",
+  ]
+
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "drivers_interface_usb:libusb_proxy_1.0",
+    "drivers_interface_usb:libusb_proxy_1.2",
+    "drivers_interface_usb:usb_idl_headers_1.2",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "selinux_adapter:librestorecon",
+  ]
+
+  sources = [ "usbmgrcloseaccessory_fuzzer/usbmgrcloseaccessory_fuzzer.cpp" ]
+}
+
 group("fuzztest") {
   testonly = true
   deps = []
   if (usb_manager_feature_host) {
     deps += [
+      ":UsbMgrAddRightFuzzTest",
       ":UsbMgrAddSerialRightFuzzTest",
       ":UsbMgrAttachKernelDriverFuzzTest",
       ":UsbMgrBulkCancelFuzzTest",
@@ -1976,7 +2301,14 @@ group("fuzztest") {
   }
   if (usb_manager_feature_device) {
     deps += [
+      ":UsbMgrAddAccessoryRightFuzzTest",
+      ":UsbMgrCancelAccessoryRightFuzzTest",
+      ":UsbMgrCloseAccessoryFuzzTest",
+      ":UsbMgrGetAccessoryListFuzzTest",
+      ":UsbMgrHasAccessoryRightFuzzTest",
+      ":UsbMgrOpenAccessoryFuzzTest",
       ":UsbMgrPrivateSetPhyConnectFuzzTest",
+      ":UsbMgrRequestAccessoryRightFuzzTest",
       ":UsbMgrSetCurrentFunctionsFuzzTest",
       ":UsbMgrUsbFunctionsFromStringFuzzTest",
       ":UsbMgrUsbFunctionsToStringFuzzTest",
