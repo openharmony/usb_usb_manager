@@ -1970,10 +1970,6 @@ ohos_fuzztest("UsbMgrAddAccessoryRightFuzzTest") {
     "${usb_manager_path}/services:usbservice",
   ]
 
-  defines = [
-    "USB_MANAGER_FEATURE_DEVICE",
-  ]
-
   external_deps = [
     "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
@@ -2052,10 +2048,6 @@ ohos_fuzztest("UsbMgrRequestAccessoryRightFuzzTest") {
     "${usb_manager_path}/services:usbservice",
   ]
 
-  defines = [
-    "USB_MANAGER_FEATURE_DEVICE",
-  ]
-
   external_deps = [
     "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
@@ -2091,10 +2083,6 @@ ohos_fuzztest("UsbMgrCancelAccessoryRightFuzzTest") {
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
     "${usb_manager_path}/services:usbservice",
-  ]
-
-  defines = [
-    "USB_MANAGER_FEATURE_DEVICE",
   ]
 
   external_deps = [
@@ -2134,10 +2122,6 @@ ohos_fuzztest("UsbMgrGetAccessoryListFuzzTest") {
     "${usb_manager_path}/services:usbservice",
   ]
 
-  defines = [
-    "USB_MANAGER_FEATURE_DEVICE",
-  ]
-
   external_deps = [
     "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
@@ -2175,10 +2159,6 @@ ohos_fuzztest("UsbMgrOpenAccessoryFuzzTest") {
     "${usb_manager_path}/services:usbservice",
   ]
 
-  defines = [
-    "USB_MANAGER_FEATURE_DEVICE",
-  ]
-
   external_deps = [
     "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
@@ -2214,10 +2194,6 @@ ohos_fuzztest("UsbMgrCloseAccessoryFuzzTest") {
   deps = [
     "${usb_manager_path}/interfaces/innerkits:usbsrv_client",
     "${usb_manager_path}/services:usbservice",
-  ]
-
-  defines = [
-    "USB_MANAGER_FEATURE_DEVICE",
   ]
 
   external_deps = [
