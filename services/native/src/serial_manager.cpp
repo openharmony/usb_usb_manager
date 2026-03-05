@@ -76,11 +76,6 @@ int32_t SerialManager::CheckPortAndTokenId(int32_t portId)
         return OHOS::USB::UEC_SERVICE_INVALID_VALUE;
     }
 
-    if (!IsPortStatus(portId)) {
-        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: The port is not open", __func__);
-        return OHOS::USB::UEC_SERIAL_PORT_NOT_OPEN;
-    }
-
     if (!CheckTokenIdValidity(portId)) {
         USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: Application ID mismatch", __func__);
         return OHOS::USB::UEC_SERIAL_PORT_NOT_OPEN;
@@ -118,23 +113,15 @@ int32_t SerialManager::SerialOpen(int32_t portId)
 int32_t SerialManager::SerialClose(int32_t portId)
 {
     USB_HILOGI(MODULE_USB_SERIAL, "%{public}s: start", __func__);
-    if (serial_ == nullptr) {
-        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: serial_ is nullptr", __func__);
-        return OHOS::USB::UEC_SERVICE_INVALID_VALUE;
-    }
 
-    if (!IsPortStatus(portId)) {
-        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: The port not open", __func__);
-        return OHOS::USB::UEC_SERIAL_PORT_NOT_OPEN;
-    }
-
-    if (!CheckTokenIdValidity(portId)) {
-        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: The port not open", __func__);
-        return OHOS::USB::UEC_SERIAL_PORT_NOT_OPEN;
+    int32_t ret = CheckPortAndTokenId(portId);
+    if (ret != UEC_OK) {
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: CheckPortAndTokenId failed", __func__);
+        return ret;
     }
 
     uint64_t timeMs = USB::UsbSecurityReport::GetCurrentTime();
-    int32_t ret = serial_->SerialClose(portId);
+    ret = serial_->SerialClose(portId);
     if (ret != UEC_OK) {
         USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: SerialClose failed ret = %{public}d", __func__, ret);
         return ErrorCodeWrap(ret);
@@ -269,16 +256,15 @@ bool SerialManager::IsPortIdExist(int32_t portId)
     return true;
 }
 
-bool SerialManager::IsPortStatus(int32_t portId)
-{
-    std::lock_guard<std::mutex> guard(portTokenMapMutex_);
-    return portTokenMap_.find(portId) != portTokenMap_.end();
-}
-
 bool SerialManager::CheckTokenIdValidity(int32_t portId)
 {
     std::lock_guard<std::mutex> guard(portTokenMapMutex_);
-    if (IPCSkeleton::GetCallingTokenID() != portTokenMap_[portId]) {
+    auto it = portTokenMap_.find(portId);
+    if (it == portTokenMap_.end()) {
+        USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: The port is not open", __func__);
+        return false;
+    }
+    if (IPCSkeleton::GetCallingTokenID() != it->second) {
         USB_HILOGE(MODULE_USB_SERIAL, "%{public}s: The tokenId corresponding to the port is incorrect", __func__);
         return false;
     }

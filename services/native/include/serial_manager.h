@@ -59,7 +59,6 @@ public:
     bool CheckDataAndProcessPortId(int32_t fd, const std::vector<std::string>& args,
         OHOS::HDI::Usb::Serial::V1_0::SerialAttribute attribute);
 private:
-    bool IsPortStatus(int32_t portId);
     bool QueryAndRecordFirstRead(int32_t portId);
     bool QueryAndRecordFirstWrite(int32_t portId);
     void ResetFirstRead(int32_t portId);
