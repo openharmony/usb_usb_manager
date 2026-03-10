@@ -1189,7 +1189,7 @@ static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::
     };
     if (!SendEventToMainThread(task)) {
         USB_HILOGI(MODULE_USB_NAPI, "SendEventToMainThread failed.");
-            DeleteCallback(asyncContext);
+        DeleteCallback(asyncContext);
     }
 }
 
