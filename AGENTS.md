@@ -70,7 +70,7 @@ Configure features in `usbmgr.gni`:
 
 ## Testing
 
-**C++ Tests**: Use Google Test, naming `<Module>Test` class and `HWTEST_F` macros
+**C++ Tests**: Use gtest framework, naming `<Module>Test` class and `HWTEST_F` macros
 **ArkTS Tests**: Use Hypium framework
 **Location**: `test/native/` matches source directory structure
 
