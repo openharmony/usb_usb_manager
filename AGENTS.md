@@ -14,18 +14,6 @@ This project uses the GN (Generate Ninja) build system for OpenHarmony.
 ./build.sh --product-name <product> --build-target usbservice
 ```
 
-```bash
-# Run all USB manager tests
-./run_unittest.sh usb_manager
-
-# Run specific test suite
-./run_unittest.sh test_serial
-./run_unittest.sh usbmgr_host_test
-
-# Run JavaScript/ArkTS tests
-./run_js_test.sh UsbManagerJsTest
-```
-
 ## Project Structure
 
 ```
