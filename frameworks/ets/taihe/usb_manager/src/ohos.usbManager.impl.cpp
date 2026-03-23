@@ -1125,7 +1125,7 @@ static void DeleteCallback(USBTransferAsyncContext* context)
         return;
     }
     if (env->GlobalReference_Delete(context->callbackRef) != ANI_OK) {
-        USB_HILOGE(MODULE_USB_NAPI, "%{public}s: delete is nullptr", __func__);
+        USB_HILOGE(MODULE_USB_NAPI, "%{public}s: delete context.callbackRef is failed", __func__);
     }
     delete context;
 }
