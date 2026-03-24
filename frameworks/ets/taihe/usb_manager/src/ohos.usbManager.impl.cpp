@@ -1178,7 +1178,7 @@ static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::
         }
         ani_boolean result;
         ani_status ret = env->Object_InstanceOf(callbackFunc, cls, &result);
-        if (!result && ret != ANI_OK) {
+        if (!result || ret != ANI_OK) {
             USB_HILOGE(MODULE_USB_NAPI, "%{public}s: callbackFunc is not instance Of Function2.", __func__);
             DeleteCallback(asyncContext);
             env->DestroyLocalScope();
