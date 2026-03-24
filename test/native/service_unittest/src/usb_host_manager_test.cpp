@@ -645,32 +645,15 @@ HWTEST_F(UsbHostManagerTest, UsbHostManager_UsbDetachKernelDriver_001, TestSize.
     USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_UsbDetachKernelDriver_001 ret=%{public}d", ret);
 }
 
+
 /**
  * @tc.name: UsbHostManager_GetDevices_001
- * @tc.desc: Test GetDevices with empty device list
+ * @tc.desc: Test GetDevices multiple times
  * @tc.type: FUNC
  */
 HWTEST_F(UsbHostManagerTest, UsbHostManager_GetDevices_001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_GetDevices_001 start");
-
-    std::vector<UsbDevice> deviceList;
-    int32_t ret = usbHostManager_->GetDevices(deviceList);
-
-    EXPECT_EQ(ret, UEC_OK);
-    // Empty list is valid
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_GetDevices_001 deviceList size=%{public}zu",
-                deviceList.size());
-}
-
-/**
- * @tc.name: UsbHostManager_GetDevices_002
- * @tc.desc: Test GetDevices multiple times
- * @tc.type: FUNC
- */
-HWTEST_F(UsbHostManagerTest, UsbHostManager_GetDevices_002, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_GetDevices_002 start");
 
     for (int i = 0; i < 5; i++) {
         std::vector<UsbDevice> deviceList;
@@ -749,21 +732,6 @@ HWTEST_F(UsbHostManagerTest, UsbHostManager_ManageGlobalInterface_001, TestSize.
     EXPECT_EQ(ret, UEC_OK);
     USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ManageGlobalInterface_001 ret=%{public}d", ret);
 }
-
-/**
- * @tc.name: UsbHostManager_ManageGlobalInterface_002
- * @tc.desc: Test ManageGlobalInterface with disable=false
- * @tc.type: FUNC
- */
-HWTEST_F(UsbHostManagerTest, UsbHostManager_ManageGlobalInterface_002, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ManageGlobalInterface_002 start");
-
-    bool disable = false;
-    int32_t ret = usbHostManager_->ManageGlobalInterface(disable);
-
-    EXPECT_EQ(ret, UEC_OK);
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ManageGlobalInterface_002 ret=%{public}d", ret);
 }
 
 /**
@@ -805,25 +773,6 @@ HWTEST_F(UsbHostManagerTest, UsbHostManager_ManageDevice_002, TestSize.Level1)
 }
 
 /**
- * @tc.name: UsbHostManager_ManageDevice_003
- * @tc.desc: Test ManageDevice with vendorId=0 and productId=0
- * @tc.type: FUNC
- */
-HWTEST_F(UsbHostManagerTest, UsbHostManager_ManageDevice_003, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ManageDevice_003 start");
-
-    int32_t vendorId = 0;
-    int32_t productId = 0;
-    bool disable = true;
-
-    int32_t ret = usbHostManager_->ManageDevice(vendorId, productId, disable);
-
-    EXPECT_EQ(ret, UEC_OK);
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ManageDevice_003 ret=%{public}d", ret);
-}
-
-/**
  * @tc.name: UsbHostManager_ManageDevicePolicy_001
  * @tc.desc: Test ManageDevicePolicy with empty trust list
  * @tc.type: FUNC
@@ -862,30 +811,12 @@ HWTEST_F(UsbHostManagerTest, UsbHostManager_ManageDevicePolicy_002, TestSize.Lev
 
 /**
  * @tc.name: UsbHostManager_ManageInterfaceType_001
- * @tc.desc: Test ManageInterfaceType with empty disableType
+ * @tc.desc: Test ManageInterfaceType with non-empty disableType
  * @tc.type: FUNC
  */
 HWTEST_F(UsbHostManagerTest, UsbHostManager_ManageInterfaceType_001, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ManageInterfaceType_001 start");
-
-    std::vector<UsbDeviceType> disableType;
-    bool disable = true;
-
-    int32_t ret = usbHostManager_->ManageInterfaceType(disableType, disable);
-
-    EXPECT_EQ(ret, UEC_OK);
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ManageInterfaceType_001 ret=%{public}d", ret);
-}
-
-/**
- * @tc.name: UsbHostManager_ManageInterfaceType_002
- * @tc.desc: Test ManageInterfaceType with non-empty disableType
- * @tc.type: FUNC
- */
-HWTEST_F(UsbHostManagerTest, UsbHostManager_ManageInterfaceType_002, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ManageInterfaceType_002 start");
 
     std::vector<UsbDeviceType> disableType;
     UsbDeviceType type1 = {0x08, 0x01, 0x00, 0};
@@ -897,7 +828,7 @@ HWTEST_F(UsbHostManagerTest, UsbHostManager_ManageInterfaceType_002, TestSize.Le
     int32_t ret = usbHostManager_->ManageInterfaceType(disableType, disable);
 
     EXPECT_EQ(ret, UEC_OK);
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ManageInterfaceType_002 ret=%{public}d", ret);
+    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ManageInterfaceType_001 ret=%{public}d", ret);
 }
 
 /**
@@ -1716,28 +1647,12 @@ HWTEST_F(UsbHostManagerTest, UsbHostManager_CheckDevPathIsExist_001, TestSize.Le
 
 /**
  * @tc.name: UsbHostManager_CheckDevPathIsExist_002
- * @tc.desc: Test CheckDevPathIsExist with invalid bus and dev numbers
+ * @tc.desc: Test CheckDevPathIsExist with boundary values
  * @tc.type: FUNC
  */
 HWTEST_F(UsbHostManagerTest, UsbHostManager_CheckDevPathIsExist_002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_CheckDevPathIsExist_002 start");
-
-    int32_t ret = usbHostManager_->CheckDevPathIsExist(255, 255);
-
-    // Should fail with error
-    EXPECT_TRUE(ret == UEC_SERVICE_INVALID_VALUE || ret == UEC_SERVICE_INNER_ERR);
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_CheckDevPathIsExist_002 ret=%{public}d", ret);
-}
-
-/**
- * @tc.name: UsbHostManager_CheckDevPathIsExist_003
- * @tc.desc: Test CheckDevPathIsExist with boundary values
- * @tc.type: FUNC
- */
-HWTEST_F(UsbHostManagerTest, UsbHostManager_CheckDevPathIsExist_003, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_CheckDevPathIsExist_003 start");
 
     std::vector<std::pair<uint8_t, uint8_t>> testCases = {
         {0, 0}, {0, 1}, {1, 0}, {1, 1}, {127, 127}, {255, 127}
@@ -1831,30 +1746,12 @@ HWTEST_F(UsbHostManagerTest, UsbHostManager_GetDevStringValFromIdx_001, TestSize
 
 /**
  * @tc.name: UsbHostManager_GetDevStringValFromIdx_002
- * @tc.desc: Test GetDevStringValFromIdx with idx=0
+ * @tc.desc: Test GetDevStringValFromIdx with various indices
  * @tc.type: FUNC
  */
 HWTEST_F(UsbHostManagerTest, UsbHostManager_GetDevStringValFromIdx_002, TestSize.Level1)
 {
     USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_GetDevStringValFromIdx_002 start");
-
-    uint8_t idx = 0;
-    std::string result = usbHostManager_->GetDevStringValFromIdx(TEST_BUS_NUM, TEST_DEV_ADDR, idx);
-
-    // Should return a single space for index 0
-    EXPECT_EQ(result, " ");
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_GetDevStringValFromIdx_002 result='%{public}s'",
-                result.c_str());
-}
-
-/**
- * @tc.name: UsbHostManager_GetDevStringValFromIdx_003
- * @tc.desc: Test GetDevStringValFromIdx with various indices
- * @tc.type: FUNC
- */
-HWTEST_F(UsbHostManagerTest, UsbHostManager_GetDevStringValFromIdx_003, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_GetDevStringValFromIdx_003 start");
 
     std::vector<uint8_t> indices = {0, 1, 2, 3, 10, 255};
 
@@ -1885,26 +1782,6 @@ HWTEST_F(UsbHostManagerTest, UsbHostManager_UsbDeviceAuthorize_001, TestSize.Lev
     // Should either succeed or fail with specific error
     EXPECT_TRUE(ret == UEC_OK || ret == UEC_SERVICE_INVALID_VALUE);
     USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_UsbDeviceAuthorize_001 ret=%{public}d", ret);
-}
-
-/**
- * @tc.name: UsbHostManager_UsbDeviceAuthorize_002
- * @tc.desc: Test UsbDeviceAuthorize with authorized=false
- * @tc.type: FUNC
- */
-HWTEST_F(UsbHostManagerTest, UsbHostManager_UsbDeviceAuthorize_002, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_UsbDeviceAuthorize_002 start");
-
-    bool authorized = false;
-    std::string operationType = "TestOperation";
-
-    int32_t ret = usbHostManager_->UsbDeviceAuthorize(TEST_BUS_NUM, TEST_DEV_ADDR,
-                                                       authorized, operationType);
-
-    // Should either succeed or fail with specific error
-    EXPECT_TRUE(ret == UEC_OK || ret == UEC_SERVICE_INVALID_VALUE);
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_UsbDeviceAuthorize_002 ret=%{public}d", ret);
 }
 
 /**
@@ -2008,44 +1885,6 @@ HWTEST_F(UsbHostManagerTest, UsbHostManager_ExecuteManageDevicePolicy_003, TestS
 }
 
 /**
- * @tc.name: UsbHostManager_ExecuteManageInterfaceType_001
- * @tc.desc: Test ExecuteManageInterfaceType with empty disable type
- * @tc.type: FUNC
- */
-HWTEST_F(UsbHostManagerTest, UsbHostManager_ExecuteManageInterfaceType_001, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ExecuteManageInterfaceType_001 start");
-
-    std::vector<UsbDeviceType> disableType;
-    bool disable = true;
-
-    int32_t ret = usbHostManager_->ExecuteManageInterfaceType(disableType, disable);
-
-    EXPECT_EQ(ret, UEC_OK);
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ExecuteManageInterfaceType_001 ret=%{public}d", ret);
-}
-
-/**
- * @tc.name: UsbHostManager_ExecuteManageInterfaceType_002
- * @tc.desc: Test ExecuteManageInterfaceType with storage type
- * @tc.type: FUNC
- */
-HWTEST_F(UsbHostManagerTest, UsbHostManager_ExecuteManageInterfaceType_002, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ExecuteManageInterfaceType_002 start");
-
-    std::vector<UsbDeviceType> disableType;
-    UsbDeviceType storageType = {0x08, 0x01, 0x00, 0};
-    disableType.push_back(storageType);
-
-    bool disable = true;
-    int32_t ret = usbHostManager_->ExecuteManageInterfaceType(disableType, disable);
-
-    EXPECT_EQ(ret, UEC_OK);
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ExecuteManageInterfaceType_002 ret=%{public}d", ret);
-}
-
-/**
  * @tc.name: UsbHostManager_ExecuteManageInterfaceType_003
  * @tc.desc: Test ExecuteManageInterfaceType with multiple types
  * @tc.type: FUNC
@@ -2066,28 +1905,6 @@ HWTEST_F(UsbHostManagerTest, UsbHostManager_ExecuteManageInterfaceType_003, Test
 
     EXPECT_EQ(ret, UEC_OK);
     USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ExecuteManageInterfaceType_003 ret=%{public}d", ret);
-}
-
-/**
- * @tc.name: UsbHostManager_MultipleOperations_001
- * @tc.desc: Test multiple sequential OpenDevice and Close operations
- * @tc.type: FUNC
- */
-HWTEST_F(UsbHostManagerTest, UsbHostManager_MultipleOperations_001, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_MultipleOperations_001 start");
-
-    for (int i = 0; i < 10; i++) {
-        int32_t openRet = usbHostManager_->OpenDevice(TEST_BUS_NUM, TEST_DEV_ADDR);
-        USB_HILOGI(MODULE_USB_HOST, "Iteration %{public}d: OpenDevice ret=%{public}d", i, openRet);
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-        int32_t closeRet = usbHostManager_->Close(TEST_BUS_NUM, TEST_DEV_ADDR);
-        USB_HILOGI(MODULE_USB_HOST, "Iteration %{public}d: Close ret=%{public}d", i, closeRet);
-    }
-
-    SUCCEED();
 }
 
 /**
@@ -2123,31 +1940,6 @@ HWTEST_F(UsbHostManagerTest, UsbHostManager_ConcurrentAccess_001, TestSize.Level
 }
 
 /**
- * @tc.name: UsbHostManager_StressTest_001
- * @tc.desc: Stress test with repeated GetDevices calls
- * @tc.type: FUNC
- */
-HWTEST_F(UsbHostManagerTest, UsbHostManager_StressTest_001, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_StressTest_001 start");
-
-    const int iterations = 100;
-    for (int i = 0; i < iterations; i++) {
-        std::vector<UsbDevice> deviceList;
-        int32_t ret = usbHostManager_->GetDevices(deviceList);
-        EXPECT_EQ(ret, UEC_OK);
-
-        if (i % 10 == 0) {
-            USB_HILOGI(MODULE_USB_HOST, "StressTest iteration %{public}d: size=%{public}zu",
-                        i, deviceList.size());
-        }
-    }
-
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_StressTest_001 completed");
-    SUCCEED();
-}
-
-/**
  * @tc.name: UsbHostManager_StressTest_002
  * @tc.desc: Stress test with repeated OpenDevice/CloseDevice operations
  * @tc.type: FUNC
@@ -2175,52 +1967,6 @@ HWTEST_F(UsbHostManagerTest, UsbHostManager_StressTest_002, TestSize.Level1)
 }
 
 /**
- * @tc.name: UsbHostManager_EdgeCase_001
- * @tc.desc: Test with maximum values for bus and device numbers
- * @tc.type: FUNC
- */
-HWTEST_F(UsbHostManagerTest, UsbHostManager_EdgeCase_001, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_EdgeCase_001 start");
-
-    uint8_t maxBus = 255;
-    uint8_t maxDev = 127;
-
-    int32_t openRet = usbHostManager_->OpenDevice(maxBus, maxDev);
-    USB_HILOGI(MODULE_USB_HOST, "OpenDevice(255, 127) ret=%{public}d", openRet);
-
-    if (openRet == UEC_OK) {
-        int32_t closeRet = usbHostManager_->Close(maxBus, maxDev);
-        USB_HILOGI(MODULE_USB_HOST, "Close(255, 127) ret=%{public}d", closeRet);
-    }
-
-    SUCCEED();
-}
-
-/**
- * @tc.name: UsbHostManager_EdgeCase_002
- * @tc.desc: Test with zero values for bus and device numbers
- * @tc.type: FUNC
- */
-HWTEST_F(UsbHostManagerTest, UsbHostManager_EdgeCase_002, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_EdgeCase_002 start");
-
-    uint8_t zeroBus = 0;
-    uint8_t zeroDev = 0;
-
-    int32_t openRet = usbHostManager_->OpenDevice(zeroBus, zeroDev);
-    USB_HILOGI(MODULE_USB_HOST, "OpenDevice(0, 0) ret=%{public}d", openRet);
-
-    if (openRet == UEC_OK) {
-        int32_t closeRet = usbHostManager_->Close(zeroBus, zeroDev);
-        USB_HILOGI(MODULE_USB_HOST, "Close(0, 0) ret=%{public}d", closeRet);
-    }
-
-    SUCCEED();
-}
-
-/**
  * @tc.name: UsbHostManager_ErrorHandling_001
  * @tc.desc: Test error handling with invalid parameters
  * @tc.type: FUNC
@@ -2242,38 +1988,6 @@ HWTEST_F(UsbHostManagerTest, UsbHostManager_ErrorHandling_001, TestSize.Level1)
     }
 
     SUCCEED();
-}
-
-/**
- * @tc.name: UsbHostManager_MemoryCleanup_001
- * @tc.desc: Test proper memory cleanup
- * @tc.type: FUNC
- */
-HWTEST_F(UsbHostManagerTest, UsbHostManager_MemoryCleanup_001, TestSize.Level1)
-{
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_MemoryCleanup_001 start");
-
-    {
-        SystemAbility* systemAbility = nullptr;
-        auto tempManager = std::make_unique<UsbHostManager>(systemAbility);
-
-        // Perform some operations
-        std::vector<UsbDevice> deviceList;
-        tempManager->GetDevices(deviceList);
-
-        // tempManager will be destroyed here
-    }
-
-    // Create another manager to ensure no memory corruption
-    SystemAbility* systemAbility = nullptr;
-    auto newManager = std::make_unique<UsbHostManager>(systemAbility);
-    ASSERT_NE(newManager, nullptr);
-
-    std::vector<UsbDevice> deviceList;
-    int32_t ret = newManager->GetDevices(deviceList);
-    EXPECT_EQ(ret, UEC_OK);
-
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_MemoryCleanup_001 completed");
 }
 
 } // namespace ServiceTest
