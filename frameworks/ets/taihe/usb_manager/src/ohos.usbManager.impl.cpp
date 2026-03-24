@@ -1124,7 +1124,9 @@ static void DeleteCallback(USBTransferAsyncContext* context)
         delete context;
         return;
     }
-    env->GlobalReference_Delete(context->callbackRef);
+    if (env->GlobalReference_Delete(context->callbackRef) != ANI_OK) {
+        USB_HILOGE(MODULE_USB_NAPI, "%{public}s: delete context.callbackRef is failed", __func__);
+    }
     delete context;
 }
 
@@ -1174,16 +1176,18 @@ static void AniCallBack(USBTransferAsyncContext *asyncContext, const OHOS::USB::
             env->DestroyLocalScope();
             return;
         }
-        ani_boolean ret;
-        env->Object_InstanceOf(callbackFunc, cls, &ret);
-        if (!ret) {
+        ani_boolean result;
+        ani_status ret = env->Object_InstanceOf(callbackFunc, cls, &result);
+        if (!result || ret != ANI_OK) {
             USB_HILOGE(MODULE_USB_NAPI, "%{public}s: callbackFunc is not instance Of Function2.", __func__);
             DeleteCallback(asyncContext);
             env->DestroyLocalScope();
             return;
         }
         auto errCode = env->FunctionalObject_Call(static_cast<ani_fn_object>(callbackFunc), 2, ani_argv, &ani_result);
-        USB_HILOGE(MODULE_USB_NAPI, "AniCallBack FunctionalObject_Call returned %{public}d.", errCode);
+        if (errCode != ANI_OK) {
+            USB_HILOGE(MODULE_USB_NAPI, "AniCallBack FunctionalObject_Call returned %{public}d.", errCode);
+        }
         DeleteCallback(asyncContext);
         env->DestroyLocalScope();
     };
