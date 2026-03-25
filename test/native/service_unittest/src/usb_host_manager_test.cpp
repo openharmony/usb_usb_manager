@@ -36,6 +36,13 @@ namespace ServiceTest {
 
 using namespace testing;
 using namespace OHOS::HDI::Usb::V1_0;
+const uint8_t TEST_BUS_NUM = 1;
+const uint8_t TEST_DEV_ADDR = 2;
+const uint16_t TEST_VENDOR_ID = 0x1234;
+const uint16_t TEST_PRODUCT_ID = 0x5678;
+const uint8_t TEST_INTERFACE_ID = 0;
+const uint8_t TEST_ENDPOINT_ID = 1;
+const uint8_t TEST_CONFIG_INDEX = 0;
 
 class UsbHostManagerTest : public testing::Test {
 public:
@@ -48,18 +55,11 @@ public:
     void CreateMockInterfaces();
     void CreateMockConfigs();
     UsbDevice* CreateTestDevice(uint8_t busNum, uint8_t devAddr,
-                               uint16_t vendorId, uint16_t productId,
-                               uint8_t deviceClass);
+                                uint16_t vendorId, uint16_t productId,
+                                uint8_t deviceClass);
 
     std::unique_ptr<UsbHostManager> usbHostManager_;
     std::vector<UsbDevice*> testDevices_;
-    const uint8_t TEST_BUS_NUM = 1;
-    const uint8_t TEST_DEV_ADDR = 2;
-    const uint16_t TEST_VENDOR_ID = 0x1234;
-    const uint16_t TEST_PRODUCT_ID = 0x5678;
-    const uint8_t TEST_INTERFACE_ID = 0;
-    const uint8_t TEST_ENDPOINT_ID = 1;
-    const uint8_t TEST_CONFIG_INDEX = 0;
 };
 
 void UsbHostManagerTest::SetUpTestCase(void)
@@ -94,8 +94,8 @@ void UsbHostManagerTest::TearDown()
 }
 
 UsbDevice* UsbHostManagerTest::CreateTestDevice(uint8_t busNum, uint8_t devAddr,
-                                                 uint16_t vendorId, uint16_t productId,
-                                                 uint8_t deviceClass)
+                                                uint16_t vendorId, uint16_t productId,
+                                                uint8_t deviceClass)
 {
     UsbDevice* device = new UsbDevice();
     if (device == nullptr) {

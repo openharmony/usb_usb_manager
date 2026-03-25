@@ -246,7 +246,7 @@ namespace TestUtil {
      * @return true if buffers are equal
      */
     bool CompareBuffers(const std::vector<uint8_t>& buffer1,
-                       const std::vector<uint8_t>& buffer2);
+                        const std::vector<uint8_t>& buffer2);
 
     /**
      * @brief Print buffer contents for debugging
