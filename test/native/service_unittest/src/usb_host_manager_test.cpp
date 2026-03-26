@@ -738,16 +738,14 @@ HWTEST_F(UsbHostManagerTest, UsbHostManager_ManageGlobalInterface_001, TestSize.
 * @tc.desc: Test ManageGlobalInterface with disable=false 
 * @tc.type: FUNC 
 */ 
-HWTEST_F(UsbHostManagerTest, UsbHostManager_ManageGlobalInterface_002, TestSize.Level1) 
-{ 
-    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ManageGlobalInterface_002 start"); 
+HWTEST_F(UsbHostManagerTest, UsbHostManager_ManageGlobalInterface_002, TestSize.Level1)
+{
+    USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ManageGlobalInterface_002 start");
 
+    bool disable = false;
+    int32_t ret = usbHostManager_->ManageGlobalInterface(disable);
 
-    bool disable = false; 
-    int32_t ret = usbHostManager_->ManageGlobalInterface(disable); 
-
-
-    EXPECT_EQ(ret, UEC_OK); 
+    EXPECT_EQ(ret, UEC_OK);
     USB_HILOGI(MODULE_USB_HOST, "UsbHostManager_ManageGlobalInterface_002 ret=%{public}d", ret);
 }
 
