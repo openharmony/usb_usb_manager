@@ -15,6 +15,7 @@
 
 #include <regex>
 #include "usb_port_manager.h"
+#include "parse_dump_int.h"
 #include <unistd.h>
 #include "hisysevent.h"
 #include "usb_errors.h"
@@ -470,7 +471,11 @@ void UsbPortManager::DumpSetPortRoles(int32_t fd, const std::string &args)
         GetDumpHelp(fd);
         return;
     }
-    int32_t mode = stoi(args);
+    int32_t mode = 0;
+    if (!ParseDumpInt32(args, mode)) {
+        dprintf(fd, "Invalid input, please enter a valid integer\n");
+        return;
+    }
     switch (mode) {
         case DEFAULT_ROLE_HOST:
             SetPortRole(
