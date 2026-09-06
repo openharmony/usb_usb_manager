@@ -16,6 +16,7 @@
 #include <regex>
 #include <unistd.h>
 #include "hisysevent.h"
+#include "parse_dump_int.h"
 #include "usb_errors.h"
 #include "usb_security_report.h"
 #include "securec.h"
@@ -319,7 +320,11 @@ bool SerialManager::CheckDataAndProcessPortId(int32_t fd, const std::vector<std:
         dprintf(fd, "Invalid input, please enter a valid integer\n");
         return false;
     }
-    int32_t portId = std::stoi(args[1]);
+    int32_t portId = 0;
+    if (!OHOS::USB::ParseDumpInt32(args[1], portId)) {
+        dprintf(fd, "Invalid input, please enter a valid integer\n");
+        return false;
+    }
     int32_t ret = SerialGetAttribute(portId, attribute);
     if (ret != UEC_OK) {
         ret = SerialOpen(portId);
